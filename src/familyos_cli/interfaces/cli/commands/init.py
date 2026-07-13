@@ -1,8 +1,10 @@
-"""Project initialization command."""
+"""Init command."""
 
-import typer
+from familyos_cli.application.use_cases.create_project import (
+    CreateProjectUseCase,
+)
 
 
 def init(name: str) -> None:
     """Initialize a new FamilyOS project."""
-    typer.echo(f"Initializing project: {name}")
+    CreateProjectUseCase().execute(name)
