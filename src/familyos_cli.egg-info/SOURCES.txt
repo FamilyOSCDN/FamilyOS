@@ -9,3 +9,12 @@ src/familyos_cli.egg-info/dependency_links.txt
 src/familyos_cli.egg-info/entry_points.txt
 src/familyos_cli.egg-info/requires.txt
 src/familyos_cli.egg-info/top_level.txt
+src/familyos_cli/application/__init__.py
+src/familyos_cli/application/use_cases/__init__.py
+src/familyos_cli/application/use_cases/create_project.py
+src/familyos_cli/interfaces/__init__.py
+src/familyos_cli/interfaces/cli/__init__.py
+src/familyos_cli/interfaces/cli/app.py
+src/familyos_cli/interfaces/cli/commands/__init__.py
+src/familyos_cli/interfaces/cli/commands/init.py
+src/familyos_cli/interfaces/cli/commands/version.py
