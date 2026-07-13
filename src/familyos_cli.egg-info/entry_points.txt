@@ -1,0 +1,2 @@
+[console_scripts]
+familyos = familyos_cli.main:app

@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+src/familyos_cli/__init__.py
+src/familyos_cli/main.py
+src/familyos_cli.egg-info/PKG-INFO
+src/familyos_cli.egg-info/SOURCES.txt
+src/familyos_cli.egg-info/dependency_links.txt
+src/familyos_cli.egg-info/entry_points.txt
+src/familyos_cli.egg-info/requires.txt
+src/familyos_cli.egg-info/top_level.txt

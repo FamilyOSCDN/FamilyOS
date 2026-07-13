@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "familyos-cli"
+version = "0.1.0"
+description = "CLI for generating and validating FamilyOS projects"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+
+authors = [
+  { name = "FamilyOS Team" }
+]
+
+dependencies = [
+  "typer>=0.16",
+  "rich>=14.0",
+  "jinja2>=3.1",
+  "pyyaml>=6.0",
+  "pydantic>=2.11",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4",
+  "ruff>=0.12",
+]
+
+[project.scripts]
+familyos = "familyos_cli.main:app"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
