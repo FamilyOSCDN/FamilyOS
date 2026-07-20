@@ -1,0 +1,12 @@
+version: 1
+
+project:
+  directories:
+    - docs
+    - src
+    - tests
+    - scripts
+
+  files:
+    - destination: README.md
+      template: project/README.md.j2

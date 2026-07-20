@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Pytest
+.pytest_cache/
+
+# Ruff
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# macOS
+.DS_Store
