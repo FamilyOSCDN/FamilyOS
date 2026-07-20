@@ -1,10 +1,10 @@
-# demo
+# demo4
 
 This project was generated with **FamilyOS CLI**.
 
 ## Project
 
-**Name:** demo
+**Name:** demo4
 
 ---
 

@@ -19,6 +19,7 @@ class ProjectGenerator:
 
     def __init__(self) -> None:
         """Initialize the project generator."""
+
         self._filesystem = FileSystemService()
         self._specification_loader = SpecificationLoader()
         self._generation_engine = GenerationEngine()
@@ -41,5 +42,3 @@ class ProjectGenerator:
                 "project_name": project.name,
             },
         )
-
-        print(f"Project created: {project.name}")

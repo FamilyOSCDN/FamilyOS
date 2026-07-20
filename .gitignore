@@ -13,6 +13,9 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
-
+# Generated projects
+demo/
+demo2/
+demo3/
 # macOS
 .DS_Store

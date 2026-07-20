@@ -1,10 +1,9 @@
 """Init command."""
 
-from familyos_cli.application.use_cases.create_project import (
-    CreateProjectUseCase,
-)
+from familyos_cli.interfaces.cli.commands.init_command import InitCommand
 
 
 def init(name: str) -> None:
     """Initialize a new FamilyOS project."""
-    CreateProjectUseCase().execute(name)
+
+    InitCommand().execute(name)
