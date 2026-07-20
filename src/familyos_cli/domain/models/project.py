@@ -1,10 +1,10 @@
-"""Project domain model."""
+"""Project model."""
 
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
 class Project:
-    """Represents a FamilyOS project."""
+    """Describe a FamilyOS project."""
 
     name: str
