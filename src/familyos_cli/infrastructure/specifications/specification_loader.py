@@ -24,7 +24,7 @@ class SpecificationLoader:
 
         files = [
             ProjectFile(
-                destination=file["destination"],
+                path=file["destination"],
                 template=file["template"],
             )
             for file in project["files"]

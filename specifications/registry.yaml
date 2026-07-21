@@ -1,0 +1,18 @@
+version: 1.0.0
+
+artifacts:
+
+  - id: project
+    specification: project.yaml
+
+  - id: domain
+    specification: domain.yaml
+
+  - id: aggregate
+    specification: aggregate.yaml
+
+  - id: entity
+    specification: entity.yaml
+
+  - id: value-object
+    specification: value-object.yaml

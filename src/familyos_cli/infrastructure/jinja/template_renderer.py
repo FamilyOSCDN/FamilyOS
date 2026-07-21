@@ -1,29 +1,36 @@
-"""Template rendering using Jinja2."""
-
-from pathlib import Path
+"""Jinja template renderer."""
 
 from jinja2 import Environment, FileSystemLoader
 
+from familyos_cli.infrastructure.jinja.template_context import (
+    TemplateContext,
+)
+
 
 class TemplateRenderer:
-    """Render Jinja2 templates."""
+    """Render Jinja templates."""
 
     def __init__(self) -> None:
-        """Initialize the template renderer."""
-        template_directory = Path("templates")
+        """Initialize the renderer."""
 
         self._environment = Environment(
-            loader=FileSystemLoader(template_directory),
+            loader=FileSystemLoader("templates"),
             autoescape=False,
             trim_blocks=True,
             lstrip_blocks=True,
         )
 
+        self._context = TemplateContext()
+
     def render(
         self,
-        template_name: str,
+        template: str,
         context: dict[str, object],
     ) -> str:
-        """Render a template with the provided context."""
-        template = self._environment.get_template(template_name)
-        return template.render(**context)
+        """Render a template."""
+
+        return self._environment.get_template(
+            template,
+        ).render(
+            self._context.build(context),
+        )

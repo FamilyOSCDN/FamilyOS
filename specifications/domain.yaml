@@ -1,0 +1,26 @@
+project:
+  directories:
+    - docs
+    - diagrams
+
+  files:
+    - destination: manifest.yml
+      template: domain/manifest.yml.j2
+
+    - destination: README.md
+      template: domain/README.md.j2
+
+    - destination: Vision.md
+      template: domain/Vision.md.j2
+
+    - destination: Responsibilities.md
+      template: domain/Responsibilities.md.j2
+
+    - destination: Domain-Model.md
+      template: domain/Domain-Model.md.j2
+
+    - destination: Capabilities.md
+      template: domain/Capabilities.md.j2
+
+    - destination: API.md
+      template: domain/API.md.j2

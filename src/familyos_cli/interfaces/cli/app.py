@@ -2,6 +2,7 @@
 
 import typer
 
+from familyos_cli.interfaces.cli.commands.create import create
 from familyos_cli.interfaces.cli.commands.init import init
 from familyos_cli.interfaces.cli.commands.version import version
 
@@ -13,3 +14,4 @@ app = typer.Typer(
 
 app.command()(version)
 app.command()(init)
+app.command()(create)

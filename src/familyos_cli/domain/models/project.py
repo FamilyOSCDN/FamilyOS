@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(slots=True, frozen=True)
 class Project:
-    """Describe a FamilyOS project."""
+    """Represent a FamilyOS project."""
 
     name: str

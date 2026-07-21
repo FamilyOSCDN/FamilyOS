@@ -1,0 +1,5 @@
+# Capabilities
+
+| Id | Capability | Status |
+|----|------------|--------|
+| | | |

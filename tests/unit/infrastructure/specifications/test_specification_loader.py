@@ -25,7 +25,7 @@ def test_load_project_specification() -> None:
 
     assert len(specification.files) == 1
 
-    assert specification.files[0].destination == "README.md"
+    assert specification.files[0].path == "README.md"
 
     assert specification.files[0].template == (
         "project/README.md.j2"

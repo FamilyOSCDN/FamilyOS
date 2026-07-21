@@ -1,0 +1,28 @@
+project:
+  directories:
+    - diagrams
+
+  files:
+    - destination: README.md
+      template: aggregate/README.md.j2
+
+    - destination: Vision.md
+      template: aggregate/Vision.md.j2
+
+    - destination: Responsibilities.md
+      template: aggregate/Responsibilities.md.j2
+
+    - destination: Data-Model.md
+      template: aggregate/Data-Model.md.j2
+
+    - destination: Business-Rules.md
+      template: aggregate/Business-Rules.md.j2
+
+    - destination: API.md
+      template: aggregate/API.md.j2
+
+    - destination: Events.md
+      template: aggregate/Events.md.j2
+
+    - destination: diagrams/aggregate.puml
+      template: aggregate/diagrams/aggregate.puml.j2

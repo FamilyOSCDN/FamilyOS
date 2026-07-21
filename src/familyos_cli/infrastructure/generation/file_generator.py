@@ -16,6 +16,7 @@ class FileGenerator:
 
     def __init__(self) -> None:
         """Initialize the file generator."""
+
         self._filesystem = FileSystemService()
         self._renderer = TemplateRenderer()
 
@@ -34,6 +35,6 @@ class FileGenerator:
             )
 
             self._filesystem.write_text_file(
-                destination / project_file.destination,
+                destination / project_file.path,
                 content,
             )

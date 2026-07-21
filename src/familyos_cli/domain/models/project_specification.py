@@ -1,13 +1,13 @@
 """Project specification model."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from familyos_cli.domain.models.project_file import ProjectFile
 
 
-@dataclass(frozen=True)
+@dataclass(slots=True, frozen=True)
 class ProjectSpecification:
-    """Describe a FamilyOS project specification."""
+    """Describe everything needed to generate a project."""
 
-    directories: list[str]
-    files: list[ProjectFile]
+    directories: list[str] = field(default_factory=list)
+    files: list[ProjectFile] = field(default_factory=list)

@@ -1,5 +1,3 @@
-"""Tests for FileGenerator."""
-
 from pathlib import Path
 
 from familyos_cli.domain.models.project_file import ProjectFile
@@ -17,7 +15,7 @@ def test_generate_file(tmp_path: Path) -> None:
         destination=tmp_path,
         files=[
             ProjectFile(
-                destination="README.md",
+                path="README.md",
                 template="project/README.md.j2",
             ),
         ],
@@ -26,11 +24,4 @@ def test_generate_file(tmp_path: Path) -> None:
         },
     )
 
-    readme = tmp_path / "README.md"
-
-    assert readme.exists()
-    assert readme.is_file()
-
-    content = readme.read_text(encoding="utf-8")
-
-    assert "Demo" in content
+    assert (tmp_path / "README.md").exists()

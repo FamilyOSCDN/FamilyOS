@@ -1,0 +1,28 @@
+project:
+  directories:
+    - diagrams
+
+  files:
+    - destination: README.md
+      template: entity/README.md.j2
+
+    - destination: Vision.md
+      template: entity/Vision.md.j2
+
+    - destination: Responsibilities.md
+      template: entity/Responsibilities.md.j2
+
+    - destination: Attributes.md
+      template: entity/Attributes.md.j2
+
+    - destination: Relationships.md
+      template: entity/Relationships.md.j2
+
+    - destination: Business-Rules.md
+      template: entity/Business-Rules.md.j2
+
+    - destination: API.md
+      template: entity/API.md.j2
+
+    - destination: diagrams/entity.puml
+      template: entity/diagrams/entity.puml.j2

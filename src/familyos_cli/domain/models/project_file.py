@@ -3,9 +3,9 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(slots=True, frozen=True)
 class ProjectFile:
-    """Describe a generated project file."""
+    """Represent a file to generate."""
 
-    destination: str
+    path: str
     template: str
