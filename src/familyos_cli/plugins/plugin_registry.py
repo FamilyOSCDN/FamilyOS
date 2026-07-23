@@ -10,7 +10,10 @@ class PluginRegistry:
         """Initialize an empty plugin registry."""
         self._plugins: dict[str, Plugin] = {}
 
-    def register(self, plugin: Plugin) -> None:
+    def register(
+        self,
+        plugin: Plugin,
+    ) -> None:
         """Register a plugin.
 
         Raises:
@@ -19,22 +22,43 @@ class PluginRegistry:
         name = plugin.metadata.name
 
         if name in self._plugins:
-            raise ValueError(f"Plugin '{name}' is already registered.")
+            raise ValueError(
+                f"Plugin '{name}' is already registered.",
+            )
 
         self._plugins[name] = plugin
 
-    def unregister(self, name: str) -> None:
+    def unregister(
+        self,
+        name: str,
+    ) -> None:
         """Unregister a plugin."""
-        self._plugins.pop(name, None)
+        self._plugins.pop(
+            name,
+            None,
+        )
 
-    def exists(self, name: str) -> bool:
+    def exists(
+        self,
+        name: str,
+    ) -> bool:
         """Return True if a plugin with the given name is registered."""
         return name in self._plugins
 
-    def get(self, name: str) -> Plugin | None:
+    def get(
+        self,
+        name: str,
+    ) -> Plugin | None:
         """Return a registered plugin by name, or None if it does not exist."""
         return self._plugins.get(name)
 
     def list(self) -> list[Plugin]:
         """Return all registered plugins."""
         return list(self._plugins.values())
+
+    def all(self) -> list[Plugin]:
+        """Return all registered plugins.
+
+        Alias of list() kept for API clarity and backward compatibility.
+        """
+        return self.list()

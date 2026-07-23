@@ -1,0 +1,15 @@
+id: sample
+
+name: Sample Plugin
+
+version: 1.0.0
+
+author: FamilyOS Team
+
+description: Sample plugin
+
+module: familyos_plugins.sample.plugin
+
+class: SamplePlugin
+
+enabled: true

@@ -20,17 +20,25 @@ name: Domain Driven Design
 version: 1.0.0
 author: FamilyOS Team
 description: DDD plugin
+module: familyos_cli.plugins.ddd.plugin
+class: DDDPlugin
+enabled: true
 """,
         encoding="utf-8",
     )
 
     loader = PluginLoader()
 
-    plugin = loader.load(plugin_dir)
+    plugin = loader.load(
+        plugin_dir,
+    )
 
     assert plugin.id == "ddd"
     assert plugin.name == "Domain Driven Design"
     assert plugin.version == "1.0.0"
     assert plugin.author == "FamilyOS Team"
     assert plugin.description == "DDD plugin"
+    assert plugin.module == "familyos_cli.plugins.ddd.plugin"
+    assert plugin.class_name == "DDDPlugin"
     assert plugin.path == plugin_dir
+    assert plugin.enabled is True

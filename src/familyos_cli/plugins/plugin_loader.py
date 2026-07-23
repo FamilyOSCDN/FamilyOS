@@ -1,5 +1,7 @@
 """Plugin loader."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import yaml
@@ -18,7 +20,9 @@ class PluginLoader:
 
         manifest = plugin_path / "plugin.yaml"
 
-        with manifest.open(encoding="utf-8") as file:
+        with manifest.open(
+            encoding="utf-8",
+        ) as file:
             data = yaml.safe_load(file)
 
         return PluginDescriptor(
@@ -27,5 +31,11 @@ class PluginLoader:
             version=data["version"],
             author=data["author"],
             description=data["description"],
+            module=data["module"],
+            class_name=data["class"],
             path=plugin_path,
+            enabled=data.get(
+                "enabled",
+                True,
+            ),
         )

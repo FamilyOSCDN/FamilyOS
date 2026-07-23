@@ -40,7 +40,10 @@ def test_list_should_use_plugin_loader(
         version="1.0.0",
         author="FamilyOS Team",
         description="DDD plugin",
+        module="familyos_cli.plugins.ddd.plugin",
+        class_name="DDDPlugin",
         path=plugins_dir / "ddd",
+        enabled=True,
     )
 
     loader.load.return_value = descriptor
