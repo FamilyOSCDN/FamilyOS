@@ -10,10 +10,12 @@ from familyos_cli.application.generation.generation_context import (
 from familyos_cli.application.generation.generation_result import (
     GenerationResult,
 )
+from familyos_cli.application.ports.generation.plugin_runtime import (
+    PluginRuntime,
+)
 from familyos_cli.infrastructure.filesystem.project_generator import (
     ProjectGenerator,
 )
-from familyos_cli.plugins.runtime.plugin_runtime import PluginRuntime
 
 
 class GenerationPipeline:

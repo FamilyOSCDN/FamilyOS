@@ -23,9 +23,6 @@ from familyos_cli.bootstrap.runtime_factory import (
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
-from familyos_cli.domain.specifications.domain_specification_registry import (
-    DomainSpecificationRegistry,
-)
 from familyos_cli.plugins.runtime.plugin_runtime import (
     PluginRuntime,
 )
@@ -51,20 +48,16 @@ class ApplicationContainer:
             CreateDomainUseCase | None
         ) = None
 
-        self._domain_generation_planner: (
-            DomainGenerationPlanner | None
-        ) = None
-
-        self._domain_specification_registry: (
-            DomainSpecificationRegistry | None
-        ) = None
-
         self._specification_service: (
             SpecificationService | None
         ) = None
 
         self._get_domain_specification_use_case: (
             GetDomainSpecificationUseCase | None
+        ) = None
+
+        self._domain_generation_planner: (
+            DomainGenerationPlanner | None
         ) = None
 
     def runtime(self) -> PluginRuntime:
@@ -75,43 +68,15 @@ class ApplicationContainer:
 
         return self._runtime
 
-    def domain_specification_registry(
-        self,
-    ) -> DomainSpecificationRegistry:
-        """Provide domain specification registry."""
-
-        if self._domain_specification_registry is None:
-            self._domain_specification_registry = (
-                DomainSpecificationRegistry()
-            )
-
-        return self._domain_specification_registry
-
     def specification_service(
         self,
     ) -> SpecificationService:
         """Provide specification service."""
 
         if self._specification_service is None:
-            self._specification_service = SpecificationService(
-                registry=self.domain_specification_registry(),
-            )
+            self._specification_service = SpecificationService()
 
         return self._specification_service
-
-    def get_domain_specification_use_case(
-        self,
-    ) -> GetDomainSpecificationUseCase:
-        """Provide specification retrieval use case."""
-
-        if self._get_domain_specification_use_case is None:
-            self._get_domain_specification_use_case = (
-                GetDomainSpecificationUseCase(
-                    specification_service=self.specification_service(),
-                )
-            )
-
-        return self._get_domain_specification_use_case
 
     def domain_generation_planner(
         self,
@@ -124,6 +89,22 @@ class ApplicationContainer:
             )
 
         return self._domain_generation_planner
+
+    def get_domain_specification_use_case(
+        self,
+    ) -> GetDomainSpecificationUseCase:
+        """Provide specification retrieval use case."""
+
+        if self._get_domain_specification_use_case is None:
+            self._get_domain_specification_use_case = (
+                GetDomainSpecificationUseCase(
+                    specification_service=(
+                        self.specification_service()
+                    )
+                )
+            )
+
+        return self._get_domain_specification_use_case
 
     def create_domain_use_case(
         self,

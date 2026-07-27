@@ -5,12 +5,10 @@ Coordinates plugin discovery, registration and activation.
 
 from __future__ import annotations
 
-from builtins import list as builtin_list
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from familyos_cli.plugins.models.plugin_descriptor import PluginDescriptor
-from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_loader import PluginLoader
 from familyos_cli.plugins.plugin_registry import PluginRegistry
 from familyos_cli.plugins.runtime.plugin_runtime import PluginRuntime
@@ -21,23 +19,15 @@ class PluginManager:
     """Application service responsible for plugin lifecycle management."""
 
     plugins_directory: Path | None = None
-
     registry: PluginRegistry = field(
         default_factory=PluginRegistry,
     )
-
-    _runtime: PluginRuntime = field(
+    runtime: PluginRuntime = field(
         default_factory=PluginRuntime,
     )
-
     _plugins: dict[str, PluginDescriptor] = field(
         default_factory=dict,
     )
-
-    def runtime(self) -> PluginRuntime:
-        """Return plugin runtime."""
-
-        return self._runtime
 
     def register(
         self,
@@ -45,8 +35,7 @@ class PluginManager:
     ) -> None:
         """Register a plugin descriptor."""
 
-        self._plugins[plugin.id] = plugin
-
+        self._plugins[plugin.metadata.name] = plugin
         self.registry.register(plugin)
 
     def get(
@@ -57,55 +46,32 @@ class PluginManager:
 
         return self._plugins.get(name)
 
-    def list(
+    def list_plugins(
         self,
-    ) -> builtin_list[PluginDescriptor]:
-        """List available plugins."""
+    ) -> list[PluginDescriptor]:
+        """Return all registered plugins."""
+
+        return list(self._plugins.values())
+
+    def load_all(self) -> None:
+        """Load all plugins from directory."""
 
         if self.plugins_directory is None:
-            return builtin_list(
-                self._plugins.values()
-            )
+            return
 
         if not self.plugins_directory.exists():
-            return []
+            return
 
         loader = PluginLoader()
 
-        plugins: builtin_list[PluginDescriptor] = []
+        for descriptor in loader.discover(
+            self.plugins_directory,
+        ):
+            self.register(descriptor)
 
-        for plugin_path in self.plugins_directory.iterdir():
-            if not plugin_path.is_dir():
-                continue
+            plugin = loader.load(descriptor)
 
-            descriptor = loader.load(plugin_path)
-
-            if isinstance(
-                descriptor,
-                PluginDescriptor,
-            ):
-                plugins.append(descriptor)
-                self.register(descriptor)
-
-        return plugins
-
-    def list_plugins(
-        self,
-    ) -> builtin_list[PluginDescriptor]:
-        """Return all registered plugins."""
-
-        return builtin_list(
-            self._plugins.values()
-        )
-
-    def load_all(
-        self,
-    ) -> None:
-        """Load all plugins from directory."""
-
-        for plugin in self.list():
-            if plugin.enabled:
-                self.activate(plugin.id)
+            self.runtime.activate(plugin)
 
     def activate(
         self,
@@ -120,10 +86,11 @@ class PluginManager:
                 f"Unknown plugin: {name}"
             )
 
-        plugin = PluginLoader().load(descriptor)
+        loader = PluginLoader()
 
-        if isinstance(plugin, Plugin):
-            self._runtime.activate(plugin)
+        plugin = loader.load(descriptor)
+
+        self.runtime.activate(plugin)
 
     def deactivate(
         self,
@@ -138,7 +105,8 @@ class PluginManager:
                 f"Unknown plugin: {name}"
             )
 
-        plugin = PluginLoader().load(descriptor)
+        loader = PluginLoader()
 
-        if isinstance(plugin, Plugin):
-            self._runtime.deactivate(plugin)
+        plugin = loader.load(descriptor)
+
+        self.runtime.deactivate(plugin)

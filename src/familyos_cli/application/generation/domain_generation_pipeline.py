@@ -7,6 +7,9 @@ from pathlib import Path
 from familyos_cli.application.generation.domain_generation_adapter import (
     DomainGenerationAdapter,
 )
+from familyos_cli.application.ports.generation.generation_engine import (
+    GenerationEngine,
+)
 from familyos_cli.domain.generation.artifact_generation_mapper import (
     ArtifactGenerationMapper,
 )
@@ -18,9 +21,6 @@ from familyos_cli.domain.generation.domain_generation_planner import (
 )
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
-)
-from familyos_cli.infrastructure.generation.generation_engine import (
-    GenerationEngine,
 )
 
 

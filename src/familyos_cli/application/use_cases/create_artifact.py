@@ -1,22 +1,23 @@
 """Create artifact use case."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
-from familyos_cli.domain.contracts.artifact_generator import (
-    ArtifactGeneratorContract,
+from familyos_cli.application.ports.generation.artifact_generator import (
+    ArtifactGenerator,
 )
 from familyos_cli.domain.contracts.domain_generator import (
     DomainGeneratorContract,
 )
-from familyos_cli.domain.models.artifact import Artifact
-from familyos_cli.domain.models.domain_artifact_factory import (
-    DomainArtifactFactory,
+from familyos_cli.domain.models.domain_artifact import (
+    DomainArtifact,
 )
 from familyos_cli.infrastructure.generation.artifact_generator import (
-    ArtifactGenerator,
+    ArtifactGenerator as InfrastructureArtifactGenerator,
 )
 from familyos_cli.infrastructure.generation.domain_generator import (
-    DomainGenerator,
+    DomainGenerator as InfrastructureDomainGenerator,
 )
 from familyos_cli.infrastructure.generation.file_generator import (
     FileGenerator,
@@ -27,20 +28,20 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 
 
 class CreateArtifactUseCase:
-    """Create a new FamilyOS artifact."""
+    """Create an artifact."""
 
     def __init__(
         self,
-        generator: ArtifactGeneratorContract | None = None,
+        generator: ArtifactGenerator | None = None,
         domain_generator: DomainGeneratorContract | None = None,
     ) -> None:
-        """Initialize the use case."""
+        """Initialize use case."""
 
         if generator is None:
-            generator = ArtifactGenerator()
+            generator = InfrastructureArtifactGenerator()
 
         if domain_generator is None:
-            domain_generator = DomainGenerator(
+            domain_generator = InfrastructureDomainGenerator(
                 generation_engine=GenerationEngine(),
                 file_generator=FileGenerator(),
             )
@@ -53,26 +54,20 @@ class CreateArtifactUseCase:
         artifact_type: str,
         name: str,
     ) -> None:
-        """Execute the use case."""
+        """Create artifact."""
 
         if artifact_type == "domain":
-            domain_artifact = DomainArtifactFactory.create(
+            artifact = DomainArtifact(
                 name=name,
             )
 
             self._domain_generator.generate(
-                artifact=domain_artifact,
+                artifact=artifact,
                 root=Path("."),
             )
-
             return
 
-        artifact = Artifact(
-            type=artifact_type,
-            name=name,
-        )
-
         self.generator.generate(
-            artifact_type=artifact.type,
-            name=artifact.name,
+            artifact_type=artifact_type,
+            name=name,
         )

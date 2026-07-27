@@ -1,0 +1,78 @@
+"""Plugin manager.
+
+Coordinates plugin discovery, registration and activation.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+from familyos_cli.plugins.models.plugin_descriptor import PluginDescriptor
+from familyos_cli.plugins.plugin_registry import PluginRegistry
+from familyos_cli.plugins.runtime.plugin_runtime import PluginRuntime
+
+
+@dataclass(slots=True)
+class PluginManager:
+    """Application service responsible for plugin lifecycle management."""
+
+    registry: PluginRegistry
+    runtime: PluginRuntime
+    _plugins: dict[str, PluginDescriptor] = field(
+        default_factory=dict
+    )
+
+    def register(
+        self,
+        plugin: PluginDescriptor,
+    ) -> None:
+        """Register a plugin descriptor."""
+
+        self._plugins[plugin.metadata.name] = plugin
+
+        self.registry.register(plugin)
+
+    def get(
+        self,
+        name: str,
+    ) -> PluginDescriptor | None:
+        """Retrieve a registered plugin."""
+
+        return self._plugins.get(name)
+
+    def list_plugins(
+        self,
+    ) -> list[PluginDescriptor]:
+        """Return all registered plugins."""
+
+        return list(self._plugins.values())
+
+    def activate(
+        self,
+        name: str,
+    ) -> None:
+        """Activate a plugin by name."""
+
+        plugin = self.get(name)
+
+        if plugin is None:
+            raise ValueError(
+                f"Unknown plugin: {name}"
+            )
+
+        self.runtime.activate(plugin)
+
+    def deactivate(
+        self,
+        name: str,
+    ) -> None:
+        """Deactivate a plugin by name."""
+
+        plugin = self.get(name)
+
+        if plugin is None:
+            raise ValueError(
+                f"Unknown plugin: {name}"
+            )
+
+        self.runtime.deactivate(plugin)

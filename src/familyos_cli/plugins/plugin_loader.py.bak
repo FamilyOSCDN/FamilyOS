@@ -1,8 +1,3 @@
-"""Plugin loader.
-
-Responsible for discovering and dynamically loading FamilyOS plugins.
-"""
-
 from __future__ import annotations
 
 import importlib
@@ -43,32 +38,6 @@ class PluginLoader:
             )
 
         return plugin_class()
-
-    def discover(
-        self,
-        directory: Path,
-    ) -> list[PluginDescriptor]:
-        """Discover all plugins in a directory."""
-
-        plugins: list[PluginDescriptor] = []
-
-        if not directory.exists():
-            return plugins
-
-        for plugin_path in directory.iterdir():
-            if not plugin_path.is_dir():
-                continue
-
-            metadata_file = plugin_path / "plugin.yaml"
-
-            if not metadata_file.exists():
-                continue
-
-            plugins.append(
-                self._discover(plugin_path)
-            )
-
-        return plugins
 
     def _discover(
         self,

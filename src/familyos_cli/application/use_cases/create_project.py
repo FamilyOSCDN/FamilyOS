@@ -25,18 +25,22 @@ class CreateProjectUseCase:
     def __init__(
         self,
         pipeline: GenerationPipeline | None = None,
+        runtime: PluginRuntime | None = None,
     ) -> None:
         """Initialize the use case."""
 
-        self._pipeline = (
-            pipeline
-            if pipeline is not None
-            else GenerationPipeline(
-                generator=ProjectGenerator(
-                    runtime=PluginRuntime(),
-                ),
-                runtime=PluginRuntime(),
-            )
+        if pipeline is not None:
+            self._pipeline = pipeline
+            return
+
+        if runtime is None:
+            runtime = PluginRuntime()
+
+        self._pipeline = GenerationPipeline(
+            generator=ProjectGenerator(
+                runtime=runtime,
+            ),
+            runtime=runtime,
         )
 
     def execute(
