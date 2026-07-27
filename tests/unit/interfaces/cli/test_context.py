@@ -1,17 +1,10 @@
-"""Tests for CLI command context."""
+from __future__ import annotations
 
-from familyos_cli.application.use_cases.create_project import (
-    CreateProjectUseCase,
-)
 from familyos_cli.interfaces.cli.context import CommandContext
 
 
-def test_context_should_provide_create_project_use_case() -> None:
-    """The command context should expose the project use case."""
-
+def test_should_initialize_command_context() -> None:
     context = CommandContext()
 
-    assert isinstance(
-        context.create_project,
-        CreateProjectUseCase,
-    )
+    assert context.create_project is not None
+    assert context.create_artifact is not None

@@ -1,57 +1,73 @@
 from __future__ import annotations
 
+from builtins import list as builtin_list
 from pathlib import Path
 
 from familyos_cli.plugins.models import PluginDescriptor
-from familyos_cli.plugins.plugin_factory import PluginFactory
+from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_loader import PluginLoader
 from familyos_cli.plugins.runtime.plugin_runtime import PluginRuntime
 
 
 class PluginManager:
-    """Discover, instantiate and activate plugins."""
+    """Manage FamilyOS plugins."""
 
     def __init__(
         self,
         plugins_directory: Path,
     ) -> None:
-        """Initialize the plugin manager."""
-        self._plugins_directory = plugins_directory
-        self._loader = PluginLoader()
-        self._factory = PluginFactory()
+        """Initialize plugin manager."""
+
+        self.plugins_directory = plugins_directory
+        self.loader = PluginLoader()
         self._runtime = PluginRuntime()
 
-    def list(self) -> list[PluginDescriptor]:
+    def descriptors(self) -> builtin_list[PluginDescriptor]:
         """Return all available plugin descriptors."""
-        if not self._plugins_directory.exists():
+
+        if not self.plugins_directory.exists():
             return []
 
-        descriptors: list[PluginDescriptor] = []
+        descriptors: builtin_list[PluginDescriptor] = []
 
-        for path in sorted(self._plugins_directory.iterdir()):
-            if not path.is_dir():
+        for plugin_path in self.plugins_directory.iterdir():
+            if not plugin_path.is_dir():
                 continue
 
-            descriptors.append(
-                self._loader.load(path),
-            )
+            descriptor = self.loader.load(plugin_path)
+
+            assert isinstance(descriptor, PluginDescriptor)
+
+            descriptors.append(descriptor)
 
         return descriptors
 
-    def load_all(self) -> None:
-        """Load and activate every enabled plugin."""
-        for descriptor in self.list():
-            if not descriptor.enabled:
-                continue
+    def list(self) -> builtin_list[PluginDescriptor]:
+        """Backward-compatible alias."""
 
-            plugin = self._factory.create(
-                descriptor,
-            )
+        return self.descriptors()
 
-            self._runtime.register(
-                plugin,
-            )
+    def list_plugins(self) -> builtin_list[PluginDescriptor]:
+        """Backward-compatible alias."""
+
+        return self.descriptors()
+
+    def load_all(self) -> builtin_list[Plugin]:
+        """Load and activate all plugins."""
+
+        loaded_plugins: builtin_list[Plugin] = []
+
+        for descriptor in self.descriptors():
+            plugin = self.loader.load(descriptor)
+
+            assert isinstance(plugin, Plugin)
+
+            self._runtime.activate(plugin)
+            loaded_plugins.append(plugin)
+
+        return loaded_plugins
 
     def runtime(self) -> PluginRuntime:
-        """Return the runtime."""
+        """Return plugin runtime."""
+
         return self._runtime

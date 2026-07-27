@@ -1,24 +1,34 @@
 """File generator."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from familyos_cli.domain.models.project_file import ProjectFile
-from familyos_cli.infrastructure.filesystem.file_system_service import (
-    FileSystemService,
-)
 from familyos_cli.infrastructure.jinja.template_renderer import (
     TemplateRenderer,
 )
 
 
 class FileGenerator:
-    """Generate project files from templates."""
+    """Generate project files."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        template_directories: tuple[Path, ...] = (
+            Path("templates"),
+        ),
+    ) -> None:
         """Initialize the file generator."""
-
-        self._filesystem = FileSystemService()
+        self._template_directories = template_directories
         self._renderer = TemplateRenderer()
+
+    @property
+    def template_directories(
+        self,
+    ) -> tuple[Path, ...]:
+        """Return the template directories."""
+        return self._template_directories
 
     def generate(
         self,
@@ -26,15 +36,20 @@ class FileGenerator:
         files: list[ProjectFile],
         context: dict[str, object],
     ) -> None:
-        """Generate all project files."""
+        """Generate project files."""
 
         for project_file in files:
-            content = self._renderer.render(
-                project_file.template,
-                context,
+            output = destination / project_file.path
+
+            output.parent.mkdir(
+                parents=True,
+                exist_ok=True,
             )
 
-            self._filesystem.write_text_file(
-                destination / project_file.path,
-                content,
+            output.write_text(
+                self._renderer.render(
+                    template=project_file.template,
+                    context=context,
+                ),
+                encoding="utf-8",
             )

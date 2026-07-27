@@ -1,18 +1,68 @@
 from __future__ import annotations
 
+from familyos_cli.application.generation.generation_context import (
+    GenerationContext,
+)
+from familyos_cli.plugins.models import PluginMetadata
 from familyos_cli.plugins.plugin_context import PluginContext
 
 
 class Plugin:
-    """Base class for all FamilyOS plugins."""
+    """Base class for FamilyOS plugins."""
 
-    name: str = "plugin"
-    version: str = "0.1.0"
+    metadata: PluginMetadata | None = None
 
-    def before_generate(self, context: PluginContext) -> None:
-        """Called before project generation."""
+    def __init__(
+        self,
+        context: PluginContext | None = None,
+    ) -> None:
+        """Initialize plugin."""
+
+        self.context = context
+
+    def activate(self) -> None:
+        """Activate plugin."""
+
         return None
 
-    def after_generate(self, context: PluginContext) -> None:
-        """Called after project generation."""
+    def deactivate(self) -> None:
+        """Deactivate plugin."""
+
         return None
+
+    def before_generate(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Called before generation."""
+
+        _ = context
+
+    def after_generate(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Called after generation."""
+
+        _ = context
+
+    def before_render(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Called before rendering."""
+
+        _ = context
+
+    def after_render(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Called after rendering."""
+
+        _ = context
+
+    def get_metadata(self) -> PluginMetadata | None:
+        """Return plugin metadata."""
+
+        return self.metadata

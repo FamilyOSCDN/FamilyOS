@@ -1,51 +1,103 @@
 from __future__ import annotations
 
-from familyos_cli.plugins.hooks import HookRegistry
+from familyos_cli.application.generation.generation_context import (
+    GenerationContext,
+)
+from familyos_cli.plugins.contributions.aggregated_contribution import (
+    AggregatedContribution,
+)
+from familyos_cli.plugins.contributions.contribution_aggregator import (
+    ContributionAggregator,
+)
 from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_registry import PluginRegistry
-from familyos_cli.plugins.runtime.hook_dispatcher import HookDispatcher
-from familyos_cli.plugins.runtime.plugin_activator import PluginActivator
+from familyos_cli.plugins.runtime.plugin_collection import PluginCollection
+from familyos_cli.plugins.runtime.plugin_contribution_registry import (
+    PluginContributionRegistry,
+)
 
 
 class PluginRuntime:
-    """Runtime responsible for plugin registration and hook dispatching."""
+    """Manage active plugin instances."""
 
     def __init__(self) -> None:
-        """Initialize the plugin runtime."""
-        self._plugin_registry = PluginRegistry()
-        self._hook_registry = HookRegistry()
+        """Initialize runtime."""
 
-        self._dispatcher = HookDispatcher(
-            self._hook_registry,
-        )
+        self._registry = PluginRegistry()
+        self._plugins = PluginCollection()
+        self._contributions = PluginContributionRegistry()
 
-        self._activator = PluginActivator(
-            self._hook_registry,
-        )
-
-    def register(
+    def activate(
         self,
         plugin: Plugin,
     ) -> None:
-        """Register and activate a plugin."""
-        self._plugin_registry.register(plugin)
-        self._activator.activate(plugin)
+        """Activate a plugin."""
 
-    def plugins(self) -> PluginRegistry:
-        """Return the plugin registry."""
-        return self._plugin_registry
+        plugin.activate()
 
-    def hooks(self) -> HookRegistry:
-        """Return the hook registry."""
-        return self._hook_registry
+        self._plugins.add(plugin)
+        self._contributions.register(plugin)
 
-    def dispatch(
+    def deactivate(
         self,
-        event: str,
-        context: object,
+        plugin: Plugin,
     ) -> None:
-        """Dispatch a runtime event."""
-        self._dispatcher.dispatch(
-            event,
-            context,
+        """Deactivate a plugin."""
+
+        plugin.deactivate()
+        self._plugins.remove(plugin)
+
+    def before_generate(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Dispatch before_generate hook."""
+
+        for plugin in self._plugins.all():
+            plugin.before_generate(context)
+
+    def after_generate(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Dispatch after_generate hook."""
+
+        for plugin in self._plugins.all():
+            plugin.after_generate(context)
+
+    def before_render(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Dispatch before_render hook."""
+
+        for plugin in self._plugins.all():
+            plugin.before_render(context)
+
+    def after_render(
+        self,
+        context: GenerationContext,
+    ) -> None:
+        """Dispatch after_render hook."""
+
+        for plugin in self._plugins.all():
+            plugin.after_render(context)
+
+    def contributions(
+        self,
+    ) -> AggregatedContribution:
+        """Return aggregated plugin contributions."""
+
+        return ContributionAggregator().aggregate(
+            self._contributions.all(),
         )
+
+    def plugins(self) -> PluginCollection:
+        """Return active plugins."""
+
+        return self._plugins
+
+    def registry(self) -> PluginRegistry:
+        """Return plugin registry."""
+
+        return self._registry

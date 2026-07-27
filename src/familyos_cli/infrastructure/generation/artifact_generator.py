@@ -1,5 +1,7 @@
 """Artifact generator."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from familyos_cli.infrastructure.generation.generation_engine import (
@@ -18,7 +20,6 @@ class ArtifactGenerator:
 
     def __init__(self) -> None:
         """Initialize the generator."""
-
         self._loader = SpecificationLoader()
         self._engine = GenerationEngine()
         self._registry = ArtifactRegistry()
@@ -30,7 +31,9 @@ class ArtifactGenerator:
     ) -> None:
         """Generate an artifact."""
 
-        artifact = self._registry.get(artifact_type)
+        artifact = self._registry.get(
+            artifact_type,
+        )
 
         specification = self._loader.load(
             Path("specifications") / artifact.specification,

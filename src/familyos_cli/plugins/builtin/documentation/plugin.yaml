@@ -1,0 +1,15 @@
+id: documentation
+
+name: Documentation Plugin
+
+version: 1.0.0
+
+author: FamilyOS Team
+
+description: Generates documentation during project creation.
+
+module: familyos_cli.plugins.builtin.documentation.plugin
+
+class: DocumentationPlugin
+
+enabled: true

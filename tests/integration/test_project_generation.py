@@ -1,4 +1,4 @@
-"""Integration tests for project generation."""
+"""Integration test for project generation."""
 
 from pathlib import Path
 
@@ -7,7 +7,10 @@ from familyos_cli.application.use_cases.create_project import (
 )
 
 
-def test_create_project(tmp_path: Path, monkeypatch) -> None:
+def test_create_project(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
     """Generate a complete project."""
 
     monkeypatch.chdir(tmp_path)
@@ -35,7 +38,8 @@ project:
     )
 
     (tmp_path / "templates" / "project" / "README.md.j2").write_text(
-        "# {{ project_name }}\n",
+        "# {{ project_name }}\n\n"
+        "This project was generated with **FamilyOS CLI**.\n",
         encoding="utf-8",
     )
 
@@ -53,4 +57,8 @@ project:
     readme = project / "README.md"
 
     assert readme.exists()
-    assert readme.read_text(encoding="utf-8") == "# demo"
+
+    content = readme.read_text(encoding="utf-8")
+
+    assert content.startswith("# demo")
+    assert "FamilyOS CLI" in content

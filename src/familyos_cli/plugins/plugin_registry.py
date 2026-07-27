@@ -1,64 +1,37 @@
 from __future__ import annotations
 
-from familyos_cli.plugins.plugin import Plugin
+from dataclasses import dataclass, field
+
+from familyos_cli.plugins.models import PluginDescriptor
 
 
+@dataclass(slots=True)
 class PluginRegistry:
-    """Registry of available plugins."""
+    """Registry of available FamilyOS plugins."""
 
-    def __init__(self) -> None:
-        """Initialize an empty plugin registry."""
-        self._plugins: dict[str, Plugin] = {}
+    _plugins: dict[str, PluginDescriptor] = field(default_factory=dict)
 
-    def register(
-        self,
-        plugin: Plugin,
-    ) -> None:
-        """Register a plugin.
+    def register(self, plugin: PluginDescriptor) -> None:
+        """Register a plugin descriptor."""
 
-        Raises:
-            ValueError: If a plugin with the same name is already registered.
-        """
-        name = plugin.metadata.name
-
-        if name in self._plugins:
+        if plugin.id in self._plugins:
             raise ValueError(
-                f"Plugin '{name}' is already registered.",
+                f"Plugin '{plugin.id}' is already registered"
             )
 
-        self._plugins[name] = plugin
+        self._plugins[plugin.id] = plugin
 
-    def unregister(
-        self,
-        name: str,
-    ) -> None:
-        """Unregister a plugin."""
-        self._plugins.pop(
-            name,
-            None,
-        )
+    def unregister(self, plugin_id: str) -> None:
+        """Remove a plugin from registry."""
 
-    def exists(
-        self,
-        name: str,
-    ) -> bool:
-        """Return True if a plugin with the given name is registered."""
-        return name in self._plugins
+        self._plugins.pop(plugin_id, None)
 
-    def get(
-        self,
-        name: str,
-    ) -> Plugin | None:
-        """Return a registered plugin by name, or None if it does not exist."""
-        return self._plugins.get(name)
+    def get(self, plugin_id: str) -> PluginDescriptor | None:
+        """Retrieve a plugin by id."""
 
-    def list(self) -> list[Plugin]:
+        return self._plugins.get(plugin_id)
+
+    def list_plugins(self) -> list[PluginDescriptor]:
         """Return all registered plugins."""
+
         return list(self._plugins.values())
-
-    def all(self) -> list[Plugin]:
-        """Return all registered plugins.
-
-        Alias of list() kept for API clarity and backward compatibility.
-        """
-        return self.list()
