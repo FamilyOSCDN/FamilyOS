@@ -1,27 +1,33 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock
 
+from familyos_cli.application.generation.generation_pipeline import (
+    GenerationPipeline,
+)
 from familyos_cli.application.use_cases.create_project import (
     CreateProjectUseCase,
 )
 
 
 def test_should_create_project() -> None:
-    use_case = CreateProjectUseCase()
+    """Create a project through the generation pipeline."""
 
-    with patch(
-        "familyos_cli.application.use_cases.create_project.GenerationPipeline.run"
-    ) as mock_run:
-        use_case.execute(
-            name="MyFamily",
-            destination=Path("/tmp"),
-        )
+    pipeline = Mock(spec=GenerationPipeline)
 
-    mock_run.assert_called_once()
+    use_case = CreateProjectUseCase(
+        pipeline=pipeline,
+    )
 
-    context = mock_run.call_args.args[0]
+    use_case.execute(
+        name="MyFamily",
+        destination=Path("/tmp"),
+    )
+
+    pipeline.run.assert_called_once()
+
+    context = pipeline.run.call_args.args[0]
 
     assert context.project.name == "MyFamily"
     assert context.destination == Path("/tmp")

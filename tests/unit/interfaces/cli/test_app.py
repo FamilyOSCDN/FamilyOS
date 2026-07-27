@@ -4,7 +4,6 @@ from typer.testing import CliRunner
 
 from familyos_cli.interfaces.cli.app import app
 
-
 runner = CliRunner()
 
 

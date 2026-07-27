@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 from pathlib import Path
+from typing import cast
 
 import yaml
 
@@ -23,9 +24,12 @@ class PluginLoader:
 
         module = importlib.import_module(source.module)
 
-        plugin_class = getattr(
-            module,
-            source.class_name,
+        plugin_class = cast(
+            type[Plugin],
+            getattr(
+                module,
+                source.class_name,
+            ),
         )
 
         if not issubclass(plugin_class, Plugin):
@@ -44,7 +48,9 @@ class PluginLoader:
         metadata_file = plugin_path / "plugin.yaml"
 
         data = yaml.safe_load(
-            metadata_file.read_text(encoding="utf-8")
+            metadata_file.read_text(
+                encoding="utf-8",
+            )
         )
 
         return PluginDescriptor(
@@ -56,5 +62,8 @@ class PluginLoader:
             module=data["module"],
             class_name=data["class"],
             path=plugin_path,
-            enabled=data.get("enabled", True),
+            enabled=data.get(
+                "enabled",
+                True,
+            ),
         )

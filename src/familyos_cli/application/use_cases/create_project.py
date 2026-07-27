@@ -22,6 +22,23 @@ from familyos_cli.plugins.runtime.plugin_runtime import (
 class CreateProjectUseCase:
     """Create a new FamilyOS project."""
 
+    def __init__(
+        self,
+        pipeline: GenerationPipeline | None = None,
+    ) -> None:
+        """Initialize the use case."""
+
+        self._pipeline = (
+            pipeline
+            if pipeline is not None
+            else GenerationPipeline(
+                generator=ProjectGenerator(
+                    runtime=PluginRuntime(),
+                ),
+                runtime=PluginRuntime(),
+            )
+        )
+
     def execute(
         self,
         name: str,
@@ -29,16 +46,7 @@ class CreateProjectUseCase:
     ) -> None:
         """Execute the use case."""
 
-        runtime = PluginRuntime()
-
-        pipeline = GenerationPipeline(
-            generator=ProjectGenerator(
-                runtime=runtime,
-            ),
-            runtime=runtime,
-        )
-
-        pipeline.run(
+        self._pipeline.run(
             GenerationContext(
                 project=Project(name=name),
                 destination=destination,
