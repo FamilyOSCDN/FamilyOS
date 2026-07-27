@@ -15,4 +15,5 @@ Requires-Dist: pydantic>=2.11
 Provides-Extra: dev
 Requires-Dist: pytest>=8.4; extra == "dev"
 Requires-Dist: ruff>=0.12; extra == "dev"
+Requires-Dist: mypy>=1.17; extra == "dev"
 Dynamic: license-file
