@@ -54,6 +54,7 @@ class CreateDomainUseCase:
             return None
 
         return self._pipeline.generate(
+            request=request,
             specification=specification,
             destination=destination,
         )

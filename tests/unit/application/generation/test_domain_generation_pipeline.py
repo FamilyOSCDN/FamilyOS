@@ -12,6 +12,9 @@ from familyos_cli.application.generation.mappers.generation_specification_mapper
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
+from familyos_cli.domain.generation.generation_request import (
+    GenerationRequest,
+)
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
 )
@@ -27,6 +30,11 @@ def test_domain_generation_pipeline_creates_generation_specification() -> None:
         engine=GenerationEngine(),
     )
 
+    request = GenerationRequest(
+        domain_name="Person",
+        recipe_name="domain_documentation",
+    )
+
     specification = DomainSpecification(
         name="Person",
         entities=[],
@@ -36,6 +44,7 @@ def test_domain_generation_pipeline_creates_generation_specification() -> None:
     )
 
     result = pipeline.generate(
+        request=request,
         specification=specification,
         destination=Path("generated"),
     )
