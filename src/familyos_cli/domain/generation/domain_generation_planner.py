@@ -19,6 +19,9 @@ from familyos_cli.domain.generation.artifact_template_policy import (
 from familyos_cli.domain.generation.domain_generation_plan import (
     DomainGenerationPlan,
 )
+from familyos_cli.domain.generation.generation_profile import (
+    GenerationProfile,
+)
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
 )
@@ -31,6 +34,7 @@ class DomainGenerationPlanner:
         self,
         path_policy: ArtifactPathPolicy | None = None,
         template_policy: ArtifactTemplatePolicy | None = None,
+        profile: GenerationProfile = GenerationProfile.PYTHON_IMPLEMENTATION,
     ) -> None:
         """Initialize the planner."""
 
@@ -46,6 +50,8 @@ class DomainGenerationPlanner:
             else DefaultArtifactTemplatePolicy()
         )
 
+        self._profile = profile
+
     def create_plan(
         self,
         specification: DomainSpecification,
@@ -59,7 +65,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.ENTITY,
                     name=entity.name,
-                )
+                ),
             )
 
         for aggregate in specification.aggregates:
@@ -67,7 +73,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.AGGREGATE,
                     name=aggregate.name,
-                )
+                ),
             )
 
         for repository in specification.repositories:
@@ -75,7 +81,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.REPOSITORY,
                     name=repository.name,
-                )
+                ),
             )
 
         for service in specification.services:
@@ -83,7 +89,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.SERVICE,
                     name=service.name,
-                )
+                ),
             )
 
         return DomainGenerationPlan(
@@ -108,5 +114,6 @@ class DomainGenerationPlanner:
             ),
             template=self._template_policy.template_for(
                 kind=kind,
+                profile=self._profile,
             ),
         )

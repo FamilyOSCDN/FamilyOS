@@ -28,6 +28,9 @@ from familyos_cli.bootstrap.runtime_factory import RuntimeFactory
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
+from familyos_cli.domain.generation.generation_profile import (
+    GenerationProfile,
+)
 from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
 )
@@ -89,7 +92,9 @@ class ApplicationContainer:
         )
 
         pipeline = DomainGenerationPipeline(
-            planner=DomainGenerationPlanner(),
+            planner=DomainGenerationPlanner(
+                profile=GenerationProfile.DOMAIN_DOCUMENTATION,
+            ),
             specification_mapper=GenerationSpecificationMapper(),
             engine=GenerationEngine(),
         )

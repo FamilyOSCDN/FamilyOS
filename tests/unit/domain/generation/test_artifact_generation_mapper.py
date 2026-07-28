@@ -9,6 +9,9 @@ from familyos_cli.domain.generation.artifact_generation_mapper import (
 from familyos_cli.domain.generation.artifact_kind import (
     ArtifactKind,
 )
+from familyos_cli.domain.generation.generation_profile import (
+    GenerationProfile,
+)
 
 
 def test_entity_artifact_gets_entity_template() -> None:
@@ -52,6 +55,9 @@ def test_mapper_uses_injected_template_policy() -> None:
             self,
             kind: ArtifactKind,
             current_template: str = "",
+            profile: GenerationProfile = (
+                GenerationProfile.PYTHON_IMPLEMENTATION
+            ),
         ) -> str:
             return f"custom/{kind.value}.jinja"
 
@@ -69,3 +75,20 @@ def test_mapper_uses_injected_template_policy() -> None:
     mapped = mapper.map(artifact)
 
     assert mapped.template == "custom/entity.jinja"
+
+
+def test_mapper_can_use_documentation_profile() -> None:
+    artifact = ArtifactDefinition(
+        kind=ArtifactKind.ENTITY,
+        name="Person",
+        target_path="docs/person",
+        template="",
+    )
+
+    mapper = ArtifactGenerationMapper(
+        profile=GenerationProfile.DOMAIN_DOCUMENTATION,
+    )
+
+    mapped = mapper.map(artifact)
+
+    assert mapped.template == "entity/README.md.j2"

@@ -9,6 +9,9 @@ from familyos_cli.domain.generation.artifact_template_policy import (
     ArtifactTemplatePolicy,
     DefaultArtifactTemplatePolicy,
 )
+from familyos_cli.domain.generation.generation_profile import (
+    GenerationProfile,
+)
 
 
 class ArtifactGenerationMapper:
@@ -17,6 +20,7 @@ class ArtifactGenerationMapper:
     def __init__(
         self,
         template_policy: ArtifactTemplatePolicy | None = None,
+        profile: GenerationProfile = GenerationProfile.PYTHON_IMPLEMENTATION,
     ) -> None:
         """Initialize the mapper."""
 
@@ -25,6 +29,8 @@ class ArtifactGenerationMapper:
             if template_policy is not None
             else DefaultArtifactTemplatePolicy()
         )
+
+        self._profile = profile
 
     def map(
         self,
@@ -39,5 +45,6 @@ class ArtifactGenerationMapper:
             template=self._template_policy.template_for(
                 kind=artifact.kind,
                 current_template=artifact.template,
+                profile=self._profile,
             ),
         )
