@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from familyos_cli.application.generation.default_recipe_registry import (
-    DefaultRecipeRegistry,
+from familyos_cli.application.generation.default_generation_strategy_registry import (
+    DefaultGenerationStrategyRegistry,
 )
 from familyos_cli.application.generation.domain_generation_pipeline import (
     DomainGenerationPipeline,
@@ -16,9 +16,6 @@ from familyos_cli.application.generation.generation_specification import (
 )
 from familyos_cli.application.generation.mappers.generation_specification_mapper import (
     GenerationSpecificationMapper,
-)
-from familyos_cli.application.generation.recipe_executor import (
-    RecipeExecutor,
 )
 from familyos_cli.application.specifications.specification_service import (
     SpecificationService,
@@ -98,8 +95,8 @@ def test_create_domain_use_case_creates_generation_request() -> None:
         specification_service,
     )
 
-    recipe_executor = RecipeExecutor(
-        DefaultRecipeRegistry.create(),
+    strategy_registry = (
+        DefaultGenerationStrategyRegistry.create()
     )
 
     engine = FakeGenerationEngine()
@@ -108,7 +105,7 @@ def test_create_domain_use_case_creates_generation_request() -> None:
         planner=DomainGenerationPlanner(),
         specification_mapper=GenerationSpecificationMapper(),
         engine=engine,
-        recipe_executor=recipe_executor,
+        strategy_registry=strategy_registry,
     )
 
     request_factory = SpyGenerationRequestFactory()

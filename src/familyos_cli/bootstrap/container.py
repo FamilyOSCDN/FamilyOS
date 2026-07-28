@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from familyos_cli.application.generation.default_recipe_registry import (
-    DefaultRecipeRegistry,
+from familyos_cli.application.generation.default_generation_strategy_registry import (
+    DefaultGenerationStrategyRegistry,
 )
 from familyos_cli.application.generation.domain_generation_pipeline import (
     DomainGenerationPipeline,
@@ -13,9 +13,6 @@ from familyos_cli.application.generation.generation_request_factory import (
 )
 from familyos_cli.application.generation.mappers.generation_specification_mapper import (
     GenerationSpecificationMapper,
-)
-from familyos_cli.application.generation.recipe_executor import (
-    RecipeExecutor,
 )
 from familyos_cli.application.specifications import (
     DomainSpecificationLoaderService,
@@ -97,17 +94,15 @@ class ApplicationContainer:
             specification_service,
         )
 
-        recipe_registry = DefaultRecipeRegistry.create()
-
-        recipe_executor = RecipeExecutor(
-            recipe_registry,
+        strategy_registry = (
+            DefaultGenerationStrategyRegistry.create()
         )
 
         pipeline = DomainGenerationPipeline(
             planner=DomainGenerationPlanner(),
             specification_mapper=GenerationSpecificationMapper(),
             engine=GenerationEngine(),
-            recipe_executor=recipe_executor,
+            strategy_registry=strategy_registry,
         )
 
         return CreateDomainUseCase(
