@@ -47,4 +47,5 @@ class ArtifactGenerationMapper:
                 current_template=artifact.template,
                 profile=self._profile,
             ),
+            context=artifact.context,
         )

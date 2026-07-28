@@ -31,7 +31,7 @@ class FileGenerator:
     def template_directories(
         self,
     ) -> tuple[Path, ...]:
-        """Return the template directories."""
+        """Return the configured template directories."""
 
         return self._template_directories
 
@@ -51,10 +51,15 @@ class FileGenerator:
                 exist_ok=True,
             )
 
+            file_context = {
+                **context,
+                **project_file.context,
+            }
+
             output.write_text(
                 self._renderer.render(
                     template=project_file.template,
-                    context=context,
+                    context=file_context,
                 ),
                 encoding="utf-8",
             )

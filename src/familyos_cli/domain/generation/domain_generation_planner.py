@@ -59,6 +59,9 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.ENTITY,
                     name=entity.name,
+                    context={
+                        "entity": entity,
+                    },
                 )
             )
 
@@ -67,6 +70,9 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.AGGREGATE,
                     name=aggregate.name,
+                    context={
+                        "aggregate": aggregate,
+                    },
                 )
             )
 
@@ -75,6 +81,9 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.REPOSITORY,
                     name=repository.name,
+                    context={
+                        "repository": repository,
+                    },
                 )
             )
 
@@ -83,6 +92,9 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.SERVICE,
                     name=service.name,
+                    context={
+                        "service": service,
+                    },
                 )
             )
 
@@ -96,6 +108,7 @@ class DomainGenerationPlanner:
         *,
         kind: ArtifactKind,
         name: str,
+        context: dict[str, object],
     ) -> ArtifactDefinition:
         """Create an artifact definition."""
 
@@ -109,4 +122,5 @@ class DomainGenerationPlanner:
             template=self._template_policy.template_for(
                 kind=kind,
             ),
+            context=context,
         )

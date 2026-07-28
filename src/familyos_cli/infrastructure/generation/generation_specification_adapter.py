@@ -26,6 +26,7 @@ class GenerationSpecificationAdapter:
             ProjectFile(
                 path=artifact.destination,
                 template=artifact.template,
+                context=artifact.context.variables,
             )
             for artifact in specification.artifacts
         ]

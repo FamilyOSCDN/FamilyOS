@@ -8,8 +8,14 @@ def test_default_generation_strategy_registry_creates_default_strategies() -> No
 
     strategies = registry.list()
 
-    assert len(strategies) == 1
+    assert len(strategies) == 2
 
-    assert strategies[0].name == (
-        "domain_documentation"
-    )
+    strategy_names = {
+        strategy.name
+        for strategy in strategies
+    }
+
+    assert strategy_names == {
+        "domain_documentation",
+        "domain_implementation",
+    }

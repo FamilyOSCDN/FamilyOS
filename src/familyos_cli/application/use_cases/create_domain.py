@@ -39,11 +39,13 @@ class CreateDomainUseCase:
         self,
         domain_name: str,
         destination: Path,
+        recipe_name: str = "domain_documentation",
     ) -> GenerationSpecification | None:
         """Generate a domain."""
 
         request = self._request_factory.create(
             domain_name,
+            recipe_name,
         )
 
         specification = self._get_specification.execute(

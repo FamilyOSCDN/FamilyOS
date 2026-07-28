@@ -42,6 +42,13 @@ def create_domain(
             help="Generation destination.",
         ),
     ] = None,
+    recipe_name: Annotated[
+        str,
+        typer.Option(
+            "--recipe",
+            help="Generation recipe name.",
+        ),
+    ] = "domain_documentation",
 ) -> None:
     """Create a FamilyOS domain."""
 
@@ -69,6 +76,7 @@ def create_domain(
         result = context.create_domain.execute(
             domain_name=name,
             destination=target,
+            recipe_name=recipe_name,
         )
 
         if result is None:

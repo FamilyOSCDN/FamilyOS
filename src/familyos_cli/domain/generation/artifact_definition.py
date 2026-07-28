@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from familyos_cli.domain.generation.artifact_kind import (
     ArtifactKind,
@@ -18,3 +18,7 @@ class ArtifactDefinition:
     target_path: str
 
     template: str
+
+    context: dict[str, object] = field(
+        default_factory=dict,
+    )

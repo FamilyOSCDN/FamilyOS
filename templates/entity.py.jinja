@@ -1,0 +1,21 @@
+"""Generated entity."""
+
+from __future__ import annotations
+
+
+class {{ entity.name }}:
+    """{{ entity.description }}."""
+
+    def __init__(self) -> None:
+        """Initialize {{ entity.name }}."""
+
+{% for attribute in entity.attributes %}
+        self.{{ attribute }} = None
+{% endfor %}
+
+{% for behavior in entity.behaviors %}
+    def {{ behavior }}(self) -> None:
+        """Execute {{ behavior }} behavior."""
+        pass
+
+{% endfor %}
