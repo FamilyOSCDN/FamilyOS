@@ -23,12 +23,11 @@ from familyos_cli.application.use_cases.get_domain_specification import (
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
+from familyos_cli.domain.generation.generation_request import (
+    GenerationRequest,
+)
 from familyos_cli.domain.models.domain_specification import (
-    AggregateDescriptor,
     DomainSpecification,
-    EntityDescriptor,
-    RepositoryDescriptor,
-    ServiceDescriptor,
 )
 from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
@@ -36,7 +35,7 @@ from familyos_cli.domain.specifications.domain_specification_registry import (
 
 
 class FakeGenerationEngine:
-    """Fake generation engine for unit tests."""
+    """Fake generation engine."""
 
     def __init__(self) -> None:
         self.generated = False
@@ -50,35 +49,30 @@ class FakeGenerationEngine:
         self.generated = True
 
 
-def test_create_domain_use_case_creates_generation_specification() -> None:
+class SpyGenerationRequestFactory(
+    GenerationRequestFactory,
+):
+    """Track generated requests."""
+
+    def __init__(self) -> None:
+        self.request: GenerationRequest | None = None
+
+    def create(
+        self,
+        domain_name: str,
+        recipe_name: str = "domain_documentation",
+    ) -> GenerationRequest:
+        self.request = super().create(
+            domain_name,
+            recipe_name,
+        )
+
+        return self.request
+
+
+def test_create_domain_use_case_creates_generation_request() -> None:
     specification = DomainSpecification(
         name="Person",
-        entities=[
-            EntityDescriptor(
-                name="Person",
-                description="Person entity",
-            ),
-        ],
-        aggregates=[
-            AggregateDescriptor(
-                name="Person",
-                root_entity="Person",
-                description="Person aggregate",
-            ),
-        ],
-        repositories=[
-            RepositoryDescriptor(
-                name="PersonRepository",
-                aggregate="Person",
-                description="Person repository",
-            ),
-        ],
-        services=[
-            ServiceDescriptor(
-                name="PersonService",
-                description="Person service",
-            ),
-        ],
     )
 
     registry = DomainSpecificationRegistry()
@@ -103,10 +97,12 @@ def test_create_domain_use_case_creates_generation_specification() -> None:
         engine=engine,
     )
 
+    request_factory = SpyGenerationRequestFactory()
+
     use_case = CreateDomainUseCase(
         pipeline=pipeline,
         get_specification=get_specification,
-        request_factory=GenerationRequestFactory(),
+        request_factory=request_factory,
     )
 
     result = use_case.execute(
@@ -116,6 +112,10 @@ def test_create_domain_use_case_creates_generation_specification() -> None:
 
     assert result is not None
 
-    assert len(result.artifacts) > 0
+    assert request_factory.request is not None
 
-    assert engine.generated is True
+    assert request_factory.request.domain_name == "Person"
+
+    assert request_factory.request.recipe_name == (
+        "domain_documentation"
+    )

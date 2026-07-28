@@ -7,6 +7,9 @@ from pathlib import Path
 from familyos_cli.application.generation.domain_generation_pipeline import (
     DomainGenerationPipeline,
 )
+from familyos_cli.application.generation.generation_request_factory import (
+    GenerationRequestFactory,
+)
 from familyos_cli.application.generation.generation_specification import (
     GenerationSpecification,
 )
@@ -22,9 +25,15 @@ class CreateDomainUseCase:
         self,
         pipeline: DomainGenerationPipeline,
         get_specification: GetDomainSpecificationUseCase,
+        request_factory: GenerationRequestFactory,
     ) -> None:
+        """Initialize the use case."""
+
         self._pipeline = pipeline
+
         self._get_specification = get_specification
+
+        self._request_factory = request_factory
 
     def execute(
         self,
@@ -33,8 +42,12 @@ class CreateDomainUseCase:
     ) -> GenerationSpecification | None:
         """Generate a domain."""
 
-        specification = self._get_specification.execute(
+        request = self._request_factory.create(
             domain_name,
+        )
+
+        specification = self._get_specification.execute(
+            request.domain_name,
         )
 
         if specification is None:
