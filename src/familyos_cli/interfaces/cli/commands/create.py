@@ -33,4 +33,6 @@ def artifact(
     )
 
 
-create_app.command()(create_domain)
+create_app.command(
+    name="domain",
+)(create_domain)

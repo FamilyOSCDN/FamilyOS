@@ -78,6 +78,7 @@ class DomainGenerationPipeline:
             destination=destination,
             specification=generation_specification,
             context={
+                "name": request.domain_name,
                 "domain_name": request.domain_name,
                 "recipe_name": request.recipe_name,
             },

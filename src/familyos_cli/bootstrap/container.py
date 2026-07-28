@@ -56,6 +56,14 @@ class ApplicationContainer:
     ) -> None:
         self._runtime = RuntimeFactory.create()
 
+        self._domain_specification_registry = (
+            DomainSpecificationRegistry()
+        )
+
+        self._specification_service = SpecificationService(
+            self._domain_specification_registry,
+        )
+
     def plugin_runtime(
         self,
     ) -> PluginRuntime:
@@ -84,14 +92,8 @@ class ApplicationContainer:
     ) -> CreateDomainUseCase:
         """Create domain use case."""
 
-        registry = DomainSpecificationRegistry()
-
-        specification_service = SpecificationService(
-            registry,
-        )
-
         get_specification = GetDomainSpecificationUseCase(
-            specification_service,
+            self._specification_service,
         )
 
         strategy_registry = (
@@ -116,17 +118,11 @@ class ApplicationContainer:
     ) -> DomainSpecificationLoaderService:
         """Create domain specification loader service."""
 
-        registry = DomainSpecificationRegistry()
-
-        specification_service = SpecificationService(
-            registry,
-        )
-
         loader = YamlDomainSpecificationLoader()
 
         return DomainSpecificationLoaderService(
             loader=loader,
-            service=specification_service,
+            service=self._specification_service,
         )
 
 

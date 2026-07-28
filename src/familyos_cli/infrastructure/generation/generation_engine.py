@@ -29,11 +29,13 @@ class GenerationEngine:
     ) -> None:
         """Initialize the generation engine."""
 
+        self._template_directories = template_directories
+
         self._directory_generator = DirectoryGenerator()
 
-        self._file_generator = FileGenerator()
-
-        self._template_directories = template_directories
+        self._file_generator = FileGenerator(
+            template_directories=template_directories,
+        )
 
         self._adapter = GenerationSpecificationAdapter()
 

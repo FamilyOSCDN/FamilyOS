@@ -16,16 +16,40 @@ class TemplateRenderer:
     ) -> None:
         """Initialize the template renderer."""
 
-        if template_directories is None:
-            template_root = Path(__file__).resolve().parents[4] / "templates"
+        default_template_directory = (
+            Path(__file__).resolve().parents[4]
+            / "templates"
+        )
 
-            template_directories = (template_root,)
+        if template_directories is None:
+            template_directories = (
+                default_template_directory,
+            )
 
         self._template_directories = template_directories
 
+        search_directories = list(
+            template_directories,
+        )
+
+        default_resolved = (
+            default_template_directory.resolve()
+        )
+
+        if all(
+            directory.resolve() != default_resolved
+            for directory in search_directories
+        ):
+            search_directories.append(
+                default_template_directory,
+            )
+
         self._environment = Environment(
             loader=FileSystemLoader(
-                [str(directory) for directory in template_directories],
+                [
+                    str(directory)
+                    for directory in search_directories
+                ],
             ),
             undefined=StrictUndefined,
         )
@@ -34,7 +58,7 @@ class TemplateRenderer:
     def template_directories(
         self,
     ) -> tuple[Path, ...]:
-        """Return the template directories."""
+        """Return the configured template directories."""
 
         return self._template_directories
 

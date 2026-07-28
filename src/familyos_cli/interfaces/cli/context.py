@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from functools import cached_property
 
+from familyos_cli.application.specifications.domain_specification_loader_service import (
+    DomainSpecificationLoaderService,
+)
 from familyos_cli.application.use_cases.create_artifact import (
     CreateArtifactUseCase,
 )
@@ -47,6 +50,14 @@ class CommandContext:
         """Provide artifact creation use case."""
 
         return self._container.create_artifact_use_case()
+
+    @cached_property
+    def domain_specification_loader(
+        self,
+    ) -> DomainSpecificationLoaderService:
+        """Provide domain specification loader service."""
+
+        return self._container.domain_specification_loader_service()
 
     @cached_property
     def create_domain(

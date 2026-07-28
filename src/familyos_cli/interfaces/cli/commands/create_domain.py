@@ -21,6 +21,19 @@ def create_domain(
             help="Domain name.",
         ),
     ],
+    specification: Annotated[
+        Path,
+        typer.Option(
+            "--specification",
+            "-s",
+            help="Path to the domain specification YAML file.",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
     destination: Annotated[
         Path | None,
         typer.Option(
@@ -37,6 +50,22 @@ def create_domain(
     target = destination or Path(".")
 
     try:
+        loaded_specification = (
+            context.domain_specification_loader.load(
+                specification,
+            )
+        )
+
+        if loaded_specification.name != name:
+            Output.error(
+                (
+                    f'Domain specification name '
+                    f'"{loaded_specification.name}" does not match '
+                    f'requested domain "{name}".'
+                ),
+            )
+            return
+
         result = context.create_domain.execute(
             domain_name=name,
             destination=target,
