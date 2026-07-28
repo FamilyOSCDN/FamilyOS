@@ -19,3 +19,9 @@ demo2/
 demo3/
 # macOS
 .DS_Storegenerated/
+
+# Generated artifacts
+generated/
+
+# macOS
+.DS_Store
