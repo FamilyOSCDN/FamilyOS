@@ -1,341 +1,359 @@
----
-id: ARC-002
-title: Generation Architecture
-status: Stable
-owner: FamilyOS Team
-created: 2026-07-28
-updated: 2026-07-28
-version: 1.0.0
-tags:
-  - architecture
-  - generation
-  - engine
-  - ddd
-related:
-  - Architecture-Principles
-  - Domain-Driven-Design
-  - Engineering-Principles
----
-
 # Generation Architecture
 
-## Purpose
+## Status
 
-The FamilyOS Generation Engine transforms domain specifications into executable software artifacts.
-
-Its objective is **not** simply to generate files.
-
-Its responsibility is to transform business knowledge into a complete, maintainable and extensible software architecture while remaining independent of any generation technology.
-
-The generation engine is therefore considered a core business capability of FamilyOS.
+- Version: 1.0
+- Status: Stable
+- Audience: Architects, Contributors, Maintainers
 
 ---
 
-# Vision
+# Purpose
 
-FamilyOS is a **policy-driven generation engine**.
+The Generation Architecture defines how FamilyOS transforms declarative
+knowledge and specifications into consistent technical artifacts.
 
-The domain defines **what** must be generated.
+Its purpose is to provide a controlled generation framework based on models,
+specifications, pipelines and deterministic execution.
 
-Policies define **how decisions are made**.
+This document defines the architectural responsibilities and boundaries of the
+Generation component.
 
-Planners organize those decisions into executable plans.
-
-Adapters transform plans into execution models.
-
-Strategies execute generation independently of the underlying technologies.
-
----
-
-# Architectural Principles
-
-The generation engine follows four fundamental principles.
-
-## 1. The Domain Decides
-
-Business decisions always belong to the domain.
-
-Examples:
-
-- which artifacts exist;
-- how artifacts are named;
-- where artifacts belong;
-- which template should be used.
-
-The domain never knows:
-
-- Jinja
-- YAML parsing
-- File systems
-- CLI frameworks
-- External services
+It does not define individual generated artifacts.
 
 ---
 
-## 2. The Application Orchestrates
+# Architectural Role
 
-The application coordinates the generation workflow.
+The Generation Architecture represents the transformation boundary between
+FamilyOS knowledge models and generated outputs.
 
-Typical workflow:
+The Generation component converts structured definitions into reproducible
+artifacts.
 
-Specification
-→ Validation
-→ Planning
-→ Mapping
-→ Generation
+It enables FamilyOS to generate consistent project structures, documentation
+and technical resources from explicit specifications.
 
-The application contains orchestration logic but no business rules.
+Generation produces artifacts.
+
+It does not define business meaning.
+
+Business knowledge belongs to the Domain component.
+
 
 ---
 
-## 3. Infrastructure Executes
+# Scope
 
-Infrastructure performs technical work.
+The Generation component is responsible for:
 
-Examples:
-
-- loading specifications;
+- loading generation specifications;
+- interpreting domain definitions;
+- planning generated artifacts;
+- creating generation contexts;
+- executing generation pipelines;
 - rendering templates;
-- writing files;
-- loading plugins;
-- accessing external resources.
+- producing technical outputs;
+- validating generated artifacts.
 
-Infrastructure never decides business rules.
-
----
-
-## 4. Interfaces Trigger Use Cases
-
-Interfaces expose FamilyOS capabilities.
-
-Examples:
-
-- CLI
-- REST API
-- Desktop UI
-- IDE plugins
-
-Interfaces never implement business logic.
+The Generation Architecture provides a controlled transformation process from
+structured knowledge to reproducible artifacts.
 
 ---
 
-# Layer Responsibilities
+# Responsibilities
 
-cat > docs/00-foundation/Generation-Architecture.md <<'EOF'
----
-id: ARC-002
-title: Generation Architecture
-status: Stable
-owner: FamilyOS Team
-created: 2026-07-28
-updated: 2026-07-28
-version: 1.0.0
-tags:
-  - architecture
-  - generation
-  - engine
-  - ddd
-related:
-  - Architecture-Principles
-  - Domain-Driven-Design
-  - Engineering-Principles
----
+The Generation component shall:
 
-# Generation Architecture
+- transform specifications into generation plans;
+- coordinate generation workflows;
+- manage artifact creation;
+- provide deterministic generation behavior;
+- validate generation inputs and outputs;
+- support extensible generation strategies;
+- preserve traceability between source models and generated artifacts.
 
-## Purpose
-
-The FamilyOS Generation Engine transforms domain specifications into executable software artifacts.
-
-Its objective is **not** simply to generate files.
-
-Its responsibility is to transform business knowledge into a complete, maintainable and extensible software architecture while remaining independent of any generation technology.
-
-The generation engine is therefore considered a core business capability of FamilyOS.
+The Generation component transforms defined knowledge into concrete outputs.
 
 ---
 
-# Vision
+# Responsibilities Explicitly Excluded
 
-FamilyOS is a **policy-driven generation engine**.
+The Generation component shall never:
 
-The domain defines **what** must be generated.
+- define business rules;
+- replace domain models;
+- introduce undocumented business concepts;
+- generate artifacts without defined sources;
+- contain presentation-specific behavior;
+- depend on a single technical implementation.
 
-Policies define **how decisions are made**.
+Business meaning belongs to the Domain component.
 
-Planners organize those decisions into executable plans.
+Application orchestration belongs to the Application component.
 
-Adapters transform plans into execution models.
+Technical execution belongs to Infrastructure.
 
-Strategies execute generation independently of the underlying technologies.
 
 ---
 
-# Architectural Principles
+# Design Principles
 
-The generation engine follows four fundamental principles.
+The Generation Architecture follows the following principles.
 
-## 1. The Domain Decides
+## Model First Generation
 
-Business decisions always belong to the domain.
+Generation starts from structured models and explicit definitions.
 
-Examples:
+Generated artifacts must be derived from declared knowledge sources rather
+than manual assumptions.
 
-- which artifacts exist;
-- how artifacts are named;
-- where artifacts belong;
-- which template should be used.
-
-The domain never knows:
-
-- Jinja
-- YAML parsing
-- File systems
-- CLI frameworks
-- External services
+The model is the source of generation truth.
 
 ---
 
-## 2. The Application Orchestrates
+## Declarative Specifications
 
-The application coordinates the generation workflow.
+Generation behavior should be driven by explicit specifications.
 
-Typical workflow:
+Specifications define what should be generated while generation components
+define how generation is executed.
 
-Specification
-→ Validation
-→ Planning
-→ Mapping
-→ Generation
-
-The application contains orchestration logic but no business rules.
+This separation allows knowledge evolution without rewriting generation logic.
 
 ---
 
-## 3. Infrastructure Executes
+## Deterministic Generation
 
-Infrastructure performs technical work.
+The same inputs should produce the same generated outputs.
 
-Examples:
+Generation results should be predictable, reproducible and traceable.
 
-- loading specifications;
-- rendering templates;
-- writing files;
-- loading plugins;
-- accessing external resources.
-
-Infrastructure never decides business rules.
+Non-deterministic behavior should be avoided.
 
 ---
 
-## 4. Interfaces Trigger Use Cases
+## Separation of Planning and Execution
 
-Interfaces expose FamilyOS capabilities.
+Generation planning and generation execution are separate responsibilities.
 
-Examples:
+Planning defines:
 
-- CLI
-- REST API
-- Desktop UI
-- IDE plugins
+- what should be generated;
+- which artifacts are required;
+- where outputs should be created.
 
-Interfaces never implement business logic.
+Execution performs:
 
----
+- rendering;
+- file creation;
+- artifact production.
 
-# Layer Responsibilities
-
-
-A policy must never answer multiple unrelated questions.
+This separation improves validation and extensibility.
 
 ---
 
-# Dependency Rules
+## Extensible Generation Pipeline
 
-The generation engine follows strict dependency rules.
+Generation capabilities should evolve through extensible pipeline components.
 
-Allowed:
+New generation behaviors should be introduced through defined extension points
+rather than by modifying existing generation flows.
 
-Planner
-→
-Policy
-
-Mapper
-→
-Policy
-
-Application
-→
-Domain
-
-Infrastructure
-→
-Domain Contracts
-
-Forbidden:
-
-Domain
-→
-Infrastructure
-
-Domain
-→
-CLI
-
-Policy
-→
-File System
-
-Policy
-→
-Template Engine
 
 ---
 
-# Plugin Model
+# Architectural Boundaries
 
-Plugins extend the generation engine through domain contracts.
+The Generation Architecture operates between FamilyOS knowledge models and
+technical outputs.
 
-Plugins should replace or contribute:
+It transforms defined specifications into generated artifacts while preserving
+the separation between knowledge and implementation.
 
-- policies;
-- planners;
-- adapters;
-- strategies.
+~~~text
+Domain Knowledge
+        │
+        ▼
+Generation Framework
+        │
+        ▼
+Generated Artifacts
+~~~
 
-The core generation engine should not require modification when adding new capabilities.
+The Generation component communicates with:
 
----
+- Domain specifications as generation inputs;
+- Application workflows through generation use cases;
+- Infrastructure services for technical execution.
 
-# Design Rules
-
-Every new component should satisfy the following principles.
-
-A class should have a single responsibility.
-
-A policy should answer one business question.
-
-A planner should organize decisions.
-
-An adapter should transform models.
-
-A strategy should execute work.
-
-Business decisions belong to the domain.
-
-Technical execution belongs to infrastructure.
+The Generation component does not define business meaning.
 
 ---
 
-# Long-Term Objective
+# Dependencies
 
-The long-term objective of the generation engine is to transform a domain specification into a complete software architecture while remaining:
+The Generation Architecture follows controlled dependency directions.
 
-- deterministic;
-- testable;
-- extensible;
-- technology independent;
-- plugin driven.
+Allowed dependency direction:
 
-The generation engine should remain understandable even as FamilyOS grows to hundreds of modules and thousands of generated artifacts.
+~~~text
+Domain Specifications
+        │
+        ▼
+Generation Framework
+        │
+        ▼
+Infrastructure Services
+~~~
+
+The Generation component may depend on:
+
+- generation contracts;
+- domain descriptors;
+- specification models;
+- template systems;
+- technical generation services.
+
+The Generation component must not depend directly on:
+
+- presentation technologies;
+- undocumented business rules;
+- generated artifacts as source of truth;
+- specific external implementation details.
+
+The purpose of these boundaries is to preserve reproducible and maintainable
+generation behavior.
+
+---
+
+# Generation Lifecycle Model
+
+Generation follows a controlled lifecycle managed by the Generation Framework.
+
+The lifecycle includes:
+
+- specification loading;
+- validation;
+- planning;
+- context creation;
+- generation execution;
+- artifact production;
+- output validation.
+
+~~~text
+Specification Loading
+        │
+        ▼
+Validation
+        │
+        ▼
+Planning
+        │
+        ▼
+Context Creation
+        │
+        ▼
+Generation Execution
+        │
+        ▼
+Artifact Validation
+~~~
+
+Each lifecycle step has a defined responsibility.
+
+Generation processes should remain observable, repeatable and traceable.
+
+
+---
+
+# Quality Attributes
+
+The Generation Architecture prioritizes the following qualities.
+
+## Determinism
+
+Generation should produce predictable results from defined inputs.
+
+The same specifications should produce consistent generated artifacts.
+
+---
+
+## Traceability
+
+Generated artifacts should remain traceable to their source specifications and
+generation processes.
+
+The origin of generated outputs should always be understandable.
+
+---
+
+## Reproducibility
+
+Generation processes should be repeatable across environments.
+
+A defined model and configuration should allow consistent artifact production.
+
+---
+
+## Extensibility
+
+The Generation Framework should support new artifact types, templates and
+generation strategies without requiring architectural redesign.
+
+Extensions should follow defined generation contracts.
+
+---
+
+## Maintainability
+
+Generation responsibilities should remain separated and understandable.
+
+Changes to generation behavior should not introduce unnecessary complexity into
+the architecture.
+
+---
+
+# Evolution Guidelines
+
+Future Generation capabilities should extend this architecture while preserving
+the established generation principles.
+
+New generation features should:
+
+- use explicit specifications;
+- preserve deterministic behavior;
+- maintain separation between planning and execution;
+- provide traceable outputs;
+- evolve through documented architectural decisions.
+
+Changes affecting generation contracts, lifecycle behavior or architectural
+boundaries should follow the FamilyOS RFC and ADR processes.
+
+---
+
+# Related Documents
+
+## Foundation
+
+- Architecture-Vision.md
+- Architecture-Principles.md
+- Presentation-Architecture.md
+- Application-Architecture.md
+- Domain-Architecture.md
+- Infrastructure-Architecture.md
+- Plugin-Architecture.md
+
+## RFCs
+
+- RFC-0001 Presentation Layer Consolidation
+
+## ADRs
+
+- ADR-0003 Model-First Architecture
+
+## Specifications
+
+- Domain Specification Format
+- Generation Specification Format
 
