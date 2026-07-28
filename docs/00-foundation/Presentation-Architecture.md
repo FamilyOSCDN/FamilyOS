@@ -35,6 +35,7 @@ Every interaction with FamilyOS starts here.
 The Presentation component is responsible for communication, not business
 behavior.
 
+
 ---
 
 # Scope
@@ -66,6 +67,7 @@ The Presentation component shall:
 - provide a consistent user experience across interfaces;
 - remain independent from business rules.
 
+---
 
 # Responsibilities Explicitly Excluded
 
@@ -79,6 +81,7 @@ The Presentation component shall never:
 - make business decisions.
 
 These responsibilities belong to other architectural components.
+
 
 ---
 
@@ -133,13 +136,14 @@ One presentation technology can be replaced without impacting business logic.
 The Application and Domain components must remain independent from presentation
 implementation choices.
 
+
 ---
 
 # Architectural Boundaries
 
 The Presentation component communicates with the Application layer.
 
-```text
+~~~text
 User
     │
     ▼
@@ -147,6 +151,43 @@ Presentation
     │
     ▼
 Application
+~~~
+
+The Presentation component does not communicate directly with:
+
+- Domain implementation details;
+- Infrastructure services;
+- Persistence mechanisms;
+- External technical services.
+
+All interactions must respect the architectural dependency direction.
+
+---
+
+# Dependencies
+
+The Presentation component depends only on Application contracts.
+
+Allowed dependency direction:
+
+~~~text
+Presentation
+        │
+        ▼
+Application
+~~~
+
+The Presentation component must not depend directly on:
+
+- Domain implementation details;
+- Infrastructure services;
+- Persistence mechanisms;
+- External technical frameworks.
+
+The purpose of this boundary is to preserve application independence from
+external interaction technologies.
+
+
 ---
 
 # Quality Attributes
