@@ -25,6 +25,7 @@ def test_artifact_definition_is_immutable() -> None:
         kind=ArtifactKind.ENTITY,
         name="Person",
         target_path="models/person.py",
+        template="entity.py.jinja",
     )
 
     try:

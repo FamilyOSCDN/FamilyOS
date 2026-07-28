@@ -17,4 +17,4 @@ class ArtifactDefinition:
 
     target_path: str
 
-    template: str = ""
+    template: str

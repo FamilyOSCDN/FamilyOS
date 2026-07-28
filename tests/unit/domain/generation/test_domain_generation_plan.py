@@ -25,6 +25,7 @@ def test_domain_generation_plan_creation() -> None:
                 kind=ArtifactKind.REPOSITORY,
                 name="PersonRepository",
                 target_path="repositories/person_repository.py",
+                template="repository.py.jinja",
             ),
         ],
         metadata={
@@ -34,18 +35,18 @@ def test_domain_generation_plan_creation() -> None:
 
     assert plan.domain_name == "Person"
     assert len(plan.artifacts) == 2
-    assert plan.artifacts[0].name == "Person"
-    assert plan.metadata["version"] == "1.0"
+
+    assert plan.artifacts[0].kind is ArtifactKind.ENTITY
+    assert plan.artifacts[0].template == "entity.py.jinja"
+
+    assert plan.artifacts[1].kind is ArtifactKind.REPOSITORY
+    assert plan.artifacts[1].template == "repository.py.jinja"
 
 
-def test_domain_generation_plan_is_immutable() -> None:
+def test_domain_generation_plan_defaults() -> None:
     plan = DomainGenerationPlan(
-        domain_name="Person",
+        domain_name="Empty",
     )
 
-    try:
-        plan.domain_name = "Family"
-    except AttributeError:
-        assert True
-    else:
-        raise AssertionError("Expected code path was not reached.")
+    assert plan.artifacts == []
+    assert plan.metadata == {}

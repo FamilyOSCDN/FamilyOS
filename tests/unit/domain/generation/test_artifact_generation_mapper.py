@@ -16,6 +16,7 @@ def test_entity_artifact_gets_entity_template() -> None:
         kind=ArtifactKind.ENTITY,
         name="Person",
         target_path="domains/person/entities/person.py",
+        template="",
     )
 
     mapper = ArtifactGenerationMapper()
@@ -58,6 +59,7 @@ def test_mapper_uses_injected_template_policy() -> None:
         kind=ArtifactKind.ENTITY,
         name="Person",
         target_path="models/person.py",
+        template="",
     )
 
     mapper = ArtifactGenerationMapper(

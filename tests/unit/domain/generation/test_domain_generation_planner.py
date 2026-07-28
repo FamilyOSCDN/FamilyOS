@@ -59,6 +59,7 @@ def test_domain_generation_planner_creates_full_domain_plan() -> None:
     plan = planner.create_plan(specification)
 
     assert plan.domain_name == "Person"
+
     assert len(plan.artifacts) == 4
 
     assert [
@@ -81,6 +82,16 @@ def test_domain_generation_planner_creates_full_domain_plan() -> None:
         "services/person_registration_service.py",
     ]
 
+    assert [
+        artifact.template
+        for artifact in plan.artifacts
+    ] == [
+        "entity.py.jinja",
+        "aggregate.py.jinja",
+        "repository.py.jinja",
+        "service.py.jinja",
+    ]
+
 
 def test_domain_generation_planner_creates_empty_plan() -> None:
     specification = DomainSpecification(
@@ -96,6 +107,7 @@ def test_domain_generation_planner_creates_empty_plan() -> None:
     plan = planner.create_plan(specification)
 
     assert plan.domain_name == "Empty"
+
     assert plan.artifacts == []
 
 
@@ -128,6 +140,11 @@ def test_domain_generation_planner_uses_injected_path_policy() -> None:
     plan = planner.create_plan(specification)
 
     assert len(plan.artifacts) == 1
+
     assert plan.artifacts[0].target_path == (
         "custom/entity/Person.generated"
+    )
+
+    assert plan.artifacts[0].template == (
+        "entity.py.jinja"
     )

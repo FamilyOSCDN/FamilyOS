@@ -12,6 +12,10 @@ from familyos_cli.domain.generation.artifact_path_policy import (
     ArtifactPathPolicy,
     DefaultArtifactPathPolicy,
 )
+from familyos_cli.domain.generation.artifact_template_policy import (
+    ArtifactTemplatePolicy,
+    DefaultArtifactTemplatePolicy,
+)
 from familyos_cli.domain.generation.domain_generation_plan import (
     DomainGenerationPlan,
 )
@@ -26,6 +30,7 @@ class DomainGenerationPlanner:
     def __init__(
         self,
         path_policy: ArtifactPathPolicy | None = None,
+        template_policy: ArtifactTemplatePolicy | None = None,
     ) -> None:
         """Initialize the planner."""
 
@@ -33,6 +38,12 @@ class DomainGenerationPlanner:
             path_policy
             if path_policy is not None
             else DefaultArtifactPathPolicy()
+        )
+
+        self._template_policy = (
+            template_policy
+            if template_policy is not None
+            else DefaultArtifactTemplatePolicy()
         )
 
     def create_plan(
@@ -94,5 +105,8 @@ class DomainGenerationPlanner:
             target_path=self._path_policy.path_for(
                 kind=kind,
                 name=name,
+            ),
+            template=self._template_policy.template_for(
+                kind=kind,
             ),
         )
