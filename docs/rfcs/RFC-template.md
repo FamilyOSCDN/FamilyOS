@@ -12,77 +12,90 @@
 
 # Summary
 
-Provide a concise overview of the proposal.
+Provide a concise summary of the proposal.
+
+This section should allow a reader to understand the RFC in less than one minute.
 
 ---
 
 # Motivation
 
-Describe the problem being solved and explain why this RFC is necessary.
+Describe the problem.
+
+Explain why this RFC is needed.
 
 ---
 
 # Goals
 
-List the objectives of this proposal.
+List the objectives.
 
-- Goal 1
-- Goal 2
+- Goal
+- Goal
 
 ---
 
 # Non Goals
 
-Explicitly describe what is outside the scope of this RFC.
+Clearly state what is intentionally out of scope.
 
 ---
 
-# Current Situation
+# Current State
 
-Describe the current behaviour or architecture.
+Describe the current architecture or behaviour.
 
 ---
 
 # Proposed Design
 
-Describe the proposed architecture or implementation.
+Describe the proposed solution.
 
-Include diagrams when appropriate.
+When useful include:
+
+- architecture diagrams
+- sequence diagrams
+- examples
 
 ---
 
 # Alternatives Considered
 
-Describe the alternatives that were evaluated and explain why they were not selected.
+Describe alternative solutions.
+
+Explain why they were not selected.
 
 ---
 
-# Impact
+# Impact Analysis
 
-Describe the expected impact on:
+Describe the impact on:
 
 - Architecture
 - Public API
 - Existing code
+- Plugins
 - Documentation
 - Performance
-- Plugins
+- Compatibility
 
 ---
 
 # Migration Strategy
 
-If migration is required, describe the migration plan.
+Describe how existing implementations will migrate.
 
-Otherwise state:
+If no migration is required write:
 
-"No migration required."
+> No migration required.
 
 ---
 
 # Risks
 
-Identify known risks and mitigation strategies.
+Describe known risks.
+
+Describe mitigation strategies.
 
 ---
 
@@ -96,11 +109,17 @@ Identify known risks and mitigation strategies.
 
 # Future Work
 
-Describe possible future improvements that are intentionally outside the scope of this RFC.
+List improvements intentionally left for future RFCs.
 
 ---
 
 # References
 
-List related RFCs, ADRs, issues, specifications or external references.
+List related:
+
+- RFCs
+- ADRs
+- Issues
+- Specifications
+- External references
 
