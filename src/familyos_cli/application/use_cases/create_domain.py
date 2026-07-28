@@ -1,36 +1,46 @@
+"""Create domain use case."""
+
 from __future__ import annotations
 
+from pathlib import Path
+
+from familyos_cli.application.generation.domain_generation_pipeline import (
+    DomainGenerationPipeline,
+)
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
+)
 from familyos_cli.application.use_cases.get_domain_specification import (
     GetDomainSpecificationUseCase,
-)
-from familyos_cli.domain.generation.domain_generation_plan import (
-    DomainGenerationPlan,
-)
-from familyos_cli.domain.generation.domain_generation_planner import (
-    DomainGenerationPlanner,
 )
 
 
 class CreateDomainUseCase:
-    """Creates a domain generation plan."""
+    """Creates a domain."""
 
     def __init__(
         self,
-        planner: DomainGenerationPlanner,
+        pipeline: DomainGenerationPipeline,
         get_specification: GetDomainSpecificationUseCase,
     ) -> None:
-        self._planner = planner
+        self._pipeline = pipeline
         self._get_specification = get_specification
 
     def execute(
         self,
         domain_name: str,
-    ) -> DomainGenerationPlan | None:
-        """Generate a domain plan from a domain name."""
+        destination: Path,
+    ) -> GenerationSpecification | None:
+        """Generate a domain."""
 
-        specification = self._get_specification.execute(domain_name)
+        specification = self._get_specification.execute(
+            domain_name,
+        )
 
         if specification is None:
             return None
 
-        return self._planner.create_plan(specification)
+        return self._pipeline.generate(
+            specification=specification,
+            destination=destination,
+        )

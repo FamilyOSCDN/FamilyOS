@@ -29,10 +29,7 @@ class DomainGenerator:
         """Initialize domain generator."""
 
         self._layout = layout or DirectoryLayout()
-        self._template_provider = (
-            template_provider
-            or TemplateProvider()
-        )
+        self._template_provider = template_provider or TemplateProvider()
 
     def generate(
         self,

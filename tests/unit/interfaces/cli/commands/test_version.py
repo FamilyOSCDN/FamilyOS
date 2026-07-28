@@ -8,9 +8,7 @@ from familyos_cli.interfaces.cli.commands.version import (
 
 
 def test_should_display_version() -> None:
-    with patch(
-        "familyos_cli.interfaces.cli.commands.version.typer.echo"
-    ) as mock_echo:
+    with patch("familyos_cli.interfaces.cli.commands.version.typer.echo") as mock_echo:
         version()
 
     mock_echo.assert_called_once_with(

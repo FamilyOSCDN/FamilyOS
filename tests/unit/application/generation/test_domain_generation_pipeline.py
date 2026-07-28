@@ -1,13 +1,13 @@
 from pathlib import Path
 
-from familyos_cli.application.generation.domain_generation_adapter import (
-    DomainGenerationAdapter,
-)
 from familyos_cli.application.generation.domain_generation_pipeline import (
     DomainGenerationPipeline,
 )
-from familyos_cli.domain.generation.artifact_generation_mapper import (
-    ArtifactGenerationMapper,
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
+)
+from familyos_cli.application.generation.mappers.generation_specification_mapper import (
+    GenerationSpecificationMapper,
 )
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
@@ -20,26 +20,29 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 )
 
 
-def test_domain_generation_pipeline_creates_plan(
-) -> None:
+def test_domain_generation_pipeline_creates_generation_specification() -> None:
     pipeline = DomainGenerationPipeline(
         planner=DomainGenerationPlanner(),
-        mapper=ArtifactGenerationMapper(),
-        adapter=DomainGenerationAdapter(),
+        specification_mapper=GenerationSpecificationMapper(),
         engine=GenerationEngine(),
     )
 
     specification = DomainSpecification(
-    name="Person",
-    entities=[],
-    aggregates=[],
-    repositories=[],
-    services=[],
+        name="Person",
+        entities=[],
+        aggregates=[],
+        repositories=[],
+        services=[],
     )
 
-    plan = pipeline.generate(
+    result = pipeline.generate(
         specification=specification,
         destination=Path("generated"),
     )
 
-    assert plan.domain_name == "Person"
+    assert isinstance(
+        result,
+        GenerationSpecification,
+    )
+
+    assert result.artifacts == []

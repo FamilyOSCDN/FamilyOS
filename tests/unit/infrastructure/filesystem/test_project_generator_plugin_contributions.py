@@ -15,12 +15,8 @@ class BlogPlugin(Plugin):
 
     def contribution(self) -> PluginContribution:
         return PluginContribution(
-            templates=(
-                Path("plugins/blog/templates"),
-            ),
-            specifications=(
-                Path("plugins/blog/specifications/project.yaml"),
-            ),
+            templates=(Path("plugins/blog/templates"),),
+            specifications=(Path("plugins/blog/specifications/project.yaml"),),
         )
 
 
@@ -37,9 +33,7 @@ def test_should_collect_plugin_contributions() -> None:
         runtime=runtime,
     )
 
-    assert generator.plugin_contributions.templates == (
-        Path("plugins/blog/templates"),
-    )
+    assert generator.plugin_contributions.templates == (Path("plugins/blog/templates"),)
 
     assert generator.plugin_contributions.specifications == (
         Path("plugins/blog/specifications/project.yaml"),

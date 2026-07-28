@@ -27,6 +27,7 @@ class GenerationPipeline:
         runtime: PluginRuntime,
     ) -> None:
         """Initialize the generation pipeline."""
+
         self._generator = generator
         self._runtime = runtime
 
@@ -41,6 +42,16 @@ class GenerationPipeline:
         self._runtime.before_generate(
             context,
         )
+
+        if context.project is None:
+            raise ValueError(
+                "Generation project is required.",
+            )
+
+        if context.destination is None:
+            raise ValueError(
+                "Generation destination is required.",
+            )
 
         self._generator.generate(
             project=context.project,

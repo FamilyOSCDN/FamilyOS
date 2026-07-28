@@ -22,12 +22,8 @@ class DummyPlugin(Plugin):
 
     def contribution(self) -> PluginContribution:
         return PluginContribution(
-            templates=(
-                Path("templates"),
-            ),
-            specifications=(
-                Path("specifications"),
-            ),
+            templates=(Path("templates"),),
+            specifications=(Path("specifications"),),
             variables={
                 "project": "FamilyOS",
             },

@@ -1,7 +1,16 @@
+"""Domain generation planner."""
+
 from __future__ import annotations
 
 from familyos_cli.domain.generation.artifact_definition import (
     ArtifactDefinition,
+)
+from familyos_cli.domain.generation.artifact_kind import (
+    ArtifactKind,
+)
+from familyos_cli.domain.generation.artifact_path_policy import (
+    ArtifactPathPolicy,
+    DefaultArtifactPathPolicy,
 )
 from familyos_cli.domain.generation.domain_generation_plan import (
     DomainGenerationPlan,
@@ -12,7 +21,19 @@ from familyos_cli.domain.models.domain_specification import (
 
 
 class DomainGenerationPlanner:
-    """Creates generation plans from domain specifications."""
+    """Create generation plans from domain specifications."""
+
+    def __init__(
+        self,
+        path_policy: ArtifactPathPolicy | None = None,
+    ) -> None:
+        """Initialize the planner."""
+
+        self._path_policy = (
+            path_policy
+            if path_policy is not None
+            else DefaultArtifactPathPolicy()
+        )
 
     def create_plan(
         self,
@@ -22,53 +43,56 @@ class DomainGenerationPlanner:
 
         artifacts: list[ArtifactDefinition] = []
 
-        # Entities
         for entity in specification.entities:
             artifacts.append(
-                ArtifactDefinition(
-                    artifact_type="entity",
+                self._create_artifact(
+                    kind=ArtifactKind.ENTITY,
                     name=entity.name,
-                    target_path=f"models/{entity.name.lower()}.py",
                 )
             )
 
-        # Aggregates
         for aggregate in specification.aggregates:
             artifacts.append(
-                ArtifactDefinition(
-                    artifact_type="aggregate",
+                self._create_artifact(
+                    kind=ArtifactKind.AGGREGATE,
                     name=aggregate.name,
-                    target_path=f"aggregates/{aggregate.name.lower()}.py",
                 )
             )
 
-        # Repositories
         for repository in specification.repositories:
             artifacts.append(
-                ArtifactDefinition(
-                    artifact_type="repository",
+                self._create_artifact(
+                    kind=ArtifactKind.REPOSITORY,
                     name=repository.name,
-                    target_path=(
-                        "repositories/"
-                        f"{repository.name.lower()}.py"
-                    ),
                 )
             )
 
-        # Services
         for service in specification.services:
             artifacts.append(
-                ArtifactDefinition(
-                    artifact_type="service",
+                self._create_artifact(
+                    kind=ArtifactKind.SERVICE,
                     name=service.name,
-                    target_path=(
-                        "services/"
-                        f"{service.name.lower()}.py"
-                    ),
                 )
             )
 
         return DomainGenerationPlan(
             domain_name=specification.name,
             artifacts=artifacts,
+        )
+
+    def _create_artifact(
+        self,
+        *,
+        kind: ArtifactKind,
+        name: str,
+    ) -> ArtifactDefinition:
+        """Create an artifact definition."""
+
+        return ArtifactDefinition(
+            kind=kind,
+            name=name,
+            target_path=self._path_policy.path_for(
+                kind=kind,
+                name=name,
+            ),
         )

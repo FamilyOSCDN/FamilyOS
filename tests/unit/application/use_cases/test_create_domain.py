@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+from familyos_cli.application.generation.domain_generation_pipeline import (
+    DomainGenerationPipeline,
+)
+from familyos_cli.application.generation.mappers.generation_specification_mapper import (
+    GenerationSpecificationMapper,
+)
 from familyos_cli.application.specifications.specification_service import (
     SpecificationService,
 )
@@ -24,34 +32,49 @@ from familyos_cli.domain.specifications.domain_specification_registry import (
 )
 
 
-def test_create_domain_use_case_creates_generation_plan() -> None:
+class FakeGenerationEngine:
+    """Fake generation engine for unit tests."""
+
+    def __init__(self) -> None:
+        self.generated = False
+
+    def generate(
+        self,
+        destination: Path,
+        specification: object,
+        context: dict[str, str],
+    ) -> None:
+        self.generated = True
+
+
+def test_create_domain_use_case_creates_generation_specification() -> None:
     specification = DomainSpecification(
         name="Person",
         entities=[
             EntityDescriptor(
                 name="Person",
                 description="Person entity",
-            )
+            ),
         ],
         aggregates=[
             AggregateDescriptor(
                 name="Person",
                 root_entity="Person",
                 description="Person aggregate",
-            )
+            ),
         ],
         repositories=[
             RepositoryDescriptor(
                 name="PersonRepository",
                 aggregate="Person",
                 description="Person repository",
-            )
+            ),
         ],
         services=[
             ServiceDescriptor(
                 name="PersonService",
                 description="Person service",
-            )
+            ),
         ],
     )
 
@@ -69,13 +92,24 @@ def test_create_domain_use_case_creates_generation_plan() -> None:
         specification_service,
     )
 
-    use_case = CreateDomainUseCase(
+    engine = FakeGenerationEngine()
+
+    pipeline = DomainGenerationPipeline(
         planner=DomainGenerationPlanner(),
+        specification_mapper=GenerationSpecificationMapper(),
+        engine=engine,
+    )
+
+    use_case = CreateDomainUseCase(
+        pipeline=pipeline,
         get_specification=get_specification,
     )
 
-    plan = use_case.execute(
-        "Person",
+    result = use_case.execute(
+        domain_name="Person",
+        destination=Path("."),
     )
 
-    assert plan is not None
+    assert result is not None
+    assert len(result.artifacts) > 0
+    assert engine.generated is True

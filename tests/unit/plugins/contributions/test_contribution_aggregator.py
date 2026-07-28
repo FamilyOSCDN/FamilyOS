@@ -15,12 +15,8 @@ def test_should_aggregate_single_contribution() -> None:
     """ContributionAggregator should aggregate one contribution."""
 
     contribution = PluginContribution(
-        templates=(
-            Path("templates"),
-        ),
-        specifications=(
-            Path("specifications"),
-        ),
+        templates=(Path("templates"),),
+        specifications=(Path("specifications"),),
         variables={
             "project": "FamilyOS",
         },
@@ -29,18 +25,12 @@ def test_should_aggregate_single_contribution() -> None:
     aggregator = ContributionAggregator()
 
     result = aggregator.aggregate(
-        (
-            contribution,
-        ),
+        (contribution,),
     )
 
     assert result == AggregatedContribution(
-        templates=(
-            Path("templates"),
-        ),
-        specifications=(
-            Path("specifications"),
-        ),
+        templates=(Path("templates"),),
+        specifications=(Path("specifications"),),
         variables={
             "project": "FamilyOS",
         },

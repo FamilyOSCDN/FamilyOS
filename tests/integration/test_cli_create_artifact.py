@@ -16,9 +16,7 @@ def test_should_create_artifact(
     specifications = tmp_path / "specifications"
     specifications.mkdir()
 
-    (
-        specifications / "registry.yaml"
-    ).write_text(
+    (specifications / "registry.yaml").write_text(
         """
 version: 1
 
@@ -32,9 +30,7 @@ artifacts:
     domain_specification = specifications / "domain"
     domain_specification.mkdir()
 
-    (
-        domain_specification / "domain.yaml"
-    ).write_text(
+    (domain_specification / "domain.yaml").write_text(
         """
 project:
   name: domain
@@ -47,9 +43,7 @@ project:
     templates = tmp_path / "templates" / "domain"
     templates.mkdir(parents=True)
 
-    (
-        templates / "manifest.yml.j2"
-    ).write_text(
+    (templates / "manifest.yml.j2").write_text(
         "type: {{ artifact_type }}\nname: {{ name }}\n",
         encoding="utf-8",
     )

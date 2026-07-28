@@ -63,9 +63,7 @@ class PluginManager:
         """List available plugins."""
 
         if self.plugins_directory is None:
-            return builtin_list(
-                self._plugins.values()
-            )
+            return builtin_list(self._plugins.values())
 
         if not self.plugins_directory.exists():
             return []
@@ -94,9 +92,7 @@ class PluginManager:
     ) -> builtin_list[PluginDescriptor]:
         """Return all registered plugins."""
 
-        return builtin_list(
-            self._plugins.values()
-        )
+        return builtin_list(self._plugins.values())
 
     def load_all(
         self,
@@ -116,9 +112,7 @@ class PluginManager:
         descriptor = self.get(name)
 
         if descriptor is None:
-            raise ValueError(
-                f"Unknown plugin: {name}"
-            )
+            raise ValueError(f"Unknown plugin: {name}")
 
         plugin = PluginLoader().load(descriptor)
 
@@ -134,9 +128,7 @@ class PluginManager:
         descriptor = self.get(name)
 
         if descriptor is None:
-            raise ValueError(
-                f"Unknown plugin: {name}"
-            )
+            raise ValueError(f"Unknown plugin: {name}")
 
         plugin = PluginLoader().load(descriptor)
 

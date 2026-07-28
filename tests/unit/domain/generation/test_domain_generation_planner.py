@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+from familyos_cli.domain.generation.artifact_kind import (
+    ArtifactKind,
+)
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
@@ -43,8 +48,8 @@ def test_domain_generation_planner_creates_full_domain_plan() -> None:
         ],
         services=[
             ServiceDescriptor(
-                name="PersonService",
-                description="Person service",
+                name="PersonRegistrationService",
+                description="Person registration service",
             )
         ],
     )
@@ -54,19 +59,26 @@ def test_domain_generation_planner_creates_full_domain_plan() -> None:
     plan = planner.create_plan(specification)
 
     assert plan.domain_name == "Person"
-
     assert len(plan.artifacts) == 4
 
-    artifact_types = [
-        artifact.artifact_type
+    assert [
+        artifact.kind
         for artifact in plan.artifacts
+    ] == [
+        ArtifactKind.ENTITY,
+        ArtifactKind.AGGREGATE,
+        ArtifactKind.REPOSITORY,
+        ArtifactKind.SERVICE,
     ]
 
-    assert artifact_types == [
-        "entity",
-        "aggregate",
-        "repository",
-        "service",
+    assert [
+        artifact.target_path
+        for artifact in plan.artifacts
+    ] == [
+        "models/person.py",
+        "aggregates/person.py",
+        "repositories/person_repository.py",
+        "services/person_registration_service.py",
     ]
 
 
@@ -85,3 +97,37 @@ def test_domain_generation_planner_creates_empty_plan() -> None:
 
     assert plan.domain_name == "Empty"
     assert plan.artifacts == []
+
+
+def test_domain_generation_planner_uses_injected_path_policy() -> None:
+    class FakeArtifactPathPolicy:
+        def path_for(
+            self,
+            kind: ArtifactKind,
+            name: str,
+        ) -> str:
+            return f"custom/{kind.value}/{name}.generated"
+
+    specification = DomainSpecification(
+        name="Person",
+        entities=[
+            EntityDescriptor(
+                name="Person",
+                description="Person entity",
+            )
+        ],
+        aggregates=[],
+        repositories=[],
+        services=[],
+    )
+
+    planner = DomainGenerationPlanner(
+        path_policy=FakeArtifactPathPolicy(),
+    )
+
+    plan = planner.create_plan(specification)
+
+    assert len(plan.artifacts) == 1
+    assert plan.artifacts[0].target_path == (
+        "custom/entity/Person.generated"
+    )

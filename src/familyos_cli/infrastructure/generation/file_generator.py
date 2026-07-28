@@ -15,9 +15,7 @@ class FileGenerator:
 
     def __init__(
         self,
-        template_directories: tuple[Path, ...] = (
-            Path("templates"),
-        ),
+        template_directories: tuple[Path, ...] = (Path("templates"),),
     ) -> None:
         """Initialize the file generator."""
         self._template_directories = template_directories

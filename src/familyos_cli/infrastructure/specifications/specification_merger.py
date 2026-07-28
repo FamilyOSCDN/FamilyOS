@@ -1,39 +1,38 @@
-"""Project specification merger."""
+"""Generation specification merger."""
 
 from __future__ import annotations
 
-from familyos_cli.domain.models.project_specification import (
-    ProjectSpecification,
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
 )
 
 
 class SpecificationMerger:
-    """Merge multiple project specifications."""
+    """Merge multiple generation specifications."""
 
     def merge(
         self,
-        specifications: list[ProjectSpecification],
-    ) -> ProjectSpecification:
+        specifications: list[GenerationSpecification],
+    ) -> GenerationSpecification:
         """Merge specifications into one."""
 
         if not specifications:
-            return ProjectSpecification(
-                directories=[],
-                files=[],
-            )
+            return GenerationSpecification()
 
         directories: list[str] = []
-        files = []
+
+        artifacts = []
 
         for specification in specifications:
             directories.extend(
                 specification.directories,
             )
-            files.extend(
-                specification.files,
+
+            artifacts.extend(
+                specification.artifacts,
             )
 
-        return ProjectSpecification(
+        return GenerationSpecification(
             directories=directories,
-            files=files,
+            artifacts=artifacts,
         )

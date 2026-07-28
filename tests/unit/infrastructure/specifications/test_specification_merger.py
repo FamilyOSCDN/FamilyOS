@@ -1,8 +1,10 @@
 """Tests for SpecificationMerger."""
 
-from familyos_cli.domain.models.project_file import ProjectFile
-from familyos_cli.domain.models.project_specification import (
-    ProjectSpecification,
+from familyos_cli.application.generation.generation_artifact import (
+    GenerationArtifact,
+)
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
 )
 from familyos_cli.infrastructure.specifications.specification_merger import (
     SpecificationMerger,
@@ -12,27 +14,27 @@ from familyos_cli.infrastructure.specifications.specification_merger import (
 def test_should_merge_multiple_specifications() -> None:
     """Multiple specifications should be merged."""
 
-    first = ProjectSpecification(
+    first = GenerationSpecification(
         directories=[
             "docs",
             "src",
         ],
-        files=[
-            ProjectFile(
-                path="README.md",
+        artifacts=[
+            GenerationArtifact(
+                destination="README.md",
                 template="README.md.j2",
             ),
         ],
     )
 
-    second = ProjectSpecification(
+    second = GenerationSpecification(
         directories=[
             "tests",
             "scripts",
         ],
-        files=[
-            ProjectFile(
-                path="pyproject.toml",
+        artifacts=[
+            GenerationArtifact(
+                destination="pyproject.toml",
                 template="pyproject.toml.j2",
             ),
         ],
@@ -54,7 +56,12 @@ def test_should_merge_multiple_specifications() -> None:
         "scripts",
     ]
 
-    assert len(specification.files) == 2
+    assert len(specification.artifacts) == 2
 
-    assert specification.files[0].path == "README.md"
-    assert specification.files[1].path == "pyproject.toml"
+    assert specification.artifacts[0].destination == (
+        "README.md"
+    )
+
+    assert specification.artifacts[1].destination == (
+        "pyproject.toml"
+    )

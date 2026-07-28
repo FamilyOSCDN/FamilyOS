@@ -14,7 +14,4 @@ def test_should_load_registry() -> None:
 
     assert registry.artifacts[0].id == "project"
 
-    assert (
-        registry.artifacts[0].specification
-        == "project.yaml"
-    )
+    assert registry.artifacts[0].specification == "project.yaml"

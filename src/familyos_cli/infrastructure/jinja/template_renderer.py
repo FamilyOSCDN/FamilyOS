@@ -17,25 +17,15 @@ class TemplateRenderer:
         """Initialize the template renderer."""
 
         if template_directories is None:
-            template_root = (
-                Path(__file__)
-                .resolve()
-                .parents[4]
-                / "templates"
-            )
+            template_root = Path(__file__).resolve().parents[4] / "templates"
 
-            template_directories = (
-                template_root,
-            )
+            template_directories = (template_root,)
 
         self._template_directories = template_directories
 
         self._environment = Environment(
             loader=FileSystemLoader(
-                [
-                    str(directory)
-                    for directory in template_directories
-                ],
+                [str(directory) for directory in template_directories],
             ),
             undefined=StrictUndefined,
         )

@@ -64,10 +64,7 @@ class ProjectGenerator:
         )
 
         specification_path = (
-            Path(__file__).resolve()
-            .parents[4]
-            / "specifications"
-            / "project.yaml"
+            Path(__file__).resolve().parents[4] / "specifications" / "project.yaml"
         )
 
         specification = self._specification_loader.load(

@@ -55,7 +55,10 @@ project:
         "src",
     ]
 
-    assert [file.path for file in specification.files] == [
+    assert [
+        artifact.destination
+        for artifact in specification.artifacts
+    ] == [
         "README.md",
         "pyproject.toml",
     ]

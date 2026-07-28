@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from familyos_cli.domain.models.project_specification import (
-    ProjectSpecification,
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
 )
 from familyos_cli.infrastructure.specifications.specification_loader import (
     SpecificationLoader,
@@ -25,7 +25,7 @@ class SpecificationRegistry:
     def get(
         self,
         artifact_type: str,
-    ) -> ProjectSpecification:
+    ) -> GenerationSpecification:
         """Return the specification for an artifact."""
 
         artifact = self._artifacts.get(

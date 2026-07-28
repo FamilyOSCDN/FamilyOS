@@ -2,21 +2,22 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
-from familyos_cli.domain.models.project import Project
-
-
-@dataclass(
-    frozen=True,
-    slots=True,
+from familyos_cli.domain.models.project import (
+    Project,
 )
+
+
+@dataclass(frozen=True, slots=True)
 class GenerationContext:
-    """Immutable context used during project generation."""
+    """Context data used during generation."""
 
-    project: Project
+    variables: dict[str, object] = field(
+        default_factory=dict,
+    )
 
-    destination: Path
+    project: Project | None = None
 
-    variables: dict[str, object]
+    destination: Path | None = None

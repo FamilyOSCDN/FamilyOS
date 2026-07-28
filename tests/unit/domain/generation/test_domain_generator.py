@@ -42,9 +42,7 @@ def test_should_return_domain_directories() -> None:
 
     assert len(directories) == 7
 
-    assert directories[0].as_posix() == (
-        "docs/30-domains/person"
-    )
+    assert directories[0].as_posix() == ("docs/30-domains/person")
 
 
 def test_should_return_domain_templates() -> None:

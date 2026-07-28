@@ -1,29 +1,28 @@
 from pathlib import Path
 
-from familyos_cli.domain.models.project_file import ProjectFile
-from familyos_cli.domain.models.project_specification import (
-    ProjectSpecification,
+from familyos_cli.application.generation.generation_artifact import (
+    GenerationArtifact,
+)
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
 )
 from familyos_cli.infrastructure.generation.generation_engine import (
     GenerationEngine,
 )
 
 
-def test_generate_project(tmp_path: Path) -> None:
+def test_generate_project(
+    tmp_path: Path,
+) -> None:
     """Generate a complete project."""
 
     engine = GenerationEngine()
 
-    specification = ProjectSpecification(
-        directories=[
-            "docs",
-            "src",
-            "tests",
-        ],
-        files=[
-            ProjectFile(
-                path="README.md",
+    specification = GenerationSpecification(
+        artifacts=[
+            GenerationArtifact(
                 template="project/README.md.j2",
+                destination="README.md",
             ),
         ],
     )
@@ -36,7 +35,4 @@ def test_generate_project(tmp_path: Path) -> None:
         },
     )
 
-    assert (tmp_path / "docs").exists()
-    assert (tmp_path / "src").exists()
-    assert (tmp_path / "tests").exists()
     assert (tmp_path / "README.md").exists()

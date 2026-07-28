@@ -7,8 +7,8 @@ from familyos_cli.infrastructure.specifications.specification_loader import (
 )
 
 
-def test_load_project_specification() -> None:
-    """Load the default project specification."""
+def test_load_generation_specification() -> None:
+    """Load the default generation specification."""
 
     loader = SpecificationLoader()
 
@@ -23,10 +23,12 @@ def test_load_project_specification() -> None:
         "scripts",
     ]
 
-    assert len(specification.files) == 1
+    assert len(specification.artifacts) == 1
 
-    assert specification.files[0].path == "README.md"
+    assert specification.artifacts[0].destination == (
+        "README.md"
+    )
 
-    assert specification.files[0].template == (
+    assert specification.artifacts[0].template == (
         "project/README.md.j2"
     )

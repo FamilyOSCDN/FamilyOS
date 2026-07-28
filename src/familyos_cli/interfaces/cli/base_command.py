@@ -14,8 +14,4 @@ class BaseCommand:
     ) -> None:
         """Initialize command."""
 
-        self.context = (
-            context
-            if context is not None
-            else CommandContext()
-        )
+        self.context = context if context is not None else CommandContext()

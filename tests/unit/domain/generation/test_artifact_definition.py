@@ -1,17 +1,20 @@
 from familyos_cli.domain.generation.artifact_definition import (
     ArtifactDefinition,
 )
+from familyos_cli.domain.generation.artifact_kind import (
+    ArtifactKind,
+)
 
 
 def test_artifact_definition_creation() -> None:
     artifact = ArtifactDefinition(
-        artifact_type="entity",
+        kind=ArtifactKind.ENTITY,
         name="Person",
         target_path="models/person.py",
         template="entity.py.jinja",
     )
 
-    assert artifact.artifact_type == "entity"
+    assert artifact.kind is ArtifactKind.ENTITY
     assert artifact.name == "Person"
     assert artifact.target_path == "models/person.py"
     assert artifact.template == "entity.py.jinja"
@@ -19,7 +22,7 @@ def test_artifact_definition_creation() -> None:
 
 def test_artifact_definition_is_immutable() -> None:
     artifact = ArtifactDefinition(
-        artifact_type="entity",
+        kind=ArtifactKind.ENTITY,
         name="Person",
         target_path="models/person.py",
     )
@@ -27,6 +30,6 @@ def test_artifact_definition_is_immutable() -> None:
     try:
         artifact.name = "Family"
     except AttributeError:
-        assert True
+        pass
     else:
-        assert False
+        raise AssertionError("Expected AttributeError.")

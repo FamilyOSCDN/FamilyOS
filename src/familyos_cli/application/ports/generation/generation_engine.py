@@ -5,8 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Protocol
 
-from familyos_cli.domain.models.project_specification import (
-    ProjectSpecification,
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
 )
 
 
@@ -16,7 +16,7 @@ class GenerationEngine(Protocol):
     def generate(
         self,
         destination: Path,
-        specification: ProjectSpecification,
+        specification: GenerationSpecification,
         context: dict[str, object],
     ) -> None:
         """Generate artifacts."""

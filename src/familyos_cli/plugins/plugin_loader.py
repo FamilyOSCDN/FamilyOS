@@ -38,9 +38,7 @@ class PluginLoader:
         )
 
         if not issubclass(plugin_class, Plugin):
-            raise TypeError(
-                f"{source.class_name} must inherit from Plugin"
-            )
+            raise TypeError(f"{source.class_name} must inherit from Plugin")
 
         return plugin_class()
 
@@ -64,9 +62,7 @@ class PluginLoader:
             if not metadata_file.exists():
                 continue
 
-            plugins.append(
-                self._discover(plugin_path)
-            )
+            plugins.append(self._discover(plugin_path))
 
         return plugins
 

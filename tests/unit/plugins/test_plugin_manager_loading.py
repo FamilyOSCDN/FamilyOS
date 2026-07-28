@@ -35,6 +35,9 @@ enabled: true
 
     runtime = manager.runtime()
 
-    assert len(
-        runtime.plugins().all(),
-    ) == 1
+    assert (
+        len(
+            runtime.plugins().all(),
+        )
+        == 1
+    )

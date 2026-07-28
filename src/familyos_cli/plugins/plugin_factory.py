@@ -33,8 +33,7 @@ class PluginFactory:
             Plugin,
         ):
             raise TypeError(
-                f"{descriptor.class_name} "
-                "is not a Plugin.",
+                f"{descriptor.class_name} is not a Plugin.",
             )
 
         return plugin

@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
-from familyos_cli.application.specifications.specification_service import (
+from familyos_cli.application.generation.domain_generation_pipeline import (
+    DomainGenerationPipeline,
+)
+from familyos_cli.application.generation.mappers.generation_specification_mapper import (
+    GenerationSpecificationMapper,
+)
+from familyos_cli.application.specifications import (
+    DomainSpecificationLoaderService,
     SpecificationService,
 )
 from familyos_cli.application.use_cases.create_artifact import (
@@ -17,14 +24,18 @@ from familyos_cli.application.use_cases.create_project import (
 from familyos_cli.application.use_cases.get_domain_specification import (
     GetDomainSpecificationUseCase,
 )
-from familyos_cli.bootstrap.runtime_factory import (
-    RuntimeFactory,
-)
+from familyos_cli.bootstrap.runtime_factory import RuntimeFactory
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
 from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
+)
+from familyos_cli.infrastructure.generation.generation_engine import (
+    GenerationEngine,
+)
+from familyos_cli.infrastructure.specifications import (
+    YamlDomainSpecificationLoader,
 )
 from familyos_cli.plugins.runtime.plugin_runtime import (
     PluginRuntime,
@@ -32,138 +43,86 @@ from familyos_cli.plugins.runtime.plugin_runtime import (
 
 
 class ApplicationContainer:
-    """Application dependency container."""
+    """Dependency injection container."""
 
-    def __init__(self) -> None:
-        """Initialize container."""
+    def __init__(
+        self,
+    ) -> None:
+        self._runtime = RuntimeFactory.create()
 
-        self._runtime: PluginRuntime | None = None
-
-        self._create_artifact_use_case: (
-            CreateArtifactUseCase | None
-        ) = None
-
-        self._create_project_use_case: (
-            CreateProjectUseCase | None
-        ) = None
-
-        self._create_domain_use_case: (
-            CreateDomainUseCase | None
-        ) = None
-
-        self._domain_generation_planner: (
-            DomainGenerationPlanner | None
-        ) = None
-
-        self._domain_specification_registry: (
-            DomainSpecificationRegistry | None
-        ) = None
-
-        self._specification_service: (
-            SpecificationService | None
-        ) = None
-
-        self._get_domain_specification_use_case: (
-            GetDomainSpecificationUseCase | None
-        ) = None
-
-    def runtime(self) -> PluginRuntime:
-        """Provide shared plugin runtime."""
-
-        if self._runtime is None:
-            self._runtime = RuntimeFactory.create()
+    def plugin_runtime(
+        self,
+    ) -> PluginRuntime:
+        """Return plugin runtime."""
 
         return self._runtime
-
-    def domain_specification_registry(
-        self,
-    ) -> DomainSpecificationRegistry:
-        """Provide domain specification registry."""
-
-        if self._domain_specification_registry is None:
-            self._domain_specification_registry = (
-                DomainSpecificationRegistry()
-            )
-
-        return self._domain_specification_registry
-
-    def specification_service(
-        self,
-    ) -> SpecificationService:
-        """Provide specification service."""
-
-        if self._specification_service is None:
-            self._specification_service = SpecificationService(
-                registry=self.domain_specification_registry(),
-            )
-
-        return self._specification_service
-
-    def get_domain_specification_use_case(
-        self,
-    ) -> GetDomainSpecificationUseCase:
-        """Provide specification retrieval use case."""
-
-        if self._get_domain_specification_use_case is None:
-            self._get_domain_specification_use_case = (
-                GetDomainSpecificationUseCase(
-                    specification_service=self.specification_service(),
-                )
-            )
-
-        return self._get_domain_specification_use_case
-
-    def domain_generation_planner(
-        self,
-    ) -> DomainGenerationPlanner:
-        """Provide domain generation planner."""
-
-        if self._domain_generation_planner is None:
-            self._domain_generation_planner = (
-                DomainGenerationPlanner()
-            )
-
-        return self._domain_generation_planner
-
-    def create_domain_use_case(
-        self,
-    ) -> CreateDomainUseCase:
-        """Provide domain creation use case."""
-
-        if self._create_domain_use_case is None:
-            self._create_domain_use_case = (
-                CreateDomainUseCase(
-                    planner=self.domain_generation_planner(),
-                    get_specification=(
-                        self.get_domain_specification_use_case()
-                    ),
-                )
-            )
-
-        return self._create_domain_use_case
-
-    def create_artifact_use_case(
-        self,
-    ) -> CreateArtifactUseCase:
-        """Provide artifact creation use case."""
-
-        if self._create_artifact_use_case is None:
-            self._create_artifact_use_case = (
-                CreateArtifactUseCase()
-            )
-
-        return self._create_artifact_use_case
 
     def create_project_use_case(
         self,
     ) -> CreateProjectUseCase:
-        """Provide project creation use case."""
+        """Create project use case."""
 
-        if self._create_project_use_case is None:
-            self._create_project_use_case = (
-                CreateProjectUseCase(
-                    runtime=self.runtime(),
-                )
-            )
+        return CreateProjectUseCase(
+            runtime=self._runtime,
+        )
 
-        return self._create_project_use_case
+    def create_artifact_use_case(
+        self,
+    ) -> CreateArtifactUseCase:
+        """Create artifact use case."""
+
+        return CreateArtifactUseCase()
+
+    def create_domain_use_case(
+        self,
+    ) -> CreateDomainUseCase:
+        """Create domain use case."""
+
+        registry = DomainSpecificationRegistry()
+
+        specification_service = SpecificationService(
+            registry,
+        )
+
+        get_specification = GetDomainSpecificationUseCase(
+            specification_service,
+        )
+
+        pipeline = DomainGenerationPipeline(
+            planner=DomainGenerationPlanner(),
+            specification_mapper=GenerationSpecificationMapper(),
+            engine=GenerationEngine(),
+        )
+
+        return CreateDomainUseCase(
+            pipeline=pipeline,
+            get_specification=get_specification,
+        )
+
+    def domain_specification_loader_service(
+        self,
+    ) -> DomainSpecificationLoaderService:
+        """Create domain specification loader service."""
+
+        registry = DomainSpecificationRegistry()
+
+        specification_service = SpecificationService(
+            registry,
+        )
+
+        loader = YamlDomainSpecificationLoader()
+
+        return DomainSpecificationLoaderService(
+            loader=loader,
+            service=specification_service,
+        )
+
+
+class ApplicationFactory:
+    """Application factory."""
+
+    @staticmethod
+    def create() -> ApplicationContainer:
+        """Create application container."""
+
+        return ApplicationContainer()

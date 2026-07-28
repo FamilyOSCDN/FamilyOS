@@ -23,66 +23,44 @@ class DomainSpecificationValidator:
         specification: DomainSpecification,
     ) -> None:
         if not specification.name.strip():
-            raise ValueError(
-                "Domain name cannot be empty."
-            )
+            raise ValueError("Domain name cannot be empty.")
 
     def _validate_entities(
         self,
         specification: DomainSpecification,
     ) -> None:
-        names = [
-            entity.name
-            for entity in specification.entities
-        ]
+        names = [entity.name for entity in specification.entities]
 
         if len(names) != len(set(names)):
-            raise ValueError(
-                "Duplicate entity names detected."
-            )
+            raise ValueError("Duplicate entity names detected.")
 
     def _validate_aggregates(
         self,
         specification: DomainSpecification,
     ) -> None:
-        entity_names = {
-            entity.name
-            for entity in specification.entities
-        }
+        entity_names = {entity.name for entity in specification.entities}
 
         for aggregate in specification.aggregates:
             if aggregate.root_entity not in entity_names:
                 raise ValueError(
-                    f"Unknown aggregate root entity: "
-                    f"{aggregate.root_entity}"
+                    f"Unknown aggregate root entity: {aggregate.root_entity}"
                 )
 
     def _validate_repositories(
         self,
         specification: DomainSpecification,
     ) -> None:
-        aggregate_names = {
-            aggregate.name
-            for aggregate in specification.aggregates
-        }
+        aggregate_names = {aggregate.name for aggregate in specification.aggregates}
 
         for repository in specification.repositories:
             if repository.aggregate not in aggregate_names:
-                raise ValueError(
-                    f"Unknown aggregate reference: "
-                    f"{repository.aggregate}"
-                )
+                raise ValueError(f"Unknown aggregate reference: {repository.aggregate}")
 
     def _validate_services(
         self,
         specification: DomainSpecification,
     ) -> None:
-        names = [
-            service.name
-            for service in specification.services
-        ]
+        names = [service.name for service in specification.services]
 
         if len(names) != len(set(names)):
-            raise ValueError(
-                "Duplicate service names detected."
-            )
+            raise ValueError("Duplicate service names detected.")

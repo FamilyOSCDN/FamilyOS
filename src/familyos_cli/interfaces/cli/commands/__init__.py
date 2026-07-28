@@ -14,9 +14,7 @@ def init(name: str) -> None:
         use_case = CreateProjectUseCase()
         use_case.execute(name)
 
-        Output.success(
-            f'Project "{name}" created successfully.'
-        )
+        Output.success(f'Project "{name}" created successfully.')
 
     except FamilyOSError as error:
         Output.error(str(error))

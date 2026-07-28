@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 from familyos_cli.domain.generation.artifact_definition import (
     ArtifactDefinition,
+)
+from familyos_cli.domain.generation.artifact_kind import (
+    ArtifactKind,
 )
 from familyos_cli.domain.generation.domain_generation_plan import (
     DomainGenerationPlan,
@@ -11,13 +16,13 @@ def test_domain_generation_plan_creation() -> None:
         domain_name="Person",
         artifacts=[
             ArtifactDefinition(
-                artifact_type="entity",
+                kind=ArtifactKind.ENTITY,
                 name="Person",
                 target_path="models/person.py",
                 template="entity.py.jinja",
             ),
             ArtifactDefinition(
-                artifact_type="repository",
+                kind=ArtifactKind.REPOSITORY,
                 name="PersonRepository",
                 target_path="repositories/person_repository.py",
             ),
@@ -43,4 +48,4 @@ def test_domain_generation_plan_is_immutable() -> None:
     except AttributeError:
         assert True
     else:
-        assert False
+        raise AssertionError("Expected code path was not reached.")

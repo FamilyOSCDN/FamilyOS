@@ -31,9 +31,4 @@ class DomainArtifact:
     ) -> Path:
         """Return the target directory for the domain."""
 
-        return (
-            root
-            / "docs"
-            / "30-domains"
-            / self.normalized_name
-        )
+        return root / "docs" / "30-domains" / self.normalized_name

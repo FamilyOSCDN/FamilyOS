@@ -15,9 +15,7 @@ class PluginRegistry:
         """Register a plugin descriptor."""
 
         if plugin.id in self._plugins:
-            raise ValueError(
-                f"Plugin '{plugin.id}' is already registered"
-            )
+            raise ValueError(f"Plugin '{plugin.id}' is already registered")
 
         self._plugins[plugin.id] = plugin
 

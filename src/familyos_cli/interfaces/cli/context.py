@@ -29,9 +29,7 @@ class CommandContext:
         """Initialize CLI context."""
 
         self._container = (
-            container
-            if container is not None
-            else ApplicationFactory.create()
+            container if container is not None else ApplicationFactory.create()
         )
 
     @cached_property

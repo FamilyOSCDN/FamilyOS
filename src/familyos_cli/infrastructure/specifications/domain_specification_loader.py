@@ -8,7 +8,12 @@ from familyos_cli.domain.models.domain_specification import (
 
 
 class DomainSpecificationLoader:
-    """Loads domain specifications."""
+    """Contract for domain specification loaders."""
 
-    def load(self, path: Path) -> DomainSpecification:
+    def load(
+        self,
+        path: Path,
+    ) -> DomainSpecification:
+        """Load a domain specification."""
+
         raise NotImplementedError

@@ -21,24 +21,16 @@ def test_should_create_aggregated_contribution() -> None:
     """AggregatedContribution should store its values."""
 
     contribution = AggregatedContribution(
-        templates=(
-            Path("templates"),
-        ),
-        specifications=(
-            Path("specifications"),
-        ),
+        templates=(Path("templates"),),
+        specifications=(Path("specifications"),),
         variables={
             "name": "FamilyOS",
         },
     )
 
-    assert contribution.templates == (
-        Path("templates"),
-    )
+    assert contribution.templates == (Path("templates"),)
 
-    assert contribution.specifications == (
-        Path("specifications"),
-    )
+    assert contribution.specifications == (Path("specifications"),)
 
     assert contribution.variables == {
         "name": "FamilyOS",

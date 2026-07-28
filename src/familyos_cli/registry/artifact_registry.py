@@ -32,10 +32,7 @@ class ArtifactRegistry:
     ) -> bool:
         """Return whether an artifact exists."""
 
-        return any(
-            artifact.id == artifact_id
-            for artifact in self._registry.artifacts
-        )
+        return any(artifact.id == artifact_id for artifact in self._registry.artifacts)
 
     def get(
         self,

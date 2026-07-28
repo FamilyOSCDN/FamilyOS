@@ -1,4 +1,4 @@
-"""Project specification loader."""
+"""Generation specification loader."""
 
 from __future__ import annotations
 
@@ -7,9 +7,11 @@ from typing import Any
 
 import yaml
 
-from familyos_cli.domain.models.project_file import ProjectFile
-from familyos_cli.domain.models.project_specification import (
-    ProjectSpecification,
+from familyos_cli.application.generation.generation_artifact import (
+    GenerationArtifact,
+)
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
 )
 from familyos_cli.infrastructure.specifications.specification_merger import (
     SpecificationMerger,
@@ -17,50 +19,58 @@ from familyos_cli.infrastructure.specifications.specification_merger import (
 
 
 class SpecificationLoader:
-    """Load project specifications from YAML."""
+    """Load generation specifications from YAML."""
 
     def __init__(self) -> None:
         """Initialize the specification loader."""
+
         self._merger = SpecificationMerger()
 
     def load(
         self,
         path: Path,
-    ) -> ProjectSpecification:
-        """Load a project specification."""
+    ) -> GenerationSpecification:
+        """Load a generation specification."""
 
-        with path.open(encoding="utf-8") as file:
-            data: dict[str, Any] = yaml.safe_load(file)
+        with path.open(
+            encoding="utf-8",
+        ) as file:
+            data: dict[str, Any] = yaml.safe_load(
+                file,
+            )
 
         project = data["project"]
 
-        files = []
+        artifacts = []
 
-        for file in project["files"]:
-            if isinstance(file, str):
-                files.append(
-                    ProjectFile(
-                        path=file,
-                        template=file,
+        for file_definition in project["files"]:
+            if isinstance(
+                file_definition,
+                str,
+            ):
+                artifacts.append(
+                    GenerationArtifact(
+                        destination=file_definition,
+                        template=file_definition,
                     ),
                 )
             else:
-                files.append(
-                    ProjectFile(
-                        path=file["destination"],
-                        template=file["template"],
+                artifacts.append(
+                    GenerationArtifact(
+                        destination=file_definition["destination"],
+                        template=file_definition["template"],
                     ),
                 )
 
-        return ProjectSpecification(
+        return GenerationSpecification(
             directories=project["directories"],
-            files=files,
+            artifacts=artifacts,
         )
 
     def load_all(
         self,
         paths: list[Path],
-    ) -> ProjectSpecification:
+    ) -> GenerationSpecification:
         """Load and merge multiple specifications."""
 
         specifications = [

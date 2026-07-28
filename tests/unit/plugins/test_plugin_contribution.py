@@ -15,24 +15,16 @@ def test_plugin_contribution_defaults() -> None:
 
 def test_plugin_contribution_values() -> None:
     contribution = PluginContribution(
-        templates=(
-            Path("templates"),
-        ),
-        specifications=(
-            Path("specifications"),
-        ),
+        templates=(Path("templates"),),
+        specifications=(Path("specifications"),),
         variables={
             "project": "FamilyOS",
         },
     )
 
-    assert contribution.templates == (
-        Path("templates"),
-    )
+    assert contribution.templates == (Path("templates"),)
 
-    assert contribution.specifications == (
-        Path("specifications"),
-    )
+    assert contribution.specifications == (Path("specifications"),)
 
     assert contribution.variables == {
         "project": "FamilyOS",

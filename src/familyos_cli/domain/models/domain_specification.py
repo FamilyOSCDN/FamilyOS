@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from familyos_cli.domain.models.aggregate_descriptor import (
     AggregateDescriptor,
@@ -21,7 +21,23 @@ class DomainSpecification:
     """Defines a complete domain generation specification."""
 
     name: str
-    entities: list[EntityDescriptor]
-    aggregates: list[AggregateDescriptor]
-    repositories: list[RepositoryDescriptor]
-    services: list[ServiceDescriptor]
+
+    entities: list[EntityDescriptor] = field(
+        default_factory=list,
+    )
+
+    aggregates: list[AggregateDescriptor] = field(
+        default_factory=list,
+    )
+
+    repositories: list[RepositoryDescriptor] = field(
+        default_factory=list,
+    )
+
+    services: list[ServiceDescriptor] = field(
+        default_factory=list,
+    )
+
+    business_rules: list[str] = field(
+        default_factory=list,
+    )

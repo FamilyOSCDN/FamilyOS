@@ -74,4 +74,4 @@ def test_domain_specification_is_immutable() -> None:
     except AttributeError:
         assert True
     else:
-        assert False
+        raise AssertionError("Expected code path was not reached.")

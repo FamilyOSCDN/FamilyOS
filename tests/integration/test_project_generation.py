@@ -38,8 +38,7 @@ project:
     )
 
     (tmp_path / "templates" / "project" / "README.md.j2").write_text(
-        "# {{ project_name }}\n\n"
-        "This project was generated with **FamilyOS CLI**.\n",
+        "# {{ project_name }}\n\nThis project was generated with **FamilyOS CLI**.\n",
         encoding="utf-8",
     )
 
