@@ -19,8 +19,11 @@ from familyos_cli.domain.generation.artifact_template_policy import (
 from familyos_cli.domain.generation.domain_generation_plan import (
     DomainGenerationPlan,
 )
-from familyos_cli.domain.generation.generation_profile import (
-    GenerationProfile,
+from familyos_cli.domain.generation.generation_request import (
+    GenerationRequest,
+)
+from familyos_cli.domain.generation.recipe_executor import (
+    RecipeExecutor,
 )
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
@@ -34,7 +37,7 @@ class DomainGenerationPlanner:
         self,
         path_policy: ArtifactPathPolicy | None = None,
         template_policy: ArtifactTemplatePolicy | None = None,
-        profile: GenerationProfile = GenerationProfile.PYTHON_IMPLEMENTATION,
+        recipe_executor: RecipeExecutor | None = None,
     ) -> None:
         """Initialize the planner."""
 
@@ -50,7 +53,25 @@ class DomainGenerationPlanner:
             else DefaultArtifactTemplatePolicy()
         )
 
-        self._profile = profile
+        self._recipe_executor = recipe_executor
+
+    def create_plan_from_request(
+        self,
+        request: GenerationRequest,
+    ) -> DomainGenerationPlan:
+        """Create a generation plan from a recipe request."""
+
+        if self._recipe_executor is None:
+            raise ValueError(
+                "Recipe executor is required.",
+            )
+
+        return DomainGenerationPlan(
+            domain_name=request.domain_name,
+            artifacts=self._recipe_executor.execute(
+                request,
+            ),
+        )
 
     def create_plan(
         self,
@@ -65,7 +86,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.ENTITY,
                     name=entity.name,
-                ),
+                )
             )
 
         for aggregate in specification.aggregates:
@@ -73,7 +94,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.AGGREGATE,
                     name=aggregate.name,
-                ),
+                )
             )
 
         for repository in specification.repositories:
@@ -81,7 +102,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.REPOSITORY,
                     name=repository.name,
-                ),
+                )
             )
 
         for service in specification.services:
@@ -89,7 +110,7 @@ class DomainGenerationPlanner:
                 self._create_artifact(
                     kind=ArtifactKind.SERVICE,
                     name=service.name,
-                ),
+                )
             )
 
         return DomainGenerationPlan(
@@ -114,6 +135,5 @@ class DomainGenerationPlanner:
             ),
             template=self._template_policy.template_for(
                 kind=kind,
-                profile=self._profile,
             ),
         )

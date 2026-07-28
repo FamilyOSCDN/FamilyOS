@@ -6,6 +6,18 @@ from familyos_cli.domain.generation.artifact_kind import (
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
+from familyos_cli.domain.generation.generation_recipe_registry import (
+    GenerationRecipeRegistry,
+)
+from familyos_cli.domain.generation.generation_request import (
+    GenerationRequest,
+)
+from familyos_cli.domain.generation.recipe_executor import (
+    RecipeExecutor,
+)
+from familyos_cli.domain.generation.recipes.domain_documentation_recipe import (
+    DomainDocumentationRecipe,
+)
 from familyos_cli.domain.models.aggregate_descriptor import (
     AggregateDescriptor,
 )
@@ -56,7 +68,9 @@ def test_domain_generation_planner_creates_full_domain_plan() -> None:
 
     planner = DomainGenerationPlanner()
 
-    plan = planner.create_plan(specification)
+    plan = planner.create_plan(
+        specification,
+    )
 
     assert plan.domain_name == "Person"
 
@@ -104,7 +118,9 @@ def test_domain_generation_planner_creates_empty_plan() -> None:
 
     planner = DomainGenerationPlanner()
 
-    plan = planner.create_plan(specification)
+    plan = planner.create_plan(
+        specification,
+    )
 
     assert plan.domain_name == "Empty"
 
@@ -137,7 +153,9 @@ def test_domain_generation_planner_uses_injected_path_policy() -> None:
         path_policy=FakeArtifactPathPolicy(),
     )
 
-    plan = planner.create_plan(specification)
+    plan = planner.create_plan(
+        specification,
+    )
 
     assert len(plan.artifacts) == 1
 
@@ -147,4 +165,43 @@ def test_domain_generation_planner_uses_injected_path_policy() -> None:
 
     assert plan.artifacts[0].template == (
         "entity.py.jinja"
+    )
+
+
+def test_domain_generation_planner_creates_plan_from_recipe_request() -> None:
+    registry = GenerationRecipeRegistry()
+
+    registry.register(
+        DomainDocumentationRecipe(),
+    )
+
+    planner = DomainGenerationPlanner(
+        recipe_executor=RecipeExecutor(
+            registry,
+        ),
+    )
+
+    request = GenerationRequest(
+        domain_name="Person",
+        recipe_name="domain_documentation",
+    )
+
+    plan = planner.create_plan_from_request(
+        request,
+    )
+
+    assert plan.domain_name == "Person"
+
+    assert len(plan.artifacts) == 4
+
+    assert plan.artifacts[0].kind == (
+        ArtifactKind.DOCUMENTATION
+    )
+
+    assert plan.artifacts[0].target_path == (
+        "docs/30-domains/person/README.md"
+    )
+
+    assert plan.artifacts[0].template == (
+        "domain/README.md.j2"
     )
