@@ -1,15 +1,22 @@
-from __future__ import annotations
-
 from pathlib import Path
 
+from familyos_cli.application.generation.default_recipe_registry import (
+    DefaultRecipeRegistry,
+)
 from familyos_cli.application.generation.domain_generation_pipeline import (
     DomainGenerationPipeline,
 )
 from familyos_cli.application.generation.generation_request_factory import (
     GenerationRequestFactory,
 )
+from familyos_cli.application.generation.generation_specification import (
+    GenerationSpecification,
+)
 from familyos_cli.application.generation.mappers.generation_specification_mapper import (
     GenerationSpecificationMapper,
+)
+from familyos_cli.application.generation.recipe_executor import (
+    RecipeExecutor,
 )
 from familyos_cli.application.specifications.specification_service import (
     SpecificationService,
@@ -23,11 +30,19 @@ from familyos_cli.application.use_cases.get_domain_specification import (
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
-from familyos_cli.domain.models.domain_specification import (
+from familyos_cli.domain.models.aggregate_descriptor import (
     AggregateDescriptor,
+)
+from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
+)
+from familyos_cli.domain.models.entity_descriptor import (
     EntityDescriptor,
+)
+from familyos_cli.domain.models.repository_descriptor import (
     RepositoryDescriptor,
+)
+from familyos_cli.domain.models.service_descriptor import (
     ServiceDescriptor,
 )
 from familyos_cli.domain.specifications.domain_specification_registry import (
@@ -44,8 +59,8 @@ class FakeGenerationEngine:
     def generate(
         self,
         destination: Path,
-        specification: object,
-        context: dict[str, str],
+        specification: GenerationSpecification,
+        context: dict[str, object],
     ) -> None:
         self.generated = True
 
@@ -95,12 +110,17 @@ def test_create_domain_use_case_creates_generation_specification() -> None:
         specification_service,
     )
 
+    recipe_executor = RecipeExecutor(
+        DefaultRecipeRegistry.create(),
+    )
+
     engine = FakeGenerationEngine()
 
     pipeline = DomainGenerationPipeline(
         planner=DomainGenerationPlanner(),
         specification_mapper=GenerationSpecificationMapper(),
         engine=engine,
+        recipe_executor=recipe_executor,
     )
 
     use_case = CreateDomainUseCase(
@@ -115,7 +135,5 @@ def test_create_domain_use_case_creates_generation_specification() -> None:
     )
 
     assert result is not None
-
     assert len(result.artifacts) > 0
-
     assert engine.generated is True

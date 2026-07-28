@@ -10,8 +10,14 @@ from familyos_cli.application.generation.generation_specification import (
 from familyos_cli.application.generation.mappers.generation_specification_mapper import (
     GenerationSpecificationMapper,
 )
+from familyos_cli.application.generation.recipe_executor import (
+    RecipeExecutor,
+)
 from familyos_cli.application.ports.generation.generation_engine import (
     GenerationEngine,
+)
+from familyos_cli.domain.generation.domain_generation_plan import (
+    DomainGenerationPlan,
 )
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
@@ -32,6 +38,7 @@ class DomainGenerationPipeline:
         planner: DomainGenerationPlanner,
         specification_mapper: GenerationSpecificationMapper,
         engine: GenerationEngine,
+        recipe_executor: RecipeExecutor,
     ) -> None:
         """Initialize the pipeline."""
 
@@ -41,6 +48,8 @@ class DomainGenerationPipeline:
 
         self._engine = engine
 
+        self._recipe_executor = recipe_executor
+
     def generate(
         self,
         request: GenerationRequest,
@@ -49,8 +58,13 @@ class DomainGenerationPipeline:
     ) -> GenerationSpecification:
         """Generate domain artifacts."""
 
-        plan = self._planner.create_plan(
-            specification,
+        artifacts = self._recipe_executor.execute(
+            request,
+        )
+
+        plan = DomainGenerationPlan(
+            domain_name=request.domain_name,
+            artifacts=artifacts,
         )
 
         generation_specification = self._specification_mapper.map(
@@ -62,6 +76,7 @@ class DomainGenerationPipeline:
             specification=generation_specification,
             context={
                 "domain_name": request.domain_name,
+                "name": request.domain_name,
                 "recipe_name": request.recipe_name,
             },
         )

@@ -19,12 +19,6 @@ from familyos_cli.domain.generation.artifact_template_policy import (
 from familyos_cli.domain.generation.domain_generation_plan import (
     DomainGenerationPlan,
 )
-from familyos_cli.domain.generation.generation_request import (
-    GenerationRequest,
-)
-from familyos_cli.domain.generation.recipe_executor import (
-    RecipeExecutor,
-)
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
 )
@@ -37,7 +31,6 @@ class DomainGenerationPlanner:
         self,
         path_policy: ArtifactPathPolicy | None = None,
         template_policy: ArtifactTemplatePolicy | None = None,
-        recipe_executor: RecipeExecutor | None = None,
     ) -> None:
         """Initialize the planner."""
 
@@ -51,26 +44,6 @@ class DomainGenerationPlanner:
             template_policy
             if template_policy is not None
             else DefaultArtifactTemplatePolicy()
-        )
-
-        self._recipe_executor = recipe_executor
-
-    def create_plan_from_request(
-        self,
-        request: GenerationRequest,
-    ) -> DomainGenerationPlan:
-        """Create a generation plan from a recipe request."""
-
-        if self._recipe_executor is None:
-            raise ValueError(
-                "Recipe executor is required.",
-            )
-
-        return DomainGenerationPlan(
-            domain_name=request.domain_name,
-            artifacts=self._recipe_executor.execute(
-                request,
-            ),
         )
 
     def create_plan(
