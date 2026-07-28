@@ -1,93 +1,141 @@
 # RFC-XXXX: <Title>
 
 | Field | Value |
-|-------|-------|
+|------|------|
+| RFC | RFC-XXXX |
+| Title | |
 | Status | Draft |
 | Authors | |
 | Created | YYYY-MM-DD |
 | Updated | YYYY-MM-DD |
-| Version | 0.1 |
+| Target Release | TBD |
+| Supersedes | None |
+| Superseded By | None |
 
 ---
 
-# Summary
+# Executive Summary
 
-Provide a concise summary of the proposal.
+Provide a concise description of the architectural decision.
 
-This section should allow a reader to understand the RFC in less than one minute.
+The summary should allow any contributor to understand the purpose of the RFC in less than one minute.
 
 ---
 
-# Motivation
+# Context
 
-Describe the problem.
+Describe the current situation.
 
-Explain why this RFC is needed.
+Only factual observations should appear here.
+
+Reference existing documentation whenever possible.
+
+---
+
+# Architecture Assessment
+
+Summarize the architectural observations that motivated this RFC.
+
+Do not propose solutions in this section.
+
+---
+
+# Problem Statement
+
+Describe the architectural problem.
+
+Explain why the current situation should evolve.
+
+---
+
+# Decision Drivers
+
+Identify the criteria that influenced this decision.
+
+Example:
+
+- Simplicity
+- Maintainability
+- Consistency
+- Extensibility
+- Testability
+- Performance
+- Security
+- Backward Compatibility
+
+Only keep the drivers that actually influenced the decision.
 
 ---
 
 # Goals
 
-List the objectives.
-
-- Goal
-- Goal
+Describe what this RFC intends to achieve.
 
 ---
 
 # Non Goals
 
-Clearly state what is intentionally out of scope.
+Explicitly state what this RFC does not attempt to solve.
 
 ---
 
-# Current State
+# Architectural Decision
 
-Describe the current architecture or behaviour.
+Describe the architectural decision.
+
+This section contains the decision itself.
+
+Avoid implementation details.
 
 ---
 
 # Proposed Design
 
-Describe the proposed solution.
+Describe the target architecture.
 
-When useful include:
+Use diagrams whenever appropriate.
 
-- architecture diagrams
-- sequence diagrams
-- examples
+Describe interactions between components rather than implementation.
+
+---
+
+# Architectural Consequences
+
+Describe the expected consequences.
+
+Include both positive and negative effects.
+
+---
+
+# Rejected Decisions
+
+Document decisions that were explicitly rejected.
+
+Explain why.
 
 ---
 
 # Alternatives Considered
 
-Describe alternative solutions.
+Describe the alternatives that were evaluated.
 
 Explain why they were not selected.
 
 ---
 
-# Impact Analysis
+# Migration Strategy
 
-Describe the impact on:
+Describe how the architecture should evolve.
 
-- Architecture
-- Public API
-- Existing code
-- Plugins
-- Documentation
-- Performance
-- Compatibility
+Migration should preferably be incremental.
 
 ---
 
-# Migration Strategy
+# Backward Compatibility
 
-Describe how existing implementations will migrate.
+Explain compatibility implications.
 
-If no migration is required write:
-
-> No migration required.
+If no compatibility concerns exist, explicitly state so.
 
 ---
 
@@ -95,11 +143,13 @@ If no migration is required write:
 
 Describe known risks.
 
-Describe mitigation strategies.
+Describe mitigation strategies whenever possible.
 
 ---
 
 # Acceptance Criteria
+
+The RFC is considered complete when all criteria below are satisfied.
 
 - [ ]
 - [ ]
@@ -109,17 +159,47 @@ Describe mitigation strategies.
 
 # Future Work
 
-List improvements intentionally left for future RFCs.
+Describe work intentionally deferred.
+
+Reference future RFCs when appropriate.
+
+---
+
+# Related Documents
+
+## Foundation
+
+-
+
+## RFCs
+
+-
+
+## ADRs
+
+-
+
+## Specifications
+
+-
 
 ---
 
 # References
 
-List related:
+List any supporting material.
 
-- RFCs
-- ADRs
-- Issues
-- Specifications
-- External references
+---
+
+# Decision Record
+
+| Field | Value |
+|------|------|
+| Decision | Draft |
+| Architectural Impact | |
+| Breaking Change | No |
+| Migration Required | No |
+| Implementation Status | Not Started |
+| Priority | |
+| Target Version | |
 
