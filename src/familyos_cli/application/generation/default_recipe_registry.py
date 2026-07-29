@@ -5,6 +5,9 @@ from __future__ import annotations
 from familyos_cli.domain.generation.generation_recipe_registry import (
     GenerationRecipeRegistry,
 )
+from familyos_cli.domain.generation.recipes.aggregate_documentation_recipe import (
+    AggregateDocumentationRecipe,
+)
 from familyos_cli.domain.generation.recipes.domain_documentation_recipe import (
     DomainDocumentationRecipe,
 )
@@ -35,6 +38,10 @@ class DefaultRecipeRegistry:
 
         registry.register(
             ValueObjectDocumentationRecipe(),
+        )
+
+        registry.register(
+            AggregateDocumentationRecipe(),
         )
 
         return registry

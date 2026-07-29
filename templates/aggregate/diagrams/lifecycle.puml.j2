@@ -1,0 +1,17 @@
+@startuml
+
+title {{ aggregate.name }} Lifecycle Diagram
+
+[*] --> Created
+
+Created --> Active : initialize
+
+Active --> Consistent : validate
+
+Consistent --> Active : update
+
+Active --> Archived : deactivate
+
+Archived --> [*]
+
+@enduml

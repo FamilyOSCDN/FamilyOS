@@ -1,0 +1,9 @@
+# Invariants
+
+The following invariants must always be respected by the {{ aggregate.name }} aggregate.
+
+{% for invariant in aggregate.invariants %}
+
+- {{ invariant }}
+
+{% endfor %}

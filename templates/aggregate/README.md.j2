@@ -1,0 +1,17 @@
+# {{ aggregate.name }}
+
+## Description
+
+{{ aggregate.description }}
+
+## Aggregate Root
+
+{{ aggregate.root_entity }}
+
+## Entities
+
+{% for entity in aggregate.entities %}
+
+- {{ entity }}
+
+{% endfor %}
