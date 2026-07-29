@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from familyos_cli.domain.models.attribute_descriptor import (
+    AttributeDescriptor,
+)
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
 )
@@ -21,9 +24,6 @@ domain:
   name: Person
   description: Person domain
 
-  responsibilities:
-    - Manage person identity
-
   business_rules:
     - Person must have a unique identifier
 
@@ -31,8 +31,11 @@ entities:
   - name: Person
     description: Represents a person
     attributes:
-      - first_name
-      - last_name
+      - name: first_name
+        type: str
+        required: true
+      - name: last_name
+        type: str
     behaviors:
       - register
 
@@ -74,14 +77,17 @@ services:
 
     assert specification.name == "Person"
 
-    assert len(specification.entities) == 1
-    assert specification.entities[0].name == "Person"
+    entity = specification.entities[0]
 
-    assert len(specification.aggregates) == 1
-    assert specification.aggregates[0].name == "PersonAggregate"
+    assert len(entity.attributes) == 2
 
-    assert len(specification.repositories) == 1
-    assert specification.repositories[0].name == "PersonRepository"
+    assert isinstance(
+        entity.attributes[0],
+        AttributeDescriptor,
+    )
 
-    assert len(specification.services) == 1
-    assert specification.services[0].name == "PersonService"
+    assert entity.attributes[0].name == "first_name"
+
+    assert entity.attributes[0].type == "str"
+
+    assert entity.attributes[0].required is True

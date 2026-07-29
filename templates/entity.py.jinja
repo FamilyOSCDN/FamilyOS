@@ -10,7 +10,7 @@ class {{ entity.name }}:
         """Initialize {{ entity.name }}."""
 
 {% for attribute in entity.attributes %}
-        self.{{ attribute }} = None
+        self.{{ attribute.name }} = None
 {% endfor %}
 
 {% for behavior in entity.behaviors %}

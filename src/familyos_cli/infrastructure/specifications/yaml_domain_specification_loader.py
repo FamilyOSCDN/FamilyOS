@@ -10,6 +10,9 @@ import yaml
 from familyos_cli.domain.models.aggregate_descriptor import (
     AggregateDescriptor,
 )
+from familyos_cli.domain.models.attribute_descriptor import (
+    AttributeDescriptor,
+)
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
 )
@@ -48,8 +51,8 @@ class YamlDomainSpecificationLoader(
         return DomainSpecification(
             name=domain["name"],
             entities=[
-                EntityDescriptor(
-                    **entity,
+                self._load_entity(
+                    entity,
                 )
                 for entity in data.get(
                     "entities",
@@ -88,3 +91,70 @@ class YamlDomainSpecificationLoader(
                 [],
             ),
         )
+
+    def _load_entity(
+        self,
+        entity: dict[str, Any],
+    ) -> EntityDescriptor:
+        """Load an entity descriptor."""
+
+        return EntityDescriptor(
+            name=entity["name"],
+            description=entity.get(
+                "description",
+                "",
+            ),
+            attributes=self._normalize_attributes(
+                entity.get(
+                    "attributes",
+                    [],
+                ),
+            ),
+            behaviors=entity.get(
+                "behaviors",
+                [],
+            ),
+        )
+
+    def _normalize_attributes(
+        self,
+        attributes: list[Any],
+    ) -> list[AttributeDescriptor]:
+        """Normalize attribute definitions."""
+
+        normalized: list[AttributeDescriptor] = []
+
+        for attribute in attributes:
+            if isinstance(
+                attribute,
+                str,
+            ):
+                normalized.append(
+                    AttributeDescriptor(
+                        name=attribute,
+                    ),
+                )
+
+            elif isinstance(
+                attribute,
+                dict,
+            ):
+                normalized.append(
+                    AttributeDescriptor(
+                        name=attribute["name"],
+                        type=attribute.get(
+                            "type",
+                            "str",
+                        ),
+                        required=attribute.get(
+                            "required",
+                            False,
+                        ),
+                        description=attribute.get(
+                            "description",
+                            "",
+                        ),
+                    ),
+                )
+
+        return normalized
