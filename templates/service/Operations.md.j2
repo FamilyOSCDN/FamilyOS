@@ -1,0 +1,9 @@
+# {{ service.name }} Operations
+
+The service exposes the following domain operations:
+
+{% for responsibility in service.responsibilities %}
+
+- {{ responsibility }}
+
+{% endfor %}

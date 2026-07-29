@@ -20,6 +20,9 @@ from familyos_cli.domain.generation.recipes.entity_documentation_recipe import (
 from familyos_cli.domain.generation.recipes.repository_documentation_recipe import (
     RepositoryDocumentationRecipe,
 )
+from familyos_cli.domain.generation.recipes.service_documentation_recipe import (
+    ServiceDocumentationRecipe,
+)
 from familyos_cli.domain.generation.recipes.value_object_documentation_recipe import (
     ValueObjectDocumentationRecipe,
 )
@@ -56,6 +59,10 @@ class DefaultRecipeRegistry:
 
         registry.register(
             RepositoryDocumentationRecipe(),
+        )
+
+        registry.register(
+            ServiceDocumentationRecipe(),
         )
 
         return registry

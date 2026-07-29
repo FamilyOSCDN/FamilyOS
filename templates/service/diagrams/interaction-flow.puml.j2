@@ -1,0 +1,13 @@
+@startuml
+
+title {{ service.name }} Interaction Flow
+
+actor User
+
+component "{{ service.name }}" as Service
+
+User --> Service
+
+Service --> Service : execute business logic
+
+@enduml

@@ -1,0 +1,9 @@
+# {{ service.name }} Responsibilities
+
+The {{ service.name }} service has the following responsibilities:
+
+{% for responsibility in service.responsibilities %}
+
+- {{ responsibility }}
+
+{% endfor %}
