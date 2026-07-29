@@ -218,3 +218,104 @@ services:
         assert (
             domain_directory / expected_file
         ).is_file()
+
+
+def test_cli_should_create_repository_documentation(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """CLI should generate repository documentation."""
+
+    monkeypatch.chdir(tmp_path)
+
+    specification = tmp_path / "person.yaml"
+
+    specification.write_text(
+        """
+domain:
+  name: Person
+
+repositories:
+  - name: PersonRepository
+    aggregate: Person
+    description: Person persistence repository
+    operations:
+      - save
+      - find
+""".strip(),
+        encoding="utf-8",
+    )
+
+    templates = (
+        tmp_path
+        / "templates"
+        / "repository"
+    )
+
+    diagrams = templates / "diagrams"
+
+    diagrams.mkdir(
+        parents=True,
+    )
+
+    template_names = (
+        "README.md.j2",
+        "Responsibilities.md.j2",
+        "Operations.md.j2",
+    )
+
+    for template_name in template_names:
+        (templates / template_name).write_text(
+            "# Generated repository documentation\n",
+            encoding="utf-8",
+        )
+
+    (diagrams / "persistence-flow.puml.j2").write_text(
+        "@startuml\n@enduml\n",
+        encoding="utf-8",
+    )
+
+    destination = tmp_path / "generated"
+
+    result = runner.invoke(
+        app,
+        [
+            "create",
+            "domain",
+            "Person",
+            "--specification",
+            str(specification),
+            "--destination",
+            str(destination),
+            "--recipe",
+            "repository_documentation",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+
+    assert (
+        'Domain "Person" created successfully.'
+        in result.output
+    )
+
+    repository_directory = (
+        destination
+        / "docs"
+        / "30-domains"
+        / "person"
+        / "repositories"
+        / "personrepository"
+    )
+
+    expected_files = (
+        "README.md",
+        "Responsibilities.md",
+        "Operations.md",
+        "diagrams/persistence-flow.puml",
+    )
+
+    for expected_file in expected_files:
+        assert (
+            repository_directory / expected_file
+        ).is_file()

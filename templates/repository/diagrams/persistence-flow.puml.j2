@@ -1,0 +1,17 @@
+@startuml
+
+title {{ repository.name }} Persistence Flow
+
+actor User
+
+component "{{ repository.aggregate }}" as Aggregate
+
+database "{{ repository.name }}" as Repository
+
+User --> Aggregate
+
+Aggregate --> Repository
+
+Repository --> Repository : store / load
+
+@enduml
