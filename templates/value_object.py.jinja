@@ -1,0 +1,14 @@
+"""Generated value object."""
+
+from __future__ import annotations
+
+
+class {{ value_object.name }}:
+    """{{ value_object.description }}."""
+
+    def __init__(self) -> None:
+        """Initialize {{ value_object.name }}."""
+
+{% for attribute in value_object.attributes %}
+        self.{{ attribute.name }} = None
+{% endfor %}
