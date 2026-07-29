@@ -6,6 +6,32 @@ from familyos_cli.domain.generation.generation_preset import (
 )
 
 
+def test_minimal_preset_contains_domain_documentation() -> None:
+    registry = DefaultGenerationPresetRegistry.create()
+
+    definition = registry.get(
+        GenerationPreset.MINIMAL,
+    )
+
+    assert definition.recipes == (
+        "domain_documentation",
+    )
+
+
+def test_standard_preset_contains_domain_model_recipes() -> None:
+    registry = DefaultGenerationPresetRegistry.create()
+
+    definition = registry.get(
+        GenerationPreset.STANDARD,
+    )
+
+    assert definition.recipes == (
+        "domain_documentation",
+        "entity_documentation",
+        "aggregate_documentation",
+    )
+
+
 def test_complete_preset_contains_full_domain_documentation() -> None:
     registry = DefaultGenerationPresetRegistry.create()
 
@@ -13,9 +39,8 @@ def test_complete_preset_contains_full_domain_documentation() -> None:
         GenerationPreset.COMPLETE,
     )
 
-    assert (
-        "full_domain_documentation"
-        in definition.recipes
+    assert definition.recipes == (
+        "full_domain_documentation",
     )
 
 
