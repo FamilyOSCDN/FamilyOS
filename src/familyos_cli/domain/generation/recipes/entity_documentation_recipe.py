@@ -53,10 +53,6 @@ class EntityDocumentationRecipe:
                 f"entities/{entity_slug}"
             )
 
-            context = {
-                "entity": entity,
-            }
-
             artifacts.extend(
                 [
                     ArtifactDefinition(
@@ -66,7 +62,20 @@ class EntityDocumentationRecipe:
                             f"{base_path}/README.md"
                         ),
                         template="entity/README.md.j2",
-                        context=context,
+                        context={
+                            "entity": entity,
+                        },
+                    ),
+                    ArtifactDefinition(
+                        kind=ArtifactKind.DOCUMENTATION,
+                        name=f"{entity.name} Vision",
+                        target_path=(
+                            f"{base_path}/Vision.md"
+                        ),
+                        template="entity/Vision.md.j2",
+                        context={
+                            "entity": entity,
+                        },
                     ),
                     ArtifactDefinition(
                         kind=ArtifactKind.DOCUMENTATION,
@@ -75,7 +84,9 @@ class EntityDocumentationRecipe:
                             f"{base_path}/Attributes.md"
                         ),
                         template="entity/Attributes.md.j2",
-                        context=context,
+                        context={
+                            "entity": entity,
+                        },
                     ),
                     ArtifactDefinition(
                         kind=ArtifactKind.DOCUMENTATION,
@@ -88,7 +99,9 @@ class EntityDocumentationRecipe:
                         template=(
                             "entity/Responsibilities.md.j2"
                         ),
-                        context=context,
+                        context={
+                            "entity": entity,
+                        },
                     ),
                     ArtifactDefinition(
                         kind=ArtifactKind.DOCUMENTATION,
@@ -101,7 +114,9 @@ class EntityDocumentationRecipe:
                         template=(
                             "entity/Business-Rules.md.j2"
                         ),
-                        context=context,
+                        context={
+                            "entity": entity,
+                        },
                     ),
                     ArtifactDefinition(
                         kind=ArtifactKind.DOCUMENTATION,
@@ -114,7 +129,50 @@ class EntityDocumentationRecipe:
                         template=(
                             "entity/Relationships.md.j2"
                         ),
-                        context=context,
+                        context={
+                            "entity": entity,
+                        },
+                    ),
+                    ArtifactDefinition(
+                        kind=ArtifactKind.DOCUMENTATION,
+                        name=f"{entity.name} API",
+                        target_path=(
+                            f"{base_path}/API.md"
+                        ),
+                        template="entity/API.md.j2",
+                        context={
+                            "entity": entity,
+                        },
+                    ),
+                    ArtifactDefinition(
+                        kind=ArtifactKind.DOCUMENTATION,
+                        name=(
+                            f"{entity.name} Use Cases"
+                        ),
+                        target_path=(
+                            f"{base_path}/Use-Cases.md"
+                        ),
+                        template=(
+                            "entity/Use-Cases.md.j2"
+                        ),
+                        context={
+                            "entity":entity,
+                        },
+                    ),
+                    ArtifactDefinition(
+                        kind=ArtifactKind.DOCUMENTATION,
+                        name=(
+                            f"{entity.name} Events"
+                        ),
+                        target_path=(
+                            f"{base_path}/Events.md"
+                        ),
+                        template=(
+                            "entity/Events.md.j2"
+                        ),
+                        context={
+                            "entity": entity,
+                        },
                     ),
                 ],
             )

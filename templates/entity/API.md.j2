@@ -1,0 +1,23 @@
+# API
+
+## Entity
+
+{{ entity.name }}
+
+## Operations
+
+The following operations are available for managing the {{ entity.name }} entity.
+
+{% for behavior in entity.behaviors %}
+
+- {{ behavior }}
+
+{% endfor %}
+
+## Attributes
+
+{% for attribute in entity.attributes %}
+
+- {{ attribute.name }} : {{ attribute.type }}
+
+{% endfor %}

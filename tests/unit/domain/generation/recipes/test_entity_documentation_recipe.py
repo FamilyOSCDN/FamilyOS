@@ -42,12 +42,16 @@ def test_entity_documentation_recipe_builds_artifacts() -> None:
         GenerationProfile.DOMAIN_DOCUMENTATION
     )
 
-    assert len(artifacts) == 5
+    assert len(artifacts) == 9
 
     assert [
         artifact.kind
         for artifact in artifacts
     ] == [
+        ArtifactKind.DOCUMENTATION,
+        ArtifactKind.DOCUMENTATION,
+        ArtifactKind.DOCUMENTATION,
+        ArtifactKind.DOCUMENTATION,
         ArtifactKind.DOCUMENTATION,
         ArtifactKind.DOCUMENTATION,
         ArtifactKind.DOCUMENTATION,
@@ -60,10 +64,14 @@ def test_entity_documentation_recipe_builds_artifacts() -> None:
         for artifact in artifacts
     ] == [
         "docs/30-domains/person/entities/person/README.md",
+        "docs/30-domains/person/entities/person/Vision.md",
         "docs/30-domains/person/entities/person/Attributes.md",
         "docs/30-domains/person/entities/person/Responsibilities.md",
         "docs/30-domains/person/entities/person/Business-Rules.md",
         "docs/30-domains/person/entities/person/Relationships.md",
+        "docs/30-domains/person/entities/person/API.md",
+        "docs/30-domains/person/entities/person/Use-Cases.md",
+        "docs/30-domains/person/entities/person/Events.md",
     ]
 
     assert [
@@ -71,10 +79,14 @@ def test_entity_documentation_recipe_builds_artifacts() -> None:
         for artifact in artifacts
     ] == [
         "entity/README.md.j2",
+        "entity/Vision.md.j2",
         "entity/Attributes.md.j2",
         "entity/Responsibilities.md.j2",
         "entity/Business-Rules.md.j2",
         "entity/Relationships.md.j2",
+        "entity/API.md.j2",
+        "entity/Use-Cases.md.j2",
+        "entity/Events.md.j2",
     ]
 
     assert artifacts[0].context["entity"].name == (
