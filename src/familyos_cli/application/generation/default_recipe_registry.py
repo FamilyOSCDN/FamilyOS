@@ -8,6 +8,9 @@ from familyos_cli.domain.generation.generation_recipe_registry import (
 from familyos_cli.domain.generation.recipes.domain_documentation_recipe import (
     DomainDocumentationRecipe,
 )
+from familyos_cli.domain.generation.recipes.entity_documentation_recipe import (
+    EntityDocumentationRecipe,
+)
 from familyos_cli.domain.generation.recipes.value_object_documentation_recipe import (
     ValueObjectDocumentationRecipe,
 )
@@ -24,6 +27,10 @@ class DefaultRecipeRegistry:
 
         registry.register(
             DomainDocumentationRecipe(),
+        )
+
+        registry.register(
+            EntityDocumentationRecipe(),
         )
 
         registry.register(

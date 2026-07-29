@@ -8,12 +8,13 @@ def test_default_recipe_registry_creates_registry() -> None:
 
     recipes = registry.list()
 
-    assert len(recipes) == 2
+    assert len(recipes) == 3
 
     assert [
         recipe.name
         for recipe in recipes
     ] == [
         "domain_documentation",
+        "entity_documentation",
         "value_object_documentation",
     ]

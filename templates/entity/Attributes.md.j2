@@ -1,0 +1,16 @@
+# Attributes
+
+{% for attribute in entity.attributes %}
+
+## {{ attribute.name }}
+
+- Type: {{ attribute.type }}
+- Required: {{ attribute.required }}
+
+{% if attribute.description %}
+Description:
+
+{{ attribute.description }}
+{% endif %}
+
+{% endfor %}
