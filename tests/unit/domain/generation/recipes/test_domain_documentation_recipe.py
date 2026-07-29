@@ -7,13 +7,20 @@ from familyos_cli.domain.generation.generation_profile import (
 from familyos_cli.domain.generation.recipes.domain_documentation_recipe import (
     DomainDocumentationRecipe,
 )
+from familyos_cli.domain.models.domain_specification import (
+    DomainSpecification,
+)
 
 
 def test_domain_documentation_recipe_creates_documentation_artifacts() -> None:
     recipe = DomainDocumentationRecipe()
 
+    specification = DomainSpecification(
+        name="Person",
+    )
+
     artifacts = recipe.build_artifacts(
-        "Person",
+        specification,
     )
 
     assert recipe.name == "domain_documentation"

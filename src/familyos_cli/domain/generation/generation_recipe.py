@@ -7,6 +7,9 @@ from typing import Protocol
 from familyos_cli.domain.generation.artifact_definition import (
     ArtifactDefinition,
 )
+from familyos_cli.domain.models.domain_specification import (
+    DomainSpecification,
+)
 
 
 class GenerationRecipe(Protocol):
@@ -20,6 +23,6 @@ class GenerationRecipe(Protocol):
 
     def build_artifacts(
         self,
-        domain_name: str,
+        specification: DomainSpecification,
     ) -> list[ArtifactDefinition]:
         """Build artifacts produced by this recipe."""

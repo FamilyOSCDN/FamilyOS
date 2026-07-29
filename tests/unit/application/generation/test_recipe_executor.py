@@ -10,6 +10,9 @@ from familyos_cli.domain.generation.generation_request import (
 from familyos_cli.domain.generation.recipes.domain_documentation_recipe import (
     DomainDocumentationRecipe,
 )
+from familyos_cli.domain.models.domain_specification import (
+    DomainSpecification,
+)
 
 
 def test_recipe_executor_creates_artifacts_from_request() -> None:
@@ -28,8 +31,13 @@ def test_recipe_executor_creates_artifacts_from_request() -> None:
         recipe_name="domain_documentation",
     )
 
+    specification = DomainSpecification(
+        name="Person",
+    )
+
     artifacts = executor.execute(
         request,
+        specification,
     )
 
     assert len(artifacts) == 4

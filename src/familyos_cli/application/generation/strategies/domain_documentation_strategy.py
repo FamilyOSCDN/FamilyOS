@@ -54,6 +54,7 @@ class DomainDocumentationStrategy:
             domain_name=specification.name,
             artifacts=self._recipe_executor.execute(
                 request,
+                specification,
             ),
             metadata={
                 "strategy": self.name,

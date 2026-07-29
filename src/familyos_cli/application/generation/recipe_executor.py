@@ -11,6 +11,9 @@ from familyos_cli.domain.generation.generation_recipe_registry import (
 from familyos_cli.domain.generation.generation_request import (
     GenerationRequest,
 )
+from familyos_cli.domain.models.domain_specification import (
+    DomainSpecification,
+)
 
 
 class RecipeExecutor:
@@ -27,6 +30,7 @@ class RecipeExecutor:
     def execute(
         self,
         request: GenerationRequest,
+        specification: DomainSpecification,
     ) -> list[ArtifactDefinition]:
         """Execute the recipe associated with a request."""
 
@@ -35,5 +39,5 @@ class RecipeExecutor:
         )
 
         return recipe.build_artifacts(
-            request.domain_name,
+            specification,
         )

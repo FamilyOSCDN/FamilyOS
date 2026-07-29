@@ -11,6 +11,9 @@ from familyos_cli.domain.generation.artifact_kind import (
 from familyos_cli.domain.generation.generation_profile import (
     GenerationProfile,
 )
+from familyos_cli.domain.models.domain_specification import (
+    DomainSpecification,
+)
 
 
 class DomainDocumentationRecipe:
@@ -34,11 +37,11 @@ class DomainDocumentationRecipe:
 
     def build_artifacts(
         self,
-        domain_name: str,
+        specification: DomainSpecification,
     ) -> list[ArtifactDefinition]:
         """Build domain documentation artifacts."""
 
-        slug = domain_name.strip().lower()
+        slug = specification.name.strip().lower()
 
         return [
             ArtifactDefinition(
