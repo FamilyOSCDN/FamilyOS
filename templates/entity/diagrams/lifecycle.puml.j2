@@ -1,0 +1,17 @@
+@startuml
+
+title {{ entity.name }} Lifecycle Diagram
+
+[*] --> Created
+
+Created --> Active : initialize
+
+Active --> Updated : modify
+
+Updated --> Active
+
+Active --> Archived : deactivate
+
+Archived --> [*]
+
+@enduml

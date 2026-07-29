@@ -156,7 +156,7 @@ class EntityDocumentationRecipe:
                             "entity/Use-Cases.md.j2"
                         ),
                         context={
-                            "entity":entity,
+                            "entity": entity,
                         },
                     ),
                     ArtifactDefinition(
@@ -169,6 +169,51 @@ class EntityDocumentationRecipe:
                         ),
                         template=(
                             "entity/Events.md.j2"
+                        ),
+                        context={
+                            "entity": entity,
+                        },
+                    ),
+                    ArtifactDefinition(
+                        kind=ArtifactKind.DOCUMENTATION,
+                        name=(
+                            f"{entity.name} Context Diagram"
+                        ),
+                        target_path=(
+                            f"{base_path}/diagrams/context.puml"
+                        ),
+                        template=(
+                            "entity/diagrams/context.puml.j2"
+                        ),
+                        context={
+                            "entity": entity,
+                        },
+                    ),
+                    ArtifactDefinition(
+                        kind=ArtifactKind.DOCUMENTATION,
+                        name=(
+                            f"{entity.name} Lifecycle Diagram"
+                        ),
+                        target_path=(
+                            f"{base_path}/diagrams/lifecycle.puml"
+                        ),
+                        template=(
+                            "entity/diagrams/lifecycle.puml.j2"
+                        ),
+                        context={
+                            "entity": entity,
+                        },
+                    ),
+                    ArtifactDefinition(
+                        kind=ArtifactKind.DOCUMENTATION,
+                        name=(
+                            f"{entity.name} Relationships Diagram"
+                        ),
+                        target_path=(
+                            f"{base_path}/diagrams/relationships.puml"
+                        ),
+                        template=(
+                            "entity/diagrams/relationships.puml.j2"
                         ),
                         context={
                             "entity": entity,

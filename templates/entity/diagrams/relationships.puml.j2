@@ -1,0 +1,15 @@
+@startuml
+
+title {{ entity.name }} Relationships Diagram
+
+entity "{{ entity.name }}" as Entity
+
+{% for relationship in entity.relationships %}
+
+entity "{{ relationship }}" as Related
+
+Entity --> Related
+
+{% endfor %}
+
+@enduml
