@@ -1,0 +1,25 @@
+# Domain Context
+
+## Domain
+
+{{ domain.name }}
+
+## Overview
+
+This document describes the context and boundaries of the {{ domain.name }} domain.
+
+## Entities
+
+{% for entity in domain.entities %}
+
+- {{ entity.name }}
+
+{% endfor %}
+
+## Aggregates
+
+{% for aggregate in domain.aggregates %}
+
+- {{ aggregate.name }}
+
+{% endfor %}

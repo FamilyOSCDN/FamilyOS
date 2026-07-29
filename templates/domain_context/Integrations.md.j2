@@ -1,0 +1,19 @@
+# Domain Integrations
+
+The {{ domain.name }} domain integrates with external capabilities through its defined services and repositories.
+
+## Repositories
+
+{% for repository in domain.repositories %}
+
+- {{ repository.name }}
+
+{% endfor %}
+
+## Services
+
+{% for service in domain.services %}
+
+- {{ service.name }}
+
+{% endfor %}

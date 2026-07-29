@@ -1,0 +1,33 @@
+@startuml
+
+title {{ domain.name }} Context Map
+
+package "{{ domain.name }}" {
+
+{% for aggregate in domain.aggregates %}
+
+component "{{ aggregate.name }}" as Aggregate{{ loop.index }}
+
+{% endfor %}
+
+{% for entity in domain.entities %}
+
+entity "{{ entity.name }}" as Entity{{ loop.index }}
+
+{% endfor %}
+
+}
+
+{% for service in domain.services %}
+
+component "{{ service.name }}" as Service{{ loop.index }}
+
+{% endfor %}
+
+{% for repository in domain.repositories %}
+
+database "{{ repository.name }}" as Repository{{ loop.index }}
+
+{% endfor %}
+
+@enduml

@@ -1,0 +1,27 @@
+# Domain Responsibilities
+
+The {{ domain.name }} domain is responsible for managing its own business capabilities.
+
+## Aggregates
+
+{% for aggregate in domain.aggregates %}
+
+- {{ aggregate.name }}
+
+{% endfor %}
+
+## Entities
+
+{% for entity in domain.entities %}
+
+- {{ entity.name }}
+
+{% endfor %}
+
+## Services
+
+{% for service in domain.services %}
+
+- {{ service.name }}
+
+{% endfor %}
