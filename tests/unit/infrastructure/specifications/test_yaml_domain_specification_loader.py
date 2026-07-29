@@ -8,6 +8,9 @@ from familyos_cli.domain.models.attribute_descriptor import (
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
 )
+from familyos_cli.domain.models.value_object_descriptor import (
+    ValueObjectDescriptor,
+)
 from familyos_cli.infrastructure.specifications.yaml_domain_specification_loader import (
     YamlDomainSpecificationLoader,
 )
@@ -38,6 +41,15 @@ entities:
         type: str
     behaviors:
       - register
+
+value_objects:
+  - name: EmailAddress
+    description: Email address value object
+    immutable: true
+    attributes:
+      - name: value
+        type: str
+        required: true
 
 aggregates:
   - name: PersonAggregate
@@ -91,3 +103,27 @@ services:
     assert entity.attributes[0].type == "str"
 
     assert entity.attributes[0].required is True
+
+    value_object = specification.value_objects[0]
+
+    assert isinstance(
+        value_object,
+        ValueObjectDescriptor,
+    )
+
+    assert value_object.name == "EmailAddress"
+
+    assert value_object.immutable is True
+
+    assert len(value_object.attributes) == 1
+
+    assert isinstance(
+        value_object.attributes[0],
+        AttributeDescriptor,
+    )
+
+    assert value_object.attributes[0].name == "value"
+
+    assert value_object.attributes[0].type == "str"
+
+    assert value_object.attributes[0].required is True

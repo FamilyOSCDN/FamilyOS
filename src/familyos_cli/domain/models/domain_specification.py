@@ -14,6 +14,9 @@ from familyos_cli.domain.models.repository_descriptor import (
 from familyos_cli.domain.models.service_descriptor import (
     ServiceDescriptor,
 )
+from familyos_cli.domain.models.value_object_descriptor import (
+    ValueObjectDescriptor,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,6 +26,10 @@ class DomainSpecification:
     name: str
 
     entities: list[EntityDescriptor] = field(
+        default_factory=list,
+    )
+
+    value_objects: list[ValueObjectDescriptor] = field(
         default_factory=list,
     )
 

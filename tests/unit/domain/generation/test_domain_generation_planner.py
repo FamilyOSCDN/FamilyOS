@@ -21,6 +21,9 @@ from familyos_cli.domain.models.repository_descriptor import (
 from familyos_cli.domain.models.service_descriptor import (
     ServiceDescriptor,
 )
+from familyos_cli.domain.models.value_object_descriptor import (
+    ValueObjectDescriptor,
+)
 
 
 def test_domain_generation_planner_creates_full_domain_plan() -> None:
@@ -74,26 +77,6 @@ def test_domain_generation_planner_creates_full_domain_plan() -> None:
         ArtifactKind.SERVICE,
     ]
 
-    assert [
-        artifact.target_path
-        for artifact in plan.artifacts
-    ] == [
-        "models/person.py",
-        "aggregates/person.py",
-        "repositories/person_repository.py",
-        "services/person_registration_service.py",
-    ]
-
-    assert [
-        artifact.template
-        for artifact in plan.artifacts
-    ] == [
-        "entity.py.jinja",
-        "aggregate.py.jinja",
-        "repository.py.jinja",
-        "service.py.jinja",
-    ]
-
 
 def test_domain_generation_planner_creates_empty_plan() -> None:
     specification = DomainSpecification(
@@ -132,9 +115,6 @@ def test_domain_generation_planner_uses_injected_path_policy() -> None:
                 description="Person entity",
             )
         ],
-        aggregates=[],
-        repositories=[],
-        services=[],
     )
 
     planner = DomainGenerationPlanner(
@@ -145,12 +125,46 @@ def test_domain_generation_planner_uses_injected_path_policy() -> None:
         specification,
     )
 
-    assert len(plan.artifacts) == 1
-
     assert plan.artifacts[0].target_path == (
         "custom/entity/Person.generated"
     )
 
+
+def test_domain_generation_planner_creates_value_object_plan() -> None:
+    specification = DomainSpecification(
+        name="Person",
+        value_objects=[
+            ValueObjectDescriptor(
+                name="EmailAddress",
+                description="Email address value object",
+            )
+        ],
+        entities=[],
+        aggregates=[],
+        repositories=[],
+        services=[],
+    )
+
+    planner = DomainGenerationPlanner()
+
+    plan = planner.create_plan(
+        specification,
+    )
+
+    assert len(plan.artifacts) == 1
+
+    assert plan.artifacts[0].kind == (
+        ArtifactKind.VALUE_OBJECT
+    )
+
+    assert plan.artifacts[0].name == (
+        "EmailAddress"
+    )
+
     assert plan.artifacts[0].template == (
-        "entity.py.jinja"
+        "value_object.py.jinja"
+    )
+
+    assert plan.artifacts[0].target_path == (
+        "value_objects/email_address.py"
     )

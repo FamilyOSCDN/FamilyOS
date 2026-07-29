@@ -65,6 +65,17 @@ class DomainGenerationPlanner:
                 )
             )
 
+        for value_object in specification.value_objects:
+            artifacts.append(
+                self._create_artifact(
+                    kind=ArtifactKind.VALUE_OBJECT,
+                    name=value_object.name,
+                    context={
+                        "value_object": value_object,
+                    },
+                )
+            )
+
         for aggregate in specification.aggregates:
             artifacts.append(
                 self._create_artifact(

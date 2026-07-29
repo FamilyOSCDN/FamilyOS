@@ -25,6 +25,9 @@ from familyos_cli.domain.models.repository_descriptor import (
 from familyos_cli.domain.models.service_descriptor import (
     ServiceDescriptor,
 )
+from familyos_cli.domain.models.value_object_descriptor import (
+    ValueObjectDescriptor,
+)
 from familyos_cli.infrastructure.specifications.domain_specification_loader import (
     DomainSpecificationLoader,
 )
@@ -56,6 +59,15 @@ class YamlDomainSpecificationLoader(
                 )
                 for entity in data.get(
                     "entities",
+                    [],
+                )
+            ],
+            value_objects=[
+                self._load_value_object(
+                    value_object,
+                )
+                for value_object in data.get(
+                    "value_objects",
                     [],
                 )
             ],
@@ -113,6 +125,30 @@ class YamlDomainSpecificationLoader(
             behaviors=entity.get(
                 "behaviors",
                 [],
+            ),
+        )
+
+    def _load_value_object(
+        self,
+        value_object: dict[str, Any],
+    ) -> ValueObjectDescriptor:
+        """Load a value object descriptor."""
+
+        return ValueObjectDescriptor(
+            name=value_object["name"],
+            description=value_object.get(
+                "description",
+                "",
+            ),
+            attributes=self._normalize_attributes(
+                value_object.get(
+                    "attributes",
+                    [],
+                ),
+            ),
+            immutable=value_object.get(
+                "immutable",
+                True,
             ),
         )
 
