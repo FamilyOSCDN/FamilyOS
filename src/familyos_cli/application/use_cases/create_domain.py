@@ -16,6 +16,9 @@ from familyos_cli.application.generation.generation_specification import (
 from familyos_cli.application.use_cases.get_domain_specification import (
     GetDomainSpecificationUseCase,
 )
+from familyos_cli.domain.generation.generation_preset import (
+    GenerationPreset,
+)
 
 
 class CreateDomainUseCase:
@@ -39,13 +42,15 @@ class CreateDomainUseCase:
         self,
         domain_name: str,
         destination: Path,
-        recipe_name: str = "domain_documentation",
+        recipe_name: str | None = None,
+        preset: GenerationPreset | None = None,
     ) -> GenerationSpecification | None:
         """Generate a domain."""
 
         request = self._request_factory.create(
-            domain_name,
-            recipe_name,
+            domain_name=domain_name,
+            recipe_name=recipe_name,
+            preset=preset,
         )
 
         specification = self._get_specification.execute(

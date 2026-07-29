@@ -419,3 +419,73 @@ services:
         assert (
             service_directory / expected_file
         ).is_file()
+
+
+def test_cli_should_create_domain_using_complete_preset(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """CLI should generate a domain using complete preset."""
+
+    monkeypatch.chdir(tmp_path)
+
+    specification = tmp_path / "person.yaml"
+
+    specification.write_text(
+        """
+domain:
+  name: Person
+
+entities:
+  - name: Person
+    description: Person entity
+""".strip(),
+        encoding="utf-8",
+    )
+
+    templates = (
+        tmp_path
+        / "templates"
+    )
+
+    artifacts = (
+        "domain/README.md.j2",
+        "domain/Vision.md.j2",
+        "domain/Capabilities.md.j2",
+        "domain/Domain-Model.md.j2",
+    )
+
+    for artifact in artifacts:
+        template = templates / artifact
+        template.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        template.write_text(
+            "# Generated documentation\n",
+            encoding="utf-8",
+        )
+
+    destination = tmp_path / "generated"
+
+    result = runner.invoke(
+        app,
+        [
+            "create",
+            "domain",
+            "Person",
+            "--specification",
+            str(specification),
+            "--destination",
+            str(destination),
+            "--preset",
+            "complete",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+
+    assert (
+        'Domain "Person" created successfully.'
+        in result.output
+    )

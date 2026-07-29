@@ -14,6 +14,9 @@ from familyos_cli.application.generation.generation_request_factory import (
 from familyos_cli.application.generation.mappers.generation_specification_mapper import (
     GenerationSpecificationMapper,
 )
+from familyos_cli.application.generation.preset_recipe_resolver import (
+    PresetRecipeResolver,
+)
 from familyos_cli.application.specifications import (
     DomainSpecificationLoaderService,
     SpecificationService,
@@ -31,8 +34,14 @@ from familyos_cli.application.use_cases.get_domain_specification import (
     GetDomainSpecificationUseCase,
 )
 from familyos_cli.bootstrap.runtime_factory import RuntimeFactory
+from familyos_cli.domain.generation.default_generation_preset_registry import (
+    DefaultGenerationPresetRegistry,
+)
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
+)
+from familyos_cli.domain.generation.generation_preset_resolver import (
+    GenerationPresetResolver,
 )
 from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
@@ -107,10 +116,18 @@ class ApplicationContainer:
             strategy_registry=strategy_registry,
         )
 
+        request_factory = GenerationRequestFactory(
+            preset_recipe_resolver=PresetRecipeResolver(
+                GenerationPresetResolver(
+                    DefaultGenerationPresetRegistry.create(),
+                ),
+            ),
+        )
+
         return CreateDomainUseCase(
             pipeline=pipeline,
             get_specification=get_specification,
-            request_factory=GenerationRequestFactory(),
+            request_factory=request_factory,
         )
 
     def domain_specification_loader_service(
