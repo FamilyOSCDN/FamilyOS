@@ -17,6 +17,9 @@ from familyos_cli.application.generation.strategies.domain_documentation_strateg
 from familyos_cli.application.generation.strategies.domain_implementation_strategy import (
     DomainImplementationStrategy,
 )
+from familyos_cli.application.generation.strategies.entity_documentation_strategy import (
+    EntityDocumentationStrategy,
+)
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
@@ -33,6 +36,14 @@ class DefaultGenerationStrategyRegistry:
 
         registry.register(
             DomainDocumentationStrategy(
+                RecipeExecutor(
+                    DefaultRecipeRegistry.create(),
+                ),
+            ),
+        )
+
+        registry.register(
+            EntityDocumentationStrategy(
                 RecipeExecutor(
                     DefaultRecipeRegistry.create(),
                 ),

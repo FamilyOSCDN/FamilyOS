@@ -126,6 +126,14 @@ class YamlDomainSpecificationLoader(
                 "behaviors",
                 [],
             ),
+            business_rules=entity.get(
+                "business_rules",
+                [],
+            ),
+            relationships=entity.get(
+                "relationships",
+                [],
+            ),
         )
 
     def _load_value_object(

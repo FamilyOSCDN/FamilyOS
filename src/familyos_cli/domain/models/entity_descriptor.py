@@ -22,3 +22,11 @@ class EntityDescriptor:
     behaviors: list[str] = field(
         default_factory=list,
     )
+
+    business_rules: list[str] = field(
+        default_factory=list,
+    )
+
+    relationships: list[str] = field(
+        default_factory=list,
+    )

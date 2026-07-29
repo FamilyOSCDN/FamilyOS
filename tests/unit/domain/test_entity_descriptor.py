@@ -17,6 +17,15 @@ def test_entity_descriptor_supports_attribute_descriptors() -> None:
                 required=True,
             ),
         ],
+        behaviors=[
+            "update_profile",
+        ],
+        business_rules=[
+            "Person must have a unique identifier",
+        ],
+        relationships=[
+            "Person belongs to Family",
+        ],
     )
 
     assert entity.name == "Person"
@@ -28,3 +37,15 @@ def test_entity_descriptor_supports_attribute_descriptors() -> None:
     assert entity.attributes[0].type == "str"
 
     assert entity.attributes[0].required is True
+
+    assert entity.behaviors == [
+        "update_profile",
+    ]
+
+    assert entity.business_rules == [
+        "Person must have a unique identifier",
+    ]
+
+    assert entity.relationships == [
+        "Person belongs to Family",
+    ]
