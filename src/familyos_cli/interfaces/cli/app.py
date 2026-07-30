@@ -3,6 +3,9 @@
 import typer
 
 from familyos_cli.interfaces.cli.commands.create import create_app
+from familyos_cli.interfaces.cli.commands.generation import (
+    generation_app,
+)
 from familyos_cli.interfaces.cli.commands.init import init
 from familyos_cli.interfaces.cli.commands.version import version
 
@@ -16,6 +19,11 @@ app = typer.Typer(
 app.add_typer(
     create_app,
     name="create",
+)
+
+app.add_typer(
+    generation_app,
+    name="generation",
 )
 
 app.command()(version)

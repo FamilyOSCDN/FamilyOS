@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from functools import cached_property
 
+from familyos_cli.application.generation.generation_catalog_service import (
+    GenerationCatalogService,
+)
 from familyos_cli.application.specifications.domain_specification_loader_service import (
     DomainSpecificationLoaderService,
 )
@@ -32,7 +35,9 @@ class CommandContext:
         """Initialize CLI context."""
 
         self._container = (
-            container if container is not None else ApplicationFactory.create()
+            container
+            if container is not None
+            else ApplicationFactory.create()
         )
 
     @cached_property
@@ -66,3 +71,11 @@ class CommandContext:
         """Provide domain creation use case."""
 
         return self._container.create_domain_use_case()
+
+    @cached_property
+    def generation_catalog(
+        self,
+    ) -> GenerationCatalogService:
+        """Provide generation catalog service."""
+
+        return self._container.generation_catalog_service()

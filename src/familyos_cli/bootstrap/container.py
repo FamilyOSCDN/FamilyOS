@@ -8,6 +8,9 @@ from familyos_cli.application.generation.default_generation_strategy_registry im
 from familyos_cli.application.generation.domain_generation_pipeline import (
     DomainGenerationPipeline,
 )
+from familyos_cli.application.generation.generation_catalog_service import (
+    GenerationCatalogService,
+)
 from familyos_cli.application.generation.generation_request_factory import (
     GenerationRequestFactory,
 )
@@ -95,6 +98,13 @@ class ApplicationContainer:
         """Create artifact use case."""
 
         return CreateArtifactUseCase()
+
+    def generation_catalog_service(
+        self,
+    ) -> GenerationCatalogService:
+        """Return generation catalog service."""
+
+        return GenerationCatalogService()
 
     def create_domain_use_case(
         self,
