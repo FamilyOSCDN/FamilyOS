@@ -4,8 +4,14 @@ from __future__ import annotations
 
 from functools import cached_property
 
+from familyos_cli.application.generation.domain_generation_catalog_service import (
+    DomainGenerationCatalogService,
+)
 from familyos_cli.application.generation.generation_catalog_service import (
     GenerationCatalogService,
+)
+from familyos_cli.application.generation.recipe_catalog_service import (
+    RecipeCatalogService,
 )
 from familyos_cli.application.specifications.domain_specification_loader_service import (
     DomainSpecificationLoaderService,
@@ -79,3 +85,19 @@ class CommandContext:
         """Provide generation catalog service."""
 
         return self._container.generation_catalog_service()
+
+    @cached_property
+    def domain_generation_catalog(
+        self,
+    ) -> DomainGenerationCatalogService:
+        """Provide domain generation catalog service."""
+
+        return self._container.domain_generation_catalog_service()
+
+    @cached_property
+    def recipe_catalog(
+        self,
+    ) -> RecipeCatalogService:
+        """Provide generation recipe catalog service."""
+
+        return self._container.recipe_catalog_service()
