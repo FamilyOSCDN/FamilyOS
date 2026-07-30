@@ -1,17 +1,11 @@
+"""Backward-compatible PluginMetadata export."""
+
 from __future__ import annotations
 
-from dataclasses import dataclass
+from familyos_cli.plugins.models.plugin_metadata import (
+    PluginMetadata,
+)
 
-
-@dataclass(frozen=True, slots=True)
-class PluginMetadata:
-    """Describes a FamilyOS plugin."""
-
-    name: str
-    version: str
-
-    author: str = ""
-    description: str = ""
-    homepage: str = ""
-    license: str = ""
-    api_version: str = "1.0"
+__all__ = [
+    "PluginMetadata",
+]

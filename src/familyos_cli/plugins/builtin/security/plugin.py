@@ -1,7 +1,12 @@
+"""Built-in security plugin."""
+
 from __future__ import annotations
 
 from familyos_cli.domain.generation.generation_preset_id import (
     GenerationPresetId,
+)
+from familyos_cli.plugins.contributions.contribution import (
+    Contribution,
 )
 from familyos_cli.plugins.contributions.generation_contribution import (
     GenerationContribution,
@@ -20,19 +25,21 @@ class SecurityPlugin(Plugin):
         description="Generates security documentation.",
     )
 
-    def contribution(
+    def contributions(
         self,
-    ) -> GenerationContribution:
-        """Return plugin contributions."""
+    ) -> tuple[Contribution, ...]:
+        """Return contributions exposed by the plugin."""
 
-        return GenerationContribution(
-            preset=GenerationPresetId(
-                "security",
-            ),
-            description=(
-                "Security documentation package."
-            ),
-            recipes=(
-                "security_documentation",
+        return (
+            GenerationContribution(
+                preset=GenerationPresetId(
+                    "security",
+                ),
+                description=(
+                    "Security documentation package."
+                ),
+                recipes=(
+                    "security_documentation",
+                ),
             ),
         )

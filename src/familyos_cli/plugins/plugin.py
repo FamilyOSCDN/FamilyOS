@@ -1,7 +1,12 @@
+"""Base plugin contract."""
+
 from __future__ import annotations
 
 from familyos_cli.application.generation.generation_context import (
     GenerationContext,
+)
+from familyos_cli.plugins.contributions.contribution import (
+    Contribution,
 )
 from familyos_cli.plugins.models import PluginMetadata
 from familyos_cli.plugins.plugin_context import PluginContext
@@ -20,15 +25,26 @@ class Plugin:
 
         self.context = context
 
-    def activate(self) -> None:
+    def activate(
+        self,
+    ) -> None:
         """Activate plugin."""
 
         return None
 
-    def deactivate(self) -> None:
+    def deactivate(
+        self,
+    ) -> None:
         """Deactivate plugin."""
 
         return None
+
+    def contributions(
+        self,
+    ) -> tuple[Contribution, ...]:
+        """Return contributions exposed by the plugin."""
+
+        return ()
 
     def before_generate(
         self,
@@ -62,7 +78,9 @@ class Plugin:
 
         _ = context
 
-    def get_metadata(self) -> PluginMetadata | None:
+    def get_metadata(
+        self,
+    ) -> PluginMetadata | None:
         """Return plugin metadata."""
 
         return self.metadata

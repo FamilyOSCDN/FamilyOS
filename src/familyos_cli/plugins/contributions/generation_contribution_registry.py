@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from familyos_cli.domain.generation.generation_preset import (
-    GenerationPreset,
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
 )
 from familyos_cli.plugins.contributions.generation_contribution import (
     GenerationContribution,
@@ -19,7 +19,7 @@ class GenerationContributionRegistry:
         """Initialize registry."""
 
         self._contributions: dict[
-            GenerationPreset,
+            GenerationPresetId,
             GenerationContribution,
         ] = {}
 
@@ -32,7 +32,7 @@ class GenerationContributionRegistry:
         if contribution.preset in self._contributions:
             raise ValueError(
                 (
-                    f"Generation contribution "
+                    "Generation contribution "
                     f"'{contribution.preset.value}' "
                     "already registered."
                 ),
@@ -44,7 +44,7 @@ class GenerationContributionRegistry:
 
     def get(
         self,
-        preset: GenerationPreset,
+        preset: GenerationPresetId,
     ) -> GenerationContribution:
         """Return contribution for preset."""
 
