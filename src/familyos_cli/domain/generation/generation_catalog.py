@@ -33,18 +33,12 @@ class GenerationCatalog:
             entry.preset,
         )
 
-        normalized_entry = GenerationCatalogEntry(
-            preset=preset_id,
-            description=entry.description,
-            recipes=entry.recipes,
-        )
-
         if preset_id in self._entries:
             raise ValueError(
                 f"Preset '{preset_id}' already registered.",
             )
 
-        self._entries[preset_id] = normalized_entry
+        self._entries[preset_id] = entry
 
     def get(
         self,

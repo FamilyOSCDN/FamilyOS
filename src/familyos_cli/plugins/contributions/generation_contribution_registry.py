@@ -58,3 +58,12 @@ class GenerationContributionRegistry:
         return tuple(
             self._contributions.values(),
         )
+
+    def all(
+        self,
+    ) -> tuple[GenerationContribution, ...]:
+        """Return all registered contributions."""
+
+        return tuple(
+            self._contributions.values(),
+        )

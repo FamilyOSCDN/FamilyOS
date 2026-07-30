@@ -59,11 +59,14 @@ class PluginRuntime:
         )
 
         if callable(contribution):
-            generation_contribution = contribution()
+            plugin_contribution = contribution()
 
-            if generation_contribution is not None:
+            if isinstance(
+                plugin_contribution,
+                GenerationContribution,
+            ):
                 self._generation_contributions.register(
-                    generation_contribution,
+                    plugin_contribution,
                 )
 
     def deactivate(
@@ -138,5 +141,5 @@ class PluginRuntime:
         self,
     ) -> PluginRegistry:
         """Return plugin registry."""
-
+        
         return self._registry
