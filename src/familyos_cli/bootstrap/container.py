@@ -104,7 +104,13 @@ class ApplicationContainer:
     ) -> GenerationCatalogService:
         """Return generation catalog service."""
 
-        return GenerationCatalogService()
+        return GenerationCatalogService(
+            generation_contributions=(
+                self._runtime
+                .contributions()
+                .generation_contributions
+            ),
+        )
 
     def create_domain_use_case(
         self,

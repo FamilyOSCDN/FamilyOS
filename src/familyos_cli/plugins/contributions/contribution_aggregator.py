@@ -25,8 +25,12 @@ class ContributionAggregator:
             return AggregatedContribution()
 
         templates: list[Path] = []
+
         specifications: list[Path] = []
+
         variables: dict[str, object] = {}
+
+        generation_contributions = []
 
         for contribution in contributions:
             templates.extend(
@@ -41,8 +45,15 @@ class ContributionAggregator:
                 contribution.variables,
             )
 
+            generation_contributions.extend(
+                contribution.generation_contributions,
+            )
+
         return AggregatedContribution(
             templates=tuple(templates),
             specifications=tuple(specifications),
             variables=variables,
+            generation_contributions=tuple(
+                generation_contributions,
+            ),
         )
