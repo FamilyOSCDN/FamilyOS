@@ -5,6 +5,12 @@ from __future__ import annotations
 from familyos_cli.application.generation.default_generation_strategy_registry import (
     DefaultGenerationStrategyRegistry,
 )
+from familyos_cli.application.generation.default_recipe_registry import (
+    DefaultRecipeRegistry,
+)
+from familyos_cli.application.generation.domain_generation_catalog_service import (
+    DomainGenerationCatalogService,
+)
 from familyos_cli.application.generation.domain_generation_pipeline import (
     DomainGenerationPipeline,
 )
@@ -19,6 +25,9 @@ from familyos_cli.application.generation.mappers.generation_specification_mapper
 )
 from familyos_cli.application.generation.preset_recipe_resolver import (
     PresetRecipeResolver,
+)
+from familyos_cli.application.generation.recipe_catalog_service import (
+    RecipeCatalogService,
 )
 from familyos_cli.application.specifications import (
     DomainSpecificationLoaderService,
@@ -55,6 +64,24 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 from familyos_cli.infrastructure.specifications import (
     YamlDomainSpecificationLoader,
 )
+from familyos_cli.plugins.ecosystem.discovery import (
+    PluginDiscovery,
+)
+from familyos_cli.plugins.ecosystem.installation import (
+    PluginInstaller,
+)
+from familyos_cli.plugins.ecosystem.lifecycle import (
+    PluginLifecycleManager,
+)
+from familyos_cli.plugins.ecosystem.pipeline import (
+    PluginResolutionPipeline,
+)
+from familyos_cli.plugins.ecosystem.resolution import (
+    PluginResolver,
+)
+from familyos_cli.plugins.ecosystem.verification import (
+    PluginVerifier,
+)
 from familyos_cli.plugins.runtime.plugin_runtime import (
     PluginRuntime,
 )
@@ -66,7 +93,21 @@ class ApplicationContainer:
     def __init__(
         self,
     ) -> None:
+        """Initialize application dependencies."""
+
         self._runtime = RuntimeFactory.create()
+
+        self._plugin_discovery = PluginDiscovery()
+        self._plugin_resolver = PluginResolver()
+        self._plugin_resolution_pipeline = PluginResolutionPipeline(
+            discovery=self._plugin_discovery,
+            resolver=self._plugin_resolver,
+        )
+        self._plugin_verifier = PluginVerifier()
+        self._plugin_installer = PluginInstaller()
+        self._plugin_lifecycle_manager = (
+            PluginLifecycleManager()
+        )
 
         self._domain_specification_registry = (
             DomainSpecificationRegistry()
@@ -82,6 +123,48 @@ class ApplicationContainer:
         """Return plugin runtime."""
 
         return self._runtime
+
+    def plugin_discovery(
+        self,
+    ) -> PluginDiscovery:
+        """Return plugin discovery service."""
+
+        return self._plugin_discovery
+
+    def plugin_resolver(
+        self,
+    ) -> PluginResolver:
+        """Return plugin resolver service."""
+
+        return self._plugin_resolver
+
+    def plugin_resolution_pipeline(
+        self,
+    ) -> PluginResolutionPipeline:
+        """Return plugin resolution pipeline."""
+
+        return self._plugin_resolution_pipeline
+
+    def plugin_verifier(
+        self,
+    ) -> PluginVerifier:
+        """Return plugin verifier service."""
+
+        return self._plugin_verifier
+
+    def plugin_installer(
+        self,
+    ) -> PluginInstaller:
+        """Return plugin installer service."""
+
+        return self._plugin_installer
+
+    def plugin_lifecycle_manager(
+        self,
+    ) -> PluginLifecycleManager:
+        """Return plugin lifecycle manager."""
+
+        return self._plugin_lifecycle_manager
 
     def create_project_use_case(
         self,
@@ -108,6 +191,26 @@ class ApplicationContainer:
             generation_contributions=(
                 self._runtime.generation_contributions()
             ),
+        )
+
+    def domain_generation_catalog_service(
+        self,
+    ) -> DomainGenerationCatalogService:
+        """Return domain generation catalog service."""
+
+        return DomainGenerationCatalogService(
+            domain_contributions=(
+                self._runtime.domain_generation_contributions()
+            ),
+        )
+
+    def recipe_catalog_service(
+        self,
+    ) -> RecipeCatalogService:
+        """Return generation recipe catalog service."""
+
+        return RecipeCatalogService(
+            registry=DefaultRecipeRegistry.create(),
         )
 
     def create_domain_use_case(
