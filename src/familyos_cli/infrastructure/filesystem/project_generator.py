@@ -14,12 +14,6 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 from familyos_cli.infrastructure.specifications.specification_loader import (
     SpecificationLoader,
 )
-from familyos_cli.plugins.contributions.aggregated_contribution import (
-    AggregatedContribution,
-)
-from familyos_cli.plugins.runtime.plugin_runtime import (
-    PluginRuntime,
-)
 
 
 class ProjectGenerator:
@@ -27,10 +21,8 @@ class ProjectGenerator:
 
     def __init__(
         self,
-        runtime: PluginRuntime,
     ) -> None:
         """Initialize the project generator."""
-        self._runtime = runtime
 
         self._filesystem = FileSystemService()
         self._specification_loader = SpecificationLoader()
@@ -41,14 +33,8 @@ class ProjectGenerator:
         self,
     ) -> GenerationEngine:
         """Return the generation engine."""
-        return self._generation_engine
 
-    @property
-    def plugin_contributions(
-        self,
-    ) -> AggregatedContribution:
-        """Return aggregated plugin contributions."""
-        return self._runtime.contributions()
+        return self._generation_engine
 
     def generate(
         self,
@@ -64,7 +50,9 @@ class ProjectGenerator:
         )
 
         specification_path = (
-            Path(__file__).resolve().parents[4] / "specifications" / "project.yaml"
+            Path(__file__).resolve().parents[4]
+            / "specifications"
+            / "project.yaml"
         )
 
         specification = self._specification_loader.load(

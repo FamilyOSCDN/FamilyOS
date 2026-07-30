@@ -37,9 +37,7 @@ class CreateProjectUseCase:
             runtime = PluginRuntime()
 
         self._pipeline = GenerationPipeline(
-            generator=ProjectGenerator(
-                runtime=runtime,
-            ),
+            generator=ProjectGenerator(),
             runtime=runtime,
         )
 
@@ -52,7 +50,9 @@ class CreateProjectUseCase:
 
         self._pipeline.run(
             GenerationContext(
-                project=Project(name=name),
+                project=Project(
+                    name=name,
+                ),
                 destination=destination,
                 variables={
                     "project_name": name,

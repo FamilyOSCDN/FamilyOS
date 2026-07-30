@@ -25,7 +25,9 @@ def test_pipeline_should_generate_project(
     project_name = "demo"
 
     context = GenerationContext(
-        project=Project(name=project_name),
+        project=Project(
+            name=project_name,
+        ),
         destination=tmp_path,
         variables={
             "project_name": project_name,
@@ -35,9 +37,7 @@ def test_pipeline_should_generate_project(
     runtime = PluginRuntime()
 
     pipeline = GenerationPipeline(
-        generator=ProjectGenerator(
-            runtime=runtime,
-        ),
+        generator=ProjectGenerator(),
         runtime=runtime,
     )
 
