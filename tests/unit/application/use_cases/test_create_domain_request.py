@@ -29,6 +29,9 @@ from familyos_cli.application.use_cases.get_domain_specification import (
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
+from familyos_cli.domain.generation.generation_preset import (
+    GenerationPreset,
+)
 from familyos_cli.domain.generation.generation_request import (
     GenerationRequest,
 )
@@ -66,11 +69,13 @@ class SpyGenerationRequestFactory(
     def create(
         self,
         domain_name: str,
-        recipe_name: str = "domain_documentation",
+        recipe_name: str | None = None,
+        preset: GenerationPreset | None = None,
     ) -> GenerationRequest:
         self.request = super().create(
-            domain_name,
-            recipe_name,
+            domain_name=domain_name,
+            recipe_name=recipe_name,
+            preset=preset,
         )
 
         return self.request
