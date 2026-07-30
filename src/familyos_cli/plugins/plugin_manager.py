@@ -34,7 +34,9 @@ class PluginManager:
         default_factory=dict,
     )
 
-    def runtime(self) -> PluginRuntime:
+    def runtime(
+        self,
+    ) -> PluginRuntime:
         """Return plugin runtime."""
 
         return self._runtime
@@ -76,6 +78,9 @@ class PluginManager:
             if not plugin_path.is_dir():
                 continue
 
+            if plugin_path.name == "__pycache__":
+                continue
+
             descriptor = loader.load(plugin_path)
 
             if isinstance(
@@ -112,7 +117,9 @@ class PluginManager:
         descriptor = self.get(name)
 
         if descriptor is None:
-            raise ValueError(f"Unknown plugin: {name}")
+            raise ValueError(
+                f"Unknown plugin: {name}",
+            )
 
         plugin = PluginLoader().load(descriptor)
 
@@ -123,12 +130,14 @@ class PluginManager:
         self,
         name: str,
     ) -> None:
-        """Deactivate a plugin by name."""
+        """Deactivate a plugin."""
 
         descriptor = self.get(name)
 
         if descriptor is None:
-            raise ValueError(f"Unknown plugin: {name}")
+            raise ValueError(
+                f"Unknown plugin: {name}",
+            )
 
         plugin = PluginLoader().load(descriptor)
 

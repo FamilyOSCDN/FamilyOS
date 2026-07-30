@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from familyos_cli.domain.generation.generation_preset import (
-    GenerationPreset,
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
 )
 
 
@@ -13,7 +13,7 @@ from familyos_cli.domain.generation.generation_preset import (
 class GenerationContribution:
     """Contribution provided by a plugin."""
 
-    preset: GenerationPreset
+    preset: GenerationPresetId
 
     description: str
 

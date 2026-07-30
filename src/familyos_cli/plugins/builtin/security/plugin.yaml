@@ -1,0 +1,15 @@
+id: security
+
+name: Security Plugin
+
+version: 1.0.0
+
+author: FamilyOS Team
+
+description: Generates security documentation.
+
+module: familyos_cli.plugins.builtin.security.plugin
+
+class: SecurityPlugin
+
+enabled: true

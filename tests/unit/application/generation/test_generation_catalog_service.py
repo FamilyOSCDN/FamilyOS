@@ -1,8 +1,8 @@
 from familyos_cli.application.generation.generation_catalog_service import (
     GenerationCatalogService,
 )
-from familyos_cli.domain.generation.generation_preset import (
-    GenerationPreset,
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
 )
 
 
@@ -12,11 +12,13 @@ def test_generation_catalog_service_returns_catalog() -> None:
     catalog = service.get_catalog()
 
     entry = catalog.get(
-        GenerationPreset.COMPLETE,
+        GenerationPresetId(
+            "complete",
+        ),
     )
 
-    assert entry.preset == (
-        GenerationPreset.COMPLETE
+    assert entry.preset == GenerationPresetId(
+        "complete",
     )
 
 

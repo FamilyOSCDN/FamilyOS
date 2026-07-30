@@ -106,9 +106,7 @@ class ApplicationContainer:
 
         return GenerationCatalogService(
             generation_contributions=(
-                self._runtime
-                .contributions()
-                .generation_contributions
+                self._runtime.generation_contributions()
             ),
         )
 

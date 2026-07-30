@@ -9,6 +9,12 @@ from familyos_cli.plugins.contributions.aggregated_contribution import (
 from familyos_cli.plugins.contributions.contribution_aggregator import (
     ContributionAggregator,
 )
+from familyos_cli.plugins.contributions.generation_contribution import (
+    GenerationContribution,
+)
+from familyos_cli.plugins.contributions.generation_contribution_registry import (
+    GenerationContributionRegistry,
+)
 from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_registry import PluginRegistry
 from familyos_cli.plugins.runtime.plugin_collection import PluginCollection
@@ -25,7 +31,12 @@ class PluginRuntime:
 
         self._registry = PluginRegistry()
         self._plugins = PluginCollection()
+
         self._contributions = PluginContributionRegistry()
+
+        self._generation_contributions = (
+            GenerationContributionRegistry()
+        )
 
     def activate(
         self,
@@ -36,7 +47,24 @@ class PluginRuntime:
         plugin.activate()
 
         self._plugins.add(plugin)
-        self._contributions.register(plugin)
+
+        self._contributions.register(
+            plugin,
+        )
+
+        contribution = getattr(
+            plugin,
+            "contribution",
+            None,
+        )
+
+        if callable(contribution):
+            generation_contribution = contribution()
+
+            if generation_contribution is not None:
+                self._generation_contributions.register(
+                    generation_contribution,
+                )
 
     def deactivate(
         self,
@@ -92,12 +120,23 @@ class PluginRuntime:
             self._contributions.all(),
         )
 
-    def plugins(self) -> PluginCollection:
+    def generation_contributions(
+        self,
+    ) -> tuple[GenerationContribution, ...]:
+        """Return generation contributions."""
+
+        return self._generation_contributions.all()
+
+    def plugins(
+        self,
+    ) -> PluginCollection:
         """Return active plugins."""
 
         return self._plugins
 
-    def registry(self) -> PluginRegistry:
+    def registry(
+        self,
+    ) -> PluginRegistry:
         """Return plugin registry."""
 
         return self._registry

@@ -5,8 +5,8 @@ from __future__ import annotations
 from familyos_cli.domain.generation.generation_catalog_entry import (
     GenerationCatalogEntry,
 )
-from familyos_cli.domain.generation.generation_preset import (
-    GenerationPreset,
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
 )
 
 
@@ -19,7 +19,7 @@ class GenerationCatalog:
         """Initialize the catalog."""
 
         self._entries: dict[
-            GenerationPreset,
+            GenerationPresetId,
             GenerationCatalogEntry,
         ] = {}
 
@@ -29,25 +29,39 @@ class GenerationCatalog:
     ) -> None:
         """Register a catalog entry."""
 
-        if entry.preset in self._entries:
+        preset_id = self._normalize_preset_id(
+            entry.preset,
+        )
+
+        normalized_entry = GenerationCatalogEntry(
+            preset=preset_id,
+            description=entry.description,
+            recipes=entry.recipes,
+        )
+
+        if preset_id in self._entries:
             raise ValueError(
-                f"Preset '{entry.preset}' already registered.",
+                f"Preset '{preset_id}' already registered.",
             )
 
-        self._entries[entry.preset] = entry
+        self._entries[preset_id] = normalized_entry
 
     def get(
         self,
-        preset: GenerationPreset,
+        preset: GenerationPresetId | object,
     ) -> GenerationCatalogEntry:
         """Return a catalog entry."""
 
+        preset_id = self._normalize_preset_id(
+            preset,
+        )
+
         try:
-            return self._entries[preset]
+            return self._entries[preset_id]
 
         except KeyError as error:
             raise ValueError(
-                f"Preset '{preset}' not found.",
+                f"Preset '{preset_id}' not found.",
             ) from error
 
     def list(
@@ -57,4 +71,34 @@ class GenerationCatalog:
 
         return tuple(
             self._entries.values(),
+        )
+
+    @staticmethod
+    def _normalize_preset_id(
+        preset: GenerationPresetId | object,
+    ) -> GenerationPresetId:
+        """Normalize preset identifiers."""
+
+        if isinstance(
+            preset,
+            GenerationPresetId,
+        ):
+            return preset
+
+        value = getattr(
+            preset,
+            "value",
+            None,
+        )
+
+        if isinstance(
+            value,
+            str,
+        ):
+            return GenerationPresetId(
+                value,
+            )
+
+        raise ValueError(
+            f"Invalid generation preset '{preset}'.",
         )

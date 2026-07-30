@@ -8,8 +8,8 @@ from familyos_cli.domain.generation.generation_catalog import (
 from familyos_cli.domain.generation.generation_catalog_entry import (
     GenerationCatalogEntry,
 )
-from familyos_cli.domain.generation.generation_preset import (
-    GenerationPreset,
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
 )
 from familyos_cli.domain.generation.generation_preset_registry import (
     GenerationPresetRegistry,
@@ -25,11 +25,15 @@ class DefaultGenerationCatalog:
     ) -> GenerationCatalog:
         """Create catalog from registered presets."""
 
+        _ = preset_registry
+
         catalog = GenerationCatalog()
 
         catalog.register(
             GenerationCatalogEntry(
-                preset=GenerationPreset.MINIMAL,
+                preset=GenerationPresetId(
+                    "minimal",
+                ),
                 description=(
                     "Minimal domain documentation package."
                 ),
@@ -41,7 +45,9 @@ class DefaultGenerationCatalog:
 
         catalog.register(
             GenerationCatalogEntry(
-                preset=GenerationPreset.STANDARD,
+                preset=GenerationPresetId(
+                    "standard",
+                ),
                 description=(
                     "Standard domain documentation package."
                 ),
@@ -55,7 +61,9 @@ class DefaultGenerationCatalog:
 
         catalog.register(
             GenerationCatalogEntry(
-                preset=GenerationPreset.COMPLETE,
+                preset=GenerationPresetId(
+                    "complete",
+                ),
                 description=(
                     "Complete domain documentation package."
                 ),
