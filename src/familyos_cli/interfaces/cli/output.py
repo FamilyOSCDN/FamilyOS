@@ -42,3 +42,12 @@ class Output:
             f"ℹ️ {message}",
             fg=typer.colors.BLUE,
         )
+
+    @staticmethod
+    def diagnostic(message: str) -> None:
+        """Display an already rendered diagnostic on stderr."""
+
+        typer.echo(
+            message,
+            err=True,
+        )

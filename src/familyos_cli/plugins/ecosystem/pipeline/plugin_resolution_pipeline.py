@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from familyos_cli.plugins.ecosystem.discovery import (
-    PluginDiscovery,
+from familyos_cli.application.ports.plugins import (
+    PluginDiscoveryPort,
 )
 from familyos_cli.plugins.ecosystem.repository import (
     PluginRepository,
@@ -20,7 +20,7 @@ class PluginResolutionPipeline:
 
     def __init__(
         self,
-        discovery: PluginDiscovery,
+        discovery: PluginDiscoveryPort,
         resolver: PluginResolver,
     ) -> None:
         """Initialize the pipeline."""
