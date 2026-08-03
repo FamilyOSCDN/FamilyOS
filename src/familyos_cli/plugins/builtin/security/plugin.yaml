@@ -1,12 +1,12 @@
-id: security
+id: familyos.security
 
-name: Security Plugin
+name: FamilyOS Security Plugin
 
 version: 1.0.0
 
 author: FamilyOS Team
 
-description: Generates security documentation.
+description: Provides security capabilities, policies, validation rules, and security-related contributions for FamilyOS.
 
 module: familyos_cli.plugins.builtin.security.plugin
 
