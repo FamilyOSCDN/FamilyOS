@@ -7,6 +7,12 @@ from pathlib import Path
 from familyos_cli.application.generation.generation_context import (
     GenerationContext,
 )
+from familyos_cli.plugins.capabilities.capability_provider import (
+    CapabilityProvider,
+)
+from familyos_cli.plugins.capabilities.capability_registry import (
+    CapabilityRegistry,
+)
 from familyos_cli.plugins.contributions.contribution_registry import (
     ContributionRegistry,
 )
@@ -33,7 +39,7 @@ from familyos_cli.plugins.runtime.runtime_state import RuntimeState
 
 
 class PluginRuntime:
-    """Manage active plugin instances and their contributions."""
+    """Manage active plugin instances and their capabilities and contributions."""
 
     def __init__(
         self,
@@ -50,6 +56,9 @@ class PluginRuntime:
         self._registry = PluginRegistry()
         self._plugins = PluginCollection()
 
+        self._capability_provider = CapabilityProvider()
+        self._capability_registry = CapabilityRegistry()
+
         self._contribution_provider = (
             PluginContributionProvider()
         )
@@ -62,7 +71,7 @@ class PluginRuntime:
         self,
         plugin: Plugin,
     ) -> None:
-        """Activate a plugin and register its contributions."""
+        """Activate a plugin and register its capabilities and contributions."""
 
         plugin_name = self._plugin_name(
             plugin,
@@ -87,6 +96,15 @@ class PluginRuntime:
         self._plugins.add(
             plugin,
         )
+
+        for capability in (
+            self._capability_provider.capabilities(
+                plugin,
+            )
+        ):
+            self._capability_registry.register(
+                capability,
+            )
 
         for contribution in (
             self._contribution_provider.contributions(
@@ -178,10 +196,7 @@ class PluginRuntime:
 
     def generation_recipe_contributions(
         self,
-    ) -> tuple[
-        GenerationRecipeContribution,
-        ...,
-    ]:
+    ) -> tuple[GenerationRecipeContribution, ...]:
         """Return generation recipe contributions."""
 
         return self._contribution_registry.get_all(
@@ -190,10 +205,7 @@ class PluginRuntime:
 
     def domain_generation_contributions(
         self,
-    ) -> tuple[
-        DomainGenerationContribution,
-        ...,
-    ]:
+    ) -> tuple[DomainGenerationContribution, ...]:
         """Return domain generation contributions."""
 
         return self._contribution_registry.get_all(
@@ -202,10 +214,7 @@ class PluginRuntime:
 
     def template_contributions(
         self,
-    ) -> tuple[
-        TemplateContribution,
-        ...,
-    ]:
+    ) -> tuple[TemplateContribution, ...]:
         """Return template contributions."""
 
         return self._contribution_registry.get_all(
@@ -221,6 +230,13 @@ class PluginRuntime:
             contribution.template_directory
             for contribution in self.template_contributions()
         )
+
+    def capabilities(
+        self,
+    ) -> CapabilityRegistry:
+        """Return capability registry."""
+
+        return self._capability_registry
 
     def plugins(
         self,

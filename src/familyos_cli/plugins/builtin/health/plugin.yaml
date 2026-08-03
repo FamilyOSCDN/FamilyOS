@@ -1,0 +1,15 @@
+id: familyos.health
+
+name: FamilyOS Health Plugin
+
+version: 1.0.0
+
+author: FamilyOS Team
+
+description: Provides health capabilities, health records, metrics, and validation support for FamilyOS.
+
+module: familyos_cli.plugins.builtin.health.plugin
+
+class: HealthPlugin
+
+enabled: true
