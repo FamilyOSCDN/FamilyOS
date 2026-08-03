@@ -1,0 +1,30 @@
+domain:
+  name: Security
+  business_rules:
+    - Security documentation must be maintained.
+    - Security controls must be documented.
+
+entities:
+  - name: SecurityPolicy
+    description: Security policy entity.
+    attributes:
+      - name: id
+        type: str
+        required: true
+      - name: level
+        type: str
+        required: true
+
+aggregates:
+  - name: SecurityPolicyAggregate
+    root_entity: SecurityPolicy
+    description: Security policy aggregate.
+
+repositories:
+  - name: SecurityPolicyRepository
+    aggregate: SecurityPolicyAggregate
+    description: Repository for security policies.
+
+services:
+  - name: SecurityService
+    description: Security domain service.

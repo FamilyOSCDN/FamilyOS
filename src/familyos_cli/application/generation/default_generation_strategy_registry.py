@@ -29,6 +29,9 @@ from familyos_cli.application.generation.strategies.entity_documentation_strateg
 from familyos_cli.application.generation.strategies.full_domain_documentation_strategy import (
     FullDomainDocumentationStrategy,
 )
+from familyos_cli.application.generation.strategies.plugin_recipe_strategy import (
+    PluginRecipeStrategy,
+)
 from familyos_cli.application.generation.strategies.repository_documentation_strategy import (
     RepositoryDocumentationStrategy,
 )
@@ -38,76 +41,81 @@ from familyos_cli.application.generation.strategies.service_documentation_strate
 from familyos_cli.domain.generation.domain_generation_planner import (
     DomainGenerationPlanner,
 )
+from familyos_cli.domain.generation.generation_recipe_registry import (
+    GenerationRecipeRegistry,
+)
 
 
 class DefaultGenerationStrategyRegistry:
     """Create the default generation strategy registry."""
 
     @staticmethod
-    def create() -> GenerationStrategyRegistry:
+    def create(
+        recipe_registry: GenerationRecipeRegistry | None = None,
+    ) -> GenerationStrategyRegistry:
         """Create registry with built-in strategies."""
+
+        if recipe_registry is None:
+            recipe_registry = DefaultRecipeRegistry.create()
 
         registry = GenerationStrategyRegistry()
 
+        recipe_executor = RecipeExecutor(
+            recipe_registry,
+        )
+
         registry.register(
             DomainDocumentationStrategy(
-                RecipeExecutor(
-                    DefaultRecipeRegistry.create(),
-                ),
+                recipe_executor,
             ),
         )
 
         registry.register(
             EntityDocumentationStrategy(
-                RecipeExecutor(
-                    DefaultRecipeRegistry.create(),
-                ),
+                recipe_executor,
             ),
         )
 
         registry.register(
             AggregateDocumentationStrategy(
-                RecipeExecutor(
-                    DefaultRecipeRegistry.create(),
-                ),
+                recipe_executor,
             ),
         )
 
         registry.register(
             DomainContextDocumentationStrategy(
-                RecipeExecutor(
-                    DefaultRecipeRegistry.create(),
-                ),
+                recipe_executor,
             ),
         )
 
         registry.register(
             RepositoryDocumentationStrategy(
-                RecipeExecutor(
-                    DefaultRecipeRegistry.create(),
-                ),
+                recipe_executor,
             ),
         )
 
         registry.register(
             ServiceDocumentationStrategy(
-                RecipeExecutor(
-                    DefaultRecipeRegistry.create(),
-                ),
+                recipe_executor,
             ),
         )
 
         registry.register(
             FullDomainDocumentationStrategy(
-                RecipeExecutor(
-                    DefaultRecipeRegistry.create(),
-                ),
+                recipe_executor,
             ),
         )
 
         registry.register(
             DomainImplementationStrategy(
                 DomainGenerationPlanner(),
+            ),
+        )
+
+        registry.register(
+            PluginRecipeStrategy(
+                recipe_executor,
+                recipe_registry,
             ),
         )
 

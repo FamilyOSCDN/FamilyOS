@@ -13,6 +13,7 @@ import yaml
 
 from familyos_cli.plugins.models import PluginDescriptor
 from familyos_cli.plugins.plugin import Plugin
+from familyos_cli.plugins.plugin_context import PluginContext
 
 
 class PluginLoader:
@@ -21,6 +22,8 @@ class PluginLoader:
     def load(
         self,
         source: Path | PluginDescriptor,
+        *,
+        context: PluginContext | None = None,
     ) -> Plugin | PluginDescriptor:
         """Load plugin descriptor or plugin instance."""
 
@@ -38,9 +41,13 @@ class PluginLoader:
         )
 
         if not issubclass(plugin_class, Plugin):
-            raise TypeError(f"{source.class_name} must inherit from Plugin")
+            raise TypeError(
+                f"{source.class_name} must inherit from Plugin",
+            )
 
-        return plugin_class()
+        return plugin_class(
+            context,
+        )
 
     def discover(
         self,
@@ -62,7 +69,11 @@ class PluginLoader:
             if not metadata_file.exists():
                 continue
 
-            plugins.append(self._discover(plugin_path))
+            plugins.append(
+                self._discover(
+                    plugin_path,
+                ),
+            )
 
         return plugins
 
@@ -77,7 +88,7 @@ class PluginLoader:
         data = yaml.safe_load(
             metadata_file.read_text(
                 encoding="utf-8",
-            )
+            ),
         )
 
         return PluginDescriptor(

@@ -5,6 +5,9 @@ from __future__ import annotations
 from familyos_cli.application.generation.generation_context import (
     GenerationContext,
 )
+from familyos_cli.plugins.capabilities.plugin_capability import (
+    PluginCapability,
+)
 from familyos_cli.plugins.contributions.contribution import (
     Contribution,
 )
@@ -38,6 +41,13 @@ class Plugin:
         """Deactivate plugin."""
 
         return None
+
+    def capabilities(
+        self,
+    ) -> tuple[PluginCapability, ...]:
+        """Return capabilities exposed by the plugin."""
+
+        return ()
 
     def contributions(
         self,

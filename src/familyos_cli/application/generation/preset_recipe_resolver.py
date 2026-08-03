@@ -5,6 +5,9 @@ from __future__ import annotations
 from familyos_cli.domain.generation.generation_preset import (
     GenerationPreset,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 from familyos_cli.domain.generation.generation_preset_resolver import (
     GenerationPresetResolver,
 )
@@ -23,7 +26,7 @@ class PresetRecipeResolver:
 
     def resolve(
         self,
-        preset: GenerationPreset,
+        preset: GenerationPresetId | GenerationPreset,
     ) -> str:
         """Resolve the recipe name for a preset."""
 

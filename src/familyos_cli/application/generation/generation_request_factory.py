@@ -8,6 +8,9 @@ from familyos_cli.application.generation.preset_recipe_resolver import (
 from familyos_cli.domain.generation.generation_preset import (
     GenerationPreset,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 from familyos_cli.domain.generation.generation_request import (
     GenerationRequest,
 )
@@ -30,9 +33,9 @@ class GenerationRequestFactory:
         self,
         domain_name: str,
         recipe_name: str | None = None,
-        preset: GenerationPreset | None = None,
+        preset: GenerationPresetId | GenerationPreset | None = None,
     ) -> GenerationRequest:
-        """Create a generation request."""
+        """Create generation requests."""
 
         resolved_recipe = recipe_name
 

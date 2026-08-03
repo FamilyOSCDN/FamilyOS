@@ -16,8 +16,8 @@ from familyos_cli.application.generation.generation_specification import (
 from familyos_cli.application.use_cases.get_domain_specification import (
     GetDomainSpecificationUseCase,
 )
-from familyos_cli.domain.generation.generation_preset import (
-    GenerationPreset,
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
 )
 
 
@@ -43,7 +43,7 @@ class CreateDomainUseCase:
         domain_name: str,
         destination: Path,
         recipe_name: str | None = None,
-        preset: GenerationPreset | None = None,
+        preset: GenerationPresetId | None = None,
     ) -> GenerationSpecification | None:
         """Generate a domain."""
 

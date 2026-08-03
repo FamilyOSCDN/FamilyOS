@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 
@@ -8,4 +11,5 @@ class PluginContext:
 
     project_name: str
     output_directory: str
+    plugin_directory: Path | None = None
     variables: dict[str, Any] = field(default_factory=dict)

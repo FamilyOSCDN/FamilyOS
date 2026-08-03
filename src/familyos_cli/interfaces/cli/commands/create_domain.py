@@ -7,8 +7,8 @@ from typing import Annotated
 
 import typer
 
-from familyos_cli.domain.generation.generation_preset import (
-    GenerationPreset,
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
 )
 from familyos_cli.interfaces.cli.context import CommandContext
 from familyos_cli.interfaces.cli.error_handler import ErrorHandler
@@ -53,7 +53,7 @@ def create_domain(
         ),
     ] = None,
     preset: Annotated[
-        GenerationPreset | None,
+        str | None,
         typer.Option(
             "--preset",
             help="Generation preset.",
@@ -87,7 +87,11 @@ def create_domain(
             domain_name=name,
             destination=target,
             recipe_name=recipe_name,
-            preset=preset,
+            preset=(
+                GenerationPresetId(preset)
+                if preset is not None
+                else None
+            ),
         )
 
         if result is None:

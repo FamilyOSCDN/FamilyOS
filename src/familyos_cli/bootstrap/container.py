@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from familyos_cli.application.generation.application_recipe_registry_factory import (
+    ApplicationRecipeRegistryFactory,
+)
 from familyos_cli.application.generation.default_generation_strategy_registry import (
     DefaultGenerationStrategyRegistry,
 )
@@ -22,6 +27,9 @@ from familyos_cli.application.generation.generation_request_factory import (
 )
 from familyos_cli.application.generation.mappers.generation_specification_mapper import (
     GenerationSpecificationMapper,
+)
+from familyos_cli.application.generation.plugin_generation_preset_contributor import (
+    PluginGenerationPresetContributor,
 )
 from familyos_cli.application.generation.preset_recipe_resolver import (
     PresetRecipeResolver,
@@ -105,9 +113,7 @@ class ApplicationContainer:
         )
         self._plugin_verifier = PluginVerifier()
         self._plugin_installer = PluginInstaller()
-        self._plugin_lifecycle_manager = (
-            PluginLifecycleManager()
-        )
+        self._plugin_lifecycle_manager = PluginLifecycleManager()
 
         self._domain_specification_registry = (
             DomainSpecificationRegistry()
@@ -222,21 +228,45 @@ class ApplicationContainer:
             self._specification_service,
         )
 
+        recipe_registry = (
+            ApplicationRecipeRegistryFactory.create(
+                self._runtime.generation_recipe_contributions(),
+            )
+        )
+
         strategy_registry = (
-            DefaultGenerationStrategyRegistry.create()
+            DefaultGenerationStrategyRegistry.create(
+                recipe_registry,
+            )
+        )
+
+        template_directories = (
+            Path("templates"),
+            *self._runtime.template_directories(),
         )
 
         pipeline = DomainGenerationPipeline(
             planner=DomainGenerationPlanner(),
             specification_mapper=GenerationSpecificationMapper(),
-            engine=GenerationEngine(),
+            engine=GenerationEngine(
+                template_directories=template_directories,
+            ),
             strategy_registry=strategy_registry,
+        )
+
+        preset_registry = (
+            DefaultGenerationPresetRegistry.create()
+        )
+
+        PluginGenerationPresetContributor().contribute(
+            preset_registry,
+            self._runtime.generation_contributions(),
         )
 
         request_factory = GenerationRequestFactory(
             preset_recipe_resolver=PresetRecipeResolver(
                 GenerationPresetResolver(
-                    DefaultGenerationPresetRegistry.create(),
+                    preset_registry,
                 ),
             ),
         )

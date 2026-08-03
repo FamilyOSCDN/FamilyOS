@@ -8,6 +8,9 @@ from familyos_cli.domain.generation.generation_preset import (
 from familyos_cli.domain.generation.generation_preset_definition import (
     GenerationPresetDefinition,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 
 
 class GenerationPresetRegistry:
@@ -19,7 +22,7 @@ class GenerationPresetRegistry:
         """Initialize the registry."""
 
         self._presets: dict[
-            GenerationPreset,
+            GenerationPresetId,
             GenerationPresetDefinition,
         ] = {}
 
@@ -29,24 +32,33 @@ class GenerationPresetRegistry:
     ) -> None:
         """Register a generation preset."""
 
-        if definition.preset in self._presets:
+        preset_id = definition.preset_id()
+
+        if preset_id in self._presets:
             raise ValueError(
-                f"Preset '{definition.preset}' already registered.",
+                f"Preset '{preset_id}' already registered.",
             )
 
-        self._presets[definition.preset] = definition
+        self._presets[
+            preset_id
+        ] = definition
 
     def get(
         self,
-        preset: GenerationPreset,
+        preset: GenerationPresetId | GenerationPreset,
     ) -> GenerationPresetDefinition:
         """Return a registered preset."""
 
+        preset_id = self._normalize(
+            preset,
+        )
+
         try:
-            return self._presets[preset]
+            return self._presets[preset_id]
+
         except KeyError as error:
             raise ValueError(
-                f"Preset '{preset}' not found.",
+                f"Preset '{preset_id}' not found.",
             ) from error
 
     def list(
@@ -56,4 +68,20 @@ class GenerationPresetRegistry:
 
         return tuple(
             self._presets.values(),
+        )
+
+    def _normalize(
+        self,
+        preset: GenerationPresetId | GenerationPreset,
+    ) -> GenerationPresetId:
+        """Normalize legacy presets to identifiers."""
+
+        if isinstance(
+            preset,
+            GenerationPresetId,
+        ):
+            return preset
+
+        return GenerationPresetId(
+            preset.value,
         )

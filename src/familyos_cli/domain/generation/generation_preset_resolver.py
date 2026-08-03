@@ -8,6 +8,9 @@ from familyos_cli.domain.generation.generation_preset import (
 from familyos_cli.domain.generation.generation_preset_definition import (
     GenerationPresetDefinition,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 from familyos_cli.domain.generation.generation_preset_registry import (
     GenerationPresetRegistry,
 )
@@ -26,7 +29,7 @@ class GenerationPresetResolver:
 
     def resolve(
         self,
-        preset: GenerationPreset,
+        preset: GenerationPresetId | GenerationPreset,
     ) -> GenerationPresetDefinition:
         """Resolve a preset definition."""
 

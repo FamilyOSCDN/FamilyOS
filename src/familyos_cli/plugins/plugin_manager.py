@@ -9,11 +9,24 @@ from builtins import list as builtin_list
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from familyos_cli.plugins.models.plugin_descriptor import PluginDescriptor
-from familyos_cli.plugins.plugin import Plugin
-from familyos_cli.plugins.plugin_loader import PluginLoader
-from familyos_cli.plugins.plugin_registry import PluginRegistry
-from familyos_cli.plugins.runtime.plugin_runtime import PluginRuntime
+from familyos_cli.plugins.models.plugin_descriptor import (
+    PluginDescriptor,
+)
+from familyos_cli.plugins.plugin import (
+    Plugin,
+)
+from familyos_cli.plugins.plugin_context import (
+    PluginContext,
+)
+from familyos_cli.plugins.plugin_loader import (
+    PluginLoader,
+)
+from familyos_cli.plugins.plugin_registry import (
+    PluginRegistry,
+)
+from familyos_cli.plugins.runtime.plugin_runtime import (
+    PluginRuntime,
+)
 
 
 @dataclass(slots=True)
@@ -49,7 +62,9 @@ class PluginManager:
 
         self._plugins[plugin.id] = plugin
 
-        self.registry.register(plugin)
+        self.registry.register(
+            plugin,
+        )
 
     def get(
         self,
@@ -65,7 +80,9 @@ class PluginManager:
         """List available plugins."""
 
         if self.plugins_directory is None:
-            return builtin_list(self._plugins.values())
+            return builtin_list(
+                self._plugins.values(),
+            )
 
         if not self.plugins_directory.exists():
             return []
@@ -81,14 +98,21 @@ class PluginManager:
             if plugin_path.name == "__pycache__":
                 continue
 
-            descriptor = loader.load(plugin_path)
+            descriptor = loader.load(
+                plugin_path,
+            )
 
             if isinstance(
                 descriptor,
                 PluginDescriptor,
             ):
-                plugins.append(descriptor)
-                self.register(descriptor)
+                plugins.append(
+                    descriptor,
+                )
+
+                self.register(
+                    descriptor,
+                )
 
         return plugins
 
@@ -97,7 +121,9 @@ class PluginManager:
     ) -> builtin_list[PluginDescriptor]:
         """Return all registered plugins."""
 
-        return builtin_list(self._plugins.values())
+        return builtin_list(
+            self._plugins.values(),
+        )
 
     def load_all(
         self,
@@ -106,7 +132,9 @@ class PluginManager:
 
         for plugin in self.list():
             if plugin.enabled:
-                self.activate(plugin.id)
+                self.activate(
+                    plugin.id,
+                )
 
     def activate(
         self,
@@ -114,17 +142,33 @@ class PluginManager:
     ) -> None:
         """Activate a plugin by name."""
 
-        descriptor = self.get(name)
+        descriptor = self.get(
+            name,
+        )
 
         if descriptor is None:
             raise ValueError(
                 f"Unknown plugin: {name}",
             )
 
-        plugin = PluginLoader().load(descriptor)
+        context = PluginContext(
+            project_name="",
+            output_directory="",
+            plugin_directory=descriptor.path,
+        )
 
-        if isinstance(plugin, Plugin):
-            self._runtime.activate(plugin)
+        plugin = PluginLoader().load(
+            descriptor,
+            context=context,
+        )
+
+        if isinstance(
+            plugin,
+            Plugin,
+        ):
+            self._runtime.activate(
+                plugin,
+            )
 
     def deactivate(
         self,
@@ -132,14 +176,23 @@ class PluginManager:
     ) -> None:
         """Deactivate a plugin."""
 
-        descriptor = self.get(name)
+        descriptor = self.get(
+            name,
+        )
 
         if descriptor is None:
             raise ValueError(
                 f"Unknown plugin: {name}",
             )
 
-        plugin = PluginLoader().load(descriptor)
+        plugin = PluginLoader().load(
+            descriptor,
+        )
 
-        if isinstance(plugin, Plugin):
-            self._runtime.deactivate(plugin)
+        if isinstance(
+            plugin,
+            Plugin,
+        ):
+            self._runtime.deactivate(
+                plugin,
+            )
