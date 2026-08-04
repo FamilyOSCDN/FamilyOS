@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from familyos_cli.plugins.builtin.documents.plugin import (
     DocumentsPlugin,
 )
@@ -6,6 +8,9 @@ from familyos_cli.plugins.contributions.generation_contribution import (
 )
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
+)
+from familyos_cli.plugins.contributions.template_contribution import (
+    TemplateContribution,
 )
 from familyos_cli.plugins.models import (
     PluginMetadata,
@@ -72,7 +77,7 @@ def test_documents_plugin_provides_generation_contributions() -> None:
 
     contributions = plugin.contributions()
 
-    assert len(contributions) == 2
+    assert len(contributions) == 3
 
     assert isinstance(
         contributions[0],
@@ -82,6 +87,11 @@ def test_documents_plugin_provides_generation_contributions() -> None:
     assert isinstance(
         contributions[1],
         GenerationRecipeContribution,
+    )
+
+    assert isinstance(
+        contributions[2],
+        TemplateContribution,
     )
 
 
@@ -116,4 +126,31 @@ def test_documents_plugin_exposes_documentation_recipe() -> None:
 
     assert contribution.recipe.name == (
         "documents-documentation"
+    )
+
+
+def test_documents_plugin_exposes_template_directory() -> None:
+    plugin = DocumentsPlugin()
+
+    contribution = plugin.contributions()[2]
+
+    assert isinstance(
+        contribution,
+        TemplateContribution,
+    )
+
+    expected_directory = (
+        Path(__file__)
+        .parents[5]
+        / "src"
+        / "familyos_cli"
+        / "plugins"
+        / "builtin"
+        / "documents"
+        / "templates"
+    )
+
+    assert (
+        contribution.template_directory.resolve()
+        == expected_directory.resolve()
     )

@@ -42,7 +42,8 @@ class DocumentsDocumentationRecipe:
                     "docs/documents"
                 ),
                 template=(
-                    "documents/documentation"
+                    "documentation/"
+                    "documents_documentation.md.j2"
                 ),
             ),
             ArtifactDefinition(
@@ -54,7 +55,8 @@ class DocumentsDocumentationRecipe:
                     "docs/documents/capabilities"
                 ),
                 template=(
-                    "documents/capabilities-documentation"
+                    "capabilities/"
+                    "documents_capabilities.md.j2"
                 ),
             ),
         ]

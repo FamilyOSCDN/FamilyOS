@@ -84,6 +84,6 @@ def test_documents_documentation_recipe_declares_templates() -> None:
         artifact.template
         for artifact in artifacts
     ] == [
-        "documents/documentation",
-        "documents/capabilities-documentation",
+        "documentation/documents_documentation.md.j2",
+        "capabilities/documents_capabilities.md.j2",
     ]
