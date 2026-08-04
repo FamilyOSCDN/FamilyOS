@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from familyos_cli.plugins.builtin.documents.capabilities import (
+    DocumentArchiveCapability,
+    DocumentCapability,
+)
 from familyos_cli.plugins.capabilities.plugin_capability import (
     PluginCapability,
 )
@@ -31,7 +35,10 @@ class DocumentsPlugin(Plugin):
     ) -> tuple[PluginCapability, ...]:
         """Return provided capabilities."""
 
-        return ()
+        return (
+            DocumentCapability.create(),
+            DocumentArchiveCapability.create(),
+        )
 
     def contributions(
         self,

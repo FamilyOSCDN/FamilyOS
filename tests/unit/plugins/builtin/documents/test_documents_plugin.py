@@ -45,10 +45,20 @@ def test_documents_plugin_description() -> None:
     )
 
 
-def test_documents_plugin_has_no_initial_capabilities() -> None:
+def test_documents_plugin_provides_capabilities() -> None:
     plugin = DocumentsPlugin()
 
-    assert plugin.capabilities() == ()
+    capabilities = plugin.capabilities()
+
+    assert len(capabilities) == 2
+
+    assert [
+        str(capability.id)
+        for capability in capabilities
+    ] == [
+        "familyos.documents.document",
+        "familyos.documents.archive",
+    ]
 
 
 def test_documents_plugin_has_no_initial_contributions() -> None:
