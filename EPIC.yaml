@@ -1,0 +1,38 @@
+id: EPIC-014
+title: Official Documents Plugin Documentation
+version: 0.1.0
+status: draft
+phase: Phase 2 — Official Plugins
+domain: Documents
+plugin_id: documents
+primary_rfc: RFC-0014
+repository: familyos-cli
+owners:
+- FamilyOS Team
+language: en
+deliverables:
+- EPIC.yaml
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- docs/rfcs/RFC-0014-official-documents-plugin/README.md
+- docs/rfcs/RFC-0014-official-documents-plugin/00-RFC.md
+- docs/rfcs/RFC-0014-official-documents-plugin/01-Context.md
+- docs/rfcs/RFC-0014-official-documents-plugin/02-Goals.md
+- docs/rfcs/RFC-0014-official-documents-plugin/03-Architecture.md
+- docs/rfcs/RFC-0014-official-documents-plugin/04-Public-API.md
+- docs/rfcs/RFC-0014-official-documents-plugin/05-Implementation-Plan.md
+- docs/rfcs/RFC-0014-official-documents-plugin/06-Validation.md
+dependencies:
+- ADR-0007 — Official Plugins Architecture
+- FamilyOS Platform v1.0
+- Plugin SDK v2
+- Generation Framework
+- Contribution Framework
+acceptance_criteria:
+- The RFC defines the scope and responsibilities of the official Documents plugin.
+- The architecture remains compatible with FamilyOS Clean Architecture and Plugin
+  SDK v2.
+- The public API and contribution surface are explicitly documented.
+- The implementation plan is testable and incremental.
+- Validation criteria cover documentation, typing, linting, tests, and integration.
