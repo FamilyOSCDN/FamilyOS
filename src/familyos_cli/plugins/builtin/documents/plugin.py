@@ -2,15 +2,27 @@
 
 from __future__ import annotations
 
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 from familyos_cli.plugins.builtin.documents.capabilities import (
     DocumentArchiveCapability,
     DocumentCapability,
+)
+from familyos_cli.plugins.builtin.documents.recipes import (
+    DocumentsDocumentationRecipe,
 )
 from familyos_cli.plugins.capabilities.plugin_capability import (
     PluginCapability,
 )
 from familyos_cli.plugins.contributions.contribution import (
     Contribution,
+)
+from familyos_cli.plugins.contributions.generation_contribution import (
+    GenerationContribution,
+)
+from familyos_cli.plugins.contributions.generation_recipe_contribution import (
+    GenerationRecipeContribution,
 )
 from familyos_cli.plugins.models import PluginMetadata
 from familyos_cli.plugins.plugin import Plugin
@@ -45,4 +57,20 @@ class DocumentsPlugin(Plugin):
     ) -> tuple[Contribution, ...]:
         """Return plugin contributions."""
 
-        return ()
+        return (
+            GenerationContribution(
+                preset=GenerationPresetId(
+                    "documents",
+                ),
+                description=(
+                    "Generates FamilyOS "
+                    "Documents domain artifacts."
+                ),
+                recipes=(
+                    "documents-documentation",
+                ),
+            ),
+            GenerationRecipeContribution(
+                recipe=DocumentsDocumentationRecipe(),
+            ),
+        )

@@ -1,6 +1,12 @@
 from familyos_cli.plugins.builtin.documents.plugin import (
     DocumentsPlugin,
 )
+from familyos_cli.plugins.contributions.generation_contribution import (
+    GenerationContribution,
+)
+from familyos_cli.plugins.contributions.generation_recipe_contribution import (
+    GenerationRecipeContribution,
+)
 from familyos_cli.plugins.models import (
     PluginMetadata,
 )
@@ -61,7 +67,53 @@ def test_documents_plugin_provides_capabilities() -> None:
     ]
 
 
-def test_documents_plugin_has_no_initial_contributions() -> None:
+def test_documents_plugin_provides_generation_contributions() -> None:
     plugin = DocumentsPlugin()
 
-    assert plugin.contributions() == ()
+    contributions = plugin.contributions()
+
+    assert len(contributions) == 2
+
+    assert isinstance(
+        contributions[0],
+        GenerationContribution,
+    )
+
+    assert isinstance(
+        contributions[1],
+        GenerationRecipeContribution,
+    )
+
+
+def test_documents_plugin_exposes_documents_preset() -> None:
+    plugin = DocumentsPlugin()
+
+    contribution = plugin.contributions()[0]
+
+    assert isinstance(
+        contribution,
+        GenerationContribution,
+    )
+
+    assert str(contribution.preset) == (
+        "documents"
+    )
+
+    assert contribution.recipes == (
+        "documents-documentation",
+    )
+
+
+def test_documents_plugin_exposes_documentation_recipe() -> None:
+    plugin = DocumentsPlugin()
+
+    contribution = plugin.contributions()[1]
+
+    assert isinstance(
+        contribution,
+        GenerationRecipeContribution,
+    )
+
+    assert contribution.recipe.name == (
+        "documents-documentation"
+    )
