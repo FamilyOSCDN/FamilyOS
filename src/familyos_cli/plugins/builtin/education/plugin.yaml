@@ -1,0 +1,8 @@
+id: education
+name: FamilyOS Education Plugin
+version: 1.0.0
+author: FamilyOS Team
+description: Provides educational capabilities and family learning management support for FamilyOS.
+module: familyos_cli.plugins.builtin.education.plugin
+class: EducationPlugin
+enabled: true
