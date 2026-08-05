@@ -1,0 +1,8 @@
+id: familyos.finance
+name: FamilyOS Finance Plugin
+version: 1.0.0
+author: FamilyOS Team
+description: Provides family finance management capabilities.
+module: familyos_cli.plugins.builtin.finance.plugin
+class: FinancePlugin
+enabled: true
