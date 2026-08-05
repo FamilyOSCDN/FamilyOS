@@ -1,0 +1,46 @@
+# {{ aggregate.name }} Vision
+
+## Overview
+
+This document describes the purpose, responsibility, and
+business vision of the {{ aggregate.name }} aggregate.
+
+The aggregate represents a consistency boundary where
+business rules and domain behavior are enforced.
+
+## Purpose
+
+{{ aggregate.description | default("No description provided.") }}
+
+## Domain Responsibility
+
+The aggregate is responsible for:
+
+{% for responsibility in aggregate.responsibilities | default([]) %}
+- {{ responsibility }}
+{% endfor %}
+
+## Business Context
+
+The aggregate exists to support:
+
+{% for capability in aggregate.capabilities | default([]) %}
+- {{ capability }}
+{% endfor %}
+
+## Design Principles
+
+The aggregate follows these principles:
+
+- Encapsulate business behavior
+- Protect domain invariants
+- Maintain consistency boundaries
+- Expose meaningful operations
+
+## Evolution
+
+Future changes to the aggregate should preserve:
+
+- Domain integrity
+- Backward compatibility
+- Clear business ownership

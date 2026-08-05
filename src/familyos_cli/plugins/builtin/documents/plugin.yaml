@@ -2,7 +2,7 @@ id: documents
 name: FamilyOS Documents Plugin
 version: 1.0.0
 author: FamilyOS Team
-description: Provides document management and family digital archive capabilities for FamilyOS.
+description: Provides document management capabilities for FamilyOS.
 module: familyos_cli.plugins.builtin.documents.plugin
 class: DocumentsPlugin
 enabled: true

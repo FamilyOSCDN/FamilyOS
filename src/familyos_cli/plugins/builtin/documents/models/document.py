@@ -1,0 +1,28 @@
+"""Document model."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from familyos_cli.plugins.builtin.documents.models.document_type import (
+    DocumentType,
+)
+from familyos_cli.plugins.builtin.documents.models.document_version import (
+    DocumentVersion,
+)
+
+
+@dataclass(frozen=True)
+class Document:
+    """Represents a family document."""
+
+    identifier: str
+    title: str
+    document_type: DocumentType
+    owner: str
+    version: DocumentVersion
+
+    def is_private(self) -> bool:
+        """Return whether document belongs to a private owner."""
+
+        return bool(self.owner)

@@ -1,0 +1,49 @@
+# {{ aggregate.name }} Domain Events
+
+## Overview
+
+This document describes the domain events emitted by the
+{{ aggregate.name }} aggregate.
+
+Domain events represent significant business occurrences
+that happened inside the aggregate lifecycle.
+
+## Event List
+
+{% for event in aggregate.events | default([]) %}
+## {{ event.name }}
+
+{{ event.description }}
+
+### Event Data
+
+{% for field in event.fields | default([]) %}
+- {{ field.name }}: {{ field.type }}
+{% endfor %}
+
+{% endfor %}
+
+## Event Rules
+
+Domain events must:
+
+- Represent meaningful business changes
+- Be immutable after publication
+- Contain relevant business information
+- Preserve domain traceability
+
+## Event Handling
+
+Consumers of domain events must:
+
+- Respect event contracts
+- Avoid modifying event history
+- Handle unknown future events safely
+
+## Security Considerations
+
+Events must:
+
+- Avoid exposing sensitive information
+- Protect private data
+- Support secure auditing

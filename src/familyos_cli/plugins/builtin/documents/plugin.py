@@ -7,13 +7,6 @@ from pathlib import Path
 from familyos_cli.domain.generation.generation_preset_id import (
     GenerationPresetId,
 )
-from familyos_cli.plugins.builtin.documents.capabilities import (
-    DocumentArchiveCapability,
-    DocumentCapability,
-)
-from familyos_cli.plugins.builtin.documents.recipes import (
-    DocumentsDocumentationRecipe,
-)
 from familyos_cli.plugins.capabilities.plugin_capability import (
     PluginCapability,
 )
@@ -32,6 +25,16 @@ from familyos_cli.plugins.contributions.template_contribution import (
 from familyos_cli.plugins.models import PluginMetadata
 from familyos_cli.plugins.plugin import Plugin
 
+from .capabilities.document_archive_capability import (
+    DocumentArchiveCapability,
+)
+from .capabilities.document_capability import (
+    DocumentCapability,
+)
+from .recipes.documents_documentation_recipe import (
+    DocumentsDocumentationRecipe,
+)
+
 
 class DocumentsPlugin(Plugin):
     """Official FamilyOS documents plugin."""
@@ -41,16 +44,15 @@ class DocumentsPlugin(Plugin):
         version="1.0.0",
         author="FamilyOS Team",
         description=(
-            "Provides document management "
-            "and family digital archive "
-            "capabilities for FamilyOS."
+            "Provides document management capabilities "
+            "and family digital archive services for FamilyOS."
         ),
     )
 
     def capabilities(
         self,
     ) -> tuple[PluginCapability, ...]:
-        """Return provided capabilities."""
+        """Return document capabilities."""
 
         return (
             DocumentCapability.create(),
@@ -62,26 +64,27 @@ class DocumentsPlugin(Plugin):
     ) -> tuple[Contribution, ...]:
         """Return plugin contributions."""
 
+        template_directory = (
+            Path(__file__).parent / "templates"
+        )
+
         return (
             GenerationContribution(
                 preset=GenerationPresetId(
                     "documents",
                 ),
                 description=(
-                    "Generates FamilyOS "
-                    "Documents domain artifacts."
+                    "Generate FamilyOS documents "
+                    "domain artifacts."
                 ),
                 recipes=(
                     "documents-documentation",
                 ),
             ),
             GenerationRecipeContribution(
-                recipe=DocumentsDocumentationRecipe(),
+                DocumentsDocumentationRecipe(),
             ),
             TemplateContribution(
-                template_directory=(
-                    Path(__file__).parent
-                    / "templates"
-                ),
+                template_directory=template_directory,
             ),
         )

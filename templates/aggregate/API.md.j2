@@ -1,0 +1,65 @@
+# {{ aggregate.name }} API
+
+## Overview
+
+This document describes the public API contract of the
+{{ aggregate.name }} aggregate.
+
+The API exposes the operations required to interact with
+the aggregate while preserving domain rules and consistency.
+
+## Aggregate Identifier
+
+| Property | Value |
+|---|---|
+| Name | {{ aggregate.name }} |
+| Type | Aggregate |
+| Domain | {{ domain.name }} |
+
+## Commands
+
+The aggregate accepts the following commands:
+
+{% for command in aggregate.commands | default([]) %}
+### {{ command.name }}
+
+{{ command.description }}
+
+{% endfor %}
+
+## Queries
+
+The aggregate exposes the following queries:
+
+{% for query in aggregate.queries | default([]) %}
+### {{ query.name }}
+
+{{ query.description }}
+
+{% endfor %}
+
+## Events
+
+The aggregate may emit domain events representing
+important state changes.
+
+{% for event in aggregate.events | default([]) %}
+- {{ event.name }}
+{% endfor %}
+
+## Error Handling
+
+API operations must:
+
+- Validate incoming requests
+- Preserve domain invariants
+- Return meaningful errors
+- Avoid exposing sensitive information
+
+## Security Considerations
+
+The API layer must ensure:
+
+- Proper authorization checks
+- Secure data handling
+- Protection of private information

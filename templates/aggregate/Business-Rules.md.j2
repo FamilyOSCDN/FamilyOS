@@ -1,0 +1,49 @@
+# {{ aggregate.name }} Business Rules
+
+## Overview
+
+This document describes the business rules that govern the
+{{ aggregate.name }} aggregate.
+
+Business rules define the conditions required to preserve
+domain consistency and enforce business invariants.
+
+## Aggregate Rules
+
+{% for rule in aggregate.rules | default([]) %}
+### {{ rule.name }}
+
+{{ rule.description }}
+
+{% endfor %}
+
+## Invariants
+
+The aggregate must always preserve:
+
+{% for invariant in aggregate.invariants | default([]) %}
+- {{ invariant }}
+{% endfor %}
+
+## Validation Rules
+
+Business validation must ensure:
+
+- Required information is present
+- Invalid states are rejected
+- Domain constraints are respected
+- Business consistency is maintained
+
+## Rule Enforcement
+
+Rules are evaluated inside the domain layer.
+
+External systems must not bypass aggregate validation.
+
+## Security Considerations
+
+Business rules must:
+
+- Protect sensitive information
+- Avoid exposing internal implementation details
+- Maintain auditability

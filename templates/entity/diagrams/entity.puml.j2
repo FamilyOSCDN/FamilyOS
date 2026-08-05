@@ -1,0 +1,19 @@
+@startuml
+
+title {{ entity.name }} Entity Diagram
+
+class {{ entity.name }} {
+
+{% for attribute in entity.attributes | default([]) %}
+    {{ attribute.name }} : {{ attribute.type }}
+{% endfor %}
+
+}
+
+{% for relationship in entity.relationships | default([]) %}
+
+{{ entity.name }} {{ relationship.direction }} {{ relationship.target }}
+
+{% endfor %}
+
+@enduml

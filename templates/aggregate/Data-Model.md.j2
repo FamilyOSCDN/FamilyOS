@@ -1,0 +1,56 @@
+# {{ aggregate.name }} Data Model
+
+## Overview
+
+This document describes the data model of the
+{{ aggregate.name }} aggregate.
+
+The data model defines the information structure managed
+by the aggregate and the relationships between its elements.
+
+## Aggregate Identity
+
+| Property | Value |
+|---|---|
+| Name | {{ aggregate.name }} |
+| Type | Aggregate |
+
+## Attributes
+
+{% for attribute in aggregate.attributes | default([]) %}
+### {{ attribute.name }}
+
+| Property | Value |
+|---|---|
+| Type | {{ attribute.type }} |
+| Required | {{ attribute.required | default(true) }} |
+
+{{ attribute.description }}
+
+{% endfor %}
+
+## Relationships
+
+{% for relationship in aggregate.relationships | default([]) %}
+### {{ relationship.name }}
+
+{{ relationship.description }}
+
+{% endfor %}
+
+## Data Constraints
+
+The aggregate data model must ensure:
+
+- Required attributes are validated
+- Invalid values are rejected
+- Data consistency is preserved
+- Domain constraints remain enforced
+
+## Security Considerations
+
+The data model must:
+
+- Protect sensitive information
+- Avoid unnecessary data exposure
+- Support secure persistence
