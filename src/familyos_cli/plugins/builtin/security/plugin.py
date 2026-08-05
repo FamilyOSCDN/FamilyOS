@@ -2,17 +2,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from familyos_cli.domain.generation.generation_preset_id import (
-    GenerationPresetId,
-)
 from familyos_cli.plugins.builtin.security.capabilities import (
-    SecurityPolicyCapability,
-    SecurityValidationCapability,
+    SECURITY_CAPABILITIES,
 )
-from familyos_cli.plugins.builtin.security.recipes.security_documentation_recipe import (
-    SecurityDocumentationRecipe,
+from familyos_cli.plugins.builtin.security.contributions import (
+    SECURITY_CONTRIBUTIONS,
 )
 from familyos_cli.plugins.builtin.security.validation.security_validator import (
     SecurityValidator,
@@ -22,15 +16,6 @@ from familyos_cli.plugins.capabilities.plugin_capability import (
 )
 from familyos_cli.plugins.contributions.contribution import (
     Contribution,
-)
-from familyos_cli.plugins.contributions.generation_contribution import (
-    GenerationContribution,
-)
-from familyos_cli.plugins.contributions.generation_recipe_contribution import (
-    GenerationRecipeContribution,
-)
-from familyos_cli.plugins.contributions.template_contribution import (
-    TemplateContribution,
 )
 from familyos_cli.plugins.models import PluginMetadata
 from familyos_cli.plugins.plugin import (
@@ -57,10 +42,7 @@ class SecurityPlugin(Plugin):
     ) -> tuple[PluginCapability, ...]:
         """Return capabilities exposed by the plugin."""
 
-        return (
-            SecurityPolicyCapability.create(),
-            SecurityValidationCapability.create(),
-        )
+        return SECURITY_CAPABILITIES
 
     def validator(
         self,
@@ -74,26 +56,4 @@ class SecurityPlugin(Plugin):
     ) -> tuple[Contribution, ...]:
         """Return contributions exposed by the plugin."""
 
-        return (
-            GenerationContribution(
-                preset=GenerationPresetId(
-                    "security",
-                ),
-                description=(
-                    "Security documentation package."
-                ),
-                recipes=(
-                    "security_documentation",
-                ),
-            ),
-            GenerationRecipeContribution(
-                recipe=SecurityDocumentationRecipe(),
-            ),
-            TemplateContribution(
-                template_directory=(
-                    Path(__file__).parent
-                    / "templates"
-                    / "security"
-                ),
-            ),
-        )
+        return SECURITY_CONTRIBUTIONS
