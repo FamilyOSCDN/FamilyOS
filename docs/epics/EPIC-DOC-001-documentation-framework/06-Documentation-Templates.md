@@ -1,6 +1,6 @@
 # Documentation Framework
 
-## 01 Introduction
+## 06 Documentation Templates
 
 ## Purpose
 

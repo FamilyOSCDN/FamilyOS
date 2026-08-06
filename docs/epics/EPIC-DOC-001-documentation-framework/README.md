@@ -1,5 +1,8 @@
-# Documentation Framework
+# EPIC-DOC-001 — Documentation Framework
 
-## README
+## Overview
 
-> TODO: Official content.
+The Documentation Framework defines how FamilyOS documentation is created,
+structured, validated, governed, versioned, and maintained.
+
+Documentation is treated as a first-class engineering asset.

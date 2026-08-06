@@ -1,5 +1,5 @@
-# Documentation Framework
+# Revision History
 
-## Revision History
-
-> TODO: Official content.
+| Version | Description |
+|---|---|
+| 1.0.0 | Initial Documentation Framework baseline |
