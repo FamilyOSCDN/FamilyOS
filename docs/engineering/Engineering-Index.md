@@ -41,6 +41,25 @@ It is organized into several areas:
 
 ---
 
+# Engineering Foundation Frameworks
+
+The Engineering Foundation is composed of official FamilyOS engineering
+frameworks that define the complete software lifecycle.
+
+| Identifier | Framework | Purpose |
+|---|---|---|
+| EPIC-ENG-001 | Engineering Foundation | Core engineering principles and architecture |
+| EPIC-DOC-001 | Documentation Framework | Documentation lifecycle and standards |
+| EPIC-TST-001 | Testing Framework | Testing strategy and validation practices |
+| EPIC-QLT-001 | Quality Framework | Quality governance and improvement processes |
+| EPIC-BLD-001 | Build Framework | Build processes and artifact management |
+| EPIC-REL-001 | Release Framework | Release lifecycle and software delivery |
+
+These frameworks define how FamilyOS software is designed,
+documented, tested, validated, built, and released.
+
+---
+
 # Engineering Documents
 
 ## Foundation
@@ -122,11 +141,23 @@ Engineering documents SHALL follow the FamilyOS documentation lifecycle:
 
 Engineering documents SHALL follow:
 
-
 ENG-XXXX-Document-Name.md
 
-
 Identifiers SHALL remain unique and SHALL NOT be reused.
+
+---
+
+# Related Frameworks
+
+The Engineering Framework works together with:
+
+- Documentation Framework;
+- Specification Framework;
+- Architecture Framework;
+- Testing Framework;
+- Quality Framework;
+- Build Framework;
+- Release Framework.
 
 ---
 
@@ -135,6 +166,7 @@ Identifiers SHALL remain unique and SHALL NOT be reused.
 - Engineering Documentation README
 - Documentation Framework
 - Specification Framework
+- Engineering Foundation Frameworks
 
 ---
 
@@ -143,3 +175,4 @@ Identifiers SHALL remain unique and SHALL NOT be reused.
 | Version | Date | Description |
 |---|---|---|
 | 1.0.0 | 2026-08-04 | Initial publication |
+| 1.1.0 | 2026-08-06 | Added Engineering Foundation Framework references |
