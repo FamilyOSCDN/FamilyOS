@@ -1,0 +1,8 @@
+id: communication
+name: FamilyOS Communication Plugin
+version: 1.0.0
+author: FamilyOS Team
+description: Provides communication management and communication archive capabilities for FamilyOS.
+module: familyos_cli.plugins.builtin.communication.plugin
+class: CommunicationPlugin
+enabled: true
