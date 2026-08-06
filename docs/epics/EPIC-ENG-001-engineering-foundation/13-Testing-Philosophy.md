@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 13 Testing Philosophy
 
 ## Context
@@ -20,40 +18,40 @@ The purpose of Testing Philosophy within the Engineering Foundation is to define
 
 Testing exists to ensure that FamilyOS software remains:
 
-* reliable,
-* understandable,
-* maintainable,
-* evolvable,
+* reliable;
+* understandable;
+* maintainable;
+* evolvable;
 * trustworthy.
 
 ---
 
 # Testing Philosophy Principles
 
-## Principle 1 — Testing Is Part Of Engineering
+## Principle 1 — Testing Is Part of Engineering
 
 Testing is integrated into the complete development lifecycle.
 
 Testing activities should influence:
 
-* design decisions,
-* implementation choices,
-* architecture decisions,
+* design decisions;
+* implementation choices;
+* architecture decisions;
 * release confidence.
 
 Quality is built through engineering practices, not verified only at the end.
 
 ---
 
-## Principle 2 — Testability By Design
+## Principle 2 — Testability by Design
 
 Software should be designed to be testable.
 
 Testable systems generally provide:
 
-* clear responsibilities,
-* modular components,
-* explicit dependencies,
+* clear responsibilities;
+* modular components;
+* explicit dependencies;
 * predictable behavior.
 
 Architecture decisions should consider validation needs.
@@ -66,9 +64,9 @@ Where practical, validation should be automated.
 
 Automation provides:
 
-* repeatability,
-* faster feedback,
-* consistent execution,
+* repeatability;
+* faster feedback;
+* consistent execution;
 * reduced human error.
 
 Automated testing is a foundation for continuous engineering.
@@ -81,74 +79,98 @@ Testing success is not defined only by the quantity of tests.
 
 The objective is confidence that:
 
-* important behavior is protected,
-* changes are understood,
+* important behavior is protected;
+* changes are understood;
 * regressions are detected.
 
 Meaningful validation is preferred over artificial metrics.
 
 ---
 
-## Principle 5 — Tests As Documentation
+## Principle 5 — Tests as Documentation
 
 Tests describe expected system behavior.
 
 Well-designed tests communicate:
 
-* intended behavior,
-* constraints,
+* intended behavior;
+* constraints;
 * usage examples.
 
 Tests become part of the engineering knowledge base.
 
 ---
 
-# Testing Role In The Development Lifecycle
+# Testing Lifecycle
 
-Testing supports every stage:
+Testing follows a continuous engineering lifecycle.
 
-```text id="k4m8zs"
-Design
-
- |
-
+```text
+Test Strategy
+      │
+      ▼
+Test Design
+      │
+      ▼
 Implementation
-
- |
-
+      │
+      ▼
+Execution
+      │
+      ▼
 Validation
-
- |
-
-Review
-
- |
-
-Integration
-
- |
-
+      │
+      ▼
 Maintenance
 ```
 
+Every stage contributes to engineering confidence and software quality.
+
 ---
 
-# Testing And Architecture
+# Testing Role in the Development Lifecycle
+
+Testing supports every stage.
+
+```text
+Design
+      │
+      ▼
+Implementation
+      │
+      ▼
+Validation
+      │
+      ▼
+Review
+      │
+      ▼
+Integration
+      │
+      ▼
+Maintenance
+```
+
+Testing is an integral engineering activity rather than an isolated verification step.
+
+---
+
+# Testing and Architecture
 
 Architecture decisions should support effective testing.
 
 Good architecture enables:
 
-* isolated validation,
-* independent components,
-* controlled dependencies,
+* isolated validation;
+* independent components;
+* controlled dependencies;
 * predictable behavior.
 
 Testing provides feedback on architectural quality.
 
 ---
 
-# Testing And Development Workflow
+# Testing and Development Workflow
 
 Testing is integrated into development activities.
 
@@ -156,9 +178,9 @@ A change should be validated before integration.
 
 Validation may include:
 
-* local testing,
-* automated checks,
-* integration validation,
+* local testing;
+* automated checks;
+* integration validation;
 * regression testing.
 
 ---
@@ -201,27 +223,27 @@ Ensures existing behavior remains stable.
 
 Testing automation should support:
 
-* continuous validation,
-* rapid feedback,
+* continuous validation;
+* rapid feedback;
 * reliable integration.
 
 Automated tests should be:
 
-* maintainable,
-* understandable,
+* maintainable;
+* understandable;
 * reproducible.
 
 ---
 
-# Testing And Quality
+# Testing and Quality
 
 Testing contributes to quality by providing evidence that engineering expectations are satisfied.
 
 Testing supports:
 
-* reliability,
-* maintainability,
-* confidence,
+* reliability;
+* maintainability;
+* confidence;
 * continuous improvement.
 
 Reference:
@@ -230,7 +252,7 @@ Reference:
 
 ---
 
-# Testing And Build Processes
+# Testing and Build Processes
 
 Testing is integrated into build workflows.
 
@@ -242,14 +264,14 @@ Reference:
 
 ---
 
-# Testing And Release Processes
+# Testing and Release Processes
 
 Release decisions should rely on validated software states.
 
 Testing provides confidence that:
 
-* expected behavior is preserved,
-* risks are identified,
+* expected behavior is preserved;
+* risks are identified;
 * releases are controlled.
 
 Reference:
@@ -264,8 +286,8 @@ Testing knowledge must remain documented.
 
 Important testing decisions may require:
 
-* specifications,
-* documentation updates,
+* specifications;
+* documentation updates;
 * engineering records.
 
 Reference:
@@ -280,8 +302,8 @@ Testing practices evolve with FamilyOS maturity.
 
 Improvements may include:
 
-* additional automation,
-* improved validation strategies,
+* additional automation;
+* improved validation strategies;
 * better feedback mechanisms.
 
 Changes should follow engineering governance.
@@ -292,15 +314,13 @@ Changes should follow engineering governance.
 
 Testing practices should remain aligned with:
 
-* architecture principles,
-* engineering workflow,
+* architecture principles;
+* engineering workflow;
 * quality expectations.
 
-Significant changes may require:
+Significant testing strategy changes should be reviewed through the engineering governance process.
 
-* RFC,
-* ADR,
-* framework updates.
+Major testing changes affecting engineering reliability should be documented through ADRs or RFCs when appropriate.
 
 ---
 
@@ -320,4 +340,4 @@ Testing Philosophy is successful when:
 
 Testing Philosophy establishes testing as a core engineering capability of FamilyOS.
 
-By integrating validation into the engineering lifecycle, FamilyOS can evolve rapidly while maintaining reliability and confidence.
+By managing testing throughout its complete lifecycle, FamilyOS continuously validates software quality, preserves engineering confidence, and enables sustainable platform evolution.

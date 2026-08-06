@@ -229,6 +229,19 @@ Changes affecting structure should consider:
 
 ---
 
+# Architectural Constraints
+
+Repository organization shall preserve:
+
+* clear dependency direction,
+* separation of engineering concerns,
+* stable public documentation paths,
+* backward-compatible repository evolution whenever practical.
+
+Structural changes should not introduce ambiguity or duplicate responsibilities.
+
+---
+
 # Repository Validation
 
 Repository health should be verified through:

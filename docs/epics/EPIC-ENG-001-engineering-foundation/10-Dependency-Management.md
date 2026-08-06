@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 10 Dependency Management
 
 ## Context
@@ -10,9 +8,9 @@ As FamilyOS evolves into a modular ecosystem, dependency management becomes a cr
 
 Poor dependency control can introduce:
 
-* security risks,
-* compatibility problems,
-* maintenance complexity,
+* security risks;
+* compatibility problems;
+* maintenance complexity;
 * unpredictable behavior.
 
 Dependency Management defines how FamilyOS controls and evolves its dependencies.
@@ -23,10 +21,10 @@ Dependency Management defines how FamilyOS controls and evolves its dependencies
 
 The purpose of Dependency Management is to ensure that dependencies are:
 
-* intentional,
-* controlled,
-* traceable,
-* maintainable,
+* intentional;
+* controlled;
+* traceable;
+* maintainable;
 * compatible with platform evolution.
 
 Dependencies should support the architecture rather than define it.
@@ -41,8 +39,8 @@ Every dependency must have a clear purpose.
 
 Dependencies should be:
 
-* declared explicitly,
-* documented when significant,
+* declared explicitly;
+* documented when significant;
 * reviewed when introduced.
 
 Hidden or unnecessary dependencies increase complexity.
@@ -55,8 +53,8 @@ FamilyOS should avoid unnecessary dependency growth.
 
 Before adding a dependency, contributors should evaluate:
 
-* whether the functionality is required,
-* whether existing capabilities can solve the problem,
+* whether the functionality is required;
+* whether existing capabilities can solve the problem;
 * whether the dependency introduces unnecessary complexity.
 
 ---
@@ -67,9 +65,9 @@ Dependencies should be selected with long-term stability in mind.
 
 Evaluation should consider:
 
-* maturity,
-* maintenance activity,
-* compatibility,
+* maturity;
+* maintenance activity;
+* compatibility;
 * ecosystem adoption.
 
 Short-term convenience should not outweigh long-term sustainability.
@@ -82,9 +80,9 @@ Dependencies must evolve through controlled processes.
 
 Updates should consider:
 
-* compatibility impact,
-* security impact,
-* migration effort,
+* compatibility impact;
+* security impact;
+* migration effort;
 * testing requirements.
 
 Dependency updates are engineering changes, not simple replacements.
@@ -97,18 +95,18 @@ Dependencies are part of the FamilyOS security surface.
 
 Dependency management should consider:
 
-* vulnerability monitoring,
-* trusted sources,
-* update policies,
+* vulnerability monitoring;
+* trusted sources;
+* update policies;
 * security impact analysis.
 
 ---
 
 # Dependency Categories
 
-FamilyOS dependencies can be categorized as:
+FamilyOS dependencies are categorized as follows.
 
-```text id="d6k8qs"
+```text
 Dependencies
 
 ├── Runtime Dependencies
@@ -124,16 +122,18 @@ Dependencies
 └── Internal Platform Dependencies
 ```
 
+Each category has distinct engineering responsibilities and lifecycle requirements.
+
 ---
 
 # Runtime Dependencies
 
 Runtime dependencies are required for application execution.
 
-They must be managed carefully because they directly affect:
+They directly affect:
 
-* reliability,
-* compatibility,
+* reliability;
+* compatibility;
 * user experience.
 
 ---
@@ -142,14 +142,14 @@ They must be managed carefully because they directly affect:
 
 Development dependencies support engineering activities.
 
-Examples:
+Examples include:
 
-* formatting tools,
-* static analysis,
-* type checking,
+* formatting tools;
+* static analysis;
+* type checking;
 * development utilities.
 
-They should improve engineering productivity without becoming unnecessary complexity.
+They should improve engineering productivity without introducing unnecessary complexity.
 
 ---
 
@@ -157,10 +157,10 @@ They should improve engineering productivity without becoming unnecessary comple
 
 Testing dependencies support validation.
 
-They should enable:
+They enable:
 
-* reliable test execution,
-* repeatable validation,
+* reliable test execution;
+* repeatable validation;
 * quality measurement.
 
 Reference:
@@ -173,8 +173,8 @@ Reference:
 
 Build dependencies support:
 
-* compilation,
-* packaging,
+* compilation;
+* packaging;
 * artifact generation.
 
 Reference:
@@ -189,8 +189,8 @@ Tooling dependencies support the engineering environment.
 
 They should remain aligned with:
 
-* developer workflows,
-* automation requirements,
+* developer workflows;
+* automation requirements;
 * repository standards.
 
 ---
@@ -201,8 +201,8 @@ FamilyOS components may depend on internal modules and plugins.
 
 Internal dependencies should respect:
 
-* architecture boundaries,
-* stable contracts,
+* architectural boundaries;
+* stable contracts;
 * domain ownership.
 
 ---
@@ -211,29 +211,56 @@ Internal dependencies should respect:
 
 Before introducing a dependency, contributors should evaluate:
 
-```text id="r8m3vp"
+```text
 Need Identification
-
-        |
-
+        │
+        ▼
 Technical Evaluation
-
-        |
-
+        │
+        ▼
 Compatibility Review
-
-        |
-
-Security Consideration
-
-        |
-
+        │
+        ▼
+Security Review
+        │
+        ▼
 Validation
-
-        |
-
+        │
+        ▼
 Integration
 ```
+
+Only validated dependencies should become part of the engineering platform.
+
+---
+
+# Dependency Lifecycle
+
+Every dependency should have a managed lifecycle.
+
+```text
+Evaluation
+      │
+      ▼
+Approval
+      │
+      ▼
+Integration
+      │
+      ▼
+Monitoring
+      │
+      ▼
+Upgrade
+      │
+      ▼
+Deprecation
+      │
+      ▼
+Removal
+```
+
+Lifecycle management ensures that obsolete, insecure, or unsupported dependencies do not remain in the platform.
 
 ---
 
@@ -241,14 +268,14 @@ Integration
 
 Dependency versions should be:
 
-* explicitly controlled,
-* reproducible,
+* explicitly controlled;
+* reproducible;
 * reviewed.
 
 Version changes should consider:
 
-* breaking changes,
-* migration requirements,
+* breaking changes;
+* migration requirements;
 * validation impact.
 
 ---
@@ -257,37 +284,37 @@ Version changes should consider:
 
 Dependency updates should follow engineering workflows.
 
-A dependency update may require:
+An update may require:
 
-* testing,
-* documentation changes,
-* compatibility verification,
+* testing;
+* documentation changes;
+* compatibility verification;
 * release notes.
 
 ---
 
-# Dependency And Architecture
+# Dependency and Architecture
 
 Dependencies must support architectural principles.
 
-They should not:
+They should never:
 
-* create unwanted coupling,
-* bypass domain boundaries,
+* create unwanted coupling;
+* bypass domain boundaries;
 * introduce architectural instability.
 
-Dependency direction should remain intentional.
+Dependency direction must remain intentional.
 
 ---
 
-# Dependency And Build Systems
+# Dependency and Build Systems
 
 Build processes rely on controlled dependencies.
 
 A reliable dependency model enables:
 
-* reproducible builds,
-* predictable validation,
+* reproducible builds;
+* predictable validation;
 * consistent releases.
 
 Reference:
@@ -296,14 +323,14 @@ Reference:
 
 ---
 
-# Dependency And Release Management
+# Dependency and Release Management
 
 Dependency changes may affect releases.
 
 Release processes should track:
 
-* dependency changes,
-* compatibility impact,
+* dependency changes;
+* compatibility impact;
 * security updates.
 
 Reference:
@@ -318,14 +345,14 @@ Important dependency decisions should remain documented.
 
 Documentation may include:
 
-* reasons for adoption,
-* alternatives considered,
+* reasons for adoption;
+* alternatives considered;
 * compatibility constraints.
 
 Possible artifacts:
 
-* ADR,
-* RFC,
+* ADR;
+* RFC;
 * specifications.
 
 ---
@@ -336,10 +363,10 @@ Dependencies should be periodically reviewed.
 
 Maintenance activities include:
 
-* update evaluation,
-* vulnerability assessment,
-* unused dependency removal,
-* compatibility checks.
+* update evaluation;
+* vulnerability assessment;
+* unused dependency removal;
+* compatibility verification.
 
 ---
 
@@ -347,12 +374,9 @@ Maintenance activities include:
 
 Dependency decisions follow engineering governance rules.
 
-Significant dependency changes may require:
+Major dependency changes should be reviewed according to documented engineering processes.
 
-* technical review,
-* ADR,
-* RFC,
-* migration planning.
+Architecturally significant dependency changes should be supported by ADRs or RFCs.
 
 ---
 
@@ -370,6 +394,6 @@ Dependency Management is successful when:
 
 # Final Statement
 
-Dependency Management provides the discipline required to evolve the FamilyOS ecosystem safely.
+Dependency Management provides the engineering discipline required to evolve the FamilyOS ecosystem safely.
 
-By treating dependencies as controlled engineering assets, FamilyOS maintains stability while continuing to adopt useful technologies.
+By managing dependencies throughout their complete lifecycle, FamilyOS maintains architectural integrity, engineering reliability, long-term maintainability, and sustainable platform evolution.

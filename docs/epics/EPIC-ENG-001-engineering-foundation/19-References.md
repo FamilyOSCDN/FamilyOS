@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 19 References
 
 ## Context
@@ -8,7 +6,7 @@ The FamilyOS Engineering Foundation exists as part of a larger engineering ecosy
 
 Multiple frameworks, specifications, architectural documents, and governance artifacts contribute to the overall engineering model.
 
-This document identifies the main references connected to the Engineering Foundation.
+This document identifies the authoritative references connected to the Engineering Foundation and defines how they relate to one another.
 
 ---
 
@@ -16,12 +14,75 @@ This document identifies the main references connected to the Engineering Founda
 
 The purpose of this reference document is to provide:
 
-* navigation between engineering artifacts,
-* traceability between frameworks,
-* relationship visibility,
-* documentation alignment.
+* navigation between engineering artifacts;
+* traceability between frameworks;
+* relationship visibility;
+* documentation alignment;
+* reference authority.
 
 Referenced documents remain the authoritative sources for their respective domains.
+
+---
+
+# Reference Classification
+
+Engineering references are divided into two categories.
+
+## Normative References
+
+Normative references define mandatory engineering rules, requirements, or governance.
+
+They establish the official engineering baseline.
+
+Examples include:
+
+* Engineering Foundation
+* Architecture Documents
+* ADRs
+* RFCs
+* Specifications
+* Engineering Frameworks
+
+---
+
+## Informative References
+
+Informative references provide additional context, guidance, examples, or background information.
+
+They support engineering understanding but do not establish mandatory requirements.
+
+---
+
+# Normative Reference Hierarchy
+
+When multiple documents address the same engineering topic, the following precedence applies.
+
+```text
+FamilyOS Foundation
+        │
+        ▼
+Architecture Documents
+        │
+        ▼
+Architecture Decision Records (ADRs)
+        │
+        ▼
+Specifications (SPEC)
+        │
+        ▼
+Request for Comments (RFC)
+        │
+        ▼
+Engineering Foundation
+        │
+        ▼
+Engineering Frameworks
+        │
+        ▼
+Guides and Supporting Documentation
+```
+
+Lower-level documents must not contradict higher-level engineering authority.
 
 ---
 
@@ -31,11 +92,11 @@ Referenced documents remain the authoritative sources for their respective domai
 
 Purpose:
 
-Defines the fundamental vision, philosophy, and principles of FamilyOS.
+Defines the vision, philosophy, and core principles of FamilyOS.
 
 Relationship:
 
-The Engineering Foundation builds upon these fundamental principles.
+The Engineering Foundation builds upon these foundational principles.
 
 Reference:
 
@@ -55,7 +116,7 @@ Defines how FamilyOS documentation is created, maintained, validated, and evolve
 
 Relationship:
 
-The Engineering Foundation relies on documentation as an engineering capability.
+The Engineering Foundation relies on documentation as a strategic engineering capability.
 
 Reference:
 
@@ -71,11 +132,11 @@ EPIC-DOC-001 — Documentation Framework
 
 Purpose:
 
-Defines architectural principles guiding FamilyOS system design.
+Define the architectural principles guiding FamilyOS system design.
 
 Relationship:
 
-Engineering practices must support architectural consistency.
+Engineering practices must remain consistent with architectural decisions.
 
 Reference:
 
@@ -89,36 +150,36 @@ Architecture Principles
 
 Purpose:
 
-Capture important architectural decisions.
+Capture significant architectural decisions.
 
 Relationship:
 
-Technical governance relies on explicit architectural decisions.
+Technical Governance depends on explicit architectural decisions.
 
 Reference:
 
 ```text
-ADR documents
+ADR Documents
 ```
 
 ---
 
 # Engineering References
 
-## Engineering Principles
+## Engineering Foundation
 
 Purpose:
 
-Defines detailed engineering principles and standards.
+Defines the engineering philosophy and governance of FamilyOS.
 
 Relationship:
 
-EPIC-ENG-001 organizes engineering practices while detailed engineering standards remain in dedicated documents.
+Acts as the parent engineering framework for all engineering disciplines.
 
 Reference:
 
 ```text
-ENG-001 — Engineering Principles
+EPIC-ENG-001 — Engineering Foundation
 ```
 
 ---
@@ -127,16 +188,16 @@ ENG-001 — Engineering Principles
 
 Purpose:
 
-Defines engineering platform organization and capabilities.
+Defines the engineering platform organization and supporting capabilities.
 
 Relationship:
 
-Provides the operational foundation for engineering activities.
+Provides the operational environment for engineering activities.
 
 Reference:
 
 ```text
-ENG engineering documentation
+Engineering Platform Documentation
 ```
 
 ---
@@ -147,11 +208,11 @@ ENG engineering documentation
 
 Purpose:
 
-Defines testing strategy, practices, and validation processes.
+Defines testing strategy, validation practices, and testing governance.
 
 Relationship:
 
-Testing Philosophy within the Engineering Foundation provides strategic alignment.
+Testing Philosophy provides strategic alignment.
 
 Reference:
 
@@ -167,11 +228,11 @@ EPIC-TST-001 — Testing Framework
 
 Purpose:
 
-Defines quality management practices and quality standards.
+Defines engineering quality practices and quality governance.
 
 Relationship:
 
-Engineering quality principles align with the Quality Framework.
+Quality Philosophy establishes the strategic engineering model.
 
 Reference:
 
@@ -187,11 +248,11 @@ EPIC-QLT-001 — Quality Framework
 
 Purpose:
 
-Defines build processes, artifact creation, and construction workflows.
+Defines build processes, artifact generation, and construction workflows.
 
 Relationship:
 
-Build Philosophy establishes the engineering role of building software.
+Build Philosophy defines the engineering role of software construction.
 
 Reference:
 
@@ -207,11 +268,11 @@ EPIC-BLD-001 — Build Framework
 
 Purpose:
 
-Defines release management and delivery processes.
+Defines release management and software delivery.
 
 Relationship:
 
-Engineering practices prepare reliable software for controlled release.
+Engineering practices prepare validated software for controlled release.
 
 Reference:
 
@@ -247,16 +308,16 @@ Plugin Architecture Documentation
 
 Purpose:
 
-Define formal requirements, contracts, and technical expectations.
+Define formal engineering requirements, contracts, and technical expectations.
 
 Relationship:
 
-Engineering decisions may be formalized through specifications.
+Engineering decisions may be formalized through Specifications.
 
 Reference:
 
 ```text
-SPEC documents
+SPEC Documents
 ```
 
 ---
@@ -267,11 +328,11 @@ SPEC documents
 
 Purpose:
 
-Defines how engineering decisions are created, reviewed, and maintained.
+Defines engineering decision-making and governance processes.
 
 Relationship:
 
-The Engineering Foundation applies governance principles across engineering activities.
+The Engineering Foundation applies governance principles across every engineering activity.
 
 Reference:
 
@@ -281,67 +342,57 @@ Technical Governance
 
 ---
 
-# Reference Relationship Model
+# Engineering Reference Model
 
-The Engineering ecosystem can be represented as:
+The engineering ecosystem can be represented as follows.
 
 ```text
 FamilyOS Foundation
-
-        |
-
-        v
-
+        │
+        ▼
 Engineering Foundation
-
-        |
-
-        +----------------+
-        |                |
-        v                v
-
-Architecture       Documentation
-
-        |
-
-        +----------------+
-        |                |
-        v                v
-
-Testing          Quality
-
-        |
-
-        +----------------+
-        |                |
-        v                v
-
-Build            Release
+        │
+        ├── Architecture
+        ├── Documentation
+        ├── Testing
+        ├── Quality
+        ├── Build
+        ├── Release
+        └── Plugin Architecture
 ```
+
+This model illustrates how engineering disciplines relate to the Engineering Foundation while remaining specialized frameworks.
 
 ---
 
 # Reference Maintenance
 
-References must remain:
+Engineering references should remain:
 
-* accurate,
-* discoverable,
-* updated when structures evolve.
+* accurate;
+* discoverable;
+* versioned;
+* synchronized.
 
-Broken references create knowledge loss and reduce engineering effectiveness.
+Broken or outdated references reduce engineering confidence and knowledge quality.
 
 ---
 
 # Reference Governance
 
-Changes affecting reference relationships should be reviewed.
+Reference changes follow Technical Governance.
 
-Updates may require:
+Changes affecting engineering relationships should be:
 
-* documentation updates,
-* migration notes,
-* framework synchronization.
+* reviewed;
+* documented;
+* traceable.
+
+Major structural changes may require:
+
+* ADR;
+* RFC;
+* documentation updates.
 
 ---
 
@@ -349,15 +400,15 @@ Updates may require:
 
 The reference model is successful when:
 
-* contributors can navigate engineering knowledge;
-* relationships between frameworks are clear;
-* authoritative sources remain identifiable;
+* contributors can navigate engineering knowledge efficiently;
+* authoritative sources are clearly identifiable;
+* relationships between frameworks remain consistent;
 * documentation remains synchronized.
 
 ---
 
 # Final Statement
 
-The Engineering Foundation references establish the connection between engineering disciplines across FamilyOS.
+The Engineering Foundation reference model establishes the authoritative relationships between engineering artifacts across FamilyOS.
 
-By maintaining clear relationships between frameworks and artifacts, FamilyOS preserves a coherent and evolvable engineering ecosystem.
+By defining reference hierarchy, governance, and traceability, it ensures that engineering knowledge remains coherent, authoritative, and sustainable throughout the evolution of the platform.

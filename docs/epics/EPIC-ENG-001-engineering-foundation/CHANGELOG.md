@@ -2,7 +2,7 @@
 
 All notable changes to the Engineering Foundation are documented in this file.
 
-The format follows chronological order.
+The changelog follows the principles of Keep a Changelog and records all significant changes affecting the Engineering Foundation documentation set.
 
 ---
 
@@ -15,20 +15,51 @@ The format follows chronological order.
 - Documentation manifest.
 - Engineering chapter structure.
 - Repository-wide engineering objectives.
-- Quality gate definition.
 - Engineering governance framework.
+- Engineering quality gate definition.
+- Validation framework.
+- Documentation review process.
 
-### Planned
+### Changed
+
+- None.
+
+### Deprecated
+
+- None.
+
+### Removed
+
+- None.
+
+### Fixed
+
+- Editorial improvements.
+- Documentation consistency updates.
+
+### Security
+
+- None.
+
+---
+
+## Planned
+
+Before the official 1.0.0 release:
 
 - Complete all engineering chapters.
+- Review engineering consistency.
 - Validate repository engineering rules.
+- Complete documentation review.
+- Approve Engineering Foundation.
 - Publish Engineering Foundation v1.0.0.
 
 ---
 
 ## Versioning Policy
 
-Engineering Foundation releases follow the FamilyOS documentation
-versioning policy.
+Engineering Foundation releases follow the FamilyOS documentation versioning policy.
 
-Every material engineering change shall be recorded here before release.
+Every material engineering change shall be recorded in this document before an official release.
+
+Only approved changes shall appear in released versions of this changelog.

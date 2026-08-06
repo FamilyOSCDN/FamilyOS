@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 05 Development Workflow
 
 ## Context
@@ -57,7 +55,7 @@ Design activities may include:
 
 ---
 
-## Principle 3 — Small And Controlled Changes
+## Principle 3 — Small and Controlled Changes
 
 Changes should remain focused and understandable.
 
@@ -87,41 +85,37 @@ Validation includes:
 
 FamilyOS development follows this lifecycle:
 
-```text id="w8k4pd"
+```text
 Idea
-
- |
-
+    │
+    ▼
 Analysis
-
- |
-
+    │
+    ▼
 Design
-
- |
-
+    │
+    ▼
 Implementation
-
- |
-
+    │
+    ▼
 Validation
-
- |
-
+    │
+    ▼
+Quality Gate
+    │
+    ▼
 Review
-
- |
-
+    │
+    ▼
 Integration
-
- |
-
+    │
+    ▼
 Maintenance
 ```
 
 ---
 
-# Phase 1 — Idea And Analysis
+# Phase 1 — Idea and Analysis
 
 ## Objective
 
@@ -129,15 +123,15 @@ Understand the purpose and impact of a change.
 
 Activities:
 
-* identify the problem,
-* define expected outcome,
-* evaluate affected areas,
+* identify the problem;
+* define the expected outcome;
+* evaluate affected areas;
 * locate existing documentation.
 
 Possible artifacts:
 
-* issue,
-* proposal,
+* issue;
+* proposal;
 * RFC.
 
 ---
@@ -150,15 +144,15 @@ Define the solution before implementation.
 
 Activities:
 
-* evaluate architecture impact,
-* define responsibilities,
-* identify dependencies,
+* evaluate architecture impact;
+* define responsibilities;
+* identify dependencies;
 * document decisions.
 
 Possible artifacts:
 
-* ADR,
-* specification,
+* ADR;
+* specification;
 * technical design.
 
 ---
@@ -171,9 +165,9 @@ Create the required changes.
 
 Implementation should follow:
 
-* architecture principles,
-* coding standards,
-* repository organization,
+* architecture principles;
+* coding standards;
+* repository organization;
 * domain boundaries.
 
 ---
@@ -186,11 +180,29 @@ Verify that the change meets expectations.
 
 Validation may include:
 
-* unit tests,
-* integration tests,
-* static analysis,
-* formatting checks,
+* unit tests;
+* integration tests;
+* static analysis;
+* formatting checks;
 * documentation validation.
+
+---
+
+# Quality Gate
+
+## Objective
+
+Ensure that every change satisfies the minimum engineering quality requirements before formal review.
+
+Typical quality gates include:
+
+* successful automated validation;
+* passing test suite;
+* static analysis completed;
+* documentation updated when required;
+* no unresolved critical issues.
+
+Only changes that satisfy these minimum engineering quality requirements should proceed to formal engineering review.
 
 ---
 
@@ -202,10 +214,10 @@ Ensure quality and alignment.
 
 Reviews should evaluate:
 
-* correctness,
-* maintainability,
-* architecture consistency,
-* documentation impact,
+* correctness;
+* maintainability;
+* architecture consistency;
+* documentation impact;
 * testing coverage.
 
 ---
@@ -218,8 +230,8 @@ Safely integrate approved changes.
 
 Integration requires:
 
-* successful validation,
-* completed review,
+* successful validation;
+* completed review;
 * traceable history.
 
 ---
@@ -252,8 +264,8 @@ Changes system structure or boundaries.
 
 May require:
 
-* ADR,
-* RFC,
+* ADR;
+* RFC;
 * additional review.
 
 ---
@@ -272,23 +284,19 @@ Reference:
 
 Development follows a continuous improvement loop:
 
-```text id="k2m7vs"
+```text
 Develop
-
- |
-
+    │
+    ▼
 Validate
-
- |
-
+    │
+    ▼
 Review
-
- |
-
+    │
+    ▼
 Learn
-
- |
-
+    │
+    ▼
 Improve
 ```
 
@@ -302,9 +310,9 @@ Quality activities are not isolated after implementation.
 
 They are part of:
 
-* design,
-* development,
-* validation,
+* design;
+* development;
+* validation;
 * review.
 
 Reference:
@@ -319,8 +327,8 @@ Testing supports every development phase.
 
 Tests provide confidence that:
 
-* behavior is preserved,
-* regressions are detected,
+* behavior is preserved;
+* regressions are detected;
 * changes remain reliable.
 
 Reference:
@@ -335,8 +343,8 @@ Engineering knowledge must evolve with implementation.
 
 When changes affect understanding of the system:
 
-* documentation must be updated,
-* decisions must remain traceable,
+* documentation must be updated;
+* decisions must remain traceable;
 * references must stay valid.
 
 Reference:
@@ -349,8 +357,8 @@ Reference:
 
 Workflow improvements should be managed through:
 
-* engineering discussions,
-* RFCs,
+* engineering discussions;
+* RFCs;
 * framework updates.
 
 The workflow itself evolves as FamilyOS matures.

@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 16 Technical Governance
 
 ## Context
@@ -16,10 +14,10 @@ Technical Governance establishes the principles and processes that ensure engine
 
 The purpose of Technical Governance within the Engineering Foundation is to define how technical decisions are:
 
-* created,
-* evaluated,
-* documented,
-* reviewed,
+* created;
+* evaluated;
+* documented;
+* reviewed;
 * evolved.
 
 Governance ensures that technical evolution remains intentional rather than accidental.
@@ -34,8 +32,8 @@ Important technical decisions must be visible.
 
 Decisions should not exist only through:
 
-* personal knowledge,
-* undocumented discussions,
+* personal knowledge;
+* undocumented discussions;
 * temporary implementations.
 
 Important decisions must be captured through appropriate engineering artifacts.
@@ -46,7 +44,7 @@ Important decisions must be captured through appropriate engineering artifacts.
 
 FamilyOS uses different artifacts for different decision levels.
 
-```text id="5k8zqv"
+```text
 Decision
 
 ├── ADR
@@ -75,9 +73,9 @@ Technical decisions must remain connected to their context.
 
 Traceability should allow contributors to understand:
 
-* why a decision was made,
-* what alternatives were considered,
-* what impact exists,
+* why a decision was made;
+* what alternatives were considered;
+* what impact exists;
 * how the decision evolved.
 
 ---
@@ -88,9 +86,9 @@ Decisions that significantly affect the platform should be reviewed before imple
 
 Review helps evaluate:
 
-* architectural impact,
-* maintenance consequences,
-* compatibility risks,
+* architectural impact;
+* maintenance consequences;
+* compatibility risks;
 * engineering alignment.
 
 ---
@@ -101,10 +99,10 @@ Technical decisions should consider future evolution.
 
 Evaluation should include:
 
-* maintainability,
-* scalability,
-* security,
-* operational impact,
+* maintainability;
+* scalability;
+* security;
+* operational impact;
 * ecosystem growth.
 
 ---
@@ -113,19 +111,16 @@ Evaluation should include:
 
 FamilyOS decisions exist at different levels.
 
-```text id="2x9kqf"
+```text
 Strategic Decisions
-
-        |
-
+        │
+        ▼
 Architectural Decisions
-
-        |
-
+        │
+        ▼
 Engineering Decisions
-
-        |
-
+        │
+        ▼
 Implementation Decisions
 ```
 
@@ -139,14 +134,14 @@ Strategic decisions affect long-term platform direction.
 
 Examples:
 
-* major architecture evolution,
-* engineering framework changes,
+* major architecture evolution;
+* engineering framework changes;
 * platform-wide standards.
 
 Possible artifacts:
 
-* EPIC,
-* RFC,
+* EPIC;
+* RFC;
 * ADR.
 
 ---
@@ -157,8 +152,8 @@ Architectural decisions affect system structure.
 
 Examples:
 
-* component boundaries,
-* dependency direction,
+* component boundaries;
+* dependency direction;
 * extension mechanisms.
 
 Primary artifact:
@@ -173,14 +168,14 @@ Engineering decisions affect development practices.
 
 Examples:
 
-* workflow changes,
-* tooling choices,
+* workflow changes;
+* tooling choices;
 * validation improvements.
 
 Possible artifacts:
 
-* RFC,
-* documentation update.
+* RFC;
+* documentation updates.
 
 ---
 
@@ -190,55 +185,72 @@ Implementation decisions concern local solutions.
 
 They should remain aligned with:
 
-* architecture,
-* standards,
+* architecture;
+* standards;
 * existing practices.
 
 ---
 
 # Governance Workflow
 
-Technical decisions follow a structured process:
+Technical decisions follow a structured process.
 
-```text id="9p4mxy"
+```text
 Identify Need
-
-      |
-
+      │
+      ▼
 Analyze Impact
-
-      |
-
+      │
+      ▼
 Select Artifact
-
-      |
-
+      │
+      ▼
 Review Decision
-
-      |
-
+      │
+      ▼
+Approve
+      │
+      ▼
 Implement
-
-      |
-
-Document Result
-
-      |
-
-Maintain Knowledge
+      │
+      ▼
+Document
+      │
+      ▼
+Maintain
 ```
+
+Governance continues after implementation by preserving engineering knowledge and reviewing decisions over time.
 
 ---
 
-# Governance And Documentation
+# Governance Authority Model
+
+Technical governance relies on clearly defined decision authority.
+
+Responsibilities are distributed according to engineering scope.
+
+| Authority | Primary Responsibility |
+|-----------|------------------------|
+| Contributors | Propose improvements and implement approved changes |
+| Reviewers | Validate engineering quality and alignment |
+| Maintainers | Preserve repository consistency and long-term maintainability |
+| Architects | Approve architectural direction and system integrity |
+| Engineering Governance | Resolve conflicts, approve strategic changes, and evolve engineering standards |
+
+Clear authority improves consistency while avoiding unnecessary decision bottlenecks.
+
+---
+
+# Governance and Documentation
 
 Governance depends on documentation.
 
 Decisions should remain connected to:
 
-* specifications,
-* architecture documents,
-* engineering frameworks,
+* specifications;
+* architecture documents;
+* engineering frameworks;
 * implementation references.
 
 Reference:
@@ -247,15 +259,15 @@ Reference:
 
 ---
 
-# Governance And Architecture
+# Governance and Architecture
 
 Architecture governance ensures that technical evolution remains coherent.
 
 Architecture decisions should respect:
 
-* domain boundaries,
-* modularity,
-* dependency rules,
+* domain boundaries;
+* modularity;
+* dependency rules;
 * platform principles.
 
 Reference:
@@ -264,15 +276,15 @@ Reference:
 
 ---
 
-# Governance And Quality
+# Governance and Quality
 
 Technical governance considers quality impact.
 
 Decisions should evaluate:
 
-* reliability,
-* maintainability,
-* testability,
+* reliability;
+* maintainability;
+* testability;
 * operational consequences.
 
 Reference:
@@ -281,15 +293,15 @@ Reference:
 
 ---
 
-# Governance And Security
+# Governance and Security
 
 Technical decisions should consider security implications.
 
 Evaluation may include:
 
-* trust boundaries,
-* dependency risks,
-* data protection,
+* trust boundaries;
+* dependency risks;
+* data protection;
 * operational safety.
 
 ---
@@ -328,12 +340,12 @@ The governance model evolves with FamilyOS maturity.
 
 Improvements may include:
 
-* better automation,
-* improved decision workflows,
-* stronger traceability,
+* better automation;
+* improved decision workflows;
+* stronger traceability;
 * clearer ownership.
 
-Changes should themselves follow governance principles.
+Changes to governance should themselves follow the documented governance process.
 
 ---
 
@@ -351,6 +363,6 @@ Technical Governance is successful when:
 
 # Final Statement
 
-Technical Governance provides the decision-making foundation required for FamilyOS to evolve responsibly.
+Technical Governance establishes the decision-making framework required for FamilyOS to evolve responsibly.
 
-By making technical decisions explicit, reviewed, and traceable, FamilyOS preserves architectural coherence while enabling continuous innovation.
+By combining explicit authority, structured decision processes, documented governance, and long-term traceability, FamilyOS preserves architectural coherence while enabling sustainable engineering evolution.

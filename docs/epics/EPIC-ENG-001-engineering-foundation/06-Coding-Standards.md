@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 06 Coding Standards
 
 ## Context
@@ -8,9 +6,9 @@ Coding standards define the common expectations that guide software implementati
 
 As FamilyOS grows through multiple domains, plugins, and engineering teams, consistent coding practices are required to maintain:
 
-* readability,
-* reliability,
-* maintainability,
+* readability;
+* reliability;
+* maintainability;
 * collaboration efficiency.
 
 Coding standards transform individual coding preferences into shared engineering practices.
@@ -23,16 +21,16 @@ The purpose of Coding Standards within the Engineering Foundation is to establis
 
 Coding standards ensure that software created within FamilyOS remains:
 
-* understandable,
-* predictable,
-* maintainable,
+* understandable;
+* predictable;
+* maintainable;
 * aligned with architectural principles.
 
 ---
 
 # Coding Standards Principles
 
-## Principle 1 — Code Is A Long-Term Asset
+## Principle 1 — Code Is a Long-Term Asset
 
 Code is not only written for immediate execution.
 
@@ -40,9 +38,9 @@ It is maintained, extended, reviewed, and understood by future contributors.
 
 Therefore, code should prioritize:
 
-* clarity,
-* simplicity,
-* explicit behavior,
+* clarity;
+* simplicity;
+* explicit behavior;
 * maintainability.
 
 ---
@@ -53,11 +51,11 @@ Consistent code organization reduces the cognitive effort required to understand
 
 Consistency applies to:
 
-* naming,
-* structure,
-* patterns,
-* error handling,
-* documentation,
+* naming;
+* structure;
+* patterns;
+* error handling;
+* documentation;
 * testing practices.
 
 ---
@@ -76,28 +74,44 @@ FamilyOS code should make important behavior visible.
 
 Avoid:
 
-* hidden side effects,
-* unclear responsibilities,
+* hidden side effects;
+* unclear responsibilities;
 * implicit dependencies.
 
 Explicit code improves:
 
-* debugging,
-* reviews,
+* debugging;
+* reviews;
 * maintenance.
 
 ---
 
-## Principle 5 — Strong Typing And Validation
+## Principle 5 — Strong Typing and Validation
 
 Code should use strong typing and validation practices whenever possible.
 
 Benefits include:
 
-* earlier error detection,
-* improved tooling,
-* safer refactoring,
+* earlier error detection;
+* improved tooling;
+* safer refactoring;
 * clearer contracts.
+
+---
+
+## Principle 6 — Automation Supports Consistency
+
+Engineering standards should be enforced by automation whenever practical.
+
+Automation should verify:
+
+* formatting;
+* linting;
+* type checking;
+* static analysis;
+* documentation quality.
+
+Automation reduces subjective interpretation and improves engineering consistency.
 
 ---
 
@@ -105,25 +119,23 @@ Benefits include:
 
 Coding standards apply across:
 
-* core platform code,
-* official plugins,
-* engineering tools,
-* automation components,
+* core platform code;
+* official plugins;
+* engineering tools;
+* automation components;
 * supporting libraries.
 
 ---
 
 # Coding Quality Expectations
 
-FamilyOS code should aim for:
-
 ## Maintainability
 
 Code should remain easy to:
 
-* understand,
-* modify,
-* extend,
+* understand;
+* modify;
+* extend;
 * validate.
 
 ---
@@ -134,8 +146,8 @@ Code should support reliable verification.
 
 Design choices should enable:
 
-* isolated testing,
-* predictable behavior,
+* isolated testing;
+* predictable behavior;
 * automated validation.
 
 ---
@@ -146,8 +158,8 @@ Code should respect boundaries between components.
 
 Modules should:
 
-* have clear responsibilities,
-* minimize unnecessary coupling,
+* have clear responsibilities;
+* minimize unnecessary coupling;
 * expose stable interfaces.
 
 ---
@@ -158,57 +170,75 @@ Code should be supported by appropriate documentation when behavior or decisions
 
 Documentation should explain:
 
-* why something exists,
-* important constraints,
+* why something exists;
+* important constraints;
 * architectural intent.
 
 ---
 
-# Coding Standards And Architecture
+# Coding Standards and Architecture
 
 Coding practices must support FamilyOS architecture principles.
 
 They should reinforce:
 
-* separation of concerns,
-* dependency control,
-* domain boundaries,
-* plugin isolation,
+* separation of concerns;
+* dependency control;
+* domain boundaries;
+* plugin isolation;
 * stable contracts.
 
 Code organization must reflect architectural decisions.
 
 ---
 
-# Coding Standards And Review
+# Coding Standards and Review
 
 Coding standards provide a common basis for reviews.
 
 Reviews should evaluate:
 
-* correctness,
-* clarity,
-* consistency,
-* maintainability,
+* correctness;
+* clarity;
+* consistency;
+* maintainability;
 * alignment with architecture.
 
 Standards help reviewers focus on engineering value instead of personal preferences.
 
 ---
 
-# Coding Standards And Automation
+# Coding Standards and Automation
 
 Where practical, coding standards should be supported by automation.
 
 Examples:
 
-* formatting tools,
-* static analysis,
-* type checking,
-* linting,
+* formatting tools;
+* static analysis;
+* type checking;
+* linting;
 * automated validation.
 
 Automation provides consistent enforcement.
+
+---
+
+# Code Ownership
+
+Engineering quality depends on clear ownership.
+
+Every significant area of the codebase should have identified maintainers responsible for:
+
+* reviewing changes;
+* preserving architectural consistency;
+* approving significant modifications;
+* coordinating refactoring efforts;
+* ensuring documentation remains synchronized with implementation.
+
+Code ownership improves accountability while supporting long-term maintainability and knowledge sharing.
+
+Ownership should encourage collaboration rather than creating isolated knowledge silos.
 
 ---
 
@@ -218,10 +248,10 @@ Detailed coding rules are maintained by dedicated engineering documents.
 
 Examples:
 
-* language-specific conventions,
-* formatting rules,
-* linting configuration,
-* naming conventions,
+* language-specific conventions;
+* formatting rules;
+* linting configuration;
+* naming conventions;
 * project-specific practices.
 
 The Engineering Foundation defines the purpose and role of these standards.
@@ -266,9 +296,13 @@ Coding standards evolve through controlled engineering processes.
 
 Changes may require:
 
-* engineering review,
-* documentation updates,
+* engineering review;
+* documentation updates;
 * migration considerations.
+
+Repository-wide coding standards should evolve through documented engineering decisions.
+
+Significant changes affecting engineering practices should be reviewed through the appropriate governance process and, when necessary, supported by ADRs or RFCs.
 
 ---
 
@@ -286,6 +320,6 @@ Coding Standards are successful when:
 
 # Final Statement
 
-Coding Standards establish the shared expectations that allow FamilyOS contributors to build software consistently.
+Coding Standards establish the shared engineering expectations that allow FamilyOS contributors to build software consistently.
 
-They provide the bridge between engineering principles and practical implementation, ensuring that every component contributes to a maintainable and scalable platform.
+They provide the bridge between engineering principles and practical implementation while ensuring that every component contributes to a maintainable, scalable, reliable, and sustainable engineering platform.

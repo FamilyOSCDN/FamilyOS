@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 14 Documentation Philosophy
 
 ## Context
@@ -20,10 +18,10 @@ The purpose of Documentation Philosophy within the Engineering Foundation is to 
 
 Documentation exists to preserve:
 
-* engineering knowledge,
-* architectural decisions,
-* technical reasoning,
-* operational practices,
+* engineering knowledge;
+* architectural decisions;
+* technical reasoning;
+* operational practices;
 * ecosystem understanding.
 
 Documentation is considered an engineering asset.
@@ -32,7 +30,7 @@ Documentation is considered an engineering asset.
 
 # Documentation Philosophy Principles
 
-## Principle 1 — Documentation Is Part Of Engineering
+## Principle 1 — Documentation Is Part of Engineering
 
 Documentation is not an optional activity performed after implementation.
 
@@ -40,8 +38,8 @@ It is integrated into engineering processes.
 
 Important changes should consider:
 
-* documentation impact,
-* knowledge preservation,
+* documentation impact;
+* knowledge preservation;
 * future understanding.
 
 ---
@@ -52,8 +50,8 @@ FamilyOS is designed for long-term evolution.
 
 Important engineering knowledge must survive:
 
-* contributor changes,
-* architectural evolution,
+* contributor changes;
+* architectural evolution;
 * platform growth.
 
 Documentation prevents knowledge from existing only in individual memory.
@@ -66,10 +64,10 @@ Important engineering decisions should remain connected to their context.
 
 Traceability may involve:
 
-* ADRs,
-* RFCs,
-* specifications,
-* EPIC documentation,
+* ADRs;
+* RFCs;
+* specifications;
+* EPIC documentation;
 * engineering records.
 
 A decision without context becomes difficult to maintain.
@@ -82,24 +80,24 @@ Documentation should not only describe what exists.
 
 It should explain:
 
-* why something exists,
-* what problem it solves,
+* why something exists;
+* what problem it solves;
 * what constraints influenced the design.
 
 Intent is essential for long-term maintenance.
 
 ---
 
-## Principle 5 — Documentation Evolves With The System
+## Principle 5 — Documentation Evolves With the System
 
 Documentation must evolve together with software.
 
 Changes affecting:
 
-* architecture,
-* workflows,
-* standards,
-* behavior,
+* architecture;
+* workflows;
+* standards;
+* behavior;
 
 should trigger documentation review.
 
@@ -113,18 +111,18 @@ Useful knowledge must be easy to find.
 
 Documentation organization should support:
 
-* navigation,
-* references,
-* relationships between artifacts,
+* navigation;
+* references;
+* relationships between artifacts;
 * contributor onboarding.
 
 ---
 
-# Documentation As A System Component
+# Documentation as a System Component
 
 FamilyOS documentation forms a structured knowledge system.
 
-```text id="n4q7mx"
+```text
 Engineering Knowledge
 
 ├── Foundation Documents
@@ -136,17 +134,19 @@ Engineering Knowledge
 └── References
 ```
 
+Every documentation category contributes to the long-term engineering knowledge of the platform.
+
 ---
 
-# Documentation And Architecture
+# Documentation and Architecture
 
 Architecture requires explicit knowledge management.
 
 Documentation supports:
 
-* architectural understanding,
-* decision history,
-* system boundaries,
+* architectural understanding;
+* decision history;
+* system boundaries;
 * evolution planning.
 
 Reference:
@@ -156,30 +156,30 @@ Reference:
 
 ---
 
-# Documentation And Development Workflow
+# Documentation and Development Workflow
 
 Documentation is integrated into development activities.
 
 Changes may require updates to:
 
-* specifications,
-* guides,
-* architecture records,
+* specifications;
+* guides;
+* architecture records;
 * engineering documentation.
 
-A completed change should leave the system understandable.
+A completed engineering change should leave the platform better understood than before.
 
 ---
 
-# Documentation And Quality
+# Documentation and Quality
 
 Documentation contributes to engineering quality.
 
 Good documentation improves:
 
-* maintainability,
-* collaboration,
-* reliability,
+* maintainability;
+* collaboration;
+* reliability;
 * onboarding.
 
 Quality is affected when knowledge is missing or outdated.
@@ -190,14 +190,14 @@ Reference:
 
 ---
 
-# Documentation And Testing
+# Documentation and Testing
 
 Testing knowledge should remain documented.
 
 Documentation may explain:
 
-* testing strategies,
-* validation expectations,
+* testing strategies;
+* validation expectations;
 * important scenarios.
 
 Reference:
@@ -206,14 +206,14 @@ Reference:
 
 ---
 
-# Documentation And Release
+# Documentation and Release
 
 Releases should preserve knowledge about changes.
 
 Documentation may include:
 
-* release information,
-* migration guidance,
+* release information;
+* migration guidance;
 * compatibility information.
 
 Reference:
@@ -224,29 +224,24 @@ Reference:
 
 # Documentation Lifecycle
 
-Documentation follows a controlled lifecycle:
+Documentation follows a controlled lifecycle.
 
-```text id="q8v5az"
+```text
 Create
-
- |
-
+      │
+      ▼
 Review
-
- |
-
+      │
+      ▼
 Approve
-
- |
-
+      │
+      ▼
 Maintain
-
- |
-
+      │
+      ▼
 Update
-
- |
-
+      │
+      ▼
 Archive
 ```
 
@@ -256,15 +251,32 @@ Reference:
 
 ---
 
+# Documentation Provenance
+
+Every authoritative engineering document should preserve sufficient provenance information.
+
+Typical provenance includes:
+
+* document identifier;
+* version;
+* approval status;
+* revision history;
+* owning authority;
+* related engineering artifacts.
+
+Documentation provenance strengthens traceability, governance, maintenance, and engineering confidence.
+
+---
+
 # Documentation Automation
 
 Where practical, documentation processes should be supported by automation.
 
 Examples:
 
-* validation,
-* reference checking,
-* metadata verification,
+* validation;
+* reference checking;
+* metadata verification;
 * generation support.
 
 Automation improves consistency.
@@ -277,10 +289,12 @@ Documentation requires ownership and maintenance.
 
 Responsibilities include:
 
-* creating accurate information,
-* reviewing changes,
-* maintaining references,
+* creating accurate information;
+* reviewing changes;
+* maintaining references;
 * removing obsolete content.
+
+Significant documentation changes should follow the documented engineering governance process.
 
 ---
 
@@ -290,9 +304,9 @@ The documentation ecosystem evolves with FamilyOS.
 
 Improvements may include:
 
-* better navigation,
-* automation,
-* improved search,
+* better navigation;
+* automation;
+* improved search;
 * stronger relationships between artifacts.
 
 Changes follow documentation governance rules.
@@ -315,4 +329,4 @@ Documentation Philosophy is successful when:
 
 Documentation Philosophy establishes knowledge management as a core engineering capability of FamilyOS.
 
-By treating documentation as an engineering asset, FamilyOS ensures that its architecture, decisions, and practices remain understandable throughout its lifetime.
+By managing documentation throughout its lifecycle and preserving its provenance, FamilyOS ensures that engineering knowledge remains reliable, traceable, and sustainable throughout the lifetime of the platform.

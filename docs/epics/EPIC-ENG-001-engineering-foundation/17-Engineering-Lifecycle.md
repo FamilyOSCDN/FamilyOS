@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 17 Engineering Lifecycle
 
 ## Context
@@ -12,30 +10,32 @@ The Engineering Lifecycle defines how ideas become implemented, validated, integ
 
 A controlled lifecycle allows FamilyOS to evolve while preserving:
 
-* quality,
-* traceability,
-* maintainability,
+* quality;
+* traceability;
+* maintainability;
 * architectural coherence.
 
 ---
 
 # Purpose
 
-The purpose of the Engineering Lifecycle is to define the global journey of an engineering change.
+The purpose of the Engineering Lifecycle is to define the global engineering process that connects every engineering discipline within FamilyOS.
 
-It provides a common model for:
+Rather than replacing specialized engineering lifecycles, it coordinates them into one coherent engineering model.
 
-* understanding needs,
-* designing solutions,
-* implementing changes,
-* validating results,
-* maintaining knowledge.
+The Engineering Lifecycle provides a common framework for:
+
+* understanding needs;
+* designing solutions;
+* implementing changes;
+* validating results;
+* governing engineering evolution.
 
 ---
 
 # Engineering Lifecycle Principles
 
-## Principle 1 — Every Change Has A Lifecycle
+## Principle 1 — Every Change Has a Lifecycle
 
 Engineering changes should not appear directly as isolated implementations.
 
@@ -43,30 +43,30 @@ Each significant change should move through identifiable stages.
 
 A lifecycle provides:
 
-* visibility,
-* control,
+* visibility;
+* control;
 * consistency.
 
 ---
 
-## Principle 2 — Appropriate Process For Appropriate Change
+## Principle 2 — Appropriate Process for Appropriate Change
 
 Not every change requires the same level of process.
 
 The lifecycle should adapt according to:
 
-* complexity,
-* impact,
-* architectural importance,
+* complexity;
+* impact;
+* architectural importance;
 * risk.
 
 Small changes may require lightweight validation.
 
 Major changes may require:
 
-* RFC,
-* ADR,
-* specification,
+* RFC;
+* ADR;
+* specification;
 * additional review.
 
 ---
@@ -75,11 +75,11 @@ Major changes may require:
 
 Engineering knowledge must evolve together with implementation.
 
-A completed change should leave:
+A completed engineering change should leave:
 
-* understandable code,
-* updated documentation,
-* preserved decisions,
+* understandable code;
+* updated documentation;
+* preserved decisions;
 * validated behavior.
 
 ---
@@ -90,52 +90,71 @@ Validation is not only a final phase.
 
 Confidence should be built throughout the lifecycle through:
 
-* design review,
-* automated checks,
-* testing,
+* design review;
+* automated checks;
+* testing;
 * quality validation.
 
 ---
 
-# Engineering Lifecycle Model
+# Global Engineering Lifecycle
 
-FamilyOS follows this global lifecycle:
+FamilyOS follows the following engineering lifecycle.
 
-```text id="2x8mrf"
+```text
 Need Identification
-
-        |
-
+        │
+        ▼
 Analysis
-
-        |
-
+        │
+        ▼
 Design
-
-        |
-
+        │
+        ▼
 Implementation
-
-        |
-
+        │
+        ▼
 Validation
-
-        |
-
+        │
+        ▼
 Integration
-
-        |
-
+        │
+        ▼
 Release
-
-        |
-
+        │
+        ▼
 Maintenance
-
-        |
-
-Evolution
+        │
+        ▼
+Continuous Evolution
 ```
+
+This lifecycle defines the global engineering flow of the platform.
+
+---
+
+# Engineering Lifecycle Integration
+
+The global Engineering Lifecycle coordinates the specialized engineering lifecycles defined throughout the Engineering Foundation.
+
+```text
+Engineering Lifecycle
+
+        │
+        ├── Development Workflow
+        ├── Toolchain Lifecycle
+        ├── Environment Lifecycle
+        ├── Dependency Lifecycle
+        ├── Configuration Lifecycle
+        ├── Build Lifecycle
+        ├── Testing Lifecycle
+        ├── Documentation Lifecycle
+        └── Quality Lifecycle
+```
+
+Each specialized lifecycle focuses on one engineering capability.
+
+The Engineering Lifecycle provides the common coordination model that keeps them aligned.
 
 ---
 
@@ -145,17 +164,17 @@ Evolution
 
 Understand why a change is required.
 
-Activities:
+Activities include:
 
-* identify the problem,
-* define expected outcome,
-* evaluate affected areas.
+* identifying the problem;
+* defining the expected outcome;
+* evaluating affected areas.
 
 Possible inputs:
 
-* user needs,
-* technical improvements,
-* defects,
+* user needs;
+* defects;
+* technical improvements;
 * platform evolution.
 
 ---
@@ -168,16 +187,16 @@ Understand the impact of the proposed change.
 
 Analysis should consider:
 
-* architecture,
-* domains,
-* dependencies,
-* quality impact,
-* documentation impact.
+* architecture;
+* domains;
+* dependencies;
+* quality;
+* documentation.
 
 Possible artifacts:
 
-* issue,
-* proposal,
+* Issue;
+* Proposal;
 * RFC.
 
 ---
@@ -190,16 +209,16 @@ Define the solution before implementation.
 
 Design may include:
 
-* architecture evaluation,
-* component responsibilities,
-* interfaces,
-* constraints.
+* architectural evaluation;
+* responsibilities;
+* interfaces;
+* engineering constraints.
 
 Possible artifacts:
 
-* ADR,
-* specification,
-* technical documentation.
+* ADR;
+* Specification;
+* Technical Documentation.
 
 ---
 
@@ -207,14 +226,13 @@ Possible artifacts:
 
 ## Objective
 
-Transform the design into working software.
+Transform the approved design into working software.
 
 Implementation follows:
 
-* coding standards,
-* repository organization,
-* architecture principles,
-* development workflow.
+* Coding Standards;
+* Repository Architecture;
+* Development Workflow.
 
 ---
 
@@ -222,19 +240,15 @@ Implementation follows:
 
 ## Objective
 
-Verify that the change meets expectations.
+Verify engineering expectations.
 
 Validation may include:
 
-* automated tests,
-* static analysis,
-* quality checks,
-* documentation verification.
-
-References:
-
-* Testing Framework
-* Quality Framework
+* testing;
+* static analysis;
+* documentation verification;
+* build validation;
+* quality gates.
 
 ---
 
@@ -242,13 +256,13 @@ References:
 
 ## Objective
 
-Safely incorporate the change into the platform.
+Safely integrate validated changes.
 
 Integration requires:
 
-* completed validation,
-* successful review,
-* traceable history.
+* successful validation;
+* completed review;
+* traceable engineering history.
 
 ---
 
@@ -256,19 +270,14 @@ Integration requires:
 
 ## Objective
 
-Deliver validated capabilities.
+Deliver validated engineering artifacts.
 
 Release activities may include:
 
-* versioning,
-* artifact generation,
-* release documentation,
+* versioning;
+* artifact publication;
+* release documentation;
 * compatibility information.
-
-References:
-
-* Build Framework
-* Release Framework
 
 ---
 
@@ -276,18 +285,18 @@ References:
 
 ## Objective
 
-Maintain the health of the system after delivery.
+Preserve engineering quality after delivery.
 
 Maintenance includes:
 
-* bug fixes,
-* improvements,
-* dependency updates,
-* documentation updates.
+* bug fixes;
+* dependency updates;
+* documentation maintenance;
+* technical debt reduction.
 
 ---
 
-# Phase 9 — Evolution
+# Phase 9 — Continuous Evolution
 
 ## Objective
 
@@ -295,111 +304,56 @@ Continuously improve FamilyOS.
 
 Evolution may include:
 
-* architectural improvements,
-* process refinement,
-* technical debt reduction,
-* new capabilities.
+* architectural improvements;
+* engineering process refinement;
+* tooling improvements;
+* quality improvements.
+
+Engineering never reaches a final state.
 
 ---
 
-# Lifecycle And Documentation
+# Relationship With Other Engineering Frameworks
 
-Documentation participates throughout the lifecycle.
+The Engineering Lifecycle orchestrates:
 
-Each phase may require documentation updates:
+* Development Workflow;
+* Toolchain;
+* Environment Management;
+* Dependency Management;
+* Configuration Management;
+* Build Philosophy;
+* Testing Philosophy;
+* Documentation Philosophy;
+* Quality Philosophy;
+* Technical Governance.
 
-| Phase          | Documentation Impact         |
-| -------------- | ---------------------------- |
-| Analysis       | Context and requirements     |
-| Design         | Decisions and specifications |
-| Implementation | Technical documentation      |
-| Validation     | Results and evidence         |
-| Release        | Version information          |
-| Maintenance    | Updates and improvements     |
-
-Reference:
-
-* Documentation Framework
+It provides the engineering context in which each framework operates.
 
 ---
 
-# Lifecycle And Quality
+# Governance
 
-Quality is integrated throughout the lifecycle.
+The Engineering Lifecycle is governed by the Technical Governance framework.
 
-Quality activities include:
-
-* design evaluation,
-* automated validation,
-* review processes,
-* metrics.
-
-Reference:
-
-* Quality Framework
-
----
-
-# Lifecycle And Testing
-
-Testing supports confidence during evolution.
-
-Testing activities include:
-
-* validation planning,
-* automated execution,
-* regression prevention.
-
-Reference:
-
-* Testing Framework
-
----
-
-# Lifecycle And Governance
-
-Engineering lifecycle decisions follow governance principles.
-
-Important changes remain:
-
-* explicit,
-* reviewed,
-* traceable.
-
-Reference:
-
-* Technical Governance
-
----
-
-# Lifecycle Improvement
-
-The lifecycle itself evolves.
-
-Improvements should consider:
-
-* contributor feedback,
-* automation opportunities,
-* engineering maturity.
-
-Changes follow governance rules.
+Changes affecting the lifecycle should be evaluated for their impact on every specialized engineering lifecycle before approval.
 
 ---
 
 # Success Criteria
 
-Engineering Lifecycle is successful when:
+The Engineering Lifecycle is successful when:
 
-* changes follow a predictable path;
-* engineering decisions remain traceable;
-* validation occurs consistently;
-* knowledge remains synchronized;
-* platform evolution remains controlled.
+* engineering changes follow a predictable process;
+* specialized lifecycles remain coordinated;
+* engineering knowledge remains synchronized;
+* governance remains effective;
+* FamilyOS evolves sustainably.
 
 ---
 
 # Final Statement
 
-The Engineering Lifecycle provides the operational model that connects engineering disciplines across FamilyOS.
+The Engineering Lifecycle is the central coordination model of the FamilyOS Engineering Foundation.
 
-By following a structured lifecycle, FamilyOS can continuously evolve while preserving quality, reliability, and architectural integrity.
+By orchestrating every specialized engineering lifecycle into a single coherent process, it enables FamilyOS to evolve consistently while preserving architectural integrity, engineering quality, and long-term sustainability.

@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 09 Environment Management
 
 ## Context
@@ -14,12 +12,12 @@ Environment Management establishes the principles required to create, maintain, 
 
 # Purpose
 
-The purpose of Environment Management is to ensure that FamilyOS engineering activities can be performed in environments that are:
+The purpose of Environment Management is to ensure that FamilyOS engineering activities can be be performed in environments that are:
 
-* reproducible,
-* isolated,
-* documented,
-* predictable,
+* reproducible;
+* isolated;
+* documented;
+* predictable;
 * maintainable.
 
 A reliable environment is a foundation for reliable software.
@@ -34,55 +32,46 @@ Engineering environments should produce consistent results regardless of where t
 
 Environment definition should include:
 
-* required tools,
-* dependencies,
-* configuration,
+* required tools;
+* dependencies;
+* configuration;
 * validation requirements.
 
 A contributor should be able to recreate an environment from documented sources.
 
 ---
 
-## Principle 2 — Environment As Code
+## Principle 2 — Environment as Code
 
 Environment configuration should be treated as an engineering artifact.
 
 Important environment definitions should be:
 
-* version controlled,
-* reviewed,
-* documented,
+* version controlled;
+* reviewed;
+* documented;
 * reproducible.
 
 Undocumented environment assumptions create long-term risks.
 
 ---
 
-## Principle 3 — Separation Of Environments
+## Principle 3 — Separation of Environments
 
 Different lifecycle stages require different environments.
 
 FamilyOS recognizes environments such as:
 
-```text id="7p3kqf"
+```text
 Development
-
-      |
-
-      v
-
+      │
+      ▼
 Validation
-
-      |
-
-      v
-
+      │
+      ▼
 Continuous Integration
-
-      |
-
-      v
-
+      │
+      ▼
 Release
 ```
 
@@ -96,9 +85,9 @@ Environment dependencies should be explicit.
 
 This includes:
 
-* runtime versions,
-* libraries,
-* tools,
+* runtime versions;
+* libraries;
+* tools;
 * external requirements.
 
 Hidden dependencies reduce reliability.
@@ -111,9 +100,9 @@ Contributors should experience similar workflows across environments.
 
 Consistency improves:
 
-* onboarding,
-* collaboration,
-* troubleshooting,
+* onboarding;
+* collaboration;
+* troubleshooting;
 * productivity.
 
 ---
@@ -126,9 +115,9 @@ The development environment supports daily engineering activities.
 
 It should provide:
 
-* source code access,
-* development tools,
-* local validation,
+* source code access;
+* development tools;
+* local validation;
 * debugging capabilities.
 
 ---
@@ -139,8 +128,8 @@ The testing environment supports software validation.
 
 It should provide:
 
-* repeatable test execution,
-* controlled dependencies,
+* repeatable test execution;
+* controlled dependencies;
 * reliable validation results.
 
 Reference:
@@ -155,9 +144,9 @@ The CI/CD environment provides automated engineering validation.
 
 It should support:
 
-* automated checks,
-* reproducible execution,
-* quality gates,
+* automated checks;
+* reproducible execution;
+* quality gates;
 * reporting.
 
 Reference:
@@ -173,8 +162,8 @@ The release environment supports controlled delivery.
 
 It should ensure:
 
-* validated artifacts,
-* reproducible builds,
+* validated artifacts;
+* reproducible builds;
 * traceable versions.
 
 ---
@@ -183,9 +172,9 @@ It should ensure:
 
 Environment configuration should define:
 
-* runtime requirements,
-* dependency versions,
-* tool configuration,
+* runtime requirements;
+* dependency versions;
+* tool configuration;
 * execution requirements.
 
 Configuration changes should be reviewed when they impact engineering workflows.
@@ -196,16 +185,45 @@ Configuration changes should be reviewed when they impact engineering workflows.
 
 Isolation helps prevent:
 
-* dependency conflicts,
-* accidental configuration sharing,
+* dependency conflicts;
+* accidental configuration sharing;
 * inconsistent validation.
 
 Isolation may apply to:
 
-* local development,
-* testing,
-* automation,
+* local development;
+* testing;
+* automation;
 * release processes.
+
+---
+
+# Environment Lifecycle
+
+Engineering environments have a managed lifecycle.
+
+Each environment should progress through the following stages:
+
+```text
+Definition
+      │
+      ▼
+Provisioning
+      │
+      ▼
+Validation
+      │
+      ▼
+Operational Use
+      │
+      ▼
+Maintenance
+      │
+      ▼
+Retirement
+```
+
+Environment lifecycle management ensures long-term consistency, traceability, and reproducibility.
 
 ---
 
@@ -215,8 +233,8 @@ Environment management depends on controlled dependency management.
 
 Dependencies should be:
 
-* explicitly declared,
-* version controlled,
+* explicitly declared;
+* version controlled;
 * regularly reviewed.
 
 Reference:
@@ -231,9 +249,9 @@ Environments should be validated before use.
 
 Validation may include:
 
-* required tools available,
-* dependencies correctly installed,
-* configuration consistency,
+* required tools available;
+* dependencies correctly installed;
+* configuration consistency;
 * automated checks passing.
 
 ---
@@ -244,9 +262,9 @@ Environment knowledge must remain documented.
 
 Documentation should cover:
 
-* purpose,
-* requirements,
-* configuration,
+* purpose;
+* requirements;
+* configuration;
 * maintenance expectations.
 
 Reference:
@@ -261,15 +279,15 @@ Environment changes are part of engineering evolution.
 
 Changes should consider:
 
-* contributor impact,
-* compatibility,
-* automation impact,
+* contributor impact;
+* compatibility;
+* automation impact;
 * migration effort.
 
 Significant changes may require:
 
-* ADR,
-* RFC,
+* ADR;
+* RFC;
 * migration documentation.
 
 ---
@@ -312,9 +330,11 @@ Environment management follows engineering governance rules.
 
 Environment decisions should remain:
 
-* explicit,
-* documented,
+* explicit;
+* documented;
 * traceable.
+
+Changes affecting engineering environments should be reviewed through the appropriate governance process and documented using ADRs or RFCs when they introduce architectural or operational impacts.
 
 ---
 
@@ -334,4 +354,4 @@ Environment Management is successful when:
 
 Environment Management provides the foundation required for consistent FamilyOS engineering operations.
 
-By treating environments as controlled engineering assets, FamilyOS reduces uncertainty and improves reliability throughout the software lifecycle.
+By treating environments as managed engineering assets throughout their lifecycle, FamilyOS ensures reliable development, reproducible validation, and sustainable long-term platform evolution.

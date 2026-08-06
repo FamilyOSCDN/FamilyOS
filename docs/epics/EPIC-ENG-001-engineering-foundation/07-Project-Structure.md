@@ -1,5 +1,3 @@
-# Engineering Foundation
-
 # 07 Project Structure
 
 ## Context
@@ -18,10 +16,10 @@ The purpose of Project Structure is to establish the organizational principles t
 
 The project structure should enable:
 
-* clear ownership,
-* easy navigation,
-* modular evolution,
-* reliable automation,
+* clear ownership;
+* easy navigation;
+* modular evolution;
+* reliable automation;
 * efficient collaboration.
 
 ---
@@ -36,26 +34,26 @@ Each area should have a clear purpose.
 
 Examples:
 
-* application source code,
-* tests,
-* documentation,
-* specifications,
-* automation,
+* application source code;
+* tests;
+* documentation;
+* specifications;
+* automation;
 * configuration.
 
 A contributor should understand the role of a component by its location.
 
 ---
 
-## Principle 2 — Separation Of Concerns
+## Principle 2 — Separation of Concerns
 
 Different engineering concerns should remain separated.
 
 The project structure must avoid mixing:
 
-* implementation,
-* validation,
-* documentation,
+* implementation;
+* validation;
+* documentation;
 * operational tooling.
 
 Clear separation reduces complexity and accidental coupling.
@@ -68,9 +66,9 @@ FamilyOS is organized around domains and capabilities.
 
 Project structure should support:
 
-* domain boundaries,
-* independent evolution,
-* plugin organization,
+* domain boundaries;
+* independent evolution;
+* plugin organization;
 * explicit ownership.
 
 ---
@@ -81,9 +79,9 @@ The structure should help contributors quickly locate required information.
 
 A contributor should be able to discover:
 
-* where code belongs,
-* where tests are located,
-* where documentation exists,
+* where code belongs;
+* where tests are located;
+* where documentation exists;
 * where engineering rules are defined.
 
 ---
@@ -96,31 +94,43 @@ New capabilities should integrate naturally.
 
 Examples:
 
-* new plugins,
-* new engineering frameworks,
+* new plugins;
+* new engineering frameworks;
 * new automation tools.
 
 ---
 
 # Project Organization Model
 
-FamilyOS follows a layered organization model.
+The FamilyOS repository follows a layered engineering organization.
 
-```text id="4w9f3k"
+```text
 FamilyOS Repository
 
-├── Application Layer
+├── src/
+│   ├── familyos_cli/
+│   └── ...
 │
-├── Test Layer
+├── tests/
 │
-├── Documentation Layer
+├── docs/
+│   ├── 00-foundation/
+│   ├── 04-reference/
+│   ├── 06-specifications/
+│   ├── epics/
+│   ├── rfcs/
+│   └── adrs/
 │
-├── Engineering Layer
+├── tools/
 │
-├── Automation Layer
+├── scripts/
 │
-└── Configuration Layer
+├── configuration/
+│
+└── README.md
 ```
+
+The repository structure should reflect engineering responsibilities rather than implementation convenience.
 
 ---
 
@@ -130,15 +140,15 @@ Application code represents the implemented platform capabilities.
 
 It should contain:
 
-* domain logic,
-* application services,
-* infrastructure components,
+* domain logic;
+* application services;
+* infrastructure components;
 * plugin implementations.
 
 The application structure follows:
 
-* Clean Architecture principles,
-* Domain-Driven Design concepts,
+* Clean Architecture principles;
+* Domain-Driven Design concepts;
 * modular design practices.
 
 ---
@@ -149,9 +159,9 @@ Tests are organized according to validation responsibilities.
 
 The structure should support:
 
-* unit tests,
-* integration tests,
-* plugin tests,
+* unit tests;
+* integration tests;
+* plugin tests;
 * framework validation.
 
 Testing organization should make validation easy to discover and maintain.
@@ -168,11 +178,11 @@ Documentation is maintained as a first-class project component.
 
 It contains:
 
-* architecture documentation,
-* specifications,
-* engineering frameworks,
-* RFCs,
-* ADRs,
+* architecture documentation;
+* specifications;
+* engineering frameworks;
+* RFCs;
+* ADRs;
 * guides.
 
 Reference:
@@ -185,9 +195,9 @@ Reference:
 
 Engineering documentation defines:
 
-* development practices,
-* standards,
-* workflows,
+* development practices;
+* standards;
+* workflows;
 * governance.
 
 The engineering structure connects technical implementation with documented processes.
@@ -200,11 +210,11 @@ FamilyOS plugins follow the modular project organization.
 
 A plugin should clearly separate:
 
-* plugin metadata,
-* implementation,
-* capabilities,
-* contributions,
-* tests,
+* plugin metadata;
+* implementation;
+* capabilities;
+* contributions;
+* tests;
 * documentation.
 
 This supports independent evolution of platform extensions.
@@ -217,9 +227,9 @@ Automation components support engineering workflows.
 
 Examples:
 
-* validation scripts,
-* development utilities,
-* CI/CD helpers,
+* validation scripts;
+* development utilities;
+* CI/CD helpers;
 * documentation tools.
 
 Automation should remain organized and reusable.
@@ -230,11 +240,11 @@ Automation should remain organized and reusable.
 
 Configuration files should be:
 
-* explicit,
-* documented,
-* validated when possible.
+* explicit;
+* documented;
+* validated whenever practical.
 
-Configuration should not hide important engineering behavior.
+Configuration should never hide important engineering behavior.
 
 ---
 
@@ -244,9 +254,9 @@ Project structure implements architectural intent.
 
 The organization should support:
 
-* dependency direction,
-* component boundaries,
-* modularity,
+* dependency direction;
+* component boundaries;
+* modularity;
 * maintainability.
 
 A repository structure that conflicts with architecture creates long-term complexity.
@@ -259,9 +269,9 @@ Project structure supports the development lifecycle.
 
 It allows contributors to:
 
-* locate affected areas,
-* implement changes consistently,
-* validate modifications,
+* locate affected areas;
+* implement changes consistently;
+* validate modifications;
 * maintain traceability.
 
 ---
@@ -272,10 +282,25 @@ A predictable project structure enables automation.
 
 Automation can reliably:
 
-* locate components,
-* execute validations,
-* generate reports,
+* locate components;
+* execute validations;
+* generate reports;
 * manage releases.
+
+---
+
+# Structural Invariants
+
+The FamilyOS project structure shall preserve the following invariants:
+
+* every engineering asset has a single authoritative location;
+* project responsibilities remain clearly separated;
+* directory structures remain predictable across the repository;
+* documentation paths remain stable whenever practical;
+* automation shall not depend on undocumented repository layouts;
+* structural changes shall preserve backward compatibility whenever reasonably possible.
+
+These invariants protect repository stability while allowing the project structure to evolve incrementally.
 
 ---
 
@@ -283,12 +308,12 @@ Automation can reliably:
 
 Changes to project structure should consider:
 
-* architectural impact,
-* contributor impact,
-* automation impact,
+* architectural impact;
+* contributor impact;
+* automation impact;
 * documentation impact.
 
-Major structural changes should be documented through appropriate engineering processes.
+Major structural changes should be documented through the appropriate engineering governance process and, when necessary, supported by an ADR or RFC.
 
 ---
 
@@ -308,4 +333,4 @@ Project Structure is successful when:
 
 The FamilyOS Project Structure provides the organizational foundation required for scalable engineering.
 
-By aligning repository organization with architecture and responsibilities, FamilyOS can continue to evolve while preserving clarity and maintainability.
+By aligning repository organization with architecture, ownership, and engineering responsibilities, FamilyOS can continue to evolve while preserving clarity, consistency, and long-term maintainability.
