@@ -1,51 +1,51 @@
 # EPIC-REL-001 — Release Framework
 
-## Statut
+## Status
 
-- **Identifiant :** EPIC-REL-001
-- **Type :** EPIC
-- **Statut :** Proposed
-- **Version :** 1.0.0
-- **Domaine :** Engineering Platform
-- **Propriétaire :** FamilyOS Team
+- **Identifier:** EPIC-REL-001
+- **Type:** EPIC
+- **Status:** Proposed
+- **Version:** 1.0.0
+- **Domain:** Engineering Platform
+- **Owner:** FamilyOS Team
 
-## Résumé
+## Summary
 
-Définir le cycle de release de FamilyOS : versioning, préparation, validation, changelog, publication, signature, distribution et support.
+Define the FamilyOS release lifecycle, including versioning, preparation, validation, changelog generation, publication, signing, distribution, and maintenance.
 
-## Contexte
+## Context
 
-FamilyOS entre dans une phase de consolidation de sa plateforme d’ingénierie. Cet EPIC définit les capacités structurantes nécessaires pour rendre le développement cohérent, reproductible, vérifiable et maintenable à long terme.
+FamilyOS is entering a consolidation phase of its engineering platform. This EPIC defines the foundational capabilities required to make development consistent, reproducible, verifiable, and maintainable over the long term.
 
-## Objectifs
+## Objectives
 
-- Formaliser le processus de release.
-- Définir la stratégie de versioning.
-- Automatiser la génération du changelog.
-- Garantir l’intégrité et la traçabilité des artefacts.
-- Standardiser les publications GitHub et registres de packages.
+- Formalize the release process.
+- Define the versioning strategy.
+- Automate changelog generation.
+- Ensure artifact integrity and traceability.
+- Standardize GitHub Releases and package registry publications.
 
-## Périmètre
+## Scope
 
 - Versioning
 - Release candidates
 - Changelog
-- Tags Git
+- Git tags
 - GitHub Releases
-- Publication de packages
-- Signatures
+- Package publication
+- Artifact signing
 - Checksums
 - Rollback
-- Support et maintenance
+- Support and maintenance
 
-## Hors périmètre
+## Out of Scope
 
-- Implémentation de fonctionnalités métier propres aux plugins officiels.
-- Modification des règles métier des domaines FamilyOS.
-- Développement d’interfaces utilisateur finales.
-- Migration non planifiée de composants historiques.
+- Implementation of business features specific to official plugins.
+- Modification of FamilyOS domain business rules.
+- Development of end-user interfaces.
+- Unplanned migration of legacy components.
 
-## Livrables principaux
+## Primary Deliverables
 
 - Release Policy
 - Versioning Standard
@@ -58,15 +58,15 @@ FamilyOS entre dans une phase de consolidation de sa plateforme d’ingénierie.
 - Rollback Procedure
 - Maintenance Policy
 
-## Critères d’acceptation
+## Acceptance Criteria
 
-- Chaque release suit un processus documenté.
-- Les versions et tags sont cohérents.
-- Les artefacts publiés sont vérifiables.
-- Le changelog est généré et validé.
-- Une release peut être reproduite ou annulée selon une procédure officielle.
+- Every release follows a documented process.
+- Versions and Git tags are consistent.
+- Published artifacts are verifiable.
+- The changelog is generated and validated.
+- A release can be reproduced or rolled back using an official procedure.
 
-## Dépendances
+## Dependencies
 
 - EPIC-ENG-001 — Engineering Foundation
 - EPIC-DOC-001 — Documentation Framework
@@ -74,37 +74,37 @@ FamilyOS entre dans une phase de consolidation de sa plateforme d’ingénierie.
 - EPIC-QLT-001 — Quality Framework
 - EPIC-BLD-001 — Build Framework
 
-## Risques
+## Risks
 
-- Fragmentation des conventions si les règles ne sont pas centralisées.
-- Automatisations partielles ou divergentes entre local et CI.
-- Dette technique créée par des exceptions non documentées.
-- Documentation désynchronisée de l’implémentation.
-- Adoption incomplète par les futurs plugins et sous-systèmes.
+- Fragmentation of conventions if rules are not centrally managed.
+- Partial or inconsistent automation between local environments and CI.
+- Technical debt created by undocumented exceptions.
+- Documentation becoming unsynchronized with the implementation.
+- Incomplete adoption by future plugins and subsystems.
 
-## Principes directeurs
+## Guiding Principles
 
-1. Architecture avant implémentation.
-2. Documentation avant automatisation.
-3. Reproductibilité avant optimisation.
-4. Validation automatique dès que possible.
-5. Compatibilité avec la Clean Architecture et le Plugin SDK de FamilyOS.
-6. Traçabilité complète des décisions et des changements.
+1. Architecture before implementation.
+2. Documentation before automation.
+3. Reproducibility before optimization.
+4. Automate validation whenever possible.
+5. Compatibility with the FamilyOS Clean Architecture and Plugin SDK.
+6. Complete traceability of decisions and changes.
 
-## Mesures de succès
+## Success Measures
 
-- Les livrables de l’EPIC sont versionnés dans le dépôt.
-- Les workflows associés sont exécutables localement.
-- Les contrôles sont intégrables dans la CI.
-- Les règles sont réutilisables par les plugins officiels.
-- Les responsabilités entre documentation, tests, qualité, build et release sont clairement séparées.
+- EPIC deliverables are versioned within the repository.
+- Associated workflows can be executed locally.
+- Controls can be integrated into CI.
+- Rules are reusable by official plugins.
+- Responsibilities between documentation, testing, quality, build, and release are clearly separated.
 
-## Séquence recommandée
+## Recommended Sequence
 
-Projet suivant : **Engineering Platform v1 — Consolidation**
+Next project: **Engineering Platform v1 — Consolidation**
 
-## Historique des révisions
+## Revision History
 
-| Version | Statut | Description |
+| Version | Status | Description |
 |---|---|---|
-| 1.0.0 | Proposed | Création initiale de l’EPIC |
+| 1.0.0 | Proposed | Initial creation of the EPIC |

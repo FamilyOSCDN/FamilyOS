@@ -1,51 +1,51 @@
 # EPIC-BLD-001 — Build Framework
 
-## Statut
+## Status
 
-- **Identifiant :** EPIC-BLD-001
-- **Type :** EPIC
-- **Statut :** Proposed
-- **Version :** 1.0.0
-- **Domaine :** Engineering Platform
-- **Propriétaire :** FamilyOS Team
+- **Identifier:** EPIC-BLD-001
+- **Type:** EPIC
+- **Status:** Proposed
+- **Version:** 1.0.0
+- **Domain:** Engineering Platform
+- **Owner:** FamilyOS Team
 
-## Résumé
+## Summary
 
-Construire un système de build reproductible pour FamilyOS, couvrant le packaging, la génération d’artefacts, la validation et la préparation à la distribution.
+Build a reproducible build system for FamilyOS, covering packaging, artifact generation, validation, and preparation for distribution.
 
-## Contexte
+## Context
 
-FamilyOS entre dans une phase de consolidation de sa plateforme d’ingénierie. Cet EPIC définit les capacités structurantes nécessaires pour rendre le développement cohérent, reproductible, vérifiable et maintenable à long terme.
+FamilyOS is entering a consolidation phase of its engineering platform. This EPIC defines the foundational capabilities required to make development consistent, reproducible, verifiable, and maintainable over the long term.
 
-## Objectifs
+## Objectives
 
-- Standardiser le processus de build.
-- Garantir la reproductibilité des artefacts.
-- Définir les formats et conventions de packaging.
-- Automatiser la validation des builds.
-- Préparer les artefacts nécessaires aux releases.
+- Standardize the build process.
+- Ensure artifact reproducibility.
+- Define packaging formats and conventions.
+- Automate build validation.
+- Prepare the artifacts required for releases.
 
-## Périmètre
+## Scope
 
-- Build local
-- Build CI
-- Packaging Python
-- Artefacts
-- Reproductibilité
-- Manifestes
-- Validation des distributions
-- Nettoyage
+- Local builds
+- CI builds
+- Python packaging
+- Artifacts
+- Reproducibility
+- Manifests
+- Distribution validation
+- Cleanup
 - Cache
 - Build metadata
 
-## Hors périmètre
+## Out of Scope
 
-- Implémentation de fonctionnalités métier propres aux plugins officiels.
-- Modification des règles métier des domaines FamilyOS.
-- Développement d’interfaces utilisateur finales.
-- Migration non planifiée de composants historiques.
+- Implementation of business features specific to official plugins.
+- Modification of FamilyOS domain business rules.
+- Development of end-user interfaces.
+- Unplanned migration of legacy components.
 
-## Livrables principaux
+## Primary Deliverables
 
 - Build Architecture
 - Build Commands
@@ -56,51 +56,51 @@ FamilyOS entre dans une phase de consolidation de sa plateforme d’ingénierie.
 - Build Metadata Standard
 - CI Build Pipeline
 
-## Critères d’acceptation
+## Acceptance Criteria
 
-- Un build propre peut être produit avec une commande standard.
-- Les artefacts sont identiques à environnement équivalent.
-- Les distributions sont validées avant publication.
-- Les métadonnées de build sont traçables.
-- Le framework de release peut consommer les artefacts générés.
+- A clean build can be produced using a standard command.
+- Artifacts are identical under equivalent environments.
+- Distributions are validated before publication.
+- Build metadata is traceable.
+- The Release Framework can consume the generated artifacts.
 
-## Dépendances
+## Dependencies
 
 - EPIC-ENG-001 — Engineering Foundation
 - EPIC-TST-001 — Testing Framework
 - EPIC-QLT-001 — Quality Framework
 
-## Risques
+## Risks
 
-- Fragmentation des conventions si les règles ne sont pas centralisées.
-- Automatisations partielles ou divergentes entre local et CI.
-- Dette technique créée par des exceptions non documentées.
-- Documentation désynchronisée de l’implémentation.
-- Adoption incomplète par les futurs plugins et sous-systèmes.
+- Fragmentation of conventions if rules are not centrally managed.
+- Partial or inconsistent automation between local environments and CI.
+- Technical debt created by undocumented exceptions.
+- Documentation becoming unsynchronized with the implementation.
+- Incomplete adoption by future plugins and subsystems.
 
-## Principes directeurs
+## Guiding Principles
 
-1. Architecture avant implémentation.
-2. Documentation avant automatisation.
-3. Reproductibilité avant optimisation.
-4. Validation automatique dès que possible.
-5. Compatibilité avec la Clean Architecture et le Plugin SDK de FamilyOS.
-6. Traçabilité complète des décisions et des changements.
+1. Architecture before implementation.
+2. Documentation before automation.
+3. Reproducibility before optimization.
+4. Automate validation whenever possible.
+5. Compatibility with the FamilyOS Clean Architecture and Plugin SDK.
+6. Complete traceability of decisions and changes.
 
-## Mesures de succès
+## Success Measures
 
-- Les livrables de l’EPIC sont versionnés dans le dépôt.
-- Les workflows associés sont exécutables localement.
-- Les contrôles sont intégrables dans la CI.
-- Les règles sont réutilisables par les plugins officiels.
-- Les responsabilités entre documentation, tests, qualité, build et release sont clairement séparées.
+- EPIC deliverables are versioned within the repository.
+- Associated workflows can be executed locally.
+- Controls can be integrated into CI.
+- Rules are reusable by official plugins.
+- Responsibilities between documentation, testing, quality, build, and release are clearly separated.
 
-## Séquence recommandée
+## Recommended Sequence
 
-Projet suivant : **EPIC-REL-001 — Release Framework**
+Next project: **EPIC-REL-001 — Release Framework**
 
-## Historique des révisions
+## Revision History
 
-| Version | Statut | Description |
+| Version | Status | Description |
 |---|---|---|
-| 1.0.0 | Proposed | Création initiale de l’EPIC |
+| 1.0.0 | Proposed | Initial creation of the EPIC |
