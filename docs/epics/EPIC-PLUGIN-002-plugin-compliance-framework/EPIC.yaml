@@ -1,0 +1,257 @@
+id: EPIC-PLUGIN-002
+title: Plugin Compliance Framework
+status: baseline
+version: 1.0.0
+category: engineering-platform
+domain: plugin-ecosystem
+summary: Establish the official FamilyOS Plugin Compliance Framework for evaluating, validating, governing,
+  reporting, and enforcing plugin conformance against architectural, engineering, security, testing, quality,
+  documentation, compatibility, lifecycle, and governance requirements.
+purpose:
+- define the FamilyOS plugin compliance model
+- establish explicit compliance domains
+- define governed compliance rules
+- define compliance profiles
+- define deterministic validation architecture
+- define evidence requirements and trust semantics
+- define findings and severity semantics
+- define compliance reporting
+- integrate compliance into local and CI workflows
+- define lifecycle compliance gates
+- establish certification eligibility integration
+- define rule and framework governance
+- define security and trust boundaries
+- establish lifecycle and release expectations
+- provide an implementation roadmap
+scope:
+  includes:
+  - plugin identity compliance
+  - metadata compliance
+  - structural compliance
+  - architectural compliance
+  - capability compliance
+  - contribution compliance
+  - dependency compliance
+  - configuration compliance
+  - security compliance
+  - testing compliance
+  - quality compliance
+  - documentation compliance
+  - compatibility compliance
+  - lifecycle compliance
+  - governance compliance
+  - compliance automation
+  - compliance reporting
+  - compliance gates
+  - certification readiness
+  - framework governance
+  - framework lifecycle
+  excludes:
+  - domain-specific business correctness
+  - replacement of the Plugin Architecture
+  - replacement of the Testing Framework
+  - replacement of the Quality Framework
+  - replacement of the Documentation Framework
+  - replacement of the Security Architecture
+  - final certification decisions
+  - automatic trust assignment
+principles:
+- compliance is explicit
+- compliance is evidence-based
+- compliance is deterministic where possible
+- compliance rules have stable identities
+- policy is separate from execution
+- one authoritative compliance model governs all consumers
+- profiles compose rules without redefining them
+- missing evidence never implies compliance
+- validator errors are distinct from plugin violations
+- compliance status is derived
+- exceptions and suppressions remain visible
+- certification is separate from compliance
+- plugin origin does not replace evidence
+- framework evolution is governed and versioned
+compliance_domains:
+- identity
+- metadata
+- structure
+- architecture
+- capabilities
+- contributions
+- dependencies
+- configuration
+- security
+- testing
+- quality
+- documentation
+- compatibility
+- lifecycle
+- governance
+rule_outcomes:
+- PASS
+- FAIL
+- NOT_APPLICABLE
+- NOT_EVALUATED
+- ERROR
+severity_levels:
+- INFO
+- WARNING
+- ERROR
+- CRITICAL
+compliance_statuses:
+- COMPLIANT
+- NON_COMPLIANT
+- INCOMPLETE
+- ERROR
+planned_profiles:
+- development
+- experimental
+- built-in
+- official
+- third-party
+- release
+- certification
+dependencies:
+  epics:
+  - EPIC-ENG-001
+  - EPIC-DOC-001
+  - EPIC-TST-001
+  - EPIC-QLT-001
+  - EPIC-BLD-001
+  - EPIC-REL-001
+  architecture:
+  - Plugin Architecture
+  - Security Architecture
+  - Runtime Architecture
+  - Configuration Architecture
+  - Governance Architecture
+  - Documentation Architecture
+  decisions:
+  - ADR-0007
+  - ADR-0008
+  - ADR-0009
+  - ADR-0010
+  - ADR-0011
+  - ADR-0013
+  plugin_rfcs:
+  - RFC-0010
+  - RFC-0011
+  - RFC-0012
+  - RFC-0013
+  - RFC-0014
+  - RFC-0015
+deliverables:
+- 00-EPIC.md
+- 01-Context.md
+- 02-Vision.md
+- 03-Principles.md
+- 04-Compliance-Architecture.md
+- 05-Compliance-Domains.md
+- 06-Compliance-Rule-Model.md
+- 07-Compliance-Profiles.md
+- 08-Validation-Engine.md
+- 09-Evidence-Model.md
+- 10-Findings-and-Severity-Model.md
+- 11-Compliance-Reporting.md
+- 12-Automation-and-CI-Integration.md
+- 13-Compliance-Gates.md
+- 14-Plugin-Certification-Integration.md
+- 15-Governance-and-Rule-Lifecycle.md
+- 16-Security-and-Trust-Model.md
+- 17-Framework-Lifecycle.md
+- 18-Roadmap.md
+- 19-References.md
+- 20-Validation.md
+- 21-Summary.md
+- 22-Release.md
+- 23-Checklist.md
+- README.md
+- EPIC.yaml
+- MANIFEST.md
+- VALIDATION.md
+- CHANGELOG.md
+- Revision-History.md
+deliverable_count: 30
+implementation_strategy:
+  initial_scope:
+    official_plugins: 1
+    compliance_profiles: 1
+    deterministic_rules_min: 10
+    deterministic_rules_max: 20
+    reports:
+    - human-readable
+    - json
+  progression:
+  - core-models
+  - rule-registry
+  - profile-registry
+  - validator-registry
+  - validation-engine
+  - initial-rule-catalog
+  - official-plugin-pilot
+  - cli-integration
+  - ci-integration
+  - merge-gate
+  - evidence-maturity
+  - build-integration
+  - release-gate
+  - governance-automation
+  - certification-eligibility
+  - security-hardening
+  - third-party-readiness
+  - continuous-compliance
+validation:
+  documentation:
+    required: true
+    no_empty_required_files: true
+    structural_review: true
+    terminology_review: true
+  architecture:
+    required: true
+    semantic_boundary_review: true
+  implementation:
+    when_available:
+    - ruff
+    - mypy
+    - pytest
+  pilot:
+    official_plugins_required: true
+  reporting:
+    machine_readable_required: true
+  security:
+    trust_boundary_review_required: true
+governance:
+  rule_lifecycle:
+  - DRAFT
+  - ACTIVE
+  - DEPRECATED
+  - RETIRED
+  framework_release_policy: governed
+  breaking_changes_require_migration: true
+  historical_results_immutable: true
+  compliance_and_certification_separated: true
+certification:
+  compliance_role: certification-eligibility
+  final_decision_owned_by: certification-governance
+  artifact_binding_required_for_high_assurance: true
+maturity:
+  current: framework-definition
+  target:
+  - operational
+  - ci-enforced
+  - release-enforced
+  - certification-ready
+  - third-party-ready
+  - continuous-compliance
+success_criteria:
+- compliance requirements are formally documented
+- compliance domains are explicitly defined
+- rule semantics are machine-representable
+- profile semantics are explicit
+- validation is deterministic where applicable
+- evidence is traceable and governed
+- findings are actionable
+- reporting is machine-readable
+- local and CI semantics are consistent
+- lifecycle gates can consume canonical compliance results
+- certification can consume compliance evidence without depending on validator internals
+- framework evolution is governed and versioned
