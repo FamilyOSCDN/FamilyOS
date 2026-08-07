@@ -1,0 +1,76 @@
+id: EPIC-QLT-001
+title: Quality Framework
+version: 1.0.0
+status: proposed
+category: engineering
+owner: FamilyOS Team
+language: en
+repository: FamilyOS
+
+scope:
+  - linting
+  - formatting
+  - static-typing
+  - complexity-management
+  - technical-debt-analysis
+  - quality-gates
+  - metrics
+  - quality-reports
+  - exception-policies
+
+objectives:
+  - Define mandatory quality controls.
+  - Centralize Ruff, MyPy, and associated tool configurations.
+  - Create local and CI quality gates.
+  - Track complexity and technical debt.
+  - Prevent the integration of non-compliant changes.
+
+deliverables:
+  - EPIC-QLT-001.md
+  - README.md
+  - Revision-History.md
+  - 01-Introduction.md
+  - 02-Vision.md
+  - 03-Engineering-Principles.md
+  - 04-Repository-Architecture.md
+  - 05-Development-Workflow.md
+  - 06-Coding-Standards.md
+  - 07-Project-Structure.md
+  - 08-Toolchain.md
+  - 09-Environment-Management.md
+  - 10-Dependency-Management.md
+  - 11-Configuration-Management.md
+  - 12-Build-Philosophy.md
+  - 13-Testing-Philosophy.md
+  - 14-Documentation-Philosophy.md
+  - 15-Quality-Philosophy.md
+  - 16-Technical-Governance.md
+  - 17-Engineering-Lifecycle.md
+  - 18-Roadmap.md
+  - 19-References.md
+  - MANIFEST.md
+  - CHANGELOG.md
+  - VALIDATION.md
+
+dependencies:
+  - EPIC-ENG-001
+  - EPIC-TST-001
+
+enables:
+  - EPIC-BLD-001
+  - EPIC-REL-001
+
+quality_gates:
+  ruff: required
+  mypy: required
+  quality_review: required
+  documentation_review: required
+  repository_clean: required
+
+acceptance_criteria:
+  - Quality commands are standardized.
+  - Quality thresholds are documented.
+  - Quality gates prevent regressions.
+  - Exceptions are temporary and traceable.
+  - Metrics can be used during releases.
+  - The EPIC manifest and validation report are complete.
