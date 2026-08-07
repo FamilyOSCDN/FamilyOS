@@ -101,4 +101,4 @@ Next project: **EPIC-BLD-001 — Build Framework**
 
 | Version | Status | Description |
 |---|---|---|
-| 1.0.0 | Proposed | Initial creation of the EPIC |
+| 1.0.0 | Proposed | Initial creation of the EPIC |grep -R "ADR-0007" docs
