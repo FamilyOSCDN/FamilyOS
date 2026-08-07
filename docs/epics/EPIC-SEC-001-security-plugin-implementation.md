@@ -21,7 +21,7 @@ The objective is to transform RFC-0010 — Security Plugin into a production
 ready plugin following:
 
 * ADR-0007 — Official Plugins Architecture;
-* ADR-0008 — Official Plugin Implementation Strategy;
+* ADR-0013 — Official Plugin Implementation Strategy;
 * Plugin SDK v2;
 * FamilyOS quality standards.
 
@@ -216,7 +216,7 @@ EPIC-SEC-001 is complete when:
 # 15. References
 
 * ADR-0007 — Official Plugins Architecture
-* ADR-0008 — Official Plugin Implementation Strategy
+* ADR-0013 — Official Plugin Implementation Strategy
 * RFC-0010 — Security Plugin
 * Plugin SDK v2 Documentation
 

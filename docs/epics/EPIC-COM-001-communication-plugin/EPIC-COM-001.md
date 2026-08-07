@@ -56,7 +56,7 @@ This EPIC delivers:
 The implementation depends on:
 
 - ADR-0007 — Official Plugins Architecture
-- ADR-0008 — Engineering Documentation Architecture
+- ADR-0012 — Engineering Documentation Architecture
 - Plugin SDK v2
 - Generation Framework
 - Security Plugin foundations

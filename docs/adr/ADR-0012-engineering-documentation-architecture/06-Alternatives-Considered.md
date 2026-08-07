@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document records the alternative documentation architectures that were evaluated before adopting the solution defined in ADR-0008.
+This document records the alternative documentation architectures that were evaluated before adopting the solution defined in ADR-0012.
 
 Recording rejected alternatives preserves architectural knowledge, explains the decision-making process, and helps future contributors understand why the selected architecture was considered the most appropriate for the long-term evolution of FamilyOS.
 
@@ -222,7 +222,7 @@ These lessons directly influenced the final decision.
 
 # Alternatives Summary
 
-Several documentation architectures were evaluated before adopting the solution defined by ADR-0008.
+Several documentation architectures were evaluated before adopting the solution defined by ADR-0012.
 
 Although each alternative provided certain advantages, only the responsibility-based documentation architecture satisfied all long-term engineering objectives established by the FamilyOS Foundation.
 

@@ -60,7 +60,7 @@ This EPIC does not include:
 
 - RFC-0015 — Official Communication Plugin
 - ADR-0007 — Official Plugins Architecture
-- ADR-0008 — Engineering Documentation Architecture
+- ADR-0012 — Engineering Documentation Architecture
 - Plugin SDK v2
 - Generation Framework Architecture
 

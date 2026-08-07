@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the compatibility considerations associated with the documentation architecture established by ADR-0008.
+This document defines the compatibility considerations associated with the documentation architecture established by ADR-0012.
 
 Its purpose is to ensure that the introduction of the documentation architecture preserves continuity, minimizes disruption, and enables the sustainable evolution of the FamilyOS documentation ecosystem.
 
@@ -58,7 +58,7 @@ Permanent document identifiers SHOULD remain stable.
 
 Examples include:
 
-* ADR-0008
+* ADR-0012
 * RFC-0015
 * SPEC-0006
 * ENG-003
@@ -155,7 +155,7 @@ Large-scale restructuring SHOULD be avoided unless explicitly justified.
 
 # Compatibility Summary
 
-The documentation architecture defined by ADR-0008 is fully compatible with the current FamilyOS documentation ecosystem.
+The documentation architecture defined by ADR-0012 is fully compatible with the current FamilyOS documentation ecosystem.
 
 Its adoption strengthens documentation governance without requiring disruptive changes.
 

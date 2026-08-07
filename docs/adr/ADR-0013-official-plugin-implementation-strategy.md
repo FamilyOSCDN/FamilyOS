@@ -1,10 +1,10 @@
-# ADR-0008 — Official Plugin Implementation Strategy
+# ADR-0013 — Official Plugin Implementation Strategy
 
 ## 1. Metadata
 
 | Field      | Value                                   |
 | ---------- | --------------------------------------- |
-| Identifier | ADR-0008                                |
+| Identifier | ADR-0013                                |
 | Title      | Official Plugin Implementation Strategy |
 | Category   | Architecture Decision Record            |
 | Version    | 1.0.0                                   |
@@ -50,7 +50,7 @@ Without a common implementation strategy, official plugins could diverge in:
 * documentation coverage;
 * lifecycle management.
 
-ADR-0008 establishes the implementation strategy that all official FamilyOS
+ADR-0013 establishes the implementation strategy that all official FamilyOS
 plugins SHALL follow.
 
 ---

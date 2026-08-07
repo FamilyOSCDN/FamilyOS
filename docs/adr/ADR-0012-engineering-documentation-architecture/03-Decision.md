@@ -218,7 +218,7 @@ All normative documents SHALL use permanent identifiers.
 
 Examples include:
 
-* ADR-0008
+* ADR-0012
 * RFC-0015
 * SPEC-0006
 * ENG-003

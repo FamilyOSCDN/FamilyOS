@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the architectural problem addressed by ADR-0008.
+This document defines the architectural problem addressed by ADR-0012.
 
 It explains why the existing documentation organization became insufficient as FamilyOS evolved and identifies the risks associated with continuing without a formal documentation architecture.
 

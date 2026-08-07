@@ -4,7 +4,7 @@
 
 This document explains the rationale behind the documentation architecture adopted by FamilyOS.
 
-It identifies the engineering objectives, architectural motivations, and long-term considerations that influenced the decision recorded in ADR-0008.
+It identifies the engineering objectives, architectural motivations, and long-term considerations that influenced the decision recorded in ADR-0012.
 
 The rationale provides future contributors with a clear understanding of why this solution was selected over alternative approaches.
 
@@ -202,4 +202,4 @@ The documentation architecture adopted by FamilyOS was selected because it provi
 
 Rather than treating documentation as a collection of independent files, this architecture establishes a coherent engineering knowledge system in which every document family has a clearly defined responsibility and contributes to the long-term evolution of the platform.
 
-This rationale supports the decision recorded in ADR-0008 and provides the foundation for future engineering documentation.
+This rationale supports the decision recorded in ADR-0012 and provides the foundation for future engineering documentation.

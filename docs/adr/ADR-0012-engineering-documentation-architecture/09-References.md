@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the normative and informative references supporting ADR-0008.
+This document defines the normative and informative references supporting ADR-0012.
 
 These references provide the architectural, engineering, and documentation context necessary to understand and apply the documentation architecture adopted by the FamilyOS project.
 
@@ -97,7 +97,7 @@ Documentation SHALL reference stable identifiers whenever available.
 Examples include:
 
 * FND-000
-* ADR-0008
+* ADR-0012
 * RFC-0015
 * SPEC-0006
 * ENG-003
@@ -123,7 +123,7 @@ Reference integrity is considered part of documentation quality.
 
 # Documentation Hierarchy
 
-The documentation architecture established by ADR-0008 is summarized below.
+The documentation architecture established by ADR-0012 is summarized below.
 
 ```text id="e9j5vh"
 Foundation
@@ -147,8 +147,8 @@ Each layer builds upon the previous one while maintaining distinct responsibilit
 
 ---
 
-# Relationship to ADR-0008
+# Relationship to ADR-0012
 
-The references defined in this document support the architectural decision recorded in ADR-0008.
+The references defined in this document support the architectural decision recorded in ADR-0012.
 
 Together with the FamilyOS Foundation and the remaining document families, they establish a coherent engineering knowledge system that preserves architectural intent, engineering standards, implementation requirements, and long-term project knowledge.

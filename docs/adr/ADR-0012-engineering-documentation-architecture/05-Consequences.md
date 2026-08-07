@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document describes the consequences of adopting the documentation architecture defined by ADR-0008.
+This document describes the consequences of adopting the documentation architecture defined by ADR-0012.
 
 It identifies both the positive outcomes and the responsibilities introduced by this architectural decision.
 

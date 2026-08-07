@@ -21,7 +21,7 @@ The objective is to transform approved RFC specifications into production-ready
 plugin implementations following:
 
 * ADR-0007 — Official Plugins Architecture;
-* ADR-0008 — Official Plugin Implementation Strategy;
+* ADR-0013 — Official Plugin Implementation Strategy;
 * Plugin SDK v2;
 * FamilyOS quality standards.
 
@@ -186,7 +186,7 @@ This epic is complete when:
 # 10. References
 
 * ADR-0007 — Official Plugins Architecture
-* ADR-0008 — Official Plugin Implementation Strategy
+* ADR-0013 — Official Plugin Implementation Strategy
 * RFC-0010 — Security Plugin
 * RFC-0011 — Health Plugin
 * RFC-0012 — Finance Plugin

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document records the revision history of ADR-0008.
+This document records the revision history of ADR-0012.
 
 It provides a transparent and traceable record of changes to the architectural decision throughout the lifetime of the FamilyOS project.
 
@@ -28,7 +28,7 @@ Version increments SHOULD follow these guidelines.
 
 | Version | Status   | Date       | Description                                                               | Approved By                  |
 | ------- | -------- | ---------- | ------------------------------------------------------------------------- | ---------------------------- |
-| 1.0.0   | Accepted | YYYY-MM-DD | Initial publication of ADR-0008 — Engineering Documentation Architecture. | FamilyOS Project Maintainers |
+| 1.0.0   | Accepted | YYYY-MM-DD | Initial publication of ADR-0012 — Engineering Documentation Architecture. | FamilyOS Project Maintainers |
 
 ---
 
@@ -81,7 +81,7 @@ Architectural changes SHOULD produce a major version increment and MAY require a
 
 # Review Process
 
-Revisions to ADR-0008 SHOULD undergo architectural review.
+Revisions to ADR-0012 SHOULD undergo architectural review.
 
 The review SHOULD verify:
 
@@ -103,13 +103,13 @@ A revision SHALL be considered accepted only after:
 * documentation review;
 * approval by the project maintainers.
 
-The approved revision becomes the authoritative version of ADR-0008.
+The approved revision becomes the authoritative version of ADR-0012.
 
 ---
 
 # Deprecation Policy
 
-ADR-0008 is intended to remain stable.
+ADR-0012 is intended to remain stable.
 
 If the documentation architecture fundamentally changes in the future, the preferred approach is to create a new ADR that supersedes this one rather than rewriting its historical content.
 
@@ -134,7 +134,7 @@ Historical integrity contributes to knowledge preservation.
 
 # Relationship to Other Documents
 
-This revision history complements ADR-0008 by documenting how the architectural decision evolves over time.
+This revision history complements ADR-0012 by documenting how the architectural decision evolves over time.
 
 Future revisions SHOULD preserve continuity while allowing the documentation architecture to evolve in a controlled, transparent, and traceable manner.
 

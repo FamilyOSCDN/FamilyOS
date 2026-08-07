@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the implementation strategy for the documentation architecture adopted by ADR-0008.
+This document defines the implementation strategy for the documentation architecture adopted by ADR-0012.
 
 The objective is to migrate the FamilyOS documentation toward the approved architecture in a controlled, incremental, and maintainable manner while preserving documentation quality and engineering continuity.
 
@@ -60,7 +60,7 @@ Status:
 
 ## Objective
 
-Formalize the documentation architecture through ADR-0008.
+Formalize the documentation architecture through ADR-0012.
 
 Deliverables include:
 
@@ -204,7 +204,7 @@ The documentation architecture is expected to evolve gradually while preserving 
 
 # Implementation Summary
 
-The implementation of ADR-0008 is intentionally incremental.
+The implementation of ADR-0012 is intentionally incremental.
 
 Rather than replacing existing documentation, it organizes, strengthens, and clarifies the engineering knowledge system of FamilyOS.
 

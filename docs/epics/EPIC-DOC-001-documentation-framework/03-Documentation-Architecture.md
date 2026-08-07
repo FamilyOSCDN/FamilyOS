@@ -148,7 +148,7 @@ Architecture Decision Records (ADRs).
 Examples:
 
 ADR-0007 — Official Plugins Architecture
-ADR-0008 — Official Plugin Implementation Strategy
+ADR-0013 — Official Plugin Implementation Strategy
 
 
 # Request for Comment Layer
