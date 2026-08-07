@@ -1,49 +1,49 @@
 # EPIC-ENG-001 — Engineering Foundation
 
-## Statut
+## Status
 
-- **Identifiant :** EPIC-ENG-001
-- **Type :** EPIC
-- **Statut :** Proposed
-- **Version :** 1.0.0
-- **Domaine :** Engineering Platform
-- **Propriétaire :** FamilyOS Team
+- **Identifier:** EPIC-ENG-001
+- **Type:** EPIC
+- **Status:** Proposed
+- **Version:** 1.0.0
+- **Domain:** Engineering Platform
+- **Owner:** FamilyOS Team
 
-## Résumé
+## Summary
 
-Établir la fondation d’ingénierie commune de FamilyOS : conventions, organisation du dépôt, workflow de développement, outils et règles de contribution.
+Establish the common engineering foundation of FamilyOS: conventions, repository organization, development workflow, tools, and contribution rules.
 
-## Contexte
+## Context
 
-FamilyOS entre dans une phase de consolidation de sa plateforme d’ingénierie. Cet EPIC définit les capacités structurantes nécessaires pour rendre le développement cohérent, reproductible, vérifiable et maintenable à long terme.
+FamilyOS is entering a consolidation phase of its engineering platform. This EPIC defines the foundational capabilities required to make development consistent, reproducible, verifiable, and maintainable over the long term.
 
-## Objectifs
+## Objectives
 
-- Définir les standards d’ingénierie applicables à tout le projet.
-- Uniformiser la structure du dépôt et des packages.
-- Formaliser les workflows Git et les règles de contribution.
-- Standardiser l’environnement de développement et les outils.
-- Réduire les divergences entre équipes, domaines et plugins.
+- Define engineering standards applicable to the entire project.
+- Standardize repository and package structure.
+- Formalize Git workflows and contribution rules.
+- Standardize the development environment and tooling.
+- Reduce divergence between teams, domains, and plugins.
 
-## Périmètre
+## Scope
 
-- Architecture du dépôt
-- Conventions de code
-- Environnement de développement
-- Gestion des dépendances
-- Workflow Git
-- Conventions de commits
-- Processus de contribution
-- Automatisation des tâches d’ingénierie
+- Repository architecture
+- Code conventions
+- Development environment
+- Dependency management
+- Git workflow
+- Commit conventions
+- Contribution process
+- Engineering task automation
 
-## Hors périmètre
+## Out of Scope
 
-- Implémentation de fonctionnalités métier propres aux plugins officiels.
-- Modification des règles métier des domaines FamilyOS.
-- Développement d’interfaces utilisateur finales.
-- Migration non planifiée de composants historiques.
+- Implementation of business features specific to official plugins.
+- Modification of FamilyOS domain business rules.
+- Development of end-user interfaces.
+- Unplanned migration of legacy components.
 
-## Livrables principaux
+## Primary Deliverables
 
 - Engineering Handbook
 - Repository Structure Standard
@@ -53,49 +53,49 @@ FamilyOS entre dans une phase de consolidation de sa plateforme d’ingénierie.
 - Tooling Baseline
 - Developer Onboarding Guide
 
-## Critères d’acceptation
+## Acceptance Criteria
 
-- Les standards sont documentés et versionnés.
-- Un nouveau contributeur peut installer et valider le projet à partir de la documentation.
-- Les workflows de développement sont reproductibles.
-- Les outils obligatoires sont identifiés et configurés.
-- Les autres EPIC d’infrastructure peuvent s’appuyer sur cette fondation.
+- Standards are documented and versioned.
+- A new contributor can install and validate the project using the documentation.
+- Development workflows are reproducible.
+- Required tools are identified and configured.
+- Other infrastructure EPICs can rely on this foundation.
 
-## Dépendances
+## Dependencies
 
-- Aucune dépendance structurante.
+- No structural dependencies.
 
-## Risques
+## Risks
 
-- Fragmentation des conventions si les règles ne sont pas centralisées.
-- Automatisations partielles ou divergentes entre local et CI.
-- Dette technique créée par des exceptions non documentées.
-- Documentation désynchronisée de l’implémentation.
-- Adoption incomplète par les futurs plugins et sous-systèmes.
+- Fragmentation of conventions if rules are not centrally managed.
+- Partial or inconsistent automation between local environments and CI.
+- Technical debt created by undocumented exceptions.
+- Documentation becoming unsynchronized with the implementation.
+- Incomplete adoption by future plugins and subsystems.
 
-## Principes directeurs
+## Guiding Principles
 
-1. Architecture avant implémentation.
-2. Documentation avant automatisation.
-3. Reproductibilité avant optimisation.
-4. Validation automatique dès que possible.
-5. Compatibilité avec la Clean Architecture et le Plugin SDK de FamilyOS.
-6. Traçabilité complète des décisions et des changements.
+1. Architecture before implementation.
+2. Documentation before automation.
+3. Reproducibility before optimization.
+4. Automate validation whenever possible.
+5. Compatibility with the FamilyOS Clean Architecture and Plugin SDK.
+6. Complete traceability of decisions and changes.
 
-## Mesures de succès
+## Success Measures
 
-- Les livrables de l’EPIC sont versionnés dans le dépôt.
-- Les workflows associés sont exécutables localement.
-- Les contrôles sont intégrables dans la CI.
-- Les règles sont réutilisables par les plugins officiels.
-- Les responsabilités entre documentation, tests, qualité, build et release sont clairement séparées.
+- EPIC deliverables are versioned within the repository.
+- Associated workflows can be executed locally.
+- Controls can be integrated into CI.
+- Rules are reusable by official plugins.
+- Responsibilities between documentation, testing, quality, build, and release are clearly separated.
 
-## Séquence recommandée
+## Recommended Sequence
 
-Projet suivant : **EPIC-DOC-001 — Documentation Framework**
+Next project: **EPIC-DOC-001 — Documentation Framework**
 
-## Historique des révisions
+## Revision History
 
-| Version | Statut | Description |
+| Version | Status | Description |
 |---|---|---|
-| 1.0.0 | Proposed | Création initiale de l’EPIC |
+| 1.0.0 | Proposed | Initial creation of the EPIC |
