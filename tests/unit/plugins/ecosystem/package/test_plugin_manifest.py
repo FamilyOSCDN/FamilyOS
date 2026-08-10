@@ -11,26 +11,22 @@ from familyos_cli.plugins.ecosystem.resolution import (
 
 def test_plugin_manifest_creation() -> None:
     package = PluginPackage(
-        name="calendar",
+        plugin_id="familyos.calendar",
         version="1.2.0",
         source="official",
     )
     dependency = PluginDependency(
-        name="identity",
+        plugin_id="familyos.identity",
         minimum_version="1.0.0",
     )
 
     manifest = PluginManifest(
         package=package,
-        dependencies=(
-            dependency,
-        ),
+        dependencies=(dependency,),
     )
 
     assert manifest.package == package
-    assert manifest.dependencies == (
-        dependency,
-    )
+    assert manifest.dependencies == (dependency,)
 
 
 def test_plugin_manifest_exposes_plugin_id() -> None:
@@ -50,19 +46,19 @@ def test_plugin_manifest_exposes_plugin_id() -> None:
 def test_plugin_manifest_exposes_package_name() -> None:
     manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.2.0",
             source="official",
         ),
     )
 
-    assert manifest.name == "calendar"
+    assert manifest.name == "familyos.calendar"
 
 
 def test_plugin_manifest_exposes_package_version() -> None:
     manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.2.0",
             source="official",
         ),
@@ -74,19 +70,19 @@ def test_plugin_manifest_exposes_package_version() -> None:
 def test_plugin_manifest_uses_package_identifier() -> None:
     manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.2.0",
             source="official",
         ),
     )
 
-    assert manifest.identifier() == "calendar@1.2.0"
+    assert manifest.identifier() == "familyos.calendar@1.2.0"
 
 
 def test_plugin_manifest_has_no_dependencies_by_default() -> None:
     manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.2.0",
             source="official",
         ),

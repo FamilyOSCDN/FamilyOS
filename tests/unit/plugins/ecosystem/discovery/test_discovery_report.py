@@ -21,7 +21,7 @@ def test_discovery_report_creation() -> None:
     )
 
     package = PluginPackage(
-        name="calendar",
+        plugin_id="familyos.calendar",
         version="1.0.0",
         source="Official",
     )
