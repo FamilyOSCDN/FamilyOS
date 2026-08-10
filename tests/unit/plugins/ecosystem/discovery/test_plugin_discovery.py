@@ -50,14 +50,14 @@ def test_plugin_discovery_implements_discovery_port() -> None:
     assert isinstance(discovery, PluginDiscoveryPort)
 
 
-def test_discovery_returns_packages_from_local_repository(
+def test_discovery_uses_plugin_identifier_as_package_identity(
     tmp_path: Path,
 ) -> None:
-    """Discovery should map local descriptors to packages."""
+    """Discovery should preserve descriptor plugin identity."""
 
     write_plugin_manifest(
         tmp_path / "calendar",
-        plugin_id="calendar",
+        plugin_id="familyos.calendar",
         name="Calendar Plugin",
         version="1.2.0",
     )
@@ -73,10 +73,39 @@ def test_discovery_returns_packages_from_local_repository(
     packages = discovery.discover(repository)
 
     assert len(packages) == 1
-    assert packages[0].name == "Calendar Plugin"
+    assert packages[0].name == "familyos.calendar"
     assert packages[0].version == "1.2.0"
     assert packages[0].source == "Local Plugins"
-    assert packages[0].identifier() == "Calendar Plugin@1.2.0"
+    assert packages[0].identifier() == (
+        "familyos.calendar@1.2.0"
+    )
+
+
+def test_discovery_does_not_use_display_name_as_package_identity(
+    tmp_path: Path,
+) -> None:
+    """Display names should not become package identity."""
+
+    write_plugin_manifest(
+        tmp_path / "calendar",
+        plugin_id="familyos.calendar",
+        name="Calendar Plugin",
+        version="1.2.0",
+    )
+
+    repository = PluginRepository(
+        name="Local Plugins",
+        url=str(tmp_path),
+        repository_type="local",
+    )
+
+    discovery = PluginDiscovery()
+
+    packages = discovery.discover(repository)
+
+    assert len(packages) == 1
+    assert packages[0].name != "Calendar Plugin"
+    assert packages[0].name == "familyos.calendar"
 
 
 def test_discovery_returns_multiple_local_packages(
@@ -86,13 +115,13 @@ def test_discovery_returns_multiple_local_packages(
 
     write_plugin_manifest(
         tmp_path / "calendar",
-        plugin_id="calendar",
+        plugin_id="familyos.calendar",
         name="Calendar Plugin",
         version="1.0.0",
     )
     write_plugin_manifest(
         tmp_path / "security",
-        plugin_id="security",
+        plugin_id="familyos.security",
         name="Security Plugin",
         version="2.0.0",
     )
@@ -112,8 +141,8 @@ def test_discovery_returns_multiple_local_packages(
         package.identifier()
         for package in packages
     } == {
-        "Calendar Plugin@1.0.0",
-        "Security Plugin@2.0.0",
+        "familyos.calendar@1.0.0",
+        "familyos.security@2.0.0",
     }
 
 
@@ -124,7 +153,7 @@ def test_disabled_plugin_descriptor_is_ignored(
 
     write_plugin_manifest(
         tmp_path / "calendar",
-        plugin_id="calendar",
+        plugin_id="familyos.calendar",
         name="Calendar Plugin",
         version="1.0.0",
         enabled=False,
@@ -150,7 +179,7 @@ def test_disabled_repository_returns_no_plugins(
 
     write_plugin_manifest(
         tmp_path / "calendar",
-        plugin_id="calendar",
+        plugin_id="familyos.calendar",
         name="Calendar Plugin",
         version="1.0.0",
     )
