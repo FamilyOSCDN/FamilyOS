@@ -1,1248 +1,235 @@
-# FamilyOS naming conventions
+# FamilyOS Naming Conventions
 
-**Version:** 1.0
-**Status:** Stable
-**Last Updated:** August 2026
+## Purpose
 
----
+This document defines the canonical naming conventions used across the FamilyOS platform.
 
-# Purpose
+It provides the reference naming rules for:
 
-This document defines the official naming conventions used throughout the FamilyOS platform.
+* architecture;
+* documentation;
+* domains;
+* plugins;
+* capabilities;
+* contributions;
+* source code;
+* command-line interfaces;
+* generated artifacts;
+* tests;
+* Git workflows;
+* public identifiers.
 
-Its purpose is to ensure that names communicate architectural intent, remain consistent across components, and can be understood without inspecting implementation details.
+This document complements the normative specifications:
 
-This document is normative.
+* SPEC-0002 — Identifier;
+* SPEC-0008 — Naming Conventions;
+* SPEC-0009 — Plugin Manifest;
+* SPEC-0010 — Plugin Capability Contract.
 
----
+Identifier identity, uniqueness, ownership, permanence, compatibility, and migration rules are governed primarily by SPEC-0002.
 
-# Scope
-
-These conventions apply to:
-
-* repositories
-* directories
-* files
-* Markdown documents
-* Python packages and modules
-* Python types and members
-* Domain-Driven Design components
-* application services
-* infrastructure components
-* generation components
-* plugins
-* capabilities
-* contributions
-* command-line interfaces
-* specifications
-* Architecture Decision Records
-* Requests for Comments
-* tests
-* Git branches
-* release tags
-
-Rules for words that cannot be used as identifiers are defined separately in:
-
-`docs/04-reference/Reserved-Words.md`
+This document defines the canonical naming representation used throughout FamilyOS.
 
 ---
 
-# Normative language
+# General Naming Principles
 
-The keywords **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY** express normative requirements.
+FamilyOS naming SHALL follow these principles:
 
-Their interpretation follows the conventions established in:
+* names MUST communicate architectural responsibility;
+* established terminology MUST be reused consistently;
+* public names MUST remain stable;
+* implementation details MUST NOT define public identity;
+* display names and identifiers MUST remain distinct;
+* namespace ownership MUST remain explicit;
+* versions MUST remain separate from canonical identifiers;
+* ambiguous generic terminology SHOULD be avoided.
 
-`docs/04-reference/Language.md`
+Naming is part of the FamilyOS platform contract.
 
----
-
-# General principles
-
-## Clarity
-
-Names MUST communicate purpose and responsibility.
-
-A reader SHOULD understand the role of a component from its name without reading its implementation.
-
-Preferred:
-
-```text
-PluginResolutionPipeline
-```
-
-Avoid:
-
-```text
-PluginProcessor
-```
-
-The preferred name communicates the specific operation being performed.
+A public name SHALL NOT be changed solely for stylistic consistency when doing so would break compatibility.
 
 ---
 
-## Precision
+# Identifier Categories
 
-Names MUST describe what a component is or does.
+FamilyOS distinguishes multiple identifier categories.
 
-Generic terms such as `manager`, `helper`, `utility`, `processor`, or `handler` MUST NOT be used when a more precise architectural term exists.
-
-A generic term MAY be used only when it accurately represents an established platform responsibility.
+The category determines syntax and semantic responsibility.
 
 ---
 
-## Consistency
+## Governance Identifiers
 
-The same architectural concept MUST use the same term throughout the platform.
-
-A concept MUST NOT be renamed locally for stylistic preference.
-
-For example, a component that resolves dependencies MUST consistently use the term `Resolver` rather than alternating between `Resolver`, `Selector`, `Finder`, and `Processor`.
-
----
-
-## Stability
-
-Public names SHOULD remain stable across compatible platform releases.
-
-Renaming a public identifier requires:
-
-* documented justification
-* compatibility analysis
-* migration guidance
-* architectural review
-
----
-
-## Single responsibility
-
-A name SHOULD represent one responsibility.
-
-Names combining unrelated responsibilities indicate that the component may require decomposition.
-
-Avoid:
-
-```text
-PluginLoaderValidatorInstaller
-```
-
-Prefer separate components:
-
-```text
-PluginLoader
-PluginVerifier
-PluginInstaller
-```
-
----
-
-## Vocabulary
-
-Names MUST use terminology defined in:
-
-`docs/04-reference/Glossary.md`
-
-A new platform-wide term MUST be added to the glossary before becoming part of the public vocabulary.
-
----
-
-## Language
-
-All official identifiers MUST use English.
-
-Names MUST NOT mix languages.
-
-Abbreviations MUST comply with:
-
-`docs/04-reference/Acronyms.md`
-
----
-
-## Abbreviations
-
-Unnecessary abbreviations MUST be avoided.
-
-Preferred:
-
-```text
-configuration
-dependency
-specification
-repository
-```
-
-Avoid:
-
-```text
-config
-dep
-spec
-repo
-```
-
-Established technical acronyms MAY be used when they improve clarity.
-
-Examples:
-
-```text
-CLI
-API
-SDK
-JSON
-UUID
-```
-
-Acronyms inside Python class names MUST follow normal PascalCase composition.
-
-Preferred:
-
-```text
-PluginApiClient
-JsonSpecificationLoader
-UuidGenerator
-```
-
-Avoid:
-
-```text
-PluginAPIClient
-JSONSpecificationLoader
-UUIDGenerator
-```
-
----
-
-# Repository naming
-
-The official repository name is:
-
-```text
-FamilyOS
-```
-
-Repository names belonging to the FamilyOS ecosystem SHOULD use lowercase kebab-case.
-
-Examples:
-
-```text
-familyos
-familyos-cli
-familyos-security-plugin
-familyos-plugin-template
-familyos-documentation
-```
-
-Repository names MUST NOT contain spaces or underscores.
-
----
-
-# Directory naming
-
-## General directories
-
-Directories MUST use lowercase kebab-case unless the language ecosystem requires another convention.
-
-Examples:
-
-```text
-docs/04-reference
-docs/00-foundation
-plugin-templates
-generated-artifacts
-```
-
----
-
-## Python package directories
-
-Python package directories MUST use lowercase snake_case.
-
-Examples:
-
-```text
-familyos_cli
-dependency_graph
-generation_framework
-plugin_runtime
-```
-
-Hyphens MUST NOT be used in Python package directory names.
-
----
-
-## Documentation directories
-
-Top-level documentation directories MAY use a numeric ordering prefix followed by a lowercase kebab-case name.
+Governance identifiers identify governed platform artifacts.
 
 Format:
 
 ```text
-NN-name
+<PREFIX>-<NUMBER>
 ```
 
 Examples:
 
 ```text
-00-foundation
-01-product
-02-architecture
-03-engineering
-04-reference
-05-knowledge
-06-specifications
-07-business
+SPEC-0002
+ADR-0007
+RFC-0010
 ```
 
-The numeric prefix defines navigation order. It MUST NOT express document versioning.
+Governance identifiers MUST:
+
+* use an approved uppercase category prefix;
+* remain unique within their category;
+* remain stable after publication;
+* never be reassigned.
+
+The `<PREFIX>-<NUMBER>` representation applies to governance identifiers and MUST NOT be treated as the universal syntax for all FamilyOS identifiers.
 
 ---
 
-## Domain directories
+## Ecosystem Identifiers
 
-Domain directories MUST use the canonical lowercase domain name.
+Ecosystem identifiers identify persistent resources participating in the FamilyOS extension ecosystem.
+
+Canonical format:
+
+```text
+<namespace>.<resource>
+```
 
 Examples:
 
 ```text
-person
-family
-security
-health
-finance
-education
-documents
-communication
+familyos.security
+familyos.education
+acme.backup
+vendor.documents.archive
 ```
 
-A domain directory MUST NOT include suffixes such as `domain`, `module`, or `context` unless required to distinguish a technical package from the domain itself.
+Ecosystem identifiers MUST:
+
+* use lowercase dot-separated segments;
+* use an authorized namespace;
+* remain stable;
+* remain independent from versions;
+* remain independent from implementation paths.
 
 ---
 
-# File naming
+## Capability Identifiers
 
-## General files
+Capability identifiers identify stable functional contracts.
 
-File names MUST be descriptive and stable.
-
-Temporary suffixes such as the following MUST NOT appear in committed production files:
+Canonical official plugin capability format:
 
 ```text
-new
-old
-final
-final2
-copy
-backup
-temp
-draft-latest
+familyos.<plugin-name>.<capability>
 ```
-
-Version control provides file history and MUST be used instead of filename-based revisions.
-
----
-
-## Markdown files
-
-Markdown document names MUST use PascalCase words separated by hyphens.
 
 Examples:
 
 ```text
-Architecture-Principles.md
-Engineering-Principles.md
-Naming-Conventions.md
-Reserved-Words.md
-Reference-Index.md
-Business-Rules.md
-Domain-Model.md
+familyos.health.record
+familyos.finance.account
+familyos.education.course
+familyos.documents.archive
+familyos.communication.messaging
 ```
 
-The following conventional file names are permitted:
-
-```text
-README.md
-CHANGELOG.md
-CONTRIBUTING.md
-SECURITY.md
-LICENSE.md
-```
-
-Markdown file names MUST use the `.md` extension.
-
-Spaces and underscores MUST NOT be used in official Markdown file names.
+Capability identifiers MUST represent abilities or contracts, not implementation class names.
 
 ---
 
-## README files
+# Case Conventions
 
-A directory overview MUST be named:
+## PascalCase
 
-```text
-README.md
-```
+PascalCase MUST be used for:
 
-Alternative names such as the following MUST NOT be used for the same responsibility:
-
-```text
-Overview.md
-Index.md
-Home.md
-About.md
-```
-
-A separate index MAY exist only when it provides a distinct reference or navigation responsibility.
-
----
-
-## Configuration files
-
-Configuration file names SHOULD follow the convention of the corresponding tool.
+* Python classes;
+* type names;
+* domain names in prose;
+* bounded context names;
+* command types;
+* query types;
+* event types;
+* value object types.
 
 Examples:
 
 ```text
-pyproject.toml
-pytest.ini
-mypy.ini
-ruff.toml
-```
-
-Project-defined YAML files MUST use lowercase kebab-case.
-
-Examples:
-
-```text
-security-domain.yaml
-plugin-manifest.yaml
-generation-recipe.yaml
-```
-
----
-
-## Template files
-
-Template file names MUST identify the artifact they generate.
-
-Examples:
-
-```text
-domain-readme.md.j2
-aggregate-documentation.md.j2
-plugin-manifest.yaml.j2
-python-module.py.j2
-```
-
-Template names MUST NOT use generic names such as:
-
-```text
-template.j2
-default.j2
-file.j2
-```
-
----
-
-# Python naming
-
-FamilyOS Python code MUST follow PEP 8 unless this document defines a stricter platform rule.
-
----
-
-## Packages
-
-Python packages MUST use lowercase snake_case.
-
-Examples:
-
-```python
-familyos_cli
-plugin_runtime
-dependency_graph
-```
-
-Package names SHOULD be nouns representing coherent architectural areas.
-
----
-
-## Modules
-
-Python modules MUST use lowercase snake_case.
-
-The module name SHOULD match its primary public type.
-
-Examples:
-
-```text
-plugin_runtime.py
-resolution_plan.py
-domain_generation_pipeline.py
-capability_registry.py
-```
-
-A module containing `PluginRuntime` SHOULD be named:
-
-```text
-plugin_runtime.py
-```
-
-Generic module names such as the following SHOULD be avoided:
-
-```text
-common.py
-helpers.py
-utils.py
-misc.py
-base.py
-core.py
-```
-
-A generic module MAY exist only when its responsibility is explicit and architecturally justified.
-
----
-
-## Classes
-
-Classes MUST use PascalCase.
-
-Examples:
-
-```python
-PluginRuntime
-ResolutionPlan
-DomainGenerationPipeline
-CapabilityRegistry
-```
-
-Class names MUST be nouns or noun phrases.
-
-A class name SHOULD identify its architectural role through an approved suffix when applicable.
-
----
-
-## Abstract classes
-
-Abstract class names MUST describe the contract they represent.
-
-The `Abstract` prefix SHOULD NOT be used unless needed to distinguish the abstraction from a canonical concrete type.
-
-Preferred:
-
-```python
-PluginRepository
-TemplateRenderer
-GenerationStrategy
-```
-
-Avoid:
-
-```python
-AbstractPluginRepository
-BaseTemplateRenderer
-IGenerationStrategy
-```
-
----
-
-## Protocols
-
-Protocol names MUST use PascalCase and SHOULD describe the behavior they require.
-
-Examples:
-
-```python
-CapabilityProvider
-ContributionProvider
-DiagnosticFormatter
-```
-
-The suffix `Protocol` SHOULD NOT be added unless required to prevent ambiguity.
-
-Avoid Hungarian-style prefixes such as:
-
-```python
-IPlugin
-IRepository
-IProvider
-```
-
----
-
-## Dataclasses
-
-Dataclasses MUST follow normal class naming rules.
-
-Their names MUST represent values, records, requests, results, definitions, plans, or contexts.
-
-Examples:
-
-```python
-GenerationRequest
-GenerationResult
-PluginMetadata
-ResolutionPlan
-DomainContext
-```
-
-The suffix `Data` SHOULD NOT be used unless the class specifically represents an external data-transfer structure.
-
----
-
-## Enumerations
-
-Enumeration classes MUST use PascalCase.
-
-Their names SHOULD be singular.
-
-Examples:
-
-```python
-RuntimeState
-DiagnosticSeverity
-VersionOperator
-PluginState
-```
-
-Enumeration members MUST use uppercase snake_case.
-
-Examples:
-
-```python
-LOADED
-INITIALIZED
-ACTIVE
-STOPPING
-STOPPED
-```
-
----
-
-## Exceptions
-
-Exception classes MUST end with `Error`.
-
-Examples:
-
-```python
-PluginNotFoundError
-InvalidRuntimeTransitionError
-SpecificationValidationError
-DependencyResolutionError
-```
-
-Exception names MUST describe the failure condition.
-
-Avoid:
-
-```python
-PluginException
-RuntimeProblem
-ValidationIssue
-```
-
----
-
-## Functions
-
-Functions MUST use lowercase snake_case.
-
-Function names SHOULD begin with a verb.
-
-Examples:
-
-```python
-create_plugin()
-resolve_dependencies()
-validate_specification()
-render_template()
-```
-
-Functions that return boolean values SHOULD use a predicate form.
-
-Examples:
-
-```python
-is_compatible()
-has_capability()
-can_activate()
-```
-
----
-
-## Methods
-
-Methods MUST use lowercase snake_case.
-
-Method names MUST describe an operation performed by the owning type.
-
-Common operation names SHOULD be used consistently:
-
-```python
-create()
-load()
-save()
-find()
-get()
-list()
-register()
-resolve()
-validate()
-render()
-execute()
-activate()
-deactivate()
-```
-
-The verb `get` SHOULD be used when the requested value is expected to exist.
-
-The verb `find` SHOULD be used when absence is an expected result.
-
----
-
-## Private members
-
-Private implementation members MUST begin with a single underscore.
-
-Examples:
-
-```python
-_runtime
-_registry
-_load_manifest()
-```
-
-Double-leading underscores SHOULD NOT be used except when Python name mangling is explicitly required.
-
----
-
-## Variables
-
-Variables MUST use lowercase snake_case.
-
-Names MUST describe the represented value.
-
-Preferred:
-
-```python
-resolved_packages
-generation_context
-plugin_identifier
-```
-
-Avoid:
-
-```python
-data
-value
-item
-obj
-thing
-tmp
-```
-
-Short names MAY be used for narrow mathematical or iteration contexts when their meaning is obvious.
-
----
-
-## Constants
-
-Constants MUST use uppercase snake_case.
-
-Examples:
-
-```python
-DEFAULT_PLUGIN_DIRECTORY
-SUPPORTED_MANIFEST_VERSION
-MAX_RESOLUTION_DEPTH
-```
-
-Constants MUST NOT be used for values that vary during runtime.
-
----
-
-## Type aliases
-
-Type aliases MUST use PascalCase.
-
-Examples:
-
-```python
-PluginIdentifier
-ArtifactPath
-CapabilityMap
-```
-
-A type alias name MUST communicate domain meaning rather than merely repeat its underlying type.
-
----
-
-## Type variables
-
-Type variables MUST use concise PascalCase names.
-
-Examples:
-
-```python
-T
-TResult
-TPlugin
-TContribution
-```
-
-A descriptive type variable SHOULD be preferred in public generic contracts.
-
----
-
-## Boolean names
-
-Boolean variables and properties SHOULD use one of the following prefixes:
-
-```text
-is_
-has_
-can_
-should_
-supports_
-requires_
-```
-
-Examples:
-
-```python
-is_active
-has_errors
-can_resolve
-supports_generation
-requires_restart
-```
-
-Negative boolean names SHOULD be avoided.
-
-Avoid:
-
-```python
-is_not_active
-not_valid
-disable_validation
-```
-
----
-
-## Collections
-
-Collection names SHOULD use plural nouns.
-
-Examples:
-
-```python
-plugins
-artifacts
-diagnostics
-dependencies
-```
-
-Mappings SHOULD use names that describe their key-to-value relationship.
-
-Examples:
-
-```python
-plugins_by_identifier
-capabilities_by_id
-templates_by_name
-```
-
----
-
-# Architectural role suffixes
-
-Approved suffixes communicate established architectural responsibilities.
-
-A suffix MUST NOT be added when the component does not fulfill the corresponding responsibility.
-
----
-
-## Service
-
-The suffix `Service` identifies a stateless application or domain operation that does not naturally belong to an entity or value object.
-
-Examples:
-
-```python
-SpecificationService
-RecipeCatalogService
-DiagnosticPresentationService
-```
-
-`Service` MUST NOT be used as a default suffix for arbitrary classes.
-
----
-
-## Use case
-
-Application use cases MUST end with `UseCase`.
-
-Examples:
-
-```python
-CreateProjectUseCase
-CreateDomainUseCase
-GetDomainSpecificationUseCase
-```
-
-A use case name MUST begin with an action.
-
----
-
-## Repository
-
-The suffix `Repository` identifies an abstraction that provides access to stored domain or platform objects.
-
-Examples:
-
-```python
-PluginRepository
-DomainSpecificationRepository
-```
-
-Infrastructure implementations SHOULD identify their storage mechanism when multiple implementations exist.
-
-Examples:
-
-```python
-FileSystemPluginRepository
-InMemoryPluginRepository
-```
-
----
-
-## Factory
-
-The suffix `Factory` identifies a component responsible for constructing fully initialized objects.
-
-Examples:
-
-```python
-RuntimeFactory
-ApplicationFactory
-GenerationRequestFactory
-```
-
-A factory MUST NOT be used merely to wrap a constructor without adding construction policy or dependency assembly.
-
----
-
-## Builder
-
-The suffix `Builder` identifies incremental construction of a complex object.
-
-Examples:
-
-```python
-DependencyGraphBuilder
-ResolutionDiagnosticBuilder
-```
-
-Builders SHOULD expose explicit construction steps and produce a final result.
-
----
-
-## Registry
-
-The suffix `Registry` identifies a controlled collection indexed by stable identifiers.
-
-Examples:
-
-```python
-PluginRegistry
-CapabilityRegistry
-ContributionRegistry
-GenerationRecipeRegistry
-```
-
-A registry SHOULD define registration, lookup, uniqueness, and lifecycle rules.
-
----
-
-## Resolver
-
-The suffix `Resolver` identifies a component that determines a result from constraints, dependencies, identifiers, or context.
-
-Examples:
-
-```python
-PluginResolver
-PresetRecipeResolver
-DependencyGraphResolver
-```
-
-Resolvers MUST NOT perform installation, activation, or rendering unless those operations are part of the documented resolution contract.
-
----
-
-## Selector
-
-The suffix `Selector` identifies a component that chooses one or more candidates from an existing set.
-
-Examples:
-
-```python
-PluginPackageSelector
-PluginVersionSelector
-```
-
-Selection MUST remain distinct from dependency resolution.
-
----
-
-## Provider
-
-The suffix `Provider` identifies a component that supplies values, capabilities, contributions, or implementations to another component.
-
-Examples:
-
-```python
-CapabilityProvider
-PluginContributionProvider
-```
-
-Providers SHOULD NOT own orchestration responsibilities.
-
----
-
-## Loader
-
-The suffix `Loader` identifies a component that reads and converts an external representation into a platform object.
-
-Examples:
-
-```python
-DomainSpecificationLoader
-PluginManifestLoader
-```
-
-Loading MUST remain distinct from validation and activation unless explicitly defined otherwise.
-
----
-
-## Renderer
-
-The suffix `Renderer` identifies a component that transforms structured information into a presentation format.
-
-Examples:
-
-```python
-TemplateRenderer
-DiagnosticCliRenderer
-```
-
----
-
-## Formatter
-
-The suffix `Formatter` identifies a component that converts information into a defined textual or serialized representation.
-
-Examples:
-
-```python
-TextExplanationFormatter
-JsonExplanationFormatter
-```
-
----
-
-## Validator
-
-The suffix `Validator` identifies a component that verifies compliance with explicit rules.
-
-Examples:
-
-```python
-SpecificationValidator
-PluginManifestValidator
-```
-
-A validator SHOULD return structured validation information or raise a specific validation error.
-
----
-
-## Verifier
-
-The suffix `Verifier` identifies integrity, authenticity, compatibility, or trust verification.
-
-Examples:
-
-```python
-PluginVerifier
-SignatureVerifier
-```
-
-Verification MUST remain distinct from structural validation.
-
----
-
-## Adapter
-
-The suffix `Adapter` identifies a component that translates one contract or representation into another.
-
-Examples:
-
-```python
-DomainGenerationAdapter
-ConflictDiagnosticAdapter
-```
-
-Adapters MUST NOT contain unrelated orchestration logic.
-
----
-
-## Mapper
-
-The suffix `Mapper` identifies deterministic conversion between two models.
-
-Examples:
-
-```python
-GenerationSpecificationMapper
-DomainGenerationPlanMapper
-```
-
-A mapper SHOULD NOT perform persistence, network access, or lifecycle management.
-
----
-
-## Pipeline
-
-The suffix `Pipeline` identifies an ordered orchestration of multiple processing stages.
-
-Examples:
-
-```python
-GenerationPipeline
-DomainGenerationPipeline
-PluginResolutionPipeline
-DiagnosticPipeline
-```
-
-A pipeline MUST expose a clear input, processing sequence, and output.
-
----
-
-## Strategy
-
-The suffix `Strategy` identifies an interchangeable implementation of an algorithm or generation behavior.
-
-Examples:
-
-```python
-GenerationStrategy
-DomainDocumentationStrategy
-```
-
----
-
-## Policy
-
-The suffix `Policy` identifies an explicit decision rule.
-
-Examples:
-
-```python
-ArtifactNamingPolicy
-GenerationOverwritePolicy
-```
-
-Policies SHOULD be deterministic and independent from infrastructure concerns.
-
----
-
-## Context
-
-The suffix `Context` identifies immutable or controlled information passed through an operation or runtime boundary.
-
-Examples:
-
-```python
-RuntimeContext
-GenerationContext
-DomainContext
-CommandContext
-```
-
-A context MUST NOT become an unrestricted container for unrelated dependencies.
-
----
-
-## Request and result
-
-Input models SHOULD end with `Request` when they represent an operation request.
-
-Output models SHOULD end with `Result` when they represent an operation outcome.
-
-Examples:
-
-```python
-GenerationRequest
-GenerationResult
-DependencyResolutionResult
-```
-
----
-
-## Plan
-
-The suffix `Plan` identifies a computed description of work that has not yet been executed.
-
-Examples:
-
-```python
-ResolutionPlan
-DomainGenerationPlan
-InstallationPlan
-```
-
----
-
-## Definition
-
-The suffix `Definition` identifies declarative configuration or metadata defining a platform concept.
-
-Examples:
-
-```python
-ArtifactDefinition
-PresetDefinition
-CapabilityDefinition
-```
-
----
-
-## Descriptor
-
-The suffix `Descriptor` identifies structured descriptive metadata about another component.
-
-Examples:
-
-```python
-DomainDescriptor
+Family
+Person
+Education
+SecurityPlugin
 PluginDescriptor
-ArtifactDescriptor
+PluginActivated
+CreatePerson
+PluginId
 ```
 
 ---
 
-## Metadata
+## snake_case
 
-The suffix `Metadata` identifies descriptive information that does not itself define behavior.
+Lowercase snake_case MUST be used for:
+
+* Python modules;
+* Python functions;
+* Python methods;
+* Python variables;
+* Python import packages.
 
 Examples:
 
-```python
-PluginMetadata
-ProjectMetadata
+```text
+plugin_descriptor
+plugin_registry
+familyos_security_plugin
+plugin_id
+capability_id
+activate_plugin
 ```
 
 ---
 
-# Domain-Driven Design naming
+## kebab-case
+
+Lowercase kebab-case MUST be used where applicable for:
+
+* Python distribution names;
+* CLI tokens;
+* persisted generation resource names;
+* generated artifact names.
+
+Examples:
+
+```text
+familyos-security-plugin
+domain-summary-documentation
+default-domain
+complete-documentation
+```
+
+---
+
+## Dot-separated lowercase
+
+Lowercase dot-separated names MUST be used for namespaced ecosystem and capability identifiers.
+
+Examples:
+
+```text
+familyos.security
+familyos.education
+familyos.security.audit
+familyos.education.course
+```
+
+---
+
+# Domain-Driven Design Naming
 
 ## Domains
 
@@ -1261,31 +248,42 @@ Documents
 Communication
 ```
 
-Directory and package forms MUST use lowercase snake_case or lowercase directory conventions as applicable.
+Normalized domain identifiers MUST use lowercase forms.
 
 Examples:
 
 ```text
+person
+family
 security
-security_domain
+health
+finance
+education
+documents
+communication
 ```
 
-The suffix `Domain` SHOULD be used only when referring to the domain as a technical model or component.
+A normalized domain identifier MUST NOT automatically be interpreted as a Plugin Identifier.
 
-Examples:
+Example:
 
-```python
-DomainSpecification
-SecurityDomainPlugin
+```text
+education
+```
+
+represents the normalized Education domain context.
+
+The official Education Plugin Identifier is:
+
+```text
+familyos.education
 ```
 
 ---
 
-## Bounded contexts
+## Bounded Contexts
 
 Bounded context names MUST use PascalCase and describe a coherent business language boundary.
-
-A bounded context name SHOULD NOT be based on a technical layer.
 
 Preferred:
 
@@ -1293,6 +291,7 @@ Preferred:
 Identity
 Documents
 Communication
+Education
 ```
 
 Avoid:
@@ -1301,7 +300,10 @@ Avoid:
 Database
 Backend
 Api
+Infrastructure
 ```
+
+A bounded context SHOULD be named after a business capability rather than a technical implementation layer.
 
 ---
 
@@ -1318,7 +320,7 @@ Household
 Document
 ```
 
-Documentation files describing aggregates SHOULD use the aggregate name.
+Documentation describing aggregates SHOULD use the aggregate name.
 
 Example:
 
@@ -1328,9 +330,9 @@ aggregates/Family.md
 
 ---
 
-## Aggregate roots
+## Aggregate Roots
 
-Aggregate root classes MUST use the business concept name without an `AggregateRoot` suffix.
+Aggregate root classes MUST use the business concept name without redundant suffixes.
 
 Preferred:
 
@@ -1346,7 +348,7 @@ FamilyAggregateRoot
 PersonAggregate
 ```
 
-The architectural role MUST be documented rather than encoded redundantly in the class name.
+The aggregate-root role SHOULD be expressed through architecture and documentation rather than duplicated in the type name.
 
 ---
 
@@ -1363,7 +365,7 @@ Document
 Account
 ```
 
-The suffix `Entity` SHOULD NOT be used.
+The suffix `Entity` SHOULD NOT be used unless necessary to disambiguate a technical contract.
 
 Avoid:
 
@@ -1374,7 +376,7 @@ DocumentEntity
 
 ---
 
-## Value objects
+## Value Objects
 
 Value object names MUST represent the value itself.
 
@@ -1382,6 +384,9 @@ Examples:
 
 ```python
 PersonId
+FamilyId
+PluginId
+CapabilityId
 EmailAddress
 DateRange
 PluginVersion
@@ -1392,9 +397,44 @@ The suffix `ValueObject` MUST NOT be used.
 
 ---
 
-## Domain services
+## Identifier Value Objects
 
-Domain service names MUST describe the business operation and end with `Service` only when the operation does not belong naturally to an entity or value object.
+Identifier value objects SHOULD use:
+
+```text
+<Concept>Id
+```
+
+Examples:
+
+```python
+PersonId
+FamilyId
+PluginId
+CapabilityId
+```
+
+The PascalCase spelling MUST use:
+
+```text
+Id
+```
+
+and SHOULD NOT use:
+
+```text
+ID
+```
+
+inside Python type names.
+
+---
+
+## Domain Services
+
+Domain service names MUST describe the business operation.
+
+The suffix `Service` SHOULD be used only when the behavior does not belong naturally to an entity or value object.
 
 Examples:
 
@@ -1405,13 +445,13 @@ DocumentClassificationService
 
 ---
 
-## Domain events
+## Domain Events
 
 Domain event names MUST:
 
-* use PascalCase
-* describe a completed fact
-* use past-tense wording where natural
+* use PascalCase;
+* describe a completed fact;
+* use past-tense wording where natural.
 
 Examples:
 
@@ -1422,13 +462,15 @@ DocumentArchived
 PluginActivated
 ```
 
-Avoid command-style event names:
+Avoid:
 
 ```python
 CreatePerson
 AddMember
 ArchiveDocument
 ```
+
+when representing completed events.
 
 ---
 
@@ -1445,13 +487,13 @@ ArchiveDocument
 ActivatePlugin
 ```
 
-A command name MUST NOT imply that the action has already succeeded.
+A command name MUST NOT imply that the requested action has already completed.
 
 ---
 
 ## Queries
 
-Query names MUST describe the requested information.
+Query names MUST describe requested information.
 
 Examples:
 
@@ -1464,48 +506,429 @@ GetPluginStatus
 
 ---
 
-## Identifiers
+# Plugin Naming
 
-Identifier value objects SHOULD use the concept name followed by `Id`.
+## Plugin Identity Model
 
-Examples:
+FamilyOS distinguishes the following plugin representations:
 
-```python
-PersonId
-FamilyId
-PluginId
-CapabilityId
+```text
+Display Name
+Plugin Identifier
+Distribution Name
+Python Import Package
+Implementation Class
+Version
 ```
 
-The spelling `Id` MUST be used in PascalCase names.
+These representations MUST NOT be treated as interchangeable.
 
-Uppercase `ID` MUST NOT be used inside Python identifiers.
+Example:
+
+```text
+Display Name:
+FamilyOS Education Plugin
+
+Plugin Identifier:
+familyos.education
+
+Distribution Name:
+familyos-education-plugin
+
+Python Import Package:
+familyos_education_plugin
+
+Implementation Class:
+EducationPlugin
+
+Version:
+1.0.0
+```
 
 ---
 
-## Specifications
+## Plugin Display Names
 
-Business rule specifications MUST use a descriptive predicate or rule name followed by `Specification` when implemented as specification objects.
+Plugin display names MUST use human-readable PascalCase words.
 
-Examples:
-
-```python
-CompatiblePluginSpecification
-ValidMembershipSpecification
-```
-
-Document specifications SHOULD use descriptive kebab-case file names.
+Official plugin display names SHOULD use the corresponding domain or function name followed by `Plugin`.
 
 Examples:
 
 ```text
-security-domain.yaml
-plugin-manifest.yaml
+Security Plugin
+Health Plugin
+Finance Plugin
+Education Plugin
+Documents Plugin
+Communication Plugin
+Documentation Plugin
+```
+
+Product-facing names MAY include `FamilyOS`.
+
+Examples:
+
+```text
+FamilyOS Security Plugin
+FamilyOS Education Plugin
+```
+
+Display names MUST NOT serve as canonical runtime identity.
+
+---
+
+## Official Plugin Identifiers
+
+Official Plugin Identifiers MUST use the `familyos` namespace.
+
+Canonical format:
+
+```text
+familyos.<plugin-name>
+```
+
+Examples:
+
+```text
+familyos.security
+familyos.health
+familyos.finance
+familyos.education
+familyos.documents
+familyos.communication
+familyos.documentation
+```
+
+Official Plugin Identifiers MUST:
+
+* use lowercase dot-separated syntax;
+* remain stable;
+* use an authorized FamilyOS plugin name;
+* exclude version information.
+
+---
+
+## Third-Party Plugin Identifiers
+
+Third-party plugins MUST use a namespace controlled by the plugin owner.
+
+Examples:
+
+```text
+acme.backup
+example.health.import
+vendor.documents.archive
+```
+
+Third-party plugins MUST NOT use the `familyos` namespace without explicit authorization.
+
+Third-party identifiers MAY refer to official FamilyOS domains but MUST NOT imply official ownership.
+
+---
+
+## Plugin Identifier Stability
+
+Plugin Identifiers MUST remain stable across compatible versions.
+
+The following changes MUST NOT automatically alter the Plugin Identifier:
+
+* class renaming;
+* internal refactoring;
+* source relocation;
+* package reorganization;
+* display-name change;
+* implementation architecture changes.
+
+Changing a stable Plugin Identifier is an identity migration and requires compatibility governance.
+
+---
+
+## Legacy Plugin Identifiers
+
+Existing identifiers predating the canonical namespace convention MAY temporarily remain in use.
+
+Known legacy forms include:
+
+```text
+education
+documents
+communication
+documentation
+```
+
+Canonical targets are:
+
+```text
+education
+→ familyos.education
+
+documents
+→ familyos.documents
+
+communication
+→ familyos.communication
+
+documentation
+→ familyos.documentation
+```
+
+These mappings define canonical targets only.
+
+They MUST NOT be interpreted as authorization for automatic migration.
+
+Legacy identifiers SHALL be handled according to SPEC-0002 and SPEC-0009 compatibility rules.
+
+---
+
+## Plugin Package Names
+
+Python distribution names MUST use lowercase kebab-case.
+
+Recommended official form:
+
+```text
+familyos-<plugin-name>-plugin
+```
+
+Examples:
+
+```text
+familyos-security-plugin
+familyos-health-plugin
+familyos-finance-plugin
+familyos-education-plugin
+familyos-documents-plugin
+familyos-communication-plugin
+```
+
+A distribution name MUST NOT be treated as the Plugin Identifier.
+
+---
+
+## Plugin Import Packages
+
+Python import packages MUST use lowercase snake_case.
+
+Examples:
+
+```python
+familyos_security_plugin
+familyos_health_plugin
+familyos_finance_plugin
+familyos_education_plugin
+```
+
+Import package names MUST NOT define runtime plugin identity.
+
+---
+
+## Plugin Classes
+
+The primary plugin implementation class MUST use the domain or function name followed by `Plugin`.
+
+Examples:
+
+```python
+SecurityPlugin
+HealthPlugin
+FinancePlugin
+EducationPlugin
+DocumentsPlugin
+CommunicationPlugin
+DocumentationPlugin
+```
+
+Generic names SHOULD NOT be used.
+
+Avoid:
+
+```python
+MainPlugin
+GenericPlugin
+FamilyOSPlugin
 ```
 
 ---
 
-# Generation framework naming
+## Plugin Versions
+
+Plugin versions MUST remain separate from Plugin Identifiers.
+
+Canonical identity:
+
+```text
+familyos.security
+```
+
+Version:
+
+```text
+1.0.0
+```
+
+A combined display or resolution representation MAY use:
+
+```text
+familyos.security@1.0.0
+```
+
+The `@1.0.0` portion MUST NOT be part of the canonical Plugin Identifier.
+
+---
+
+# Capability Naming
+
+## Capability Identifier Format
+
+Official plugin capability identifiers MUST use:
+
+```text
+familyos.<plugin-name>.<capability>
+```
+
+Examples:
+
+```text
+familyos.health.profile
+familyos.health.record
+
+familyos.finance.account
+familyos.finance.transaction
+familyos.finance.asset
+familyos.finance.liability
+familyos.finance.budget
+
+familyos.education.learner
+familyos.education.course
+familyos.education.record
+
+familyos.documents.document
+familyos.documents.archive
+
+familyos.communication.messaging
+familyos.communication.archive
+```
+
+---
+
+## Capability Ownership
+
+A plugin-owned capability SHOULD use the Plugin Identifier as its prefix.
+
+Example:
+
+```text
+Plugin:
+familyos.education
+
+Capabilities:
+familyos.education.learner
+familyos.education.course
+familyos.education.record
+```
+
+A capability MUST NOT use another plugin's namespace without authorization.
+
+---
+
+## Capability Semantics
+
+The final capability segment MUST describe the functional ability represented by the contract.
+
+Preferred:
+
+```text
+familyos.documents.archive
+familyos.finance.account
+familyos.communication.messaging
+```
+
+Avoid:
+
+```text
+familyos.documents.document_archive_capability
+familyos.finance.finance_account_capability
+```
+
+Capability identifiers MUST remain independent from implementation class names.
+
+---
+
+## Capability Stability
+
+Published Capability Identifiers MUST remain stable across compatible versions.
+
+Breaking identity changes require:
+
+* compatibility analysis;
+* migration strategy;
+* documentation;
+* test updates;
+* architectural approval.
+
+A retired Capability Identifier MUST NOT be reassigned to an unrelated capability.
+
+---
+
+## Legacy Capability Forms
+
+Older capability identifiers MAY exist in forms such as:
+
+```text
+security.validation
+generation.template
+documents.storage
+```
+
+New official capability contracts MUST use the canonical namespaced form.
+
+Canonical target:
+
+```text
+familyos.<plugin-name>.<capability>
+```
+
+Existing public capability identifiers MUST NOT be rewritten automatically.
+
+---
+
+# Contribution Naming
+
+## Contribution Types
+
+Contribution type names MUST describe the contributed extension.
+
+Types SHOULD end with `Contribution`.
+
+Examples:
+
+```python
+GenerationContribution
+DomainGenerationContribution
+GenerationRecipeContribution
+TemplateContribution
+```
+
+---
+
+## Contribution Identifiers
+
+Externally referenced contributions SHOULD use stable namespaced identifiers when appropriate.
+
+Examples:
+
+```text
+familyos.generation.recipe
+familyos.generation.template
+familyos.domain.documentation
+```
+
+Contribution identity MUST follow SPEC-0002.
+
+---
+
+# Generation Framework Naming
 
 ## Artifacts
 
@@ -1520,7 +943,7 @@ plugin-manifest
 python-module
 ```
 
-Artifact type names SHOULD end with `Artifact` when represented as Python types.
+Artifact type names SHOULD end with `Artifact`.
 
 Examples:
 
@@ -1556,7 +979,7 @@ AggregateDocumentationRecipe
 
 ## Presets
 
-Preset identifiers MUST use lowercase kebab-case.
+Preset identifiers MUST use lowercase kebab-case unless another specification defines a category-specific identifier contract.
 
 Examples:
 
@@ -1566,13 +989,13 @@ default-domain
 complete-documentation
 ```
 
-Preset type names MUST end with `Preset` or `PresetDefinition` according to responsibility.
+Preset types MUST end with `Preset` or `PresetDefinition` according to responsibility.
 
 ---
 
 ## Strategies
 
-Generation strategy names MUST describe the interchangeable generation behavior.
+Generation strategy type names MUST describe interchangeable behavior.
 
 Examples:
 
@@ -1581,7 +1004,7 @@ DomainDocumentationStrategy
 AggregateDocumentationStrategy
 ```
 
-Strategy identifiers MUST use lowercase kebab-case when persisted or exposed through the CLI.
+Persisted strategy names SHOULD use lowercase kebab-case.
 
 ---
 
@@ -1599,183 +1022,146 @@ plugin-manifest.yaml.j2
 
 ---
 
-# Plugin naming
+# Python Naming
 
-## Plugin display names
+## Classes
 
-Plugin display names MUST use PascalCase words in prose.
-
-Examples:
-
-```text
-Security Plugin
-Health Plugin
-Finance Plugin
-```
-
-Official plugin names MUST use the corresponding domain name followed by `Plugin`.
-
----
-
-## Plugin package names
-
-Python distribution names MUST use lowercase kebab-case.
-
-Examples:
-
-```text
-familyos-security-plugin
-familyos-health-plugin
-familyos-finance-plugin
-```
-
-Python import packages MUST use lowercase snake_case.
+Python classes MUST use PascalCase.
 
 Examples:
 
 ```python
-familyos_security_plugin
-familyos_health_plugin
-familyos_finance_plugin
+PluginDescriptor
+PluginRegistry
+CapabilityRegistry
+GenerationPipeline
 ```
 
 ---
 
-## Plugin classes
+## Functions and Methods
 
-The primary plugin class MUST use the domain or function name followed by `Plugin`.
+Functions and methods MUST use lowercase snake_case.
 
 Examples:
 
 ```python
-SecurityPlugin
-HealthPlugin
-DocumentationPlugin
+register_plugin
+resolve_dependencies
+load_manifest
+activate_plugin
 ```
-
-Generic names such as `MainPlugin` or `FamilyOSPlugin` MUST NOT be used.
 
 ---
 
-## Plugin identifiers
+## Variables
 
-Plugin identifiers MUST use lowercase dot-separated names.
+Variables MUST use lowercase snake_case.
 
-Official plugin identifiers MUST use the `familyos` namespace.
+Names SHOULD describe the semantic value stored.
 
-Format:
+Preferred:
 
-```text
-familyos.<plugin-name>
+```python
+plugin_id
+capability_id
+plugin_registry
+manifest_path
 ```
 
-Examples:
+Avoid:
 
-```text
-familyos.security
-familyos.health
-familyos.finance
-familyos.documentation
+```python
+name
+value
+data
 ```
 
-Plugin identifiers MUST be stable and MUST NOT include a version.
+when the value has a more precise architectural meaning.
+
+For example, a method accepting a canonical Plugin Identifier SHOULD prefer:
+
+```python
+def get(plugin_id: str) -> PluginDescriptor | None:
+    ...
+```
+
+instead of:
+
+```python
+def get(name: str) -> PluginDescriptor | None:
+    ...
+```
 
 ---
 
-## Plugin versions
+## Constants
 
-Plugin versions MUST be represented separately from plugin identifiers.
-
-A combined package identifier MAY use the following display format:
-
-```text
-familyos.security@1.0.0
-```
-
-The `@` notation is representational and MUST NOT be part of the canonical plugin identifier.
-
----
-
-## Capabilities
-
-Capability identifiers MUST use lowercase dot-separated names.
-
-Format:
-
-```text
-<namespace>.<area>.<capability>
-```
-
-Examples:
-
-```text
-familyos.security.audit
-familyos.security.encryption
-familyos.documents.classification
-familyos.generation.recipes
-```
-
-Capability identifiers MUST represent abilities, not implementation classes.
-
----
-
-## Contributions
-
-Contribution type names MUST describe the contributed platform extension and end with `Contribution`.
+Constants SHOULD use uppercase snake_case.
 
 Examples:
 
 ```python
-GenerationContribution
-DomainGenerationContribution
-GenerationRecipeContribution
-TemplateContribution
-```
-
-Contribution identifiers MUST use stable lowercase dot-separated names when externally referenced.
-
----
-
-## Plugin hooks
-
-Hook names MUST describe lifecycle events or extension operations.
-
-Examples:
-
-```python
-on_load
-on_initialize
-on_activate
-on_stop
-```
-
-Hooks MUST NOT use ambiguous names such as:
-
-```python
-run
-process
-handle
-execute_hook
+DEFAULT_PLUGIN_DIRECTORY
+SUPPORTED_MANIFEST_VERSION
 ```
 
 ---
 
-# Command-line interface naming
+## Python Reserved Words
+
+Python keywords MUST NOT be used as Python identifiers.
+
+Python built-ins SHOULD NOT be shadowed when a clearer alternative exists.
+
+Avoid:
+
+```python
+id
+type
+list
+input
+format
+```
+
+where a more precise value name can be used.
+
+Preferred:
+
+```python
+plugin_id
+artifact_type
+result_list
+output_format
+```
+
+Public contracts MAY retain an existing field such as:
+
+```python
+PluginDescriptor.id
+```
+
+when compatibility requirements outweigh stylistic preference.
+
+---
+
+# Command-Line Interface Naming
 
 ## Commands
 
-CLI commands MUST use lowercase kebab-case.
+CLI commands MUST use lowercase names.
+
+Command groups MAY use nouns.
 
 Examples:
 
 ```text
-familyos init
-familyos create domain
-familyos plugin resolve
-familyos generation presets
+familyos plugin
+familyos generation
+familyos domain
 ```
 
-Command names SHOULD begin with a verb when they perform an action.
+Commands performing actions SHOULD use verbs.
 
 Examples:
 
@@ -1787,32 +1173,22 @@ install
 activate
 ```
 
-Noun commands MAY be used as command groups.
-
-Examples:
-
-```text
-plugin
-generation
-domain
-```
-
 ---
 
 ## Options
 
-Long option names MUST use lowercase kebab-case and begin with two hyphens.
+Long options MUST use lowercase kebab-case and begin with two hyphens.
 
 Examples:
 
 ```text
---specification
---destination
+--plugin-id
 --output-format
 --include-diagnostics
+--destination
 ```
 
-Short options MAY be provided when they are unambiguous and commonly used.
+Short options MAY be provided when unambiguous.
 
 Examples:
 
@@ -1822,27 +1198,27 @@ Examples:
 -h
 ```
 
-A short option MUST NOT have different meanings across closely related commands.
+A short option MUST NOT represent incompatible meanings within the same command context.
 
 ---
 
-## Positional arguments
+## Positional Arguments
 
-Positional argument names MUST use lowercase snake_case in Python and lowercase descriptive names in help output.
+Python representations of CLI positional arguments MUST use lowercase snake_case.
 
 Examples:
 
 ```text
+plugin_id
 domain_name
-plugin_identifier
 artifact_type
 ```
 
 ---
 
-## Boolean options
+## Boolean Options
 
-Boolean options SHOULD express the enabled behavior positively.
+Boolean options SHOULD describe the enabled behavior positively.
 
 Preferred:
 
@@ -1852,50 +1228,36 @@ Preferred:
 --strict
 ```
 
-Avoid:
-
-```text
---no-skip-diagnostics
---disable-protection
-```
-
-A negative option MAY exist when disabling a default behavior is the clearest user-facing contract.
+Avoid unnecessary double-negative forms.
 
 ---
 
-# Documentation naming
+# Documentation Naming
 
 ## Architecture Decision Records
 
-Architecture Decision Record files MUST use the following format:
+ADR filenames MUST use:
 
 ```text
-ADR-NNNN-Title-In-Pascal-Kebab-Case.md
+ADR-NNNN-Descriptive-Title.md
 ```
 
-Examples:
+Example:
 
 ```text
-ADR-0001-Family-Aggregate-Root.md
-ADR-0007-Plugin-Architecture.md
-ADR-0008-Official-Plugin-Structure.md
+ADR-0007-Official-Plugin-Architecture.md
 ```
 
-The numeric identifier MUST:
-
-* contain four digits
-* remain unique
-* never be reused
-* remain stable after publication
+The ADR identifier MUST remain stable even if the title changes.
 
 ---
 
 ## Requests for Comments
 
-Request for Comments files MUST use the following format:
+RFC filenames MUST use:
 
 ```text
-RFC-NNNN-Title-In-Pascal-Kebab-Case.md
+RFC-NNNN-Descriptive-Title.md
 ```
 
 Examples:
@@ -1905,29 +1267,34 @@ RFC-0010-Official-Security-Plugin.md
 RFC-0011-Official-Health-Plugin.md
 ```
 
-Temporary letter-based identifiers MAY be used only during early drafting and MUST be replaced by permanent numeric identifiers before approval.
+Temporary drafting identifiers MAY exist only where the RFC governance process explicitly permits them.
 
 ---
 
 ## Specifications
 
-Specification document names MUST identify the subject being specified.
+Specification filenames MUST identify both their governance identifier and subject.
+
+Format:
+
+```text
+SPEC-NNNN-Descriptive-Title.md
+```
 
 Examples:
 
 ```text
-Plugin-Manifest-Specification.md
-Domain-Specification.md
-Security-Domain-Specification.md
+SPEC-0002-Identifier.md
+SPEC-0008-Naming-Conventions.md
+SPEC-0009-Plugin-Manifest.md
+SPEC-0010-Plugin-Capability-Contract.md
 ```
-
-The suffix `Specification` SHOULD be used for documents that define normative contracts.
 
 ---
 
-## Reference documents
+## Reference Documents
 
-Reference document names MUST describe the single authoritative subject they define.
+Reference document names MUST describe one authoritative responsibility.
 
 Examples:
 
@@ -1940,42 +1307,37 @@ Reserved-Words.md
 Reference-Index.md
 ```
 
----
-
-## Document headings
-
-The first heading MUST use a human-readable document title.
-
-Example:
-
-```markdown
-# FamilyOS naming conventions
-```
-
-Headings MUST follow the language rules defined in:
-
-`docs/04-reference/Language.md`
+Another document MUST NOT silently duplicate the responsibility of an official reference document.
 
 ---
 
-# Test naming
+## Document Headings
 
-## Test directories
+The first heading MUST provide a clear human-readable title.
 
-Test directories SHOULD mirror the source package structure.
+Headings MUST follow FamilyOS documentation language and formatting rules.
+
+---
+
+# Test Naming
+
+## Test Directories
+
+Test directories SHOULD mirror relevant source structure where practical.
 
 Example:
 
 ```text
 src/familyos_cli/plugins/runtime/plugin_runtime.py
+
 tests/unit/plugins/runtime/test_plugin_runtime.py
 ```
 
 ---
 
-## Test files
+## Test Files
 
-Test files MUST use the following format:
+Test files MUST use:
 
 ```text
 test_<subject>.py
@@ -1985,15 +1347,15 @@ Examples:
 
 ```text
 test_plugin_runtime.py
+test_plugin_registry.py
 test_capability_registry.py
-test_domain_generation_pipeline.py
 ```
 
 ---
 
-## Test functions
+## Test Functions
 
-Test function names MUST use lowercase snake_case and describe observable behavior.
+Test functions MUST use lowercase snake_case and SHOULD describe observable behavior.
 
 Preferred:
 
@@ -2002,39 +1364,29 @@ def test_runtime_activates_initialized_plugins() -> None:
     ...
 ```
 
-Avoid:
-
-```python
-def test_runtime() -> None:
-    ...
-```
-
-Test names SHOULD follow this semantic structure:
+Recommended structure:
 
 ```text
 test_<subject>_<expected_behavior>
 ```
 
-Context MAY be included when necessary:
+Context MAY be added:
 
 ```text
 test_<subject>_<behavior>_when_<condition>
 ```
 
-Example:
-
-```python
-def test_resolver_reports_conflict_when_constraints_are_incompatible() -> None:
-    ...
-```
-
 ---
 
-## Test classes
+## Test Classes
 
-Test classes MAY be used to group closely related behavior.
+Test classes MAY group closely related behavior.
 
-They MUST use PascalCase and begin with `Test`.
+They MUST:
+
+* use PascalCase;
+* begin with `Test`;
+* avoid constructors.
 
 Example:
 
@@ -2043,28 +1395,34 @@ class TestPluginRuntimeActivation:
     ...
 ```
 
-Test classes MUST NOT define constructors.
-
 ---
 
 ## Fixtures
 
-Fixture names MUST describe the provided object or state.
+Fixture names SHOULD describe the provided state or object.
 
-Examples:
+Preferred:
 
-```python
+```text
 plugin_registry
 active_runtime
 valid_manifest
 temporary_project
 ```
 
-Generic names such as `setup`, `data`, or `fixture` SHOULD be avoided.
+Avoid:
+
+```text
+setup
+data
+fixture
+```
+
+when a more precise name exists.
 
 ---
 
-# Git naming
+# Git Naming
 
 ## Branches
 
@@ -2089,42 +1447,42 @@ feature/security-plugin
 docs/reference-naming-conventions
 fix/plugin-resolution-cycle
 refactor/runtime-lifecycle
-release/1.1.0
+release/4.7.0
 ```
 
-Branch names MUST NOT contain spaces, underscores, uppercase letters, or personal names.
+Branch names SHOULD NOT contain:
 
-Long-lived architecture work MAY use a descriptive feature branch.
+* spaces;
+* uppercase letters;
+* personal names;
+* unnecessary underscores.
 
 ---
 
 ## Commits
 
-Commit subjects SHOULD use the imperative mood.
+Commit subjects SHOULD:
+
+* describe one coherent change;
+* remain concise;
+* use imperative wording;
+* omit unnecessary trailing punctuation.
 
 Examples:
 
 ```text
 Add plugin capability registry
-Document official naming conventions
+Document canonical plugin identifiers
 Fix dependency cycle diagnostics
-Refactor runtime lifecycle transitions
 ```
-
-Commit subjects SHOULD:
-
-* begin with an uppercase letter
-* omit a trailing period
-* describe one coherent change
-* remain concise
 
 ---
 
-## Release tags
+## Release Tags
 
-Stable platform release tags MUST follow Semantic Versioning.
+Stable platform release tags MUST follow approved FamilyOS release governance.
 
-Format:
+Base format:
 
 ```text
 vMAJOR.MINOR.PATCH
@@ -2133,28 +1491,19 @@ vMAJOR.MINOR.PATCH
 Examples:
 
 ```text
-v1.0.0
-v1.1.0
-v1.1.1
+v4.6.0
+v4.6.0-quality-framework
 ```
 
-Qualified release tags MAY add an approved suffix.
+Qualified suffixes MAY be used where explicitly approved.
 
-Examples:
-
-```text
-v1.0.0-platform
-v1.1.0-rc.1
-v2.0.0-beta.1
-```
-
-A release tag MUST be immutable after publication.
+Published tags MUST remain immutable.
 
 ---
 
-# Reserved prefixes
+# Reserved Prefixes
 
-The following prefixes are reserved for official FamilyOS use:
+The following prefixes are reserved for official FamilyOS use according to context:
 
 ```text
 familyos
@@ -2163,136 +1512,178 @@ familyos-
 FamilyOS
 ADR-
 RFC-
+SPEC-
 ```
 
-Third-party plugins MUST NOT present themselves as official FamilyOS components.
+The `familyos` ecosystem namespace MUST NOT be used by third-party plugins without authorization.
 
-Rules governing reserved identifiers are defined in:
-
-`docs/04-reference/Reserved-Words.md`
-
----
-
-# Prohibited naming patterns
-
-The following naming patterns MUST NOT be used in production components unless explicitly justified:
+Rules governing reserved names are defined in:
 
 ```text
-Manager
-Helper
-Helpers
-Utility
-Utilities
-Common
-Misc
-Miscellaneous
-Stuff
-Thing
-Object
-Data
-Base
-Generic
-Default
-New
-Old
-Final
-Temp
-Temporary
-Legacy
+docs/04-reference/Reserved-Words.md
 ```
-
-Some of these terms MAY be valid when they express an established and precise responsibility.
-
-Examples of acceptable contextual use include:
-
-```python
-DefaultRecipeRegistry
-BaseCommand
-LegacyManifestAdapter
-TemporaryDirectory
-```
-
-Their use MUST be intentional and reviewable.
 
 ---
 
-# Public naming compatibility
+# Public Naming Compatibility
 
-A public name includes any identifier exposed through:
+A public name includes any name or identifier exposed through:
 
-* the Plugin SDK
-* the CLI
-* specifications
-* plugin manifests
-* generated artifacts
-* documented extension points
-* importable public Python APIs
+* Plugin SDK;
+* plugin manifests;
+* CLI;
+* specifications;
+* runtime registries;
+* generated artifacts;
+* documented extension points;
+* importable public Python APIs.
 
 Public names MUST NOT be changed casually.
 
-A public rename requires:
+A compatibility-sensitive rename requires:
 
-1. identification of affected consumers
-2. compatibility strategy
-3. deprecation period when applicable
-4. migration documentation
-5. release-note entry
-6. architectural approval
+1. identification of affected consumers;
+2. compatibility analysis;
+3. migration strategy;
+4. deprecation or aliasing where applicable;
+5. documentation updates;
+6. test updates;
+7. release-note entry;
+8. architectural approval.
 
 ---
 
-# Naming review checklist
+# Legacy Naming
 
-Before approving a new name, reviewers MUST verify that:
+Existing names that predate current conventions SHOULD be classified as:
 
-* the name uses official English terminology
-* the name communicates one responsibility
-* the name follows the required casing convention
-* the name uses an established architectural suffix correctly
-* the name does not duplicate an existing concept
-* the name does not introduce an undocumented synonym
-* the name does not conflict with a reserved word
-* the name is suitable for long-term public use
-* the name remains meaningful outside its immediate implementation
-* the name complies with the Glossary and Acronyms documents
+* compliant;
+* legacy-compatible;
+* deprecated;
+* scheduled for migration;
+* explicitly exempted.
+
+Stable public names MUST NOT be renamed automatically.
+
+Compatibility requirements take precedence over stylistic consistency.
+
+Legacy acceptance MUST NOT establish a new canonical naming convention.
+
+---
+
+# Naming Review Checklist
+
+Before approving a public name or identifier representation, reviewers MUST verify that:
+
+* official English terminology is used;
+* the name communicates one responsibility;
+* the correct casing convention is used;
+* the correct separator convention is used;
+* identifier category is understood;
+* namespace ownership is valid;
+* display names and identifiers remain distinct;
+* package names and identifiers remain distinct;
+* versions remain separate from canonical identifiers;
+* established architectural suffixes are used correctly;
+* no undocumented synonym is introduced;
+* reserved terms are respected;
+* prohibited generic terminology is avoided;
+* public compatibility impact is understood;
+* the name remains suitable for long-term use.
+
+For Plugin Identifiers, reviewers MUST additionally verify:
+
+* lowercase dot-separated representation;
+* authorized namespace;
+* stable plugin-name segment;
+* no embedded version;
+* compliance with SPEC-0002 and SPEC-0009.
+
+For Capability Identifiers, reviewers MUST additionally verify:
+
+* lowercase dot-separated representation;
+* authorized namespace;
+* expected plugin prefix;
+* functional final segment;
+* compliance with SPEC-0002 and SPEC-0010.
 
 ---
 
 # Compliance
 
-A component complies with this specification when:
+A component complies with these conventions when:
 
-* its name follows the convention for its artifact type
-* its terminology is defined by the official reference documents
-* its architectural suffix accurately represents its responsibility
-* its public identifiers are stable and unambiguous
-* it does not use prohibited or reserved naming patterns
-* it does not introduce duplicate terminology
+* its names follow the convention for their artifact type;
+* public identifiers use the correct category representation;
+* namespace ownership is respected;
+* terminology remains consistent;
+* versions are separated from identity;
+* display names remain separate from identifiers;
+* public compatibility rules are respected;
+* reserved and prohibited naming rules are respected.
 
-Non-compliant names MUST be corrected before the component becomes part of a stable public contract.
+New public FamilyOS resources MUST use canonical naming.
 
-Existing names that predate this specification SHOULD be reviewed progressively.
-
-Changes to stable public names require compatibility analysis.
+Existing stable names require compatibility analysis before migration.
 
 ---
 
 # Maintenance
 
-This document evolves together with the FamilyOS platform contracts.
+This document evolves together with FamilyOS platform contracts.
 
-A new naming convention MAY be added when a new platform-wide component category is introduced.
+New naming conventions MAY be introduced when:
 
-Local implementation preferences MUST NOT be added unless they apply consistently across the platform.
+* a new identifier category is established;
+* a new platform-wide artifact type is introduced;
+* ecosystem ownership rules require clarification;
+* a recurring ambiguity needs canonical resolution.
 
-Changes require documentation review and architectural approval.
+Local implementation preferences MUST NOT be elevated into platform-wide naming rules unless they apply consistently across FamilyOS.
+
+Changes affecting public naming contracts require documentation review and architectural approval.
 
 ---
 
 # Summary
 
-FamilyOS naming conventions establish a consistent language across documentation, architecture, source code, plugins, generation artifacts, tests, and delivery workflows.
+FamilyOS naming conventions establish a consistent language across architecture, documentation, source code, plugins, capabilities, generated artifacts, tests, and delivery workflows.
+
+FamilyOS distinguishes governance identifiers from ecosystem and capability identifiers.
+
+Governance identities use forms such as:
+
+```text
+SPEC-0002
+ADR-0007
+RFC-0010
+```
+
+Official Plugin Identifiers use:
+
+```text
+familyos.<plugin-name>
+```
+
+Official plugin Capability Identifiers use:
+
+```text
+familyos.<plugin-name>.<capability>
+```
+
+Examples:
+
+```text
+familyos.education
+familyos.education.course
+
+familyos.documents
+familyos.documents.archive
+
+familyos.communication
+familyos.communication.messaging
+```
 
 Names are part of the platform contract.
 
-Every official name must communicate intent, reflect architectural responsibility, use established terminology, and remain stable enough to support the long-term evolution of the FamilyOS ecosystem.
+Every official name and identifier representation must communicate intent, preserve ownership, remain stable, and support the long-term evolution of the FamilyOS ecosystem.

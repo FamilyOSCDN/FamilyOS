@@ -1,91 +1,131 @@
-# FamilyOS reserved words
+# FamilyOS Reserved Words
 
-**Version:** 1.0
-**Status:** Stable
-**Last Updated:** August 2026
+## Purpose
 
----
+This document defines the reserved words, identifiers, namespaces, prefixes, suffixes, domain names, plugin names, lifecycle terms, architectural terms, and naming restrictions used throughout the FamilyOS platform.
 
-# Purpose
+Reserved terms protect:
 
-This document defines the words, identifiers, namespaces, prefixes, and naming patterns reserved by the FamilyOS platform.
+* architectural meaning;
+* platform identity;
+* ecosystem ownership;
+* official plugin identity;
+* namespace boundaries;
+* public contracts;
+* compatibility;
+* documentation consistency;
+* implementation clarity.
 
-Its purpose is to:
+This document complements:
 
-- protect official platform terminology
-- prevent naming conflicts
-- distinguish official components from third-party extensions
-- preserve the stability of public contracts
-- avoid ambiguous or misleading identifiers
+* SPEC-0002 — Identifier;
+* SPEC-0008 — Naming Conventions;
+* SPEC-0009 — Plugin Manifest;
+* SPEC-0010 — Plugin Capability Contract;
+* `docs/04-reference/Naming-Conventions.md`.
 
-This document is normative.
+This document defines ownership and reservation.
+
+It does not independently redefine identifier categories or naming syntax established by the normative specifications.
 
 ---
 
 # Scope
 
-These rules apply to:
+This document applies to:
 
-- repositories
-- source code
-- Python packages
-- Python modules
-- public APIs
-- command-line interfaces
-- plugin identifiers
-- plugin manifests
-- capabilities
-- contributions
-- generation recipes
-- generation presets
-- generated artifacts
-- specifications
-- documentation
-- Architecture Decision Records
-- Requests for Comments
-- release tags
-- third-party extensions
+* documentation;
+* architecture;
+* specifications;
+* plugins;
+* capabilities;
+* contributions;
+* manifests;
+* source code;
+* CLI interfaces;
+* generated artifacts;
+* configuration;
+* packages;
+* public extension points;
+* third-party ecosystem integrations.
 
-Naming format rules are defined in:
-
-`docs/04-reference/Naming-Conventions.md`
-
-Terminology definitions are maintained in:
-
-`docs/04-reference/Glossary.md`
+A reserved term MAY be used only according to the responsibility and ownership defined by FamilyOS governance.
 
 ---
 
-# Normative language
+# Reservation Principles
 
-The keywords **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY** express normative requirements.
+FamilyOS reservations follow these principles:
 
-Their interpretation follows:
-
-`docs/04-reference/Language.md`
-
----
-
-# Reservation categories
-
-FamilyOS distinguishes the following reservation categories:
-
-| Category | Meaning |
-|---|---|
-| Platform-reserved | Exclusively controlled by the FamilyOS platform |
-| Official-component-reserved | Reserved for components maintained by the FamilyOS project |
-| Contract-reserved | Assigned a stable meaning in a public platform contract |
-| Contextually restricted | Permitted only when used with a precise documented responsibility |
-| Language-reserved | Reserved by an implementation language or data format |
-| Future-reserved | Protected for anticipated platform evolution |
-
-A reserved word MAY belong to more than one category.
+1. a reserved term has a defined architectural or ownership meaning;
+2. reservation SHALL protect interoperability rather than stylistic preference;
+3. public identity SHALL remain stable;
+4. third-party extensions SHALL retain their own namespace ownership;
+5. FamilyOS ownership SHALL NOT be implied without authorization;
+6. compatibility requirements take precedence over cosmetic consistency;
+7. legacy public identifiers SHALL NOT be renamed automatically;
+8. a reservation SHALL NOT silently redefine an existing contract.
 
 ---
 
-# Platform identity
+# Identifier Categories
 
-The following names are reserved for the official platform:
+FamilyOS distinguishes several identifier categories.
+
+The identifier category determines how reservation rules apply.
+
+---
+
+## Governance Identifiers
+
+Governance identifiers use forms such as:
+
+```text
+SPEC-0002
+ADR-0007
+RFC-0010
+```
+
+Their category prefixes are reserved.
+
+---
+
+## Ecosystem Identifiers
+
+Ecosystem identifiers use authorized namespaces.
+
+Examples:
+
+```text
+familyos.security
+familyos.education
+acme.backup
+vendor.documents.archive
+```
+
+The first segment identifies ownership.
+
+---
+
+## Capability Identifiers
+
+Capability identifiers represent functional contracts.
+
+Examples:
+
+```text
+familyos.health.record
+familyos.finance.account
+familyos.education.course
+```
+
+Capability namespace ownership SHALL follow SPEC-0002 and SPEC-0010.
+
+---
+
+# Reserved FamilyOS Identity
+
+The following representations are reserved for the FamilyOS platform identity:
 
 ```text
 FamilyOS
@@ -93,325 +133,99 @@ familyos
 FAMILYOS
 ```
 
-```
-
 These names MUST NOT be used by third-party projects in a way that implies:
 
-- official ownership
-- official maintenance
-- official certification
-- platform endorsement
-- inclusion in the FamilyOS distribution
+* ownership by FamilyOS;
+* official FamilyOS status;
+* certification by FamilyOS;
+* endorsement by FamilyOS;
+* platform authority.
 
-Third-party projects MAY reference FamilyOS descriptively.
+The restrictions apply according to naming context.
 
-Examples of acceptable descriptive usage include:
-
-```text
-Plugin for FamilyOS
-Compatible with FamilyOS
-FamilyOS integration
-```
-
-Examples of prohibited identity claims include:
-
-```text
-Official FamilyOS Security
-FamilyOS Core Extension
-FamilyOS Certified Plugin
-FamilyOS Platform Plugin
-```
-
-unless the component has received the corresponding official status.
-
----
-
-# Reserved namespaces
-
-## General namespace
-
-The following namespace is reserved:
-
-```text
-familyos
-```
-
-It is reserved in:
-
-- Python packages
-- Python modules
-- plugin identifiers
-- capability identifiers
-- contribution identifiers
-- configuration keys
-- environment variables
-- command names
-- generated artifact identifiers
-- service identifiers
-
-Third-party components MUST NOT create new identifiers directly under the `familyos` namespace.
-
----
-
-## Python namespaces
-
-The following Python namespace forms are reserved:
-
-```text
-familyos
-familyos_cli
-familyos_core
-familyos_sdk
-familyos_platform
-familyos_plugins
-familyos_official
-```
-
-Official repositories MAY define approved packages beneath these namespaces.
-
-Third-party plugins MUST use their own package namespace.
-
-Preferred third-party forms include:
-
-```text
-acme_familyos_plugin
-example_familyos_security
-vendor_familyos_integration
-```
-
-A third-party package MUST NOT use a name that can reasonably be mistaken for an official FamilyOS package.
-
----
-
-## Plugin identifier namespace
-
-Official plugin identifiers use:
-
-```text
-familyos.<plugin-name>
-```
-
-Examples:
-
-```text
-familyos.security
-familyos.health
-familyos.finance
-familyos.education
-familyos.documents
-familyos.communication
-familyos.documentation
-```
-
-The complete `familyos.*` plugin identifier namespace is reserved for official plugins.
-
-Third-party plugins MUST use a namespace controlled by their author or organization.
-
-Examples:
-
-```text
-acme.backup
-example.calendar
-org.example.documents
-```
-
-Third-party identifiers MUST NOT use:
+Examples include:
 
 ```text
 familyos.*
-official.*
-core.*
-platform.*
+familyos_*
+familyos-*
+FamilyOS *
 ```
 
-unless explicitly authorized by the corresponding namespace owner.
+when those forms imply official ownership.
 
 ---
 
-## Capability namespace
+# Reserved Governance Prefixes
 
-Official capability identifiers use the `familyos` namespace.
-
-Examples:
+The following governance prefixes are reserved:
 
 ```text
-familyos.security.audit
-familyos.security.encryption
-familyos.documents.classification
-familyos.generation.recipes
-familyos.runtime.lifecycle
-```
-
-Third-party capabilities MUST use a third-party-controlled namespace.
-
-A capability identifier MUST NOT be designed to appear more authoritative than its actual ownership.
-
----
-
-## Contribution namespace
-
-Official contribution identifiers beginning with the following prefix are reserved:
-
-```text
-familyos.
-```
-
-Examples:
-
-```text
-familyos.generation.recipe
-familyos.generation.template
-familyos.domain.documentation
-familyos.security.policy
-```
-
-Third-party contribution identifiers MUST use their own namespace.
-
----
-
-# Reserved prefixes
-
-The following prefixes are reserved for official FamilyOS artifacts:
-
-```text
-FamilyOS
-familyos
-familyos_
-familyos-
-familyos.
-FAMILYOS_
+SPEC-
 ADR-
 RFC-
 ```
 
-Their lowercase, uppercase, snake_case, kebab-case, and dot-separated equivalents are protected when they could imply official ownership.
+They identify governed FamilyOS artifacts.
+
+A third-party component MUST NOT use these prefixes to imply participation in the official FamilyOS governance process.
 
 ---
 
-## Repository prefixes
-
-The following repository name prefixes are reserved:
+## SPEC-
 
 ```text
-familyos-
-familyos_
+SPEC-
 ```
 
-Official examples include:
+is reserved for approved or governed FamilyOS specifications.
 
-```text
-familyos-cli
-familyos-security-plugin
-familyos-plugin-template
-familyos-documentation
-```
+An official specification identifier MUST:
 
-Third-party repositories SHOULD place their own organization or project name before the FamilyOS reference.
-
-Preferred:
-
-```text
-acme-familyos-backup-plugin
-example-familyos-integration
-```
-
-Avoid:
-
-```text
-familyos-backup-plugin
-familyos-example-extension
-```
-
----
-
-## Environment variable prefixes
-
-Official FamilyOS environment variables MUST use:
-
-```text
-FAMILYOS_
-```
+* use the approved numeric format;
+* remain unique;
+* remain stable;
+* never be reassigned;
+* refer to exactly one governed specification.
 
 Examples:
 
 ```text
-FAMILYOS_HOME
-FAMILYOS_CONFIG
-FAMILYOS_PLUGIN_PATH
-FAMILYOS_LOG_LEVEL
+SPEC-0002
+SPEC-0008
+SPEC-0009
+SPEC-0010
 ```
-
-Third-party plugins MUST use their own environment variable prefix.
-
-Example:
-
-```text
-ACME_FAMILYOS_BACKUP_PATH
-```
-
-A third-party plugin MUST NOT introduce a new `FAMILYOS_*` variable without architectural approval.
 
 ---
 
-## Command prefixes
-
-The command name:
-
-```text
-familyos
-```
-
-is reserved for the official FamilyOS command-line interface.
-
-Third-party executables MUST NOT use the same command name.
-
-Acceptable third-party command names include:
-
-```text
-acme-familyos
-familyos-acme-tool
-example-familyos-plugin
-```
-
-Such commands MUST NOT misrepresent themselves as part of the official CLI.
-
-# Reserved documentation identifiers
-
-## Architecture Decision Records
-
-The prefix:
+## ADR-
 
 ```text
 ADR-
 ```
 
-is reserved for Architecture Decision Records governed by the FamilyOS ADR process.
+is reserved for Architecture Decision Records governed by FamilyOS architecture governance.
 
 An official ADR identifier MUST:
 
-- contain four digits
-- be unique
-- remain stable
-- never be reassigned
-- refer to one architectural decision
+* use the approved numeric format;
+* remain unique;
+* remain stable;
+* never be reassigned;
+* identify exactly one architectural decision record.
 
 Examples:
 
 ```text
-ADR-0001
 ADR-0007
-ADR-0009
+ADR-0010
+ADR-0011
 ```
-
-Draft documents MUST NOT reuse an identifier assigned to another decision.
-
-Third-party plugin repositories MAY maintain their own ADRs, but they MUST NOT imply that those ADRs are platform-level FamilyOS decisions.
 
 ---
 
-## Requests for Comments
-
-The prefix:
+## RFC-
 
 ```text
 RFC-
@@ -421,11 +235,11 @@ is reserved for proposals governed by the FamilyOS RFC process.
 
 An official RFC identifier MUST:
 
-- contain four digits
-- be unique
-- remain stable
-- never be reassigned
-- refer to one governed proposal
+* contain four digits;
+* be unique;
+* remain stable;
+* never be reassigned;
+* refer to one governed proposal.
 
 Examples:
 
@@ -435,11 +249,11 @@ RFC-0011
 RFC-0012
 ```
 
-Temporary letter-based identifiers MAY exist during early drafting but MUST NOT be treated as permanent platform identifiers.
+Temporary letter-based identifiers MAY exist during early drafting when permitted by RFC governance but MUST NOT be treated as permanent platform identifiers.
 
 ---
 
-## Reference document names
+# Reserved Reference Document Names
 
 The following file names are reserved for their official responsibilities:
 
@@ -453,23 +267,25 @@ Reserved-Words.md
 Reference-Index.md
 ```
 
-Within `docs/04-reference/`, another document MUST NOT assume one of these responsibilities under a different name.
+Within `docs/04-reference/`, another document MUST NOT assume one of these authoritative responsibilities under an unrelated or competing name.
 
 ---
 
-# Reserved platform component names
+# Reserved Platform Component Names
 
-The following names identify established platform components and are contract-reserved:
+The following names identify established platform concepts and are contract-reserved:
 
 ```text
 Application Layer
 Artifact
 Capability
+Capability Identifier
 Capability Provider
 Capability Registry
 Command
 Command Context
 Contribution
+Contribution Identifier
 Contribution Provider
 Contribution Registry
 Dependency Graph
@@ -479,6 +295,7 @@ Domain Context
 Domain Generation Framework
 Domain Generation Pipeline
 Domain Model
+Ecosystem Identifier
 Entity
 Event
 Generation Artifact
@@ -489,6 +306,7 @@ Generation Recipe
 Generation Request
 Generation Result
 Generation Strategy
+Governance Identifier
 Plugin
 Plugin Capability
 Plugin Contribution
@@ -520,15 +338,15 @@ Use Case
 Value Object
 ```
 
-These terms MUST retain the meanings defined by the FamilyOS reference and architecture documentation.
+These terms MUST retain the meanings established by FamilyOS architecture, specifications, and reference documentation.
 
 A component MUST NOT reuse one of these names for an incompatible responsibility.
 
 ---
 
-# Reserved architectural suffixes
+# Reserved Architectural Suffixes
 
-The following suffixes have established meanings:
+The following suffixes have established architectural meanings:
 
 ```text
 Adapter
@@ -565,29 +383,70 @@ Verifier
 
 A suffix is not globally prohibited.
 
-However, it is reserved for components that fulfill the corresponding architectural responsibility defined in:
+However, it is reserved for components fulfilling the corresponding architectural responsibility defined by FamilyOS naming and architecture contracts.
 
-`docs/04-reference/Naming-Conventions.md`
-
-Examples of prohibited misuse include:
+Examples of misuse include:
 
 ```text
 PluginResolver
 ```
 
-for a component that installs plugins, or:
+for a component responsible only for installation, or:
 
 ```text
 CapabilityRegistry
 ```
 
-for a component that merely formats capability output.
+for a component that only formats capability output.
+
+Suffixes SHALL communicate responsibility rather than perceived importance.
 
 ---
 
-# Reserved lifecycle terms
+# Reserved Plugin Architecture Terms
 
-The following runtime lifecycle terms are reserved:
+The following plugin terms have stable architectural meanings:
+
+```text
+Plugin
+Plugin Identifier
+Plugin Manifest
+Plugin Metadata
+Plugin Package
+Plugin SDK
+Plugin Ecosystem
+Plugin Discovery
+Plugin Repository
+Plugin Resolver
+Plugin Installer
+Plugin Loader
+Plugin Registry
+Plugin Runtime
+Plugin Capability
+Plugin Contribution
+Plugin Dependency
+Plugin Verifier
+```
+
+These terms MUST NOT be treated as interchangeable.
+
+In particular:
+
+* a Plugin Manifest describes a plugin package;
+* a Plugin Identifier identifies the plugin;
+* a Plugin Package contains distributable or loadable resources;
+* a Plugin Loader loads plugin descriptors or implementations;
+* a Plugin Registry stores identifiable plugin registrations;
+* a Plugin Resolver resolves dependency and compatibility constraints;
+* a Plugin Installer makes a plugin package available;
+* a Plugin Runtime controls execution lifecycle;
+* a Plugin Capability exposes functional contracts.
+
+---
+
+# Reserved Lifecycle Terms
+
+The following runtime lifecycle states are reserved:
 
 ```text
 LOADED
@@ -603,12 +462,12 @@ They MUST NOT be redefined with incompatible semantics.
 
 Additional lifecycle states require:
 
-- an explicit contract
-- transition rules
-- compatibility analysis
-- architectural approval
+* an explicit contract;
+* transition rules;
+* compatibility analysis;
+* architectural approval.
 
-The following lifecycle operation names are also reserved for their established meanings:
+The following lifecycle operation names are also reserved:
 
 ```text
 load
@@ -617,13 +476,13 @@ activate
 stop
 ```
 
-A lifecycle component MUST NOT use these verbs interchangeably.
+These verbs MUST NOT be treated as synonyms.
 
 ---
 
-# Reserved dependency-resolution terms
+# Reserved Dependency-Resolution Terms
 
-The following terms have separate, stable responsibilities:
+The following terms represent separate, stable responsibilities:
 
 ```text
 discover
@@ -636,26 +495,24 @@ load
 activate
 ```
 
-They MUST NOT be treated as synonyms.
-
 Their responsibilities are:
 
-| Term | Reserved responsibility |
-|---|---|
-| discover | Locate available plugin packages or manifests |
-| select | Choose candidates from an available set |
-| resolve | Determine a valid outcome from dependencies and constraints |
-| order | Produce a dependency-safe processing sequence |
-| verify | Confirm integrity, compatibility, authenticity, or trust |
-| install | Make a plugin package available to the platform |
-| load | Read and instantiate a plugin component |
-| activate | Make a loaded plugin operational |
+| Term     | Reserved responsibility                                               |
+| -------- | --------------------------------------------------------------------- |
+| discover | Locate available plugin packages, manifests, or repository records    |
+| select   | Choose candidate resources from an available set                      |
+| resolve  | Determine a valid result from dependencies, versions, and constraints |
+| order    | Produce a dependency-safe processing sequence                         |
+| verify   | Confirm integrity, compatibility, authenticity, trust, or conformance |
+| install  | Make a plugin package available to the platform                       |
+| load     | Read, resolve, or instantiate the plugin implementation               |
+| activate | Make a loaded and initialized plugin operational                      |
 
-A single component MAY coordinate several operations through a pipeline, but its name MUST NOT hide the distinction between them.
+A pipeline MAY coordinate multiple operations, but naming MUST preserve these conceptual distinctions.
 
 ---
 
-# Reserved generation terms
+# Reserved Generation Terms
 
 The following terms have stable meanings in the Generation Framework:
 
@@ -673,20 +530,21 @@ result
 strategy
 template
 ```
+
 These terms MUST NOT be used interchangeably.
 
 In particular:
 
-- a `Template` is not a `Recipe`
-- a `Recipe` is not a `Preset`
-- a `Preset` is not a `Strategy`
-- a `Plan` is not a `Result`
-- a `Definition` is not an instantiated `Artifact`
-- a `Context` is not an unrestricted dependency container
+* a `Template` is not a `Recipe`;
+* a `Recipe` is not a `Preset`;
+* a `Preset` is not a `Strategy`;
+* a `Plan` is not a `Result`;
+* a `Definition` is not an instantiated `Artifact`;
+* a `Context` is not an unrestricted dependency container.
 
 ---
 
-# Reserved domain terms
+# Reserved Domain Terms
 
 The following Domain-Driven Design terms retain their established meanings:
 
@@ -705,27 +563,27 @@ Specification
 Value Object
 ```
 
-These terms MUST NOT be used only as stylistic suffixes.
+These terms MUST NOT be used merely as decorative suffixes.
 
-Examples of prohibited misuse include:
+Examples of discouraged or prohibited misuse include:
 
 ```text
 PersonEntity
 ```
 
-when `Person` is the accepted entity name, or:
+when `Person` is already the accepted entity name, and:
 
 ```text
 FamilyAggregateRoot
 ```
 
-when `Family` is the accepted aggregate root name.
+when `Family` is already the accepted aggregate-root type name.
 
 ---
 
-# Reserved official domain names
+# Reserved Official Domain Names
 
-The following names are reserved for official FamilyOS domains and official plugins:
+The following names are reserved for official FamilyOS domains:
 
 ```text
 Identity
@@ -744,7 +602,7 @@ Notification
 AI
 ```
 
-The corresponding normalized identifiers are also reserved:
+The corresponding normalized domain names are also reserved:
 
 ```text
 identity
@@ -763,31 +621,59 @@ notification
 ai
 ```
 
-A third-party plugin MAY integrate with one of these domains, but MUST NOT claim to be the official implementation of that domain.
+These normalized names represent official domain ownership.
 
-Examples:
+They MUST NOT automatically be interpreted as canonical Plugin Identifiers.
 
-Preferred:
+For example:
 
 ```text
-acme.security.backup
-example.health.import
-vendor.documents.archive
+education
 ```
 
-Prohibited without official authorization:
+is the normalized Education domain name.
+
+The canonical official Education Plugin Identifier is:
 
 ```text
-familyos.security
-familyos.health
-familyos.documents
+familyos.education
 ```
 
 ---
 
-# Reserved official plugin names
+# Reserved Official Plugin Identifiers
 
-The following display names are reserved:
+The following canonical Plugin Identifiers are reserved for official FamilyOS ownership:
+
+```text
+familyos.identity
+familyos.person
+familyos.family
+familyos.security
+familyos.health
+familyos.finance
+familyos.education
+familyos.home
+familyos.tasks
+familyos.documents
+familyos.communication
+familyos.integration
+familyos.notification
+familyos.ai
+familyos.documentation
+```
+
+Reservation indicates ownership protection.
+
+It does not necessarily assert that every listed plugin currently exists or is implemented.
+
+Third-party extensions MUST NOT claim these identifiers.
+
+---
+
+# Reserved Official Plugin Display Names
+
+The following display names are reserved for official FamilyOS plugins:
 
 ```text
 Identity Plugin
@@ -804,21 +690,314 @@ Communication Plugin
 Integration Plugin
 Notification Plugin
 AI Plugin
+Documentation Plugin
 ```
 
-The reservation covers names that differ only by:
+Product-facing forms prefixed by `FamilyOS` are also reserved where they imply official status.
 
-- capitalization
-- punctuation
-- spacing
-- singular or plural form
-- common package-name normalization
+Examples:
+
+```text
+FamilyOS Security Plugin
+FamilyOS Education Plugin
+FamilyOS Documents Plugin
+```
+
+Reservation covers confusingly equivalent representations differing only by:
+
+* capitalization;
+* punctuation;
+* spacing;
+* common package normalization;
+* superficial singular/plural changes.
 
 ---
 
-# Contextually restricted words
+# Documents and Documentation
 
-The following words are not absolutely forbidden, but their use is restricted:
+The following concepts are distinct:
+
+```text
+Documents
+Documentation
+```
+
+The canonical official Plugin Identifiers are:
+
+```text
+Documents Plugin
+→ familyos.documents
+```
+
+and:
+
+```text
+Documentation Plugin
+→ familyos.documentation
+```
+
+These identifiers MUST NOT be treated as aliases or synonyms.
+
+The namespace:
+
+```text
+familyos.documents
+```
+
+belongs to the Documents Plugin context.
+
+The namespace:
+
+```text
+familyos.documentation
+```
+
+belongs to the Documentation Plugin context.
+
+---
+
+# Reserved Official Capability Namespace Patterns
+
+Capabilities exposed by official FamilyOS plugins SHALL use official namespace ownership according to SPEC-0010.
+
+Canonical pattern:
+
+```text
+familyos.<plugin-name>.<capability>
+```
+
+Existing canonical examples include:
+
+```text
+familyos.health.profile
+familyos.health.record
+
+familyos.finance.account
+familyos.finance.transaction
+familyos.finance.asset
+familyos.finance.liability
+familyos.finance.budget
+
+familyos.education.learner
+familyos.education.course
+familyos.education.record
+
+familyos.documents.document
+familyos.documents.archive
+
+familyos.communication.messaging
+familyos.communication.archive
+```
+
+Third-party extensions MUST NOT expose capabilities under these namespaces without authorization.
+
+---
+
+# Reserved Platform Capability Namespaces
+
+The following platform-owned namespace examples are reserved where governed by corresponding FamilyOS contracts:
+
+```text
+familyos.security.audit
+familyos.security.encryption
+familyos.security.policy
+familyos.documents.classification
+familyos.generation.recipes
+familyos.generation.recipe
+familyos.generation.template
+familyos.domain.documentation
+familyos.runtime.lifecycle
+```
+
+Reservation of an identifier does not by itself guarantee that the corresponding runtime capability currently exists.
+
+It protects ownership and future compatibility.
+
+---
+
+# Official and Third-Party Namespace Ownership
+
+A third-party plugin MAY integrate with an official FamilyOS domain.
+
+Preferred examples:
+
+```text
+acme.security.backup
+example.health.import
+vendor.documents.archive
+```
+
+Third-party identifiers MUST NOT falsely claim official FamilyOS ownership.
+
+Without explicit authorization, third parties MUST NOT use forms such as:
+
+```text
+familyos.security
+familyos.health
+familyos.documents
+familyos.education
+```
+
+or any derived capability namespace such as:
+
+```text
+familyos.security.backup
+familyos.education.import
+```
+
+---
+
+# Legacy Official Plugin Identifiers
+
+The following current or historical short identifiers MAY exist as legacy-compatible identifiers:
+
+```text
+education
+documents
+communication
+documentation
+```
+
+Their canonical targets are:
+
+```text
+education
+→ familyos.education
+
+documents
+→ familyos.documents
+
+communication
+→ familyos.communication
+
+documentation
+→ familyos.documentation
+```
+
+These mappings define canonical ownership and migration targets.
+
+They MUST NOT be interpreted as authorization for automatic migration.
+
+A legacy identifier MAY remain temporarily supported when compatibility requirements justify it.
+
+Legacy support SHALL NOT redefine the canonical identifier convention.
+
+---
+
+# Legacy Identifier Protection
+
+A legacy public identifier that remains in active use is still protected from reassignment.
+
+For example, while:
+
+```text
+education
+```
+
+remains accepted as the historical identifier of the official Education Plugin, another plugin MUST NOT claim `education` as an unrelated plugin identity.
+
+Legacy identifiers SHALL remain traceable throughout migration and deprecation.
+
+---
+
+# Future-Reserved Namespaces
+
+The following namespaces are reserved for potential platform evolution:
+
+```text
+familyos.api
+familyos.core
+familyos.domain
+familyos.events
+familyos.identity
+familyos.marketplace
+familyos.plugins
+familyos.runtime
+familyos.sdk
+familyos.specifications
+```
+
+Reservation does not mean that a corresponding implementation currently exists.
+
+Future-reserved namespaces MUST NOT be used by third-party extensions.
+
+Activation of a future-reserved namespace requires an approved FamilyOS contract.
+
+---
+
+# Reserved Package Identity Forms
+
+The following ownership forms are reserved for official FamilyOS packages according to context:
+
+```text
+familyos-
+familyos_
+```
+
+Examples:
+
+```text
+familyos-security-plugin
+familyos_health_plugin
+```
+
+Third-party packages MUST NOT use these forms in a manner that implies official FamilyOS ownership.
+
+A package name does not automatically define the canonical Plugin Identifier.
+
+---
+
+# Reserved Configuration Roots
+
+The following configuration key roots are reserved:
+
+```text
+familyos
+platform
+runtime
+plugins
+generation
+domains
+security
+```
+
+Their use in official schemas MUST follow an approved platform contract.
+
+Third-party configuration SHOULD use vendor-controlled namespaces where appropriate.
+
+Example:
+
+```yaml
+plugins:
+  acme.backup:
+    destination: /archive
+```
+
+---
+
+# Reserved CLI Options
+
+The following options are reserved for conventional CLI behavior:
+
+```text
+--help
+-h
+--version
+-v
+--verbose
+--quiet
+-q
+```
+
+A command MUST NOT assign incompatible meaning to a reserved conventional option.
+
+Where `-v` means `--version`, it MUST NOT simultaneously mean `--verbose` in the same command context.
+
+---
+
+# Contextually Restricted Words
+
+The following terms are not absolutely prohibited but require precise justification:
 
 ```text
 Base
@@ -852,7 +1031,7 @@ A restricted word MAY be used only when it communicates a precise and reviewable
 
 ## Base
 
-`Base` MAY identify an established reusable abstraction when no more precise contract name is available.
+`Base` MAY identify an established reusable abstraction when no more precise contract name exists.
 
 Acceptable:
 
@@ -870,6 +1049,14 @@ BaseManager
 
 ---
 
+## Common
+
+`Common` SHOULD NOT be used as a container for unrelated reusable functionality.
+
+A shared contract SHOULD instead receive a precise architectural name.
+
+---
+
 ## Core
 
 `Core` is reserved for foundational platform responsibilities.
@@ -882,7 +1069,7 @@ Acceptable:
 familyos-core
 ```
 
-when referring to the official platform core.
+when referring to the governed FamilyOS core package or platform concept.
 
 Avoid:
 
@@ -891,11 +1078,35 @@ SecurityCoreHelper
 PluginCoreManager
 ```
 
+without a specific architectural contract.
+
+---
+
+## Data
+
+`Data` SHOULD NOT be used where the actual semantic concept is known.
+
+Prefer:
+
+```text
+PluginMetadata
+GenerationRequest
+DocumentRecord
+```
+
+over:
+
+```text
+PluginData
+GenerationData
+GenericData
+```
+
 ---
 
 ## Default
 
-`Default` MAY identify the canonical built-in implementation of an abstraction.
+`Default` MAY identify a canonical built-in implementation of a documented abstraction.
 
 Acceptable:
 
@@ -904,13 +1115,13 @@ DefaultRecipeRegistry
 DefaultGenerationStrategyRegistry
 ```
 
-A default implementation MUST have a documented abstraction or selection contract.
+A default implementation MUST correspond to a defined abstraction or selection contract.
 
 ---
 
 ## Engine
 
-`Engine` MAY identify a component that executes a complete technical processing mechanism.
+`Engine` MAY identify a component executing a complete technical processing mechanism.
 
 Acceptable:
 
@@ -929,9 +1140,25 @@ unless the complete execution responsibility is explicitly defined.
 
 ---
 
+## Generic
+
+`Generic` SHOULD NOT be used as a substitute for an undefined abstraction.
+
+A production component named `Generic*` requires explicit justification.
+
+---
+
+## Global
+
+`Global` MAY be used only when the scope is genuinely platform-global and explicitly governed.
+
+It MUST NOT be used merely to indicate shared access.
+
+---
+
 ## Handler
 
-`Handler` MAY be used for a component responsible for one clearly identified event, command, protocol operation, or error category.
+`Handler` MAY identify a component responsible for one clearly defined event, command, protocol operation, or error category.
 
 Acceptable:
 
@@ -947,7 +1174,7 @@ DataHandler
 RequestHandler
 ```
 
-when a more precise term exists.
+when a more precise architectural term exists.
 
 ---
 
@@ -959,6 +1186,7 @@ Acceptable:
 
 ```text
 LegacyManifestAdapter
+LegacyPluginIdentifierAlias
 ```
 
 A component MUST NOT be named `Legacy` solely because it is old.
@@ -967,18 +1195,18 @@ A component MUST NOT be named `Legacy` solely because it is old.
 
 ## Manager
 
-`Manager` MUST NOT be used when a precise architectural role exists.
+`Manager` SHOULD NOT be used when a precise architectural role exists.
 
 Prefer:
 
 ```text
 PluginRegistry
-PluginLifecycleManager
 PluginInstaller
+PluginResolver
 RuntimeLifecycleManager
 ```
 
-The word MAY be retained when the component genuinely coordinates a lifecycle with multiple transitions and no narrower established term communicates that responsibility.
+`Manager` MAY remain where a component genuinely coordinates multiple lifecycle responsibilities and no narrower established term is accurate.
 
 ---
 
@@ -986,13 +1214,20 @@ The word MAY be retained when the component genuinely coordinates a lifecycle wi
 
 `Official` is reserved for components governed and maintained by the FamilyOS project.
 
-Third-party components MUST NOT use `Official` in names, descriptions, package metadata, or identifiers in a way that implies endorsement.
+Third-party components MUST NOT use `Official` in:
+
+* names;
+* descriptions;
+* identifiers;
+* package metadata;
+
+when doing so could imply FamilyOS endorsement or ownership.
 
 ---
 
 ## Platform
 
-`Platform` is reserved for the complete FamilyOS platform or an explicitly defined platform-level contract.
+`Platform` is reserved for the complete FamilyOS platform or an explicitly governed platform-level contract.
 
 A plugin MUST NOT include `Platform` in its name merely to appear foundational.
 
@@ -1026,6 +1261,24 @@ Avoid:
 ```text
 shared/utils.py
 shared/helpers.py
+```
+
+---
+
+## Standard
+
+`Standard` MAY be used only when a governed standard or canonical behavior is clearly defined.
+
+It MUST NOT be used merely to imply superiority or default status.
+
+---
+
+## System
+
+`System` SHOULD be used only for system-level responsibilities.
+
+A local component SHOULD NOT use `System` simply to imply importance.
+
 ---
 
 ## Temporary
@@ -1039,19 +1292,15 @@ TemporaryDirectory
 temporary_path
 ```
 
-It MUST NOT appear in the name of a committed production component.
+It MUST NOT normally appear in committed production component identity.
 
 ---
 
-## Utility and helper
+## Utility and Helper
 
 `Utility`, `Utilities`, `Helper`, and `Helpers` SHOULD NOT be used for production architectural components.
 
 Their use commonly hides an undefined responsibility.
-
-Prefer a name that identifies the actual operation.
-
-Examples:
 
 Preferred:
 
@@ -1077,13 +1326,11 @@ MiscUtilities
 CommonHelper
 ```
 
-An exception MAY be acceptable when the component represents a well-defined compatibility layer or wraps an external library whose terminology cannot reasonably be changed.
-
-Even in such cases, the architectural responsibility MUST remain explicit.
+An exception MAY exist for a precisely documented compatibility layer or unavoidable external-library terminology.
 
 ---
 
-# Prohibited identifiers
+# Prohibited Production Identifiers
 
 The following identifiers MUST NOT be used as production component names:
 
@@ -1111,14 +1358,15 @@ BackupCopy
 Untitled
 ```
 
-These names MAY appear in isolated documentation examples when clearly marked as placeholders, but MUST NOT appear in production contracts or committed implementation components.
+These terms MAY appear in isolated examples when clearly identified as placeholders.
 
 Official reference documents MUST NOT contain unresolved placeholder identifiers.
+
 ---
 
-# Version words
+# Version Words
 
-The following words MUST NOT be used to represent version history in production file or component names:
+The following terms MUST NOT be used to represent ordinary version history in production file or component names:
 
 ```text
 old
@@ -1132,15 +1380,16 @@ backup
 deprecated-copy
 ```
 
-Version history MUST be managed through:
+Version history MUST instead be represented through:
 
-- version control
-- release tags
-- package versions
-- migration documents
-- explicit deprecation metadata
+* version control;
+* release tags;
+* package versions;
+* explicit migration documents;
+* compatibility metadata;
+* deprecation metadata.
 
-A version suffix MAY be used when it is part of an approved public contract.
+An approved public compatibility boundary MAY contain a version designation.
 
 Examples:
 
@@ -1150,23 +1399,25 @@ ManifestVersion2
 ApiV2Adapter
 ```
 
-Such use requires a defined compatibility boundary.
+Such use requires an explicit compatibility contract.
+
+Canonical Plugin and Capability Identifiers MUST NOT embed versions.
 
 ---
 
-# Language-reserved words
+# Language-Reserved Words
 
 Implementation languages and data formats define their own reserved words.
 
-FamilyOS identifiers MUST comply with those restrictions.
+FamilyOS implementation identifiers MUST comply with those restrictions.
 
 ---
 
-## Python reserved words
+## Python Reserved Words
 
 Python keywords MUST NOT be used as Python identifiers.
 
-The authoritative keyword list is the list provided by the Python version supported by the platform.
+The authoritative keyword list is defined by the supported Python runtime.
 
 Common examples include:
 
@@ -1208,15 +1459,13 @@ with
 yield
 ```
 
-Soft keywords defined by Python MUST also be considered in contexts where they have reserved meaning.
-
-FamilyOS MUST NOT duplicate the complete Python language specification in this document.
+Soft keywords MUST also be respected where Python assigns them special meaning.
 
 ---
 
-## Python built-in names
+## Python Built-In Names
 
-Python built-in names SHOULD NOT be shadowed.
+Python built-in names SHOULD NOT be shadowed when a precise alternative exists.
 
 Examples include:
 
@@ -1256,179 +1505,263 @@ artifact_type
 result_list
 ```
 
----
-
-## CLI reserved options
-
-The following options are reserved for conventional CLI behavior:
+An existing public contract such as:
 
 ```text
---help
--h
---version
--v
---verbose
---quiet
--q
+PluginDescriptor.id
 ```
 
-A command MUST NOT assign an incompatible meaning to one of these options.
-
-Where `-v` is used for `--version`, it MUST NOT simultaneously mean `--verbose` within the same command context.
+MAY remain when compatibility requirements outweigh local naming preference.
 
 ---
 
-## Configuration keys
+# Namespace Ownership
 
-The following configuration key roots are reserved:
+A namespace represents controlled ecosystem identity.
+
+A namespaced identifier MUST NOT be used without ownership or authorization.
+
+The namespace:
 
 ```text
 familyos
-platform
-runtime
-plugins
-generation
-domains
-security
 ```
 
-Their use in official schemas MUST follow an approved specification.
+belongs to the FamilyOS project.
 
-Third-party configuration SHOULD be placed under a vendor-controlled namespace.
+Third-party publishers SHOULD use namespaces they control.
 
-Example:
-
-```yaml
-plugins:
-  acme.backup:
-    destination: /archive
-```
-
-
----
-
-# Future-reserved namespaces
-
-The following namespaces are reserved for potential platform evolution:
+Examples:
 
 ```text
-familyos.api
-familyos.core
-familyos.domain
-familyos.events
-familyos.identity
-familyos.marketplace
-familyos.plugins
-familyos.runtime
-familyos.sdk
-familyos.specifications
+acme
+example
+vendor
 ```
 
-Reservation does not mean that the corresponding component currently exists.
+resulting in identifiers such as:
 
-Future-reserved namespaces MUST NOT be used by third-party extensions.
-
-Their eventual activation requires an approved platform contract.
+```text
+acme.backup
+example.health.import
+vendor.documents.archive
+```
 
 ---
 
-# Ownership and authorization
+# Ownership and Authorization
 
 A reserved identifier MAY be assigned only through an approved FamilyOS governance process.
 
 Authorization MAY be granted through:
 
-- an approved Architecture Decision Record
-- an approved Request for Comments
-- an approved specification
-- an official plugin designation
-- an explicit platform governance decision
+* an approved Architecture Decision Record;
+* an approved Request for Comments;
+* an approved specification;
+* an official plugin designation;
+* an explicit platform governance decision.
 
-Informal usage, existing code, or repository availability does not automatically grant ownership of a reserved identifier.
+Informal usage, repository availability, historical experimentation, or implementation existence does not automatically establish ownership.
 
 ---
 
-# Conflict handling
+# Canonical Identity and Aliases
+
+FamilyOS distinguishes:
+
+```text
+Canonical Identifier
+Alias
+Legacy Identifier
+Display Name
+Package Name
+```
+
+These concepts MUST NOT be conflated.
+
+An alias MAY provide compatibility lookup for a canonical identity.
+
+An alias MUST NOT create an independent identity.
+
+For example:
+
+```text
+Legacy:
+education
+
+Canonical:
+familyos.education
+```
+
+MAY eventually coexist during an approved migration.
+
+The canonical identity remains:
+
+```text
+familyos.education
+```
+
+---
+
+# Identifier Reassignment
+
+A reserved, deprecated, retired, or legacy public identifier MUST NOT be reassigned to an unrelated entity.
+
+This requirement protects:
+
+* historical traceability;
+* dependency resolution;
+* persisted configuration;
+* generated artifacts;
+* ecosystem compatibility.
+
+---
+
+# Conflict Handling
 
 When a proposed identifier conflicts with this document:
 
-1. the conflict MUST be identified during review
-2. the proposed identifier MUST be changed unless an exception is approved
-3. public compatibility impact MUST be evaluated
-4. related documentation MUST be updated
-5. the final decision MUST be traceable
+1. the conflict MUST be identified during review;
+2. the proposed identifier MUST be changed unless an exception is approved;
+3. namespace ownership MUST be evaluated;
+4. public compatibility impact MUST be evaluated;
+5. related documentation MUST be updated;
+6. the final decision MUST remain traceable.
 
-A naming conflict MUST NOT be resolved by silently redefining the reserved term.
+A naming conflict MUST NOT be resolved by silently redefining a reserved term.
 
 ---
 
-# Existing conflicts
+# Existing Conflicts
 
-Existing identifiers that predate this specification SHOULD be classified as:
+Existing identifiers predating current conventions SHOULD be classified as:
 
-- compliant
-- contextually acceptable
-- deprecated
-- scheduled for migration
-- explicitly exempted
+* compliant;
+* legacy-compatible;
+* contextually acceptable;
+* deprecated;
+* scheduled for migration;
+* explicitly exempted.
 
 A stable public identifier MUST NOT be renamed automatically.
 
 Compatibility and migration requirements take precedence over stylistic consistency.
 
----
+Known legacy Plugin Identifiers currently include:
+
+```text
+education
+documents
+communication
+documentation
+```
+
+Their existence SHALL NOT establish the canonical convention for new official plugins.
 
 ---
 
 # Exceptions
 
-An exception to a reserved-word rule requires:
+An exception to a reserved-word or namespace rule requires:
 
-- a concrete technical or architectural justification
-- confirmation that no clearer alternative exists
-- compatibility analysis
-- documentation of the intended meaning
-- architectural approval
+* a concrete technical or architectural justification;
+* confirmation that no clearer alternative exists;
+* ownership analysis;
+* compatibility analysis;
+* documentation of intended meaning;
+* architectural approval.
 
 Exceptions MUST remain narrow.
 
-An exception for one component does not establish a general naming convention.
+An exception for one component MUST NOT establish an ecosystem-wide convention.
 
 ---
 
-# Review checklist
+# Review Checklist
 
-Before approving an identifier, reviewers MUST verify that:
+Before approving a public identifier or reserved name, reviewers MUST verify that:
 
-- it does not use an official namespace without authorization
-- it does not imply official status incorrectly
-- it does not conflict with an official domain or plugin name
-- it does not redefine a contract-reserved term
-- it uses architectural suffixes correctly
-- it does not shadow a Python keyword
-- it avoids shadowing Python built-ins
-- it does not use filename-based version history
-- it does not introduce a prohibited generic name
-- it respects third-party namespace ownership
-- it remains stable enough for its intended visibility
+* its identifier category is understood;
+* it does not use an official namespace without authorization;
+* it does not falsely imply official FamilyOS status;
+* it does not conflict with an official domain;
+* it does not conflict with an official Plugin Identifier;
+* it does not conflict with an official Capability Identifier;
+* it does not redefine a contract-reserved term;
+* it uses architectural suffixes correctly;
+* it does not use prohibited generic terminology;
+* it does not contain version information where prohibited;
+* it respects third-party namespace ownership;
+* it does not shadow a language keyword;
+* it avoids unnecessary built-in shadowing;
+* it is stable enough for its intended public scope;
+* compatibility impact has been considered.
+
+For official Plugin Identifiers, reviewers MUST additionally verify:
+
+```text
+familyos.<plugin-name>
+```
+
+For official plugin Capability Identifiers, reviewers MUST additionally verify:
+
+```text
+familyos.<plugin-name>.<capability>
+```
 
 ---
 
 # Compliance
 
-An identifier complies with this specification when:
+An identifier or name complies with this reference when:
 
-- its namespace is authorized
-- its terms retain their official meanings
-- its prefixes and suffixes match its responsibility
-- it does not imply unauthorized ownership or endorsement
-- it does not conflict with language-level restrictions
-- it does not use prohibited naming patterns
-- it follows the official naming conventions
+* its ownership is authorized;
+* its identifier category is valid;
+* its namespace is valid;
+* its terms retain official meanings;
+* its prefixes and suffixes match responsibility;
+* it does not falsely imply ownership or endorsement;
+* it respects language-level restrictions;
+* it avoids prohibited naming patterns;
+* it follows SPEC-0002 and SPEC-0008;
+* plugin identity follows SPEC-0009 where applicable;
+* capability identity follows SPEC-0010 where applicable.
 
-Non-compliant identifiers MUST be corrected before becoming stable public contracts.
+New non-compliant identifiers MUST be corrected before becoming stable public contracts.
 
 Existing public identifiers require compatibility analysis before modification.
+
+---
+
+# Migration Governance
+
+Identifier migration SHALL be treated as compatibility-sensitive when the identifier is exposed through:
+
+* plugin manifests;
+* Plugin SDK contracts;
+* registries;
+* dependency declarations;
+* CLI interfaces;
+* configuration;
+* generated artifacts;
+* public APIs;
+* documentation;
+* persisted state.
+
+Migration SHALL consider:
+
+1. affected consumers;
+2. dependencies;
+3. lookup behavior;
+4. aliasing;
+5. deprecation;
+6. tests;
+7. generated artifacts;
+8. documentation;
+9. release notes;
+10. retirement strategy.
+
+Canonical naming alone does not authorize migration.
 
 ---
 
@@ -1436,30 +1769,81 @@ Existing public identifiers require compatibility analysis before modification.
 
 This document is maintained as part of the FamilyOS platform reference.
 
-New reserved words SHOULD be introduced only when required to:
+New reserved terms SHOULD be introduced only when required to:
 
-- protect a public contract
-- establish an official namespace
-- prevent ecosystem ambiguity
-- support a new governed platform capability
+* protect a public contract;
+* establish official namespace ownership;
+* protect canonical plugin identity;
+* protect capability ownership;
+* prevent ecosystem ambiguity;
+* establish architectural terminology;
+* support future governed platform evolution.
 
-Every addition MUST define:
+Every new reservation SHOULD define:
 
-- the reserved identifier
-- its category
-- its intended meaning
-- its ownership
-- its permitted uses
-- its prohibited uses
+* the reserved term or identifier;
+* its category;
+* intended meaning;
+* ownership;
+* permitted uses;
+* prohibited uses;
+* compatibility implications.
 
-Reserved identifiers MUST NOT be added solely to prevent legitimate third-party innovation.
+Reserved identifiers MUST NOT be introduced solely to prevent legitimate third-party innovation.
 
 ---
 
 # Summary
 
-FamilyOS reserved words protect the identity, terminology, namespaces, contracts, and extension boundaries of the platform.
+FamilyOS reserved words protect platform identity, architectural terminology, namespace ownership, plugin identity, capability identity, and extension boundaries.
+
+Governance identifiers remain distinct from ecosystem identifiers.
+
+Examples of governance identity include:
+
+```text
+SPEC-0002
+ADR-0007
+RFC-0010
+```
+
+Official Plugin Identifiers use:
+
+```text
+familyos.<plugin-name>
+```
+
+Examples:
+
+```text
+familyos.security
+familyos.health
+familyos.finance
+familyos.education
+familyos.documents
+familyos.communication
+familyos.documentation
+```
+
+Official plugin Capability Identifiers use:
+
+```text
+familyos.<plugin-name>.<capability>
+```
+
+Examples:
+
+```text
+familyos.health.record
+familyos.education.course
+familyos.documents.archive
+familyos.communication.messaging
+```
+
+Third-party resources MUST use namespaces they are authorized to control.
+
+Legacy public identifiers MAY remain temporarily compatible but MUST NOT redefine canonical FamilyOS identity.
 
 Official identifiers are controlled resources.
 
-They must remain unambiguous, stable, and correctly owned so that official components, third-party plugins, generated artifacts, documentation, and public APIs can coexist without naming conflicts or false claims of platform authority.
+They must remain unambiguous, stable, correctly owned, non-reassignable, and compatibility-aware so that official components, third-party plugins, generated artifacts, documentation, and public APIs can coexist without naming conflicts or false claims of platform authority.
