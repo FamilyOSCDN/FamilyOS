@@ -2,17 +2,36 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-
 from familyos_cli.plugins.runtime.runtime_lifecycle_manager import (
     RuntimeLifecycleManager,
 )
+from familyos_cli.plugins.runtime.runtime_observation_recorder import (
+    RuntimeObservationRecorder,
+)
 
 
-@dataclass(slots=True)
 class RuntimeContext:
     """Provide shared services for the plugin runtime."""
 
-    lifecycle: RuntimeLifecycleManager = field(
-        default_factory=RuntimeLifecycleManager,
-    )
+    def __init__(
+        self,
+        lifecycle: RuntimeLifecycleManager | None = None,
+        observations: RuntimeObservationRecorder | None = None,
+    ) -> None:
+        """Initialize shared runtime services."""
+
+        self.observations = (
+            observations
+            if observations is not None
+            else RuntimeObservationRecorder()
+        )
+
+        self.lifecycle = (
+            lifecycle
+            if lifecycle is not None
+            else RuntimeLifecycleManager()
+        )
+
+        self.lifecycle.set_observation_recorder(
+            self.observations,
+        )
