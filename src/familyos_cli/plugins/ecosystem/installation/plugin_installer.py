@@ -21,7 +21,7 @@ class PluginInstaller:
         """Create installed plugin representation."""
 
         return InstalledPlugin(
-            name=package.plugin_id,
+            plugin_id=package.plugin_id,
             version=package.version,
             location=location,
         )
