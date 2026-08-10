@@ -18,7 +18,7 @@ def communication_plugin_path() -> Path:
         / "familyos_cli"
         / "plugins"
         / "builtin"
-        / "communication"
+        / "familyos.communication"
     )
 
 
@@ -30,7 +30,7 @@ def find_communication_descriptor(
     return next(
         descriptor
         for descriptor in descriptors
-        if descriptor.id == "communication"
+        if descriptor.id == "familyos.communication"
     )
 
 

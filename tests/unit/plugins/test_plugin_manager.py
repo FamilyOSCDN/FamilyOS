@@ -59,3 +59,112 @@ def test_list_should_use_plugin_loader(
     )
 
     assert plugins == [descriptor]
+
+
+def test_manager_get_accepts_legacy_plugin_id_alias() -> None:
+    """Manager lookup should accept a governed legacy Plugin Identifier."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS Team",
+        description="Education plugin",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+        enabled=True,
+    )
+
+    manager = PluginManager()
+    manager.register(descriptor)
+
+    assert manager.get("education") == descriptor
+    assert manager.get("familyos.education") == descriptor
+
+
+def test_manager_stores_only_canonical_plugin_id() -> None:
+    """Manager storage should contain only canonical Plugin Identifiers."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS Team",
+        description="Education plugin",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+        enabled=True,
+    )
+
+    manager = PluginManager()
+    manager.register(descriptor)
+
+    assert manager.list_plugins() == [descriptor]
+    assert "familyos.education" in manager._plugins
+    assert "education" not in manager._plugins
+
+
+@patch(
+    "familyos_cli.plugins.plugin_manager.PluginLoader",
+)
+def test_manager_activate_accepts_legacy_plugin_id_alias(
+    mock_loader_class,
+) -> None:
+    """Activation should resolve legacy identifiers canonically."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS Team",
+        description="Education plugin",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+        enabled=True,
+    )
+
+    loader = Mock()
+    mock_loader_class.return_value = loader
+    loader.load.return_value = Mock()
+
+    manager = PluginManager()
+    manager.register(descriptor)
+
+    manager.activate("education")
+
+    loader.load.assert_called_once()
+
+
+@patch(
+    "familyos_cli.plugins.plugin_manager.PluginLoader",
+)
+def test_manager_deactivate_accepts_legacy_plugin_id_alias(
+    mock_loader_class,
+) -> None:
+    """Deactivation should resolve legacy identifiers canonically."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS Team",
+        description="Education plugin",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+        enabled=True,
+    )
+
+    loader = Mock()
+    mock_loader_class.return_value = loader
+    loader.load.return_value = Mock()
+
+    manager = PluginManager()
+    manager.register(descriptor)
+
+    manager.deactivate("education")
+
+    loader.load.assert_called_once()

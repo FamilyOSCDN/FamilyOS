@@ -13,7 +13,7 @@ def education_plugin_path() -> Path:
         / "familyos_cli"
         / "plugins"
         / "builtin"
-        / "education"
+        / "familyos.education"
     )
 
 
@@ -27,10 +27,10 @@ def test_education_plugin_descriptor_is_discovered() -> None:
     descriptor = next(
         descriptor
         for descriptor in descriptors
-        if descriptor.id == "education"
+        if descriptor.id == "familyos.education"
     )
 
-    assert descriptor.id == "education"
+    assert descriptor.id == "familyos.education"
 
     assert descriptor.name == (
         "FamilyOS Education Plugin"

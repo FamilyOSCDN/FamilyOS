@@ -59,13 +59,13 @@ def test_official_plugin_descriptor_ids_are_stable() -> None:
         "familyos.finance"
     )
     assert descriptor_ids["EducationPlugin"] == (
-        "education"
+        "familyos.education"
     )
     assert descriptor_ids["DocumentsPlugin"] == (
-        "documents"
+        "familyos.documents"
     )
     assert descriptor_ids["CommunicationPlugin"] == (
-        "communication"
+        "familyos.communication"
     )
 
 

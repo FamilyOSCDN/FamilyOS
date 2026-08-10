@@ -76,3 +76,67 @@ def test_register_duplicate_plugin_raises() -> None:
 
     with pytest.raises(ValueError):
         registry.register(plugin)
+
+
+def test_registry_get_accepts_legacy_plugin_id_alias() -> None:
+    """Registry lookup should accept a governed legacy Plugin Identifier."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS",
+        description="Education plugin for tests",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+    )
+
+    registry = PluginRegistry()
+    registry.register(descriptor)
+
+    assert registry.get("education") == descriptor
+    assert registry.get("familyos.education") == descriptor
+
+
+def test_registry_does_not_duplicate_legacy_identity() -> None:
+    """Legacy lookup compatibility should not duplicate registry entries."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS",
+        description="Education plugin for tests",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+    )
+
+    registry = PluginRegistry()
+    registry.register(descriptor)
+
+    assert registry.list_plugins() == [descriptor]
+
+
+def test_registry_unregister_accepts_legacy_plugin_id_alias() -> None:
+    """Registry removal should accept a governed legacy identifier."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS",
+        description="Education plugin for tests",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+    )
+
+    registry = PluginRegistry()
+    registry.register(descriptor)
+
+    registry.unregister("education")
+
+    assert registry.get("familyos.education") is None
+    assert registry.list_plugins() == []

@@ -18,7 +18,7 @@ def documents_plugin_path() -> Path:
         / "familyos_cli"
         / "plugins"
         / "builtin"
-        / "documents"
+        / "familyos.documents"
     )
 
 
@@ -30,7 +30,7 @@ def find_documents_descriptor(
     return next(
         descriptor
         for descriptor in descriptors
-        if descriptor.id == "documents"
+        if descriptor.id == "familyos.documents"
     )
 
 

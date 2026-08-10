@@ -9,6 +9,9 @@ from builtins import list as builtin_list
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from familyos_cli.plugins.identity import (
+    normalize_plugin_id,
+)
 from familyos_cli.plugins.models.plugin_descriptor import (
     PluginDescriptor,
 )
@@ -68,11 +71,17 @@ class PluginManager:
 
     def get(
         self,
-        name: str,
+        plugin_id: str,
     ) -> PluginDescriptor | None:
-        """Retrieve a registered plugin."""
+        """Retrieve a registered plugin by Plugin Identifier."""
 
-        return self._plugins.get(name)
+        canonical_plugin_id = normalize_plugin_id(
+            plugin_id,
+        )
+
+        return self._plugins.get(
+            canonical_plugin_id,
+        )
 
     def list(
         self,
@@ -138,17 +147,21 @@ class PluginManager:
 
     def activate(
         self,
-        name: str,
+        plugin_id: str,
     ) -> None:
-        """Activate a plugin by name."""
+        """Activate a plugin by Plugin Identifier."""
+
+        canonical_plugin_id = normalize_plugin_id(
+            plugin_id,
+        )
 
         descriptor = self.get(
-            name,
+            canonical_plugin_id,
         )
 
         if descriptor is None:
             raise ValueError(
-                f"Unknown plugin: {name}",
+                f"Unknown plugin: {plugin_id}",
             )
 
         context = PluginContext(
@@ -172,17 +185,21 @@ class PluginManager:
 
     def deactivate(
         self,
-        name: str,
+        plugin_id: str,
     ) -> None:
-        """Deactivate a plugin."""
+        """Deactivate a plugin by Plugin Identifier."""
+
+        canonical_plugin_id = normalize_plugin_id(
+            plugin_id,
+        )
 
         descriptor = self.get(
-            name,
+            canonical_plugin_id,
         )
 
         if descriptor is None:
             raise ValueError(
-                f"Unknown plugin: {name}",
+                f"Unknown plugin: {plugin_id}",
             )
 
         plugin = PluginLoader().load(

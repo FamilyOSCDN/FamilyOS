@@ -16,7 +16,7 @@ def education_plugin_path() -> Path:
         / "familyos_cli"
         / "plugins"
         / "builtin"
-        / "education"
+        / "familyos.education"
     )
 
 
@@ -30,7 +30,7 @@ def test_education_plugin_can_be_loaded() -> None:
     descriptor = next(
         descriptor
         for descriptor in descriptors
-        if descriptor.id == "education"
+        if descriptor.id == "familyos.education"
     )
 
     loaded_plugin = loader.load(
