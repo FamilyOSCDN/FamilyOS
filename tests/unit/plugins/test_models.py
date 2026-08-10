@@ -29,3 +29,47 @@ def test_plugin_descriptor_should_store_data() -> None:
     assert plugin.class_name == "DDDPlugin"
     assert plugin.path == Path("plugins/ddd")
     assert plugin.enabled
+
+
+def test_plugin_descriptor_accepts_canonical_plugin_id() -> None:
+    """Plugin descriptor should accept a canonical Plugin Identifier."""
+
+    plugin = PluginDescriptor(
+        id="acme.calendar",
+        name="Calendar",
+        version="1.0.0",
+    )
+
+    assert plugin.id == "acme.calendar"
+
+
+def test_plugin_descriptor_rejects_legacy_plugin_id() -> None:
+    """Plugin descriptor should reject a legacy short identifier."""
+
+    import pytest
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginDescriptor(
+            id="calendar",
+            name="Calendar",
+            version="1.0.0",
+        )
+
+
+def test_plugin_descriptor_rejects_invalid_plugin_id() -> None:
+    """Plugin descriptor should reject an invalid Plugin Identifier."""
+
+    import pytest
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginDescriptor(
+            id="FamilyOS.Calendar",
+            name="Calendar",
+            version="1.0.0",
+        )

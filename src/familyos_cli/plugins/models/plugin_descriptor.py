@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from familyos_cli.plugins.identity import PluginId
 from familyos_cli.plugins.models.plugin_metadata import PluginMetadata
 
 
@@ -51,7 +52,13 @@ class PluginDescriptor:
                 description=description,
             )
 
-        object.__setattr__(self, "id", id)
+        canonical_plugin_id = PluginId(id)
+
+        object.__setattr__(
+            self,
+            "id",
+            canonical_plugin_id.value,
+        )
         object.__setattr__(self, "metadata", metadata)
         object.__setattr__(self, "module", module)
         object.__setattr__(self, "class_name", class_name)
