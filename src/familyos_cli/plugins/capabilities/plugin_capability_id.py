@@ -1,8 +1,12 @@
 """Plugin capability identifier value object."""
 
-from __future__ import annotations
-
+import re
 from dataclasses import dataclass
+
+_CAPABILITY_ID_PATTERN = re.compile(
+    r"^[a-z0-9][a-z0-9-]*"
+    r"(?:\.[a-z0-9][a-z0-9-]*){2,}$",
+)
 
 
 @dataclass(
@@ -22,6 +26,13 @@ class PluginCapabilityId:
         if not self.value:
             raise ValueError(
                 "Plugin capability id cannot be empty.",
+            )
+
+        if _CAPABILITY_ID_PATTERN.fullmatch(
+            self.value,
+        ) is None:
+            raise ValueError(
+                f"Invalid plugin capability id: {self.value!r}.",
             )
 
     def __str__(

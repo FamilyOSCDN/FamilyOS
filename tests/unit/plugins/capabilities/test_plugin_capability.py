@@ -13,7 +13,7 @@ def test_plugin_capability_creation() -> None:
 
     capability = PluginCapability(
         id=PluginCapabilityId(
-            "domain_generation",
+            "example.generation.domain",
         ),
         display_name="Domain Generation",
         description="Provides domain generation support.",
@@ -23,7 +23,7 @@ def test_plugin_capability_creation() -> None:
     )
 
     assert capability.id == PluginCapabilityId(
-        "domain_generation",
+        "example.generation.domain",
     )
     assert capability.display_name == "Domain Generation"
     assert capability.description == (
@@ -39,7 +39,7 @@ def test_plugin_capability_uses_empty_defaults() -> None:
 
     capability = PluginCapability(
         id=PluginCapabilityId(
-            "templates",
+            "example.generation.templates",
         ),
         display_name="Templates",
     )

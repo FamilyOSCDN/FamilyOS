@@ -18,7 +18,7 @@ def capability() -> PluginCapability:
 
     return PluginCapability(
         id=PluginCapabilityId(
-            "domain_generation",
+            "example.generation.domain",
         ),
         display_name="Domain Generation",
     )

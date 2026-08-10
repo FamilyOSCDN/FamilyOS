@@ -23,13 +23,13 @@ class SamplePlugin(Plugin):
         return (
             PluginCapability(
                 id=PluginCapabilityId(
-                    "domain_generation",
+                    "example.generation.domain",
                 ),
                 display_name="Domain Generation",
             ),
             PluginCapability(
                 id=PluginCapabilityId(
-                    "templates",
+                    "example.generation.templates",
                 ),
                 display_name="Templates",
             ),

@@ -8,14 +8,25 @@ from familyos_cli.plugins.capabilities.plugin_capability_id import (
 
 
 def test_plugin_capability_id_creation() -> None:
-    """Capability identifiers should preserve their value."""
+    """Canonical capability identifiers should preserve their value."""
 
     capability_id = PluginCapabilityId(
-        "domain_generation",
+        "familyos.education.course",
     )
 
-    assert capability_id.value == "domain_generation"
-    assert str(capability_id) == "domain_generation"
+    assert capability_id.value == "familyos.education.course"
+    assert str(capability_id) == "familyos.education.course"
+
+
+def test_third_party_plugin_capability_id_creation() -> None:
+    """Third-party capability namespaces should be supported."""
+
+    capability_id = PluginCapabilityId(
+        "acme.backup.archive",
+    )
+
+    assert capability_id.value == "acme.backup.archive"
+    assert str(capability_id) == "acme.backup.archive"
 
 
 def test_plugin_capability_id_rejects_empty_value() -> None:
@@ -26,3 +37,28 @@ def test_plugin_capability_id_rejects_empty_value() -> None:
         match="Plugin capability id cannot be empty.",
     ):
         PluginCapabilityId("")
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "domain_generation",
+        "templates",
+        "FamilyOS.health.record",
+        "familyos health record",
+        "familyos.health",
+        ".familyos.health.record",
+        "familyos.health.record.",
+        "familyos..health.record",
+    ],
+)
+def test_plugin_capability_id_rejects_invalid_syntax(
+    value: str,
+) -> None:
+    """Capability identifiers should require canonical syntax."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid plugin capability id",
+    ):
+        PluginCapabilityId(value)
