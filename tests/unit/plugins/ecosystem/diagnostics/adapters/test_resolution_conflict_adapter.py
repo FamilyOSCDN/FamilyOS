@@ -289,3 +289,38 @@ def test_adapter_ignores_skipped_versions_from_other_plugins() -> None:
     )
 
     assert conflicts[0].available_versions == ("1.0.0",)
+
+
+def test_adapter_matches_skipped_versions_by_plugin_id() -> None:
+    """Conflict matching should use canonical plugin identity."""
+
+    plan = ResolutionPlan(
+        skipped_packages=[
+            PluginPackage(
+                plugin_id="familyos.crypto",
+                version="1.0.0",
+                source="official",
+            ),
+            PluginPackage(
+                plugin_id="familyos.storage",
+                version="2.0.0",
+                source="official",
+            ),
+        ],
+        diagnostics=[
+            ResolutionDiagnostic(
+                plugin="familyos.crypto",
+                message=(
+                    "No available plugin version satisfies "
+                    "constraint set '>=3.0.0'."
+                ),
+            ),
+        ],
+    )
+
+    conflicts = ResolutionConflictAdapter().adapt(
+        plan,
+    )
+
+    assert conflicts[0].plugin == "familyos.crypto"
+    assert conflicts[0].available_versions == ("1.0.0",)

@@ -33,6 +33,20 @@ def test_plugin_manifest_creation() -> None:
     )
 
 
+def test_plugin_manifest_exposes_plugin_id() -> None:
+    """Manifest should expose canonical package identity."""
+
+    manifest = PluginManifest(
+        package=PluginPackage(
+            plugin_id="familyos.calendar",
+            version="1.2.0",
+            source="official",
+        ),
+    )
+
+    assert manifest.plugin_id == "familyos.calendar"
+
+
 def test_plugin_manifest_exposes_package_name() -> None:
     manifest = PluginManifest(
         package=PluginPackage(

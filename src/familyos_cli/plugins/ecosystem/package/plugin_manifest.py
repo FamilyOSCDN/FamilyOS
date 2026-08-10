@@ -26,12 +26,20 @@ class PluginManifest:
     )
 
     @property
+    def plugin_id(
+        self,
+    ) -> str:
+        """Return the canonical plugin identifier."""
+
+        return self.package.plugin_id
+
+    @property
     def name(
         self,
     ) -> str:
-        """Return the plugin package name."""
+        """Return the legacy plugin identifier alias."""
 
-        return self.package.name
+        return self.plugin_id
 
     @property
     def version(

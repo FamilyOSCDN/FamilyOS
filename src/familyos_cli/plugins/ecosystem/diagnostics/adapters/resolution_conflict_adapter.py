@@ -101,7 +101,7 @@ class ResolutionConflictAdapter:
         versions: list[str] = []
 
         for package in plan.skipped_packages:
-            if package.name != plugin:
+            if package.plugin_id != plugin:
                 continue
 
             if package.version not in versions:
