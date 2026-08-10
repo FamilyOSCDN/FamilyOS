@@ -1,3 +1,5 @@
+"""Tests for domain generation contribution registry."""
+
 import pytest
 
 from familyos_cli.plugins.contributions.domain_generation_contribution import (
@@ -6,12 +8,18 @@ from familyos_cli.plugins.contributions.domain_generation_contribution import (
 from familyos_cli.plugins.contributions.domain_generation_contribution_registry import (
     DomainGenerationContributionRegistry,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 
 
 def test_register_domain_generation_contribution() -> None:
     registry = DomainGenerationContributionRegistry()
 
     contribution = DomainGenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.domain.health",
+        ),
         domain="Health",
         description="Health domain generation.",
         artifacts=(
@@ -32,6 +40,9 @@ def test_list_domain_generation_contributions() -> None:
     registry = DomainGenerationContributionRegistry()
 
     contribution = DomainGenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.domain.finance",
+        ),
         domain="Finance",
         description="Finance domain generation.",
         artifacts=(
@@ -43,7 +54,7 @@ def test_list_domain_generation_contributions() -> None:
         contribution,
     )
 
-    assert registry.list() == (
+    assert registry.all() == (
         contribution,
     )
 
@@ -52,6 +63,9 @@ def test_register_duplicate_domain_generation_contribution() -> None:
     registry = DomainGenerationContributionRegistry()
 
     contribution = DomainGenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.domain.education",
+        ),
         domain="Education",
         description="Education domain generation.",
         artifacts=(

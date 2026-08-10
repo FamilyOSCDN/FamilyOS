@@ -10,6 +10,9 @@ from familyos_cli.domain.generation.generation_preset import (
 from familyos_cli.plugins.contributions.generation_contribution import (
     GenerationContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 
 
 def test_plugin_generation_contribution_is_added_to_catalog() -> None:
@@ -18,6 +21,9 @@ def test_plugin_generation_contribution_is_added_to_catalog() -> None:
     contributor = PluginGenerationCatalogContributor()
 
     contribution = GenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.generation.complete",
+        ),
         preset=GenerationPreset.COMPLETE,
         description="Security documentation package.",
         recipes=(
@@ -55,6 +61,9 @@ def test_multiple_plugin_generation_contributions_are_added() -> None:
         catalog,
         (
             GenerationContribution(
+                id=PluginContributionId(
+                    "familyos.test.generation.minimal",
+                ),
                 preset=GenerationPreset.MINIMAL,
                 description="Minimal package.",
                 recipes=(
@@ -62,6 +71,9 @@ def test_multiple_plugin_generation_contributions_are_added() -> None:
                 ),
             ),
             GenerationContribution(
+                id=PluginContributionId(
+                    "familyos.test.generation.standard",
+                ),
                 preset=GenerationPreset.STANDARD,
                 description="Standard package.",
                 recipes=(

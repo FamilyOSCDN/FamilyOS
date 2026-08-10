@@ -26,6 +26,9 @@ from familyos_cli.plugins.contributions.generation_contribution import (
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 from familyos_cli.plugins.contributions.template_contribution import (
     TemplateContribution,
 )
@@ -63,6 +66,9 @@ class HealthPlugin(Plugin):
 
         return (
             GenerationContribution(
+                id=PluginContributionId(
+                    "familyos.health.generation",
+                ),
                 preset=GenerationPresetId(
                     "health",
                 ),
@@ -74,9 +80,15 @@ class HealthPlugin(Plugin):
                 ),
             ),
             GenerationRecipeContribution(
+                id=PluginContributionId(
+                    "familyos.health.recipe.documentation",
+                ),
                 recipe=HealthDocumentationRecipe(),
             ),
             TemplateContribution(
+                id=PluginContributionId(
+                    "familyos.health.template",
+                ),
                 template_directory=(
                     Path(__file__).parent
                     / "templates"

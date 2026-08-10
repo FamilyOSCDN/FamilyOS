@@ -9,6 +9,9 @@ from familyos_cli.domain.generation.generation_recipe_registry import (
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 
 
 class FakeRecipe:
@@ -39,6 +42,9 @@ def test_contributor_registers_plugin_recipe() -> None:
     recipe = FakeRecipe()
 
     contribution = GenerationRecipeContribution(
+        id=PluginContributionId(
+            "familyos.test.recipe.fake",
+        ),
         recipe=recipe,
     )
 

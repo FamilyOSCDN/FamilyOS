@@ -28,6 +28,9 @@ from familyos_cli.plugins.contributions.generation_contribution import (
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 from familyos_cli.plugins.contributions.template_contribution import (
     TemplateContribution,
 )
@@ -67,6 +70,9 @@ class EducationPlugin(Plugin):
 
         return (
             GenerationContribution(
+                id=PluginContributionId(
+                    "familyos.education.generation",
+                ),
                 preset=GenerationPresetId(
                     "education",
                 ),
@@ -80,12 +86,21 @@ class EducationPlugin(Plugin):
                 ),
             ),
             GenerationRecipeContribution(
+                id=PluginContributionId(
+                    "familyos.education.recipe.domain",
+                ),
                 recipe=EducationDomainRecipe(),
             ),
             GenerationRecipeContribution(
+                id=PluginContributionId(
+                    "familyos.education.recipe.documentation",
+                ),
                 recipe=EducationDocumentationRecipe(),
             ),
             TemplateContribution(
+                id=PluginContributionId(
+                    "familyos.education.template",
+                ),
                 template_directory=(
                     Path(__file__).parent
                     / "templates"

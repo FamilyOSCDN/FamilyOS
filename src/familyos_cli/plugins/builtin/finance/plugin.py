@@ -37,6 +37,9 @@ from familyos_cli.plugins.contributions.generation_contribution import (
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 from familyos_cli.plugins.contributions.template_contribution import (
     TemplateContribution,
 )
@@ -79,6 +82,9 @@ class FinancePlugin(Plugin):
 
         return (
             GenerationContribution(
+                id=PluginContributionId(
+                    "familyos.finance.generation",
+                ),
                 preset=GenerationPresetId(
                     "finance",
                 ),
@@ -90,9 +96,15 @@ class FinancePlugin(Plugin):
                 ),
             ),
             GenerationRecipeContribution(
+                id=PluginContributionId(
+                    "familyos.finance.recipe.documentation",
+                ),
                 recipe=FinanceDocumentationRecipe(),
             ),
             TemplateContribution(
+                id=PluginContributionId(
+                    "familyos.finance.template",
+                ),
                 template_directory=(
                     Path(__file__).parent
                     / "templates"

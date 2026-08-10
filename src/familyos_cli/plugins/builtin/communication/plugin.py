@@ -26,6 +26,9 @@ from familyos_cli.plugins.contributions.generation_contribution import (
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 from familyos_cli.plugins.contributions.template_contribution import (
     TemplateContribution,
 )
@@ -69,6 +72,9 @@ class CommunicationPlugin(Plugin):
 
         return (
             GenerationContribution(
+                id=PluginContributionId(
+                    "familyos.communication.generation",
+                ),
                 preset=GenerationPresetId(
                     "communication",
                 ),
@@ -81,9 +87,15 @@ class CommunicationPlugin(Plugin):
                 ),
             ),
             GenerationRecipeContribution(
+                id=PluginContributionId(
+                    "familyos.communication.recipe.documentation",
+                ),
                 recipe=CommunicationDocumentationRecipe(),
             ),
             TemplateContribution(
+                id=PluginContributionId(
+                    "familyos.communication.template",
+                ),
                 template_directory=template_directory,
             ),
         )

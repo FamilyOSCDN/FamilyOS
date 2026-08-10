@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
+
 
 @dataclass(
     frozen=True,
@@ -11,3 +15,5 @@ from dataclasses import dataclass
 )
 class Contribution:
     """Base class for every plugin contribution."""
+
+    id: PluginContributionId

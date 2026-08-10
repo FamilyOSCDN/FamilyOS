@@ -1,6 +1,9 @@
 from familyos_cli.plugins.contributions.domain_generation_contribution import (
     DomainGenerationContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.runtime.plugin_runtime import (
     PluginRuntime,
@@ -16,6 +19,9 @@ class HealthPlugin(Plugin):
         """Return domain generation contribution."""
 
         return DomainGenerationContribution(
+            id=PluginContributionId(
+                "familyos.test.domain.health",
+            ),
             domain="Health",
             description="Health domain generation.",
             artifacts=(
@@ -40,6 +46,9 @@ def test_plugin_runtime_registers_domain_generation_contribution() -> None:
 
     assert contributions == (
         DomainGenerationContribution(
+            id=PluginContributionId(
+                "familyos.test.domain.health",
+            ),
             domain="Health",
             description="Health domain generation.",
             artifacts=(

@@ -8,6 +8,9 @@ from familyos_cli.interfaces.cli.commands import (
 from familyos_cli.plugins.contributions.domain_generation_contribution import (
     DomainGenerationContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 
 
 class FakeDomainGenerationCatalogService:
@@ -20,6 +23,9 @@ class FakeDomainGenerationCatalogService:
 
         return (
             DomainGenerationContribution(
+                id=PluginContributionId(
+                    "familyos.test.domain.health",
+                ),
                 domain="Health",
                 description="Health domain generation.",
                 artifacts=(

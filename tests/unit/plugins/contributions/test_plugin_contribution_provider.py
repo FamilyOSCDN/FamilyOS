@@ -1,9 +1,12 @@
-"""Tests for PluginContributionProvider."""
+"""Tests for plugin contribution provider."""
 
 from dataclasses import dataclass
 
 from familyos_cli.plugins.contributions.contribution import (
     Contribution,
+)
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
 )
 from familyos_cli.plugins.contributions.plugin_contribution_provider import (
     PluginContributionProvider,
@@ -35,9 +38,15 @@ class V2Plugin(
 
         return (
             DummyContribution(
+                id=PluginContributionId(
+                    "familyos.test.provider.generation",
+                ),
                 name="generation",
             ),
             DummyContribution(
+                id=PluginContributionId(
+                    "familyos.test.provider.domain",
+                ),
                 name="domain",
             ),
         )
@@ -46,7 +55,7 @@ class V2Plugin(
 class LegacyPlugin(
     Plugin,
 ):
-    """Plugin exposing contributions through legacy methods."""
+    """Plugin exposing legacy contribution methods."""
 
     def contribution(
         self,
@@ -54,6 +63,9 @@ class LegacyPlugin(
         """Return the primary legacy contribution."""
 
         return DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.legacy.generation",
+            ),
             name="generation",
         )
 
@@ -63,6 +75,9 @@ class LegacyPlugin(
         """Return the legacy domain contribution."""
 
         return DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.legacy.domain",
+            ),
             name="domain",
         )
 
@@ -79,6 +94,9 @@ class MixedPlugin(
 
         return (
             DummyContribution(
+                id=PluginContributionId(
+                    "familyos.test.mixed.v2",
+                ),
                 name="v2",
             ),
         )
@@ -89,8 +107,17 @@ class MixedPlugin(
         """Return a legacy contribution."""
 
         return DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.mixed.legacy",
+            ),
             name="legacy",
         )
+
+
+class EmptyPlugin(
+    Plugin,
+):
+    """Plugin without contributions."""
 
 
 def test_collects_v2_plugin_contributions() -> None:
@@ -102,9 +129,15 @@ def test_collects_v2_plugin_contributions() -> None:
 
     assert contributions == (
         DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.provider.generation",
+            ),
             name="generation",
         ),
         DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.provider.domain",
+            ),
             name="domain",
         ),
     )
@@ -119,9 +152,15 @@ def test_collects_legacy_plugin_contributions() -> None:
 
     assert contributions == (
         DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.legacy.generation",
+            ),
             name="generation",
         ),
         DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.legacy.domain",
+            ),
             name="domain",
         ),
     )
@@ -136,6 +175,9 @@ def test_prefers_v2_api_over_legacy_methods() -> None:
 
     assert contributions == (
         DummyContribution(
+            id=PluginContributionId(
+                "familyos.test.mixed.v2",
+            ),
             name="v2",
         ),
     )
@@ -144,8 +186,6 @@ def test_prefers_v2_api_over_legacy_methods() -> None:
 def test_returns_empty_tuple_for_plugin_without_contributions() -> None:
     provider = PluginContributionProvider()
 
-    contributions = provider.contributions(
-        Plugin(),
-    )
-
-    assert contributions == ()
+    assert provider.contributions(
+        EmptyPlugin(),
+    ) == ()

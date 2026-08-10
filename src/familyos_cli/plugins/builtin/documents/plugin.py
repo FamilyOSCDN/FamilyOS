@@ -19,6 +19,9 @@ from familyos_cli.plugins.contributions.generation_contribution import (
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 from familyos_cli.plugins.contributions.template_contribution import (
     TemplateContribution,
 )
@@ -70,6 +73,9 @@ class DocumentsPlugin(Plugin):
 
         return (
             GenerationContribution(
+                id=PluginContributionId(
+                    "familyos.documents.generation",
+                ),
                 preset=GenerationPresetId(
                     "documents",
                 ),
@@ -82,9 +88,15 @@ class DocumentsPlugin(Plugin):
                 ),
             ),
             GenerationRecipeContribution(
-                DocumentsDocumentationRecipe(),
+                id=PluginContributionId(
+                    "familyos.documents.recipe.documentation",
+                ),
+                recipe=DocumentsDocumentationRecipe(),
             ),
             TemplateContribution(
+                id=PluginContributionId(
+                    "familyos.documents.template",
+                ),
                 template_directory=template_directory,
             ),
         )

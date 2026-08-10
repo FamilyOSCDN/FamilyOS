@@ -4,10 +4,16 @@ from familyos_cli.application.generation.domain_generation_catalog_service impor
 from familyos_cli.plugins.contributions.domain_generation_contribution import (
     DomainGenerationContribution,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 
 
 def test_service_returns_domain_generation_contributions() -> None:
     contribution = DomainGenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.domain.health",
+        ),
         domain="Health",
         description="Health domain generation.",
         artifacts=(

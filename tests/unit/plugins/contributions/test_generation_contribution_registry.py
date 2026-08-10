@@ -1,3 +1,7 @@
+"""Tests for generation contribution registry."""
+
+import pytest
+
 from familyos_cli.domain.generation.generation_preset import (
     GenerationPreset,
 )
@@ -7,12 +11,18 @@ from familyos_cli.plugins.contributions.generation_contribution import (
 from familyos_cli.plugins.contributions.generation_contribution_registry import (
     GenerationContributionRegistry,
 )
+from familyos_cli.plugins.contributions.plugin_contribution_id import (
+    PluginContributionId,
+)
 
 
 def test_registry_registers_generation_contribution() -> None:
     registry = GenerationContributionRegistry()
 
     contribution = GenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.generation.complete",
+        ),
         preset=GenerationPreset.COMPLETE,
         description="Complete package.",
         recipes=(
@@ -24,17 +34,18 @@ def test_registry_registers_generation_contribution() -> None:
         contribution,
     )
 
-    result = registry.get(
+    assert registry.get(
         GenerationPreset.COMPLETE,
-    )
-
-    assert result == contribution
+    ) == contribution
 
 
 def test_registry_lists_registered_contributions() -> None:
     registry = GenerationContributionRegistry()
 
     contribution = GenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.generation.minimal",
+        ),
         preset=GenerationPreset.MINIMAL,
         description="Minimal package.",
         recipes=(
@@ -46,7 +57,7 @@ def test_registry_lists_registered_contributions() -> None:
         contribution,
     )
 
-    assert registry.list() == (
+    assert registry.all() == (
         contribution,
     )
 
@@ -55,6 +66,9 @@ def test_registry_rejects_duplicate_preset() -> None:
     registry = GenerationContributionRegistry()
 
     contribution = GenerationContribution(
+        id=PluginContributionId(
+            "familyos.test.generation.standard",
+        ),
         preset=GenerationPreset.STANDARD,
         description="Standard package.",
         recipes=(
@@ -66,14 +80,10 @@ def test_registry_rejects_duplicate_preset() -> None:
         contribution,
     )
 
-    try:
+    with pytest.raises(
+        ValueError,
+        match="already registered",
+    ):
         registry.register(
             contribution,
         )
-
-        raise AssertionError(
-            "Expected duplicate contribution error.",
-        )
-
-    except ValueError:
-        pass
