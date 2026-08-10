@@ -278,6 +278,7 @@ familyos.finance
 familyos.education
 familyos.documents
 familyos.communication
+familyos.documentation
 ```
 
 The Plugin Identifier SHALL:
@@ -307,6 +308,7 @@ Examples:
 FamilyOS Security Plugin
 FamilyOS Education Plugin
 FamilyOS Documents Plugin
+Documentation Plugin
 ```
 
 The display name MAY change when appropriate without changing plugin identity.
@@ -509,7 +511,7 @@ Conceptually:
 PluginDescriptor.id
         │
         ▼
-PluginPackage Plugin Identifier
+PluginPackage.plugin_id
 ```
 
 The following transformation is architecturally invalid as an identity mechanism:
@@ -537,6 +539,12 @@ Architecturally, it SHALL expose or preserve:
 * manifest information where available;
 * dependency information where available.
 
+The canonical implementation identity property is:
+
+```text
+PluginPackage.plugin_id
+```
+
 The combination:
 
 ```text
@@ -545,9 +553,15 @@ Plugin Identifier + Version
 
 SHALL distinguish a concrete plugin package version.
 
-A package MAY additionally expose a human-readable display name.
+A package MAY expose the historical property:
 
-The display name SHALL NOT determine package identity.
+```text
+PluginPackage.name
+```
+
+as a compatibility alias.
+
+Such an alias SHALL resolve to the same canonical Plugin Identifier and SHALL NOT create an independent identity.
 
 ---
 
@@ -619,6 +633,12 @@ with an independent version constraint:
 >=1.0.0
 ```
 
+The canonical implementation property is:
+
+```text
+PluginDependency.plugin_id
+```
+
 Conceptually:
 
 ```text
@@ -627,15 +647,15 @@ PluginDependency
     └── version_constraint
 ```
 
-An implementation MAY temporarily expose legacy property names such as:
+The historical property or constructor input:
 
 ```text
 name
 ```
 
-for compatibility.
+MAY remain available as a compatibility alias.
 
-However, the architectural meaning of that field SHALL be Plugin Identifier when it participates in dependency resolution.
+When present, it SHALL represent the same Plugin Identifier as `plugin_id`.
 
 A dependency SHALL NOT target a plugin solely through its display name.
 
@@ -664,6 +684,10 @@ familyos.education@1.0.0
         │
         └── familyos.security@1.2.0
 ```
+
+`PluginNode.plugin_id` SHALL expose canonical logical graph identity.
+
+A historical `PluginNode.name` property MAY remain as a compatibility alias but SHALL NOT establish a separate graph identity.
 
 Graph construction SHALL NOT depend on human-readable plugin display names.
 
@@ -730,6 +754,12 @@ FamilyOS Education Plugin
 
 SHALL NOT serve as canonical registry identity.
 
+Known legacy Plugin Identifier aliases MAY be accepted as lookup inputs.
+
+Such aliases SHALL be normalized to canonical identity before lookup.
+
+A registry SHALL NOT create multiple stored identities for the same plugin solely to support legacy aliases.
+
 ---
 
 # Plugin Manager
@@ -744,9 +774,14 @@ get
 enable
 disable
 activate
+deactivate
 ```
 
 SHOULD identify plugins using Plugin Identifiers.
+
+Known legacy Plugin Identifier aliases MAY be accepted at compatibility boundaries.
+
+Internal storage SHALL remain canonical.
 
 ---
 
@@ -873,7 +908,7 @@ Direct plugin-to-plugin implementation dependencies SHALL NOT be permitted.
 
 Canonical Plugin Identifier semantics SHALL propagate through the complete architecture.
 
-The target model is:
+The implemented model is:
 
 ```text
 Manifest
@@ -909,126 +944,9 @@ The semantic identity SHALL remain the Plugin Identifier.
 
 ---
 
-# Current Implementation Assessment
-
-An architecture audit performed on 2026-08-10 identified that the current implementation already preserves identity correctly through part of the runtime path.
-
-The current loader maps:
-
-```text
-plugin.yaml id
-        ↓
-PluginDescriptor.id
-```
-
-and:
-
-```text
-plugin.yaml name
-        ↓
-PluginDescriptor.name
-```
-
-This separation is architecturally correct.
-
-The runtime registry and manager also use:
-
-```text
-PluginDescriptor.id
-```
-
-as plugin identity.
-
-However, the Plugin Ecosystem currently contains an identity-model inconsistency.
-
----
-
-# Current Ecosystem Identity Debt
-
-The current discovery implementation conceptually performs:
-
-```text
-PluginDescriptor.name
-        ↓
-PluginPackage.name
-```
-
-while `PluginPackage.name` is subsequently used as a technical key by:
-
-* package selection;
-* dependency resolution;
-* dependency graph construction;
-* related diagnostics.
-
-This means a human-readable display name can become a technical resolution identity.
-
-Example:
-
-```text
-PluginDescriptor.id:
-familyos.finance
-
-PluginDescriptor.name:
-FamilyOS Finance Plugin
-```
-
-may currently become conceptually:
-
-```text
-PluginPackage.name:
-FamilyOS Finance Plugin
-```
-
-while a dependency correctly referencing:
-
-```text
-familyos.finance
-```
-
-expects canonical plugin identity.
-
-This is an architectural inconsistency.
-
----
-
-# Target Ecosystem Identity Model
-
-The target architecture SHALL preserve:
-
-```text
-PluginDescriptor.id
-        ↓
-PluginPackage Plugin Identifier
-        ↓
-Resolver / Dependency Graph
-```
-
-while preserving display metadata independently:
-
-```text
-PluginDescriptor.name
-        ↓
-PluginPackage Display Name
-```
-
-if the ecosystem package model requires display metadata.
-
-The implementation MAY achieve this through:
-
-* a new `plugin_id` field;
-* a dedicated `PluginId` value object;
-* a compatible restructuring of `PluginPackage`;
-* another explicitly approved implementation.
-
-This ADR defines semantics, not the final Python field design.
-
----
-
 # Legacy Plugin Identifiers
 
-Some official plugins currently use legacy short Plugin Identifiers.
-
-Known legacy identifiers include:
+Historical official Plugin Identifiers include:
 
 ```text
 education
@@ -1053,34 +971,131 @@ documentation
 → familyos.documentation
 ```
 
-These mappings establish canonical target identity.
+The canonical forms are now used by official plugin manifests.
 
-They DO NOT authorize immediate migration.
+Historical identifiers MAY remain accepted as compatibility inputs.
+
+They SHALL NOT define canonical plugin identity.
 
 ---
 
 # Legacy Compatibility Policy
 
-Existing legacy Plugin Identifiers SHALL NOT be renamed automatically.
+FamilyOS supports explicitly governed Plugin Identifier compatibility aliases.
 
-Before migration, FamilyOS SHALL evaluate:
+The currently supported aliases are:
 
-* runtime lookup consumers;
-* Plugin Registry usage;
-* Plugin Manager usage;
-* Plugin Ecosystem usage;
-* dependency declarations;
-* Dependency Graph usage;
-* CLI references;
-* configuration;
-* persisted state;
-* generated artifacts;
-* tests;
-* public documentation.
+```text
+education      → familyos.education
+documents      → familyos.documents
+communication  → familyos.communication
+documentation  → familyos.documentation
+```
 
-A migration MAY require aliases or explicit compatibility adapters.
+Compatibility normalization SHALL satisfy the following properties:
 
-Legacy identifiers SHALL NOT be reassigned to unrelated plugins.
+* canonical identifiers remain unchanged;
+* known legacy identifiers resolve to canonical identifiers;
+* unknown third-party identifiers remain unchanged;
+* normalization is idempotent;
+* aliases SHALL NOT create independent plugin identities;
+* aliases SHALL NOT be used by new official manifests;
+* aliases SHALL NOT define new production identity contracts;
+* retired aliases SHALL NOT be reassigned to unrelated plugins.
+
+Legacy support is currently classified as:
+
+```text
+legacy-compatible
+```
+
+and not as:
+
+```text
+deprecated
+```
+
+No removal schedule is established by this ADR.
+
+Removal or deprecation SHALL require separate compatibility analysis and migration governance.
+
+---
+
+# Model Compatibility Aliases
+
+The following historical model surfaces MAY remain available for compatibility:
+
+```text
+PluginPackage.name
+PluginDependency.name
+PluginNode.name
+PluginManifest.name
+```
+
+Their canonical counterparts are:
+
+```text
+PluginPackage.plugin_id
+PluginDependency.plugin_id
+PluginNode.plugin_id
+PluginManifest.plugin_id
+```
+
+Compatibility aliases SHALL return or represent the same canonical Plugin Identifier.
+
+New production code SHOULD use `plugin_id`.
+
+Compatibility aliases SHALL NOT be used to establish new architectural contracts.
+
+No deprecation or removal schedule is established by this ADR.
+
+---
+
+# Plugin Identity Normalization
+
+Legacy Plugin Identifier compatibility SHALL be implemented through an explicit normalization boundary.
+
+Conceptually:
+
+```text
+Legacy input
+    │
+    ▼
+Plugin Identifier Normalization
+    │
+    ▼
+Canonical Plugin Identifier
+    │
+    ├── Registry
+    ├── Manager
+    ├── Resolver
+    ├── Dependency Graph
+    └── Runtime
+```
+
+Canonical storage SHALL NOT duplicate entries under both legacy and canonical identifiers.
+
+For example:
+
+```text
+Input:
+education
+
+Normalized:
+familyos.education
+
+Stored identity:
+familyos.education
+```
+
+The following storage model is prohibited:
+
+```text
+education
+familyos.education
+```
+
+when both keys represent the same plugin.
 
 ---
 
@@ -1104,6 +1119,8 @@ A Plugin Identifier migration SHALL require:
 12. architectural approval.
 
 A global textual replacement SHALL NOT be considered a valid migration strategy.
+
+The migration of the historical official Plugin Identifiers has followed this controlled process.
 
 ---
 
@@ -1152,7 +1169,7 @@ Capability migration SHALL be governed independently by SPEC-0010.
 
 # Manifest Dependency Evolution
 
-The current runtime manifest loader does not establish a dependency-declaration contract merely because the ecosystem supports `PluginDependency`.
+The runtime manifest loader does not establish a dependency-declaration implementation contract merely because the ecosystem supports `PluginDependency`.
 
 Manifest dependency declarations SHALL be introduced or activated only through an explicit supported contract.
 
@@ -1184,13 +1201,13 @@ Plugins have one logical identity independent from presentation and implementati
 
 ### Deterministic Resolution
 
-Dependency resolution can operate on canonical Plugin Identifiers rather than ambiguous display names.
+Dependency resolution operates on canonical Plugin Identifiers rather than ambiguous display names.
 
 ---
 
 ### Consistent Runtime Lookup
 
-Registry, manager, resolver, and dependency graph semantics can converge on the same logical identity.
+Registry, manager, resolver, and dependency graph semantics converge on the same logical identity.
 
 ---
 
@@ -1227,9 +1244,9 @@ without modifying the canonical identifier.
 
 ---
 
-### Controlled Legacy Migration
+### Controlled Legacy Compatibility
 
-Legacy IDs can remain temporarily supported without redefining the canonical architecture.
+Historical Plugin Identifiers remain available at approved compatibility boundaries without redefining canonical identity.
 
 ---
 
@@ -1241,38 +1258,23 @@ Plugin identity and capability identity remain distinct contracts with independe
 
 ## Negative Consequences
 
-### Implementation Refactoring
+### Compatibility Surface
 
-The current Plugin Ecosystem package and dependency models require future alignment with the canonical identity model.
-
----
-
-### Compatibility Work
-
-Existing short Plugin Identifiers may require aliases, deprecation mechanisms, or compatibility adapters.
+Legacy aliases introduce an additional compatibility surface that must remain tested and governed.
 
 ---
 
-### Additional Model Explicitness
+### Long-Term Maintenance
 
-Some existing generic fields such as:
-
-```text
-name
-```
-
-may eventually require more precise semantics such as:
-
-```text
-plugin_id
-display_name
-```
+Historical identifier aliases and model compatibility aliases may require maintenance until formally retired.
 
 ---
 
-### Migration Complexity
+### Migration Governance
 
-The ecosystem cannot safely migrate through simple search-and-replace operations.
+Removing compatibility aliases cannot be performed as a local refactoring.
+
+It requires compatibility analysis and explicit governance.
 
 ---
 
@@ -1338,7 +1340,7 @@ is an implementation type and does not provide stable ecosystem identity.
 
 ## Preserve Short IDs as the Canonical Convention
 
-Rejected for new official plugins.
+Rejected for official plugins.
 
 Short identifiers such as:
 
@@ -1346,28 +1348,47 @@ Short identifiers such as:
 education
 documents
 communication
+documentation
 ```
 
 do not express namespace ownership and create potential ecosystem collisions.
 
-They MAY remain temporarily supported as legacy identifiers.
+They MAY remain supported as compatibility aliases.
 
 ---
 
-## Immediately Rename All Legacy Plugin IDs
+## Register Legacy and Canonical IDs Simultaneously
 
 Rejected.
 
-Existing identifiers may participate in:
+For example:
 
-* runtime contracts;
-* tests;
-* dependency resolution;
-* CLI behavior;
+```text
+education
+familyos.education
+```
+
+MUST NOT be stored as two independent registry identities for the same plugin.
+
+Compatibility aliases SHALL normalize to one canonical identity.
+
+---
+
+## Immediately Remove Legacy IDs
+
+Rejected.
+
+Historical identifiers may remain referenced by:
+
+* CLI invocations;
+* configuration;
+* persisted state;
 * generated artifacts;
-* public documentation.
+* integrations;
+* tests;
+* external consumers.
 
-Migration requires explicit compatibility analysis.
+Removal requires separate compatibility governance.
 
 ---
 
@@ -1396,7 +1417,7 @@ Changes affecting capability identity SHALL additionally align with SPEC-0010.
 
 # Implementation Status
 
-The broader architecture defined by this ADR has been implemented through:
+The architecture defined by this ADR has been implemented through:
 
 * Plugin Runtime;
 * Plugin SDK v2;
@@ -1407,49 +1428,122 @@ The broader architecture defined by this ADR has been implemented through:
 * Plugin Resolution;
 * Dependency Graph Resolution;
 * Plugin Diagnostics;
-* Generation Integration.
+* Generation Integration;
+* canonical Plugin Identifier propagation;
+* explicit Plugin Package identity;
+* explicit Plugin Dependency identity;
+* legacy Plugin Identifier normalization;
+* registry and manager compatibility lookup;
+* canonical official Plugin Manifest identifiers.
 
-The canonical Plugin Identity Model is partially implemented.
-
-Correctly aligned areas include:
+The implemented identity flow is:
 
 ```text
 plugin.yaml id
 → PluginDescriptor.id
-
-PluginDescriptor.id
-→ Plugin Registry identity
-
-PluginDescriptor.id
-→ Plugin Manager identity
+→ PluginPackage.plugin_id
+→ PluginDependency.plugin_id
+→ Plugin Resolver
+→ Dependency Graph
+→ diagnostics
+→ runtime identity
 ```
 
-Known implementation debt remains in the Plugin Ecosystem identity path:
+Human-readable plugin names are presentation metadata and SHALL NOT be used as logical plugin identity.
+
+---
+
+# Migration Status
+
+The canonical Plugin Identifier migration has been implemented for official FamilyOS plugins.
+
+The official Plugin Identifier set is:
 
 ```text
-PluginDescriptor.name
-→ PluginPackage.name
-→ resolution identity
+familyos.documentation
+familyos.security
+familyos.health
+familyos.finance
+familyos.education
+familyos.documents
+familyos.communication
 ```
 
-This debt SHALL be addressed through a dedicated implementation change after migration design and test planning.
+The completed migration includes:
+
+1. Plugin Ecosystem package identity aligned with Plugin Identifier semantics;
+2. dependency targets aligned with Plugin Identifier semantics;
+3. resolver lookup aligned with Plugin Identifier semantics;
+4. Dependency Graph identity aligned with Plugin Identifier semantics;
+5. explicit compatibility normalization for supported legacy identifiers;
+6. canonical and legacy lookup test coverage;
+7. controlled migration sequencing;
+8. official plugin manifests migrated to canonical identifiers;
+9. production identity usage migrated from historical `.name` access to `plugin_id`;
+10. diagnostic identity matching aligned with canonical Plugin Identifiers.
+
+Legacy identifiers remain compatibility inputs only.
+
+They SHALL NOT create independent plugin identities and SHALL NOT be used by new official plugin manifests or new production identity contracts.
+
+---
+
+# Validation Status
+
+The migration has been validated through:
+
+* canonical Plugin Identifier contract tests;
+* Plugin Registry compatibility tests;
+* Plugin Manager compatibility tests;
+* Plugin Identifier normalizer tests;
+* Plugin Package identity tests;
+* Plugin Dependency identity tests;
+* Plugin Manifest identity tests;
+* Plugin Discovery tests;
+* Plugin Resolver tests;
+* Dependency Graph tests;
+* resolution diagnostics tests;
+* official builtin plugin runtime tests;
+* full Ruff validation;
+* full MyPy validation;
+* full Pytest validation.
+
+The validated repository baseline following the migration was:
+
+```text
+Ruff
+PASS
+
+MyPy
+522 source files
+PASS
+
+Pytest
+1122 tests
+PASS
+```
 
 ---
 
 # Required Follow-Up
 
-The following work SHALL occur before legacy Plugin Identifier migration:
+No further runtime migration is required for canonical official Plugin Identifiers.
 
-1. align Plugin Ecosystem package identity with Plugin Identifier semantics;
-2. align dependency targets with Plugin Identifier semantics;
-3. align resolver lookup with Plugin Identifier semantics;
-4. align Dependency Graph identity with Plugin Identifier semantics;
-5. define compatibility behavior for legacy IDs;
-6. establish tests for canonical and legacy lookup;
-7. define migration sequencing;
-8. update manifests only after compatibility behavior is established.
+Future work MAY include:
 
-No legacy Plugin Identifier SHALL be changed solely as part of documenting this ADR.
+1. formal deprecation of legacy short Plugin Identifier aliases;
+2. formal deprecation of historical `.name` identity aliases;
+3. compatibility telemetry where appropriate;
+4. release-note documentation of future alias retirement;
+5. removal only after explicitly governed compatibility analysis.
+
+Until such work is approved:
+
+* legacy aliases MAY remain supported;
+* canonical identity SHALL remain authoritative;
+* new production code SHOULD use `plugin_id`;
+* new official manifests MUST use canonical Plugin Identifiers;
+* legacy aliases MUST NOT create duplicate stored identities.
 
 ---
 
@@ -1478,7 +1572,7 @@ docs/04-reference/Naming-Conventions.md
 docs/04-reference/Reserved-Words.md
 ```
 
-These reference documents define canonical representation and reserved namespace ownership.
+These reference documents define canonical representation, reserved namespace ownership, compatibility aliases, and migration governance.
 
 This ADR defines the architectural semantics of plugin identity.
 
@@ -1509,16 +1603,18 @@ Related decisions include:
 
 Future decisions MAY define:
 
-* plugin identity migration;
-* plugin compatibility aliases;
-* ecosystem package identity implementation;
-* dependency declaration architecture.
+* plugin alias deprecation;
+* plugin alias retirement;
+* dependency declaration architecture;
+* further plugin ecosystem compatibility mechanisms.
 
 ---
 
 # Architectural Invariants
 
-The following invariants SHALL hold for the target architecture.
+The following invariants SHALL hold.
+
+---
 
 ### Invariant 1 — Stable Logical Identity
 
@@ -1632,6 +1728,47 @@ SHALL preserve the same logical Plugin Identifier.
 
 ---
 
+### Invariant 11 — Alias Non-Identity
+
+```text
+Legacy Alias
+≠
+Independent Plugin Identity
+```
+
+A legacy alias MAY resolve to a canonical Plugin Identifier.
+
+It SHALL NOT establish a second identity.
+
+---
+
+### Invariant 12 — Canonical Storage
+
+```text
+Canonical stored identity
+=
+familyos.<plugin-name>
+```
+
+Compatibility aliases SHALL NOT require duplicate storage keys for the same plugin.
+
+---
+
+### Invariant 13 — New Contract Canonicality
+
+New official:
+
+* manifests;
+* dependencies;
+* runtime identity contracts;
+* registry integrations;
+* resolver integrations;
+* dependency graph integrations;
+
+SHALL use canonical Plugin Identifiers.
+
+---
+
 # Decision Summary
 
 FamilyOS adopts a canonical, namespace-aware Plugin Identity Model.
@@ -1656,11 +1793,23 @@ Plugin Identifier + Version
 
 Plugin dependencies target Plugin Identifiers.
 
-Registries, resolvers, dependency graphs, discovery mechanisms, and runtime components SHALL preserve canonical Plugin Identifier semantics.
+Registries, resolvers, dependency graphs, discovery mechanisms, diagnostics, and runtime components SHALL preserve canonical Plugin Identifier semantics.
 
-The current use of human-readable `PluginDescriptor.name` as `PluginPackage.name` and subsequent resolution identity is classified as implementation debt.
+The historical identity path based on generic `.name` fields has been replaced internally by explicit `plugin_id` semantics.
 
-Existing legacy identifiers:
+The canonical official Plugin Identifier set is:
+
+```text
+familyos.documentation
+familyos.security
+familyos.health
+familyos.finance
+familyos.education
+familyos.documents
+familyos.communication
+```
+
+Historical identifiers:
 
 ```text
 education
@@ -1669,26 +1818,33 @@ communication
 documentation
 ```
 
-MAY remain temporarily supported.
+remain supported as governed compatibility aliases.
 
-Their canonical targets are:
+Their mappings are:
 
 ```text
-familyos.education
-familyos.documents
-familyos.communication
-familyos.documentation
+education      → familyos.education
+documents      → familyos.documents
+communication  → familyos.communication
+documentation  → familyos.documentation
 ```
 
-No automatic migration is authorized by this ADR.
+Legacy aliases SHALL NOT create independent plugin identities.
 
-Migration SHALL occur only after compatibility design, test coverage, and explicit implementation planning.
+New production identity contracts SHOULD use `plugin_id`.
+
+New official plugin manifests MUST use canonical Plugin Identifiers.
+
+No deprecation or removal schedule for the current compatibility aliases is established by this ADR.
+
+Future retirement SHALL require explicit compatibility analysis, migration governance, tests, documentation, and release management.
 
 ---
 
 # Revision History
 
-| Version | Status   | Description                                                                                                                                                                                                                                                                                          |
-| ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.0.0   | Accepted | Initial publication of the Official Plugin Architecture decision.                                                                                                                                                                                                                                    |
-| 1.1.0   | Accepted | Formalizes the canonical Plugin Identity Model, separates Plugin Identifier from display and package representations, defines dependency/resolution/graph identity semantics, documents current Plugin Ecosystem identity debt, and establishes controlled legacy identifier migration requirements. |
+| Version | Status   | Description                                                                                                                                                                                                                                                                                                                                    |
+| ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0.0   | Accepted | Initial publication of the Official Plugin Architecture decision.                                                                                                                                                                                                                                                                              |
+| 1.1.0   | Accepted | Formalizes the canonical Plugin Identity Model, separates Plugin Identifier from display and package representations, defines dependency/resolution/graph identity semantics, documents Plugin Ecosystem identity debt, and establishes controlled legacy identifier migration requirements.                                                   |
+| 1.2.0   | Accepted | Records implementation of canonical Plugin Identifier propagation, migration of official plugin manifests, explicit `plugin_id` contracts across ecosystem models, legacy identifier normalization, compatibility lookup behavior, elimination of internal `.name` identity dependence, and the current supported legacy-compatibility policy. |
