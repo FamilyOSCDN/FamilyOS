@@ -10,7 +10,7 @@ from familyos_cli.plugins.ecosystem.package import (
 
 def test_plugin_node_contains_plugin_package() -> None:
     package = PluginPackage(
-        name="documentation",
+        plugin_id="familyos.documentation",
         version="1.2.0",
         source="official",
     )
@@ -25,19 +25,19 @@ def test_plugin_node_contains_plugin_package() -> None:
 def test_plugin_node_exposes_plugin_name() -> None:
     node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.2.0",
             source="official",
         ),
     )
 
-    assert node.name == "documentation"
+    assert node.name == "familyos.documentation"
 
 
 def test_plugin_node_exposes_plugin_version() -> None:
     node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.2.0",
             source="official",
         ),
@@ -49,26 +49,26 @@ def test_plugin_node_exposes_plugin_version() -> None:
 def test_plugin_node_identifier_uses_package_identifier() -> None:
     node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.2.0",
             source="official",
         ),
     )
 
-    assert node.identifier() == "documentation@1.2.0"
+    assert node.identifier() == "familyos.documentation@1.2.0"
 
 
 def test_plugin_nodes_are_equal_for_equal_packages() -> None:
     first_node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.2.0",
             source="official",
         ),
     )
     second_node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.2.0",
             source="official",
         ),
@@ -80,14 +80,14 @@ def test_plugin_nodes_are_equal_for_equal_packages() -> None:
 def test_plugin_nodes_are_different_for_different_versions() -> None:
     first_node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.0.0",
             source="official",
         ),
     )
     second_node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="2.0.0",
             source="official",
         ),
@@ -99,7 +99,7 @@ def test_plugin_nodes_are_different_for_different_versions() -> None:
 def test_plugin_node_is_hashable() -> None:
     node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.2.0",
             source="official",
         ),
@@ -115,11 +115,11 @@ def test_plugin_node_is_hashable() -> None:
 def test_plugin_node_is_immutable() -> None:
     node = PluginNode(
         package=PluginPackage(
-            name="documentation",
+            plugin_id="familyos.documentation",
             version="1.2.0",
             source="official",
         ),
     )
 
-    assert node.package.name == "documentation"
+    assert node.package.name == "familyos.documentation"
     assert node.package.version == "1.2.0"

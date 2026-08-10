@@ -68,20 +68,18 @@ def test_build_single_node() -> None:
 
     manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.0.0",
             source="official",
         ),
     )
 
     graph = builder.build(
-        (
-            manifest,
-        ),
+        (manifest,),
     )
 
     assert len(graph.nodes) == 1
-    assert graph.nodes[0].identifier() == "calendar@1.0.0"
+    assert graph.nodes[0].identifier() == "familyos.calendar@1.0.0"
     assert graph.edges == ()
 
 
@@ -92,21 +90,21 @@ def test_build_multiple_nodes() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="storage",
+                    plugin_id="familyos.storage",
                     version="3.1.0",
                     source="official",
                 ),
@@ -114,15 +112,12 @@ def test_build_multiple_nodes() -> None:
         ),
     )
 
-    node_identifiers = {
-        node.identifier()
-        for node in graph.nodes
-    }
+    node_identifiers = {node.identifier() for node in graph.nodes}
 
     assert node_identifiers == {
-        "calendar@1.0.0",
-        "identity@2.0.0",
-        "storage@3.1.0",
+        "familyos.calendar@1.0.0",
+        "familyos.identity@2.0.0",
+        "familyos.storage@3.1.0",
     }
     assert graph.edges == ()
 
@@ -134,14 +129,14 @@ def test_build_keeps_multiple_versions_of_same_plugin() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="1.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.0.0",
                     source="official",
                 ),
@@ -149,14 +144,11 @@ def test_build_keeps_multiple_versions_of_same_plugin() -> None:
         ),
     )
 
-    node_identifiers = {
-        node.identifier()
-        for node in graph.nodes
-    }
+    node_identifiers = {node.identifier() for node in graph.nodes}
 
     assert node_identifiers == {
-        "identity@1.0.0",
-        "identity@2.0.0",
+        "familyos.identity@1.0.0",
+        "familyos.identity@2.0.0",
     }
 
 
@@ -165,7 +157,7 @@ def test_duplicate_manifest_is_ignored() -> None:
 
     manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.0.0",
             source="official",
         ),
@@ -179,7 +171,7 @@ def test_duplicate_manifest_is_ignored() -> None:
     )
 
     assert len(graph.nodes) == 1
-    assert graph.nodes[0].identifier() == "calendar@1.0.0"
+    assert graph.nodes[0].identifier() == "familyos.calendar@1.0.0"
 
 
 def test_build_node_index_groups_nodes_by_name() -> None:
@@ -188,14 +180,14 @@ def test_build_node_index_groups_nodes_by_name() -> None:
     manifests = (
         PluginManifest(
             package=PluginPackage(
-                name="calendar",
+                plugin_id="familyos.calendar",
                 version="1.0.0",
                 source="official",
             ),
         ),
         PluginManifest(
             package=PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0",
                 source="official",
             ),
@@ -210,22 +202,16 @@ def test_build_node_index_groups_nodes_by_name() -> None:
     )
 
     assert set(node_index) == {
-        "calendar",
-        "identity",
+        "familyos.calendar",
+        "familyos.identity",
     }
 
-    assert [
-        node.identifier()
-        for node in node_index["calendar"]
-    ] == [
-        "calendar@1.0.0",
+    assert [node.identifier() for node in node_index["familyos.calendar"]] == [
+        "familyos.calendar@1.0.0",
     ]
 
-    assert [
-        node.identifier()
-        for node in node_index["identity"]
-    ] == [
-        "identity@2.0.0",
+    assert [node.identifier() for node in node_index["familyos.identity"]] == [
+        "familyos.identity@2.0.0",
     ]
 
 
@@ -235,21 +221,21 @@ def test_build_node_index_groups_multiple_versions() -> None:
     manifests = (
         PluginManifest(
             package=PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="1.0.0",
                 source="official",
             ),
         ),
         PluginManifest(
             package=PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0",
                 source="official",
             ),
         ),
         PluginManifest(
             package=PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.1.0",
                 source="official",
             ),
@@ -264,16 +250,13 @@ def test_build_node_index_groups_multiple_versions() -> None:
     )
 
     assert set(node_index) == {
-        "identity",
+        "familyos.identity",
     }
 
-    assert {
-        node.identifier()
-        for node in node_index["identity"]
-    } == {
-        "identity@1.0.0",
-        "identity@2.0.0",
-        "identity@2.1.0",
+    assert {node.identifier() for node in node_index["familyos.identity"]} == {
+        "familyos.identity@1.0.0",
+        "familyos.identity@2.0.0",
+        "familyos.identity@2.1.0",
     }
 
 
@@ -283,7 +266,7 @@ def test_build_node_index_populates_graph() -> None:
     manifests = (
         PluginManifest(
             package=PluginPackage(
-                name="calendar",
+                plugin_id="familyos.calendar",
                 version="1.0.0",
                 source="official",
             ),
@@ -298,7 +281,7 @@ def test_build_node_index_populates_graph() -> None:
     )
 
     assert len(graph.nodes) == 1
-    assert graph.nodes[0] == node_index["calendar"][0]
+    assert graph.nodes[0] == node_index["familyos.calendar"][0]
 
 
 def test_build_node_index_ignores_duplicate_manifest() -> None:
@@ -306,7 +289,7 @@ def test_build_node_index_ignores_duplicate_manifest() -> None:
 
     manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.0.0",
             source="official",
         ),
@@ -323,11 +306,8 @@ def test_build_node_index_ignores_duplicate_manifest() -> None:
     )
 
     assert len(graph.nodes) == 1
-    assert len(node_index["calendar"]) == 1
-    assert (
-        node_index["calendar"][0].identifier()
-        == "calendar@1.0.0"
-    )
+    assert len(node_index["familyos.calendar"]) == 1
+    assert node_index["familyos.calendar"][0].identifier() == "familyos.calendar@1.0.0"
 
 
 def test_build_creates_dependency_edge() -> None:
@@ -335,19 +315,19 @@ def test_build_creates_dependency_edge() -> None:
 
     calendar_manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.0.0",
             source="official",
         ),
         dependencies=(
             PluginDependency(
-                name="identity",
+                plugin_id="familyos.identity",
             ),
         ),
     )
     identity_manifest = PluginManifest(
         package=PluginPackage(
-            name="identity",
+            plugin_id="familyos.identity",
             version="2.0.0",
             source="official",
         ),
@@ -364,8 +344,8 @@ def test_build_creates_dependency_edge() -> None:
 
     edge = graph.edges[0]
 
-    assert edge.source.identifier() == "calendar@1.0.0"
-    assert edge.target.identifier() == "identity@2.0.0"
+    assert edge.source.identifier() == "familyos.calendar@1.0.0"
+    assert edge.target.identifier() == "familyos.identity@2.0.0"
     assert edge.dependency == calendar_manifest.dependencies[0]
 
 
@@ -374,16 +354,16 @@ def test_build_creates_multiple_dependency_edges() -> None:
 
     calendar_manifest = PluginManifest(
         package=PluginPackage(
-            name="calendar",
+            plugin_id="familyos.calendar",
             version="1.0.0",
             source="official",
         ),
         dependencies=(
             PluginDependency(
-                name="identity",
+                plugin_id="familyos.identity",
             ),
             PluginDependency(
-                name="storage",
+                plugin_id="familyos.storage",
             ),
         ),
     )
@@ -393,14 +373,14 @@ def test_build_creates_multiple_dependency_edges() -> None:
             calendar_manifest,
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="storage",
+                    plugin_id="familyos.storage",
                     version="3.0.0",
                     source="official",
                 ),
@@ -408,14 +388,11 @@ def test_build_creates_multiple_dependency_edges() -> None:
         ),
     )
 
-    edge_identifiers = {
-        edge.identifier()
-        for edge in graph.edges
-    }
+    edge_identifiers = {edge.identifier() for edge in graph.edges}
 
     assert edge_identifiers == {
-        "calendar@1.0.0->identity@2.0.0",
-        "calendar@1.0.0->storage@3.0.0",
+        "familyos.calendar@1.0.0->familyos.identity@2.0.0",
+        "familyos.calendar@1.0.0->familyos.storage@3.0.0",
     }
 
 
@@ -426,33 +403,33 @@ def test_build_selects_highest_available_dependency_version() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
                 dependencies=(
                     PluginDependency(
-                        name="identity",
+                        plugin_id="familyos.identity",
                     ),
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="1.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.1.0",
                     source="official",
                 ),
@@ -461,10 +438,7 @@ def test_build_selects_highest_available_dependency_version() -> None:
     )
 
     assert len(graph.edges) == 1
-    assert (
-        graph.edges[0].target.identifier()
-        == "identity@2.1.0"
-    )
+    assert graph.edges[0].target.identifier() == "familyos.identity@2.1.0"
 
 
 def test_build_selects_highest_compatible_dependency_version() -> None:
@@ -474,34 +448,34 @@ def test_build_selects_highest_compatible_dependency_version() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
                 dependencies=(
                     PluginDependency(
-                        name="identity",
+                        plugin_id="familyos.identity",
                         minimum_version="2.0.0",
                     ),
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="1.5.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.2.0",
                     source="official",
                 ),
@@ -510,10 +484,7 @@ def test_build_selects_highest_compatible_dependency_version() -> None:
     )
 
     assert len(graph.edges) == 1
-    assert (
-        graph.edges[0].target.identifier()
-        == "identity@2.2.0"
-    )
+    assert graph.edges[0].target.identifier() == "familyos.identity@2.2.0"
 
 
 def test_build_ignores_dependency_without_available_package() -> None:
@@ -523,13 +494,13 @@ def test_build_ignores_dependency_without_available_package() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
                 dependencies=(
                     PluginDependency(
-                        name="identity",
+                        plugin_id="familyos.identity",
                     ),
                 ),
             ),
@@ -547,27 +518,27 @@ def test_build_ignores_incompatible_dependency_versions() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
                 dependencies=(
                     PluginDependency(
-                        name="identity",
+                        plugin_id="familyos.identity",
                         minimum_version="3.0.0",
                     ),
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="1.0.0",
                     source="official",
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.0.0",
                     source="official",
                 ),
@@ -585,19 +556,19 @@ def test_build_ignores_invalid_dependency_package_version() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
                 dependencies=(
                     PluginDependency(
-                        name="identity",
+                        plugin_id="familyos.identity",
                     ),
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="invalid",
                     source="official",
                 ),
@@ -616,31 +587,31 @@ def test_build_supports_transitive_dependency_edges() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
                 dependencies=(
                     PluginDependency(
-                        name="identity",
+                        plugin_id="familyos.identity",
                     ),
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="2.0.0",
                     source="official",
                 ),
                 dependencies=(
                     PluginDependency(
-                        name="storage",
+                        plugin_id="familyos.storage",
                     ),
                 ),
             ),
             PluginManifest(
                 package=PluginPackage(
-                    name="storage",
+                    plugin_id="familyos.storage",
                     version="3.0.0",
                     source="official",
                 ),
@@ -648,25 +619,22 @@ def test_build_supports_transitive_dependency_edges() -> None:
         ),
     )
 
-    edge_identifiers = {
-        edge.identifier()
-        for edge in graph.edges
-    }
+    edge_identifiers = {edge.identifier() for edge in graph.edges}
 
     assert edge_identifiers == {
-        "calendar@1.0.0->identity@2.0.0",
-        "identity@2.0.0->storage@3.0.0",
+        "familyos.calendar@1.0.0->familyos.identity@2.0.0",
+        "familyos.identity@2.0.0->familyos.storage@3.0.0",
     }
 
 
 def test_build_delegates_selection_to_package_selector() -> None:
     identity_package = PluginPackage(
-        name="identity",
+        plugin_id="familyos.identity",
         version="2.0.0",
         source="official",
     )
     dependency = PluginDependency(
-        name="identity",
+        plugin_id="familyos.identity",
     )
     selector = RecordingPluginPackageSelector(
         selected_package=identity_package,
@@ -679,13 +647,11 @@ def test_build_delegates_selection_to_package_selector() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
-                dependencies=(
-                    dependency,
-                ),
+                dependencies=(dependency,),
             ),
             PluginManifest(
                 package=identity_package,
@@ -696,24 +662,19 @@ def test_build_delegates_selection_to_package_selector() -> None:
     assert selector.calls == [
         (
             dependency,
-            (
-                identity_package,
-            ),
+            (identity_package,),
         ),
     ]
     assert len(graph.edges) == 1
-    assert (
-        graph.edges[0].target.package
-        == identity_package
-    )
+    assert graph.edges[0].target.package == identity_package
 
 
 def test_build_skips_edge_when_selector_returns_none() -> None:
     dependency = PluginDependency(
-        name="identity",
+        plugin_id="familyos.identity",
     )
     identity_package = PluginPackage(
-        name="identity",
+        plugin_id="familyos.identity",
         version="2.0.0",
         source="official",
     )
@@ -728,13 +689,11 @@ def test_build_skips_edge_when_selector_returns_none() -> None:
         (
             PluginManifest(
                 package=PluginPackage(
-                    name="calendar",
+                    plugin_id="familyos.calendar",
                     version="1.0.0",
                     source="official",
                 ),
-                dependencies=(
-                    dependency,
-                ),
+                dependencies=(dependency,),
             ),
             PluginManifest(
                 package=identity_package,
@@ -745,9 +704,7 @@ def test_build_skips_edge_when_selector_returns_none() -> None:
     assert selector.calls == [
         (
             dependency,
-            (
-                identity_package,
-            ),
+            (identity_package,),
         ),
     ]
     assert graph.edges == ()
@@ -755,7 +712,7 @@ def test_build_skips_edge_when_selector_returns_none() -> None:
 
 def test_find_node_for_package_returns_matching_node() -> None:
     package = PluginPackage(
-        name="identity",
+        plugin_id="familyos.identity",
         version="2.0.0",
         source="official",
     )
@@ -773,7 +730,7 @@ def test_find_node_for_package_returns_matching_node() -> None:
 
     selected_node = builder._find_node_for_package(
         package=package,
-        candidates=node_index["identity"],
+        candidates=node_index["familyos.identity"],
     )
 
     assert selected_node is not None
@@ -788,7 +745,7 @@ def test_find_node_for_package_returns_none_when_absent() -> None:
         manifests=(
             PluginManifest(
                 package=PluginPackage(
-                    name="identity",
+                    plugin_id="familyos.identity",
                     version="1.0.0",
                     source="official",
                 ),
@@ -799,11 +756,11 @@ def test_find_node_for_package_returns_none_when_absent() -> None:
 
     selected_node = builder._find_node_for_package(
         package=PluginPackage(
-            name="identity",
+            plugin_id="familyos.identity",
             version="2.0.0",
             source="official",
         ),
-        candidates=node_index["identity"],
+        candidates=node_index["familyos.identity"],
     )
 
     assert selected_node is None
