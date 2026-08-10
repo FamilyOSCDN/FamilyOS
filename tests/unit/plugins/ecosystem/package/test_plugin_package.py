@@ -61,3 +61,32 @@ def test_plugin_package_rejects_conflicting_identity_arguments() -> None:
             version="1.0.0",
             source="official",
         )
+
+
+def test_plugin_package_rejects_invalid_explicit_plugin_id() -> None:
+    """Explicit Plugin Identifiers should satisfy the canonical contract."""
+
+    import pytest
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginPackage(
+            plugin_id="calendar",
+            version="1.0.0",
+            source="official",
+        )
+
+
+def test_plugin_package_preserves_legacy_name_identity() -> None:
+    """Legacy name construction should remain compatible."""
+
+    package = PluginPackage(
+        name="calendar",
+        version="1.0.0",
+        source="official",
+    )
+
+    assert package.plugin_id == "calendar"
+    assert package.name == "calendar"

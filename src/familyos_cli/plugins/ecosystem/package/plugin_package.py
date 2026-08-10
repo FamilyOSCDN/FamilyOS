@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from familyos_cli.plugins.identity import PluginId
+
 
 @dataclass(
     frozen=True,
@@ -50,6 +52,8 @@ class PluginPackage:
                 ``name`` and ``plugin_id`` disagree.
         """
 
+        explicit_plugin_id = plugin_id is not None
+
         if plugin_id is None:
             plugin_id = name
 
@@ -58,14 +62,15 @@ class PluginPackage:
                 "Plugin identifier is required.",
             )
 
-        if (
-            name is not None
-            and name != plugin_id
-        ):
+        if name is not None and explicit_plugin_id and name != plugin_id:
             raise ValueError(
-                "name and plugin_id must reference "
-                "the same Plugin Identifier.",
+                "name and plugin_id must reference the same Plugin Identifier.",
             )
+
+        if explicit_plugin_id:
+            plugin_id = PluginId(
+                plugin_id,
+            ).value
 
         object.__setattr__(
             self,
