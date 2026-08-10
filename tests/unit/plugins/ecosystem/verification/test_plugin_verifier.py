@@ -12,7 +12,7 @@ def test_plugin_package_is_verified() -> None:
     """Valid packages should pass verification."""
 
     package = PluginPackage(
-        name="calendar",
+        plugin_id="familyos.calendar",
         version="1.0.0",
         source="official",
     )
@@ -46,7 +46,7 @@ def test_missing_version_fails_verification() -> None:
     """Packages without versions should fail verification."""
 
     package = PluginPackage(
-        name="calendar",
+        plugin_id="familyos.calendar",
         version="",
         source="official",
     )

@@ -17,7 +17,7 @@ def test_adapter_returns_no_conflict_for_successful_plan() -> None:
     plan = ResolutionPlan(
         ordered_packages=[
             PluginPackage(
-                name="security",
+                plugin_id="familyos.security",
                 version="1.0.0",
                 source="official",
             ),
@@ -37,10 +37,8 @@ def test_adapter_maps_missing_dependency() -> None:
     plan = ResolutionPlan(
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="security",
-                message=(
-                    "Required plugin dependency is not available."
-                ),
+                plugin="familyos.security",
+                message=("Required plugin dependency is not available."),
             ),
         ],
     )
@@ -50,7 +48,7 @@ def test_adapter_maps_missing_dependency() -> None:
     )
 
     assert len(conflicts) == 1
-    assert conflicts[0].plugin == "security"
+    assert conflicts[0].plugin == "familyos.security"
     assert conflicts[0].reason is ConflictReason.PACKAGE_NOT_FOUND
     assert conflicts[0].available_versions == ()
 
@@ -59,7 +57,7 @@ def test_adapter_maps_invalid_package_version() -> None:
     """An invalid package version becomes an invalid-version conflict."""
 
     invalid_package = PluginPackage(
-        name="security",
+        plugin_id="familyos.security",
         version="invalid",
         source="official",
     )
@@ -69,10 +67,8 @@ def test_adapter_maps_invalid_package_version() -> None:
         ],
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="security",
-                message=(
-                    "Plugin package version 'invalid' is invalid."
-                ),
+                plugin="familyos.security",
+                message=("Plugin package version 'invalid' is invalid."),
             ),
         ],
     )
@@ -82,7 +78,7 @@ def test_adapter_maps_invalid_package_version() -> None:
     )
 
     assert len(conflicts) == 1
-    assert conflicts[0].plugin == "security"
+    assert conflicts[0].plugin == "familyos.security"
     assert conflicts[0].reason is ConflictReason.INVALID_VERSION
     assert conflicts[0].available_versions == ("invalid",)
 
@@ -91,12 +87,12 @@ def test_adapter_maps_missing_compatible_version() -> None:
     """An unsatisfied constraint becomes a compatibility conflict."""
 
     first_package = PluginPackage(
-        name="crypto",
+        plugin_id="familyos.crypto",
         version="1.0.0",
         source="official",
     )
     second_package = PluginPackage(
-        name="crypto",
+        plugin_id="familyos.crypto",
         version="2.0.0",
         source="official",
     )
@@ -107,10 +103,9 @@ def test_adapter_maps_missing_compatible_version() -> None:
         ],
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="crypto",
+                plugin="familyos.crypto",
                 message=(
-                    "No available plugin version satisfies "
-                    "constraint set '>=3.0.0'."
+                    "No available plugin version satisfies constraint set '>=3.0.0'."
                 ),
             ),
         ],
@@ -121,11 +116,8 @@ def test_adapter_maps_missing_compatible_version() -> None:
     )
 
     assert len(conflicts) == 1
-    assert conflicts[0].plugin == "crypto"
-    assert (
-        conflicts[0].reason
-        is ConflictReason.NO_COMPATIBLE_VERSION
-    )
+    assert conflicts[0].plugin == "familyos.crypto"
+    assert conflicts[0].reason is ConflictReason.NO_COMPATIBLE_VERSION
     assert conflicts[0].available_versions == (
         "1.0.0",
         "2.0.0",
@@ -138,18 +130,15 @@ def test_adapter_maps_plan_without_valid_semantic_version() -> None:
     plan = ResolutionPlan(
         skipped_packages=[
             PluginPackage(
-                name="security",
+                plugin_id="familyos.security",
                 version="latest",
                 source="official",
             ),
         ],
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="security",
-                message=(
-                    "No package with a valid semantic version "
-                    "is available."
-                ),
+                plugin="familyos.security",
+                message=("No package with a valid semantic version is available."),
             ),
         ],
     )
@@ -159,10 +148,7 @@ def test_adapter_maps_plan_without_valid_semantic_version() -> None:
     )
 
     assert len(conflicts) == 1
-    assert (
-        conflicts[0].reason
-        is ConflictReason.NO_COMPATIBLE_VERSION
-    )
+    assert conflicts[0].reason is ConflictReason.NO_COMPATIBLE_VERSION
     assert conflicts[0].available_versions == ("latest",)
 
 
@@ -172,16 +158,12 @@ def test_adapter_preserves_multiple_known_conflicts() -> None:
     plan = ResolutionPlan(
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="security",
-                message=(
-                    "Required plugin dependency is not available."
-                ),
+                plugin="familyos.security",
+                message=("Required plugin dependency is not available."),
             ),
             ResolutionDiagnostic(
-                plugin="backup",
-                message=(
-                    "Required plugin dependency is not available."
-                ),
+                plugin="familyos.backup",
+                message=("Required plugin dependency is not available."),
             ),
         ],
     )
@@ -190,12 +172,9 @@ def test_adapter_preserves_multiple_known_conflicts() -> None:
         plan,
     )
 
-    assert tuple(
-        conflict.plugin
-        for conflict in conflicts
-    ) == (
-        "security",
-        "backup",
+    assert tuple(conflict.plugin for conflict in conflicts) == (
+        "familyos.security",
+        "familyos.backup",
     )
 
 
@@ -205,7 +184,7 @@ def test_adapter_ignores_unknown_resolution_diagnostic() -> None:
     plan = ResolutionPlan(
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="security",
+                plugin="familyos.security",
                 message="Unexpected resolver information.",
             ),
         ],
@@ -222,7 +201,7 @@ def test_adapter_removes_duplicate_skipped_versions() -> None:
     """Available conflict versions are unique and preserve order."""
 
     duplicate = PluginPackage(
-        name="crypto",
+        plugin_id="familyos.crypto",
         version="1.0.0",
         source="official",
     )
@@ -231,17 +210,16 @@ def test_adapter_removes_duplicate_skipped_versions() -> None:
             duplicate,
             duplicate,
             PluginPackage(
-                name="crypto",
+                plugin_id="familyos.crypto",
                 version="2.0.0",
                 source="community",
             ),
         ],
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="crypto",
+                plugin="familyos.crypto",
                 message=(
-                    "No available plugin version satisfies "
-                    "constraint set '>=3.0.0'."
+                    "No available plugin version satisfies constraint set '>=3.0.0'."
                 ),
             ),
         ],
@@ -263,22 +241,21 @@ def test_adapter_ignores_skipped_versions_from_other_plugins() -> None:
     plan = ResolutionPlan(
         skipped_packages=[
             PluginPackage(
-                name="crypto",
+                plugin_id="familyos.crypto",
                 version="1.0.0",
                 source="official",
             ),
             PluginPackage(
-                name="storage",
+                plugin_id="familyos.storage",
                 version="4.0.0",
                 source="official",
             ),
         ],
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="crypto",
+                plugin="familyos.crypto",
                 message=(
-                    "No available plugin version satisfies "
-                    "constraint set '>=3.0.0'."
+                    "No available plugin version satisfies constraint set '>=3.0.0'."
                 ),
             ),
         ],
@@ -311,8 +288,7 @@ def test_adapter_matches_skipped_versions_by_plugin_id() -> None:
             ResolutionDiagnostic(
                 plugin="familyos.crypto",
                 message=(
-                    "No available plugin version satisfies "
-                    "constraint set '>=3.0.0'."
+                    "No available plugin version satisfies constraint set '>=3.0.0'."
                 ),
             ),
         ],
