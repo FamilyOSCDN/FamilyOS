@@ -41,8 +41,8 @@ def test_security_plugin_exposes_capabilities() -> None:
         str(capability.id)
         for capability in capabilities
     } == {
-        "security.policy",
-        "security.validation",
+        "familyos.security.policy",
+        "familyos.security.validation",
     }
 
 

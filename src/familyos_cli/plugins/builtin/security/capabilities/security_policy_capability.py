@@ -19,7 +19,7 @@ class SecurityPolicyCapability:
 
         return PluginCapability(
             id=PluginCapabilityId(
-                "security.policy",
+                "familyos.security.policy",
             ),
             display_name="Security Policy",
             description=(

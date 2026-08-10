@@ -19,7 +19,7 @@ class SecurityValidationCapability:
 
         return PluginCapability(
             id=PluginCapabilityId(
-                "security.validation",
+                "familyos.security.validation",
             ),
             display_name="Security Validation",
             description=(

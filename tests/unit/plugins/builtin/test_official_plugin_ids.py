@@ -78,8 +78,8 @@ def test_security_capability_ids_are_stable() -> None:
     }
 
     assert identifiers == {
-        "security.policy",
-        "security.validation",
+        "familyos.security.policy",
+        "familyos.security.validation",
     }
 
 

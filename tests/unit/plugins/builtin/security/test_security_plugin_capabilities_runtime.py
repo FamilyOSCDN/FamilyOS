@@ -43,6 +43,6 @@ def test_security_plugin_runtime_contains_expected_capabilities() -> None:
     }
 
     assert identifiers == {
-        "security.policy",
-        "security.validation",
+        "familyos.security.policy",
+        "familyos.security.validation",
     }

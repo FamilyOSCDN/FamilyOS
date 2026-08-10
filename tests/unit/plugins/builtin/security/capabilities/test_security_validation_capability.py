@@ -6,7 +6,7 @@ from familyos_cli.plugins.builtin.security.capabilities.security_validation_capa
 def test_security_validation_capability_has_expected_identifier() -> None:
     capability = SecurityValidationCapability.create()
 
-    assert str(capability.id) == "security.validation"
+    assert str(capability.id) == "familyos.security.validation"
 
 
 def test_security_validation_capability_has_security_metadata() -> None:
