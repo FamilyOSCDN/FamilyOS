@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 
-_RUNTIME_PLUGIN_ID_PATTERN = re.compile(
-    r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$",
-)
+from familyos_cli.plugins.identity import PluginId
 
 
 @dataclass(
@@ -24,15 +21,14 @@ class RuntimePluginId:
     ) -> None:
         """Validate the runtime plugin identifier."""
 
-        if not _RUNTIME_PLUGIN_ID_PATTERN.fullmatch(
-            self.value,
-        ):
-            raise ValueError(
-                (
-                    "Invalid runtime plugin identifier: "
-                    f"'{self.value}'."
-                ),
+        try:
+            PluginId(
+                self.value,
             )
+        except ValueError as error:
+            raise ValueError(
+                (f"Invalid runtime plugin identifier: '{self.value}'."),
+            ) from error
 
     def __str__(
         self,
