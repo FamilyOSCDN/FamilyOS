@@ -84,9 +84,7 @@ def test_pipeline_discovers_and_resolves_plugins(
     assert len(plan.ordered_packages) == 1
     assert plan.ordered_packages[0].name == "familyos.calendar"
     assert plan.ordered_packages[0].version == "1.0.0"
-    assert plan.ordered_packages[0].identifier() == (
-        "familyos.calendar@1.0.0"
-    )
+    assert plan.ordered_packages[0].identifier() == ("familyos.calendar@1.0.0")
     assert plan.diagnostics == []
 
 
@@ -123,13 +121,9 @@ def test_pipeline_keeps_plugin_identifier_separate_from_display_name(
     )
 
     assert len(plan.ordered_packages) == 1
-    assert plan.ordered_packages[0].name == (
-        "familyos.calendar"
-    )
+    assert plan.ordered_packages[0].name == ("familyos.calendar")
     assert plan.ordered_packages[0].name != "Calendar Plugin"
-    assert plan.ordered_packages[0].identifier() == (
-        "familyos.calendar@1.0.0"
-    )
+    assert plan.ordered_packages[0].identifier() == ("familyos.calendar@1.0.0")
 
 
 def test_pipeline_returns_diagnostic_when_dependency_is_missing(
@@ -193,6 +187,4 @@ def test_pipeline_resolves_highest_compatible_version(
     )
 
     assert len(plan.ordered_packages) == 1
-    assert plan.ordered_packages[0].identifier() == (
-        "familyos.calendar@1.2.0"
-    )
+    assert plan.ordered_packages[0].identifier() == ("familyos.calendar@1.2.0")
