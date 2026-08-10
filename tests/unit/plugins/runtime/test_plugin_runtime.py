@@ -362,3 +362,132 @@ def test_runtime_rejects_contribution_owned_by_another_plugin() -> None:
             ForeignContributionPlugin(),
             plugin_id="familyos.dummy",
         )
+
+
+@dataclass(
+    frozen=True,
+    slots=True,
+)
+class RuntimeLifecycleContribution(
+    Contribution,
+):
+    """Contribution used to verify runtime resource cleanup."""
+
+    description: str
+
+
+class FirstLifecyclePlugin(
+    Plugin,
+):
+    """First plugin used by resource lifecycle tests."""
+
+    def capabilities(
+        self,
+    ) -> tuple[PluginCapability, ...]:
+        """Return capabilities owned by the first plugin."""
+
+        return (
+            PluginCapability(
+                id=PluginCapabilityId(
+                    "familyos.first.example",
+                ),
+                display_name="First Example",
+                description="First plugin capability.",
+            ),
+        )
+
+    def contributions(
+        self,
+    ) -> tuple[Contribution, ...]:
+        """Return contributions owned by the first plugin."""
+
+        return (
+            RuntimeLifecycleContribution(
+                id=PluginContributionId(
+                    "familyos.first.example",
+                ),
+                description="First plugin contribution.",
+            ),
+        )
+
+
+class SecondLifecyclePlugin(
+    Plugin,
+):
+    """Second plugin used by resource lifecycle tests."""
+
+    def capabilities(
+        self,
+    ) -> tuple[PluginCapability, ...]:
+        """Return capabilities owned by the second plugin."""
+
+        return (
+            PluginCapability(
+                id=PluginCapabilityId(
+                    "familyos.second.example",
+                ),
+                display_name="Second Example",
+                description="Second plugin capability.",
+            ),
+        )
+
+    def contributions(
+        self,
+    ) -> tuple[Contribution, ...]:
+        """Return contributions owned by the second plugin."""
+
+        return (
+            RuntimeLifecycleContribution(
+                id=PluginContributionId(
+                    "familyos.second.example",
+                ),
+                description="Second plugin contribution.",
+            ),
+        )
+
+
+def test_deactivate_removes_only_plugin_runtime_resources() -> None:
+    """Deactivation should remove only resources owned by that plugin."""
+
+    runtime = PluginRuntime()
+
+    first_plugin = FirstLifecyclePlugin()
+    second_plugin = SecondLifecyclePlugin()
+
+    runtime.activate(
+        first_plugin,
+        plugin_id="familyos.first",
+    )
+    runtime.activate(
+        second_plugin,
+        plugin_id="familyos.second",
+    )
+
+    runtime.deactivate_by_plugin_id(
+        "familyos.first",
+    )
+
+    first_capability_id = PluginCapabilityId(
+        "familyos.first.example",
+    )
+    second_capability_id = PluginCapabilityId(
+        "familyos.second.example",
+    )
+
+    assert not runtime.capabilities().contains(
+        first_capability_id,
+    )
+    assert runtime.capabilities().contains(
+        second_capability_id,
+    )
+
+    assert runtime._contribution_registry.get_all(
+        RuntimeLifecycleContribution,
+    ) == (
+        RuntimeLifecycleContribution(
+            id=PluginContributionId(
+                "familyos.second.example",
+            ),
+            description="Second plugin contribution.",
+        ),
+    )

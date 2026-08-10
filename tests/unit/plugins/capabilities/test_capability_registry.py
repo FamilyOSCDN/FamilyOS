@@ -88,3 +88,29 @@ def test_clear_registry() -> None:
     registry.clear()
 
     assert registry.list() == ()
+
+
+def test_unregister_removes_capability() -> None:
+    """Unregistering should remove only the requested capability."""
+
+    registry = CapabilityRegistry()
+
+    capability = PluginCapability(
+        id=PluginCapabilityId(
+            "familyos.test.example",
+        ),
+        display_name="Example",
+        description="Example capability.",
+    )
+
+    registry.register(
+        capability,
+    )
+
+    registry.unregister(
+        capability.id,
+    )
+
+    assert not registry.contains(
+        capability.id,
+    )

@@ -16,6 +16,9 @@ from familyos_cli.plugins.capabilities.capability_registry import (
 from familyos_cli.plugins.capabilities.plugin_capability import (
     PluginCapability,
 )
+from familyos_cli.plugins.capabilities.plugin_capability_id import (
+    PluginCapabilityId,
+)
 from familyos_cli.plugins.contributions.contribution import (
     Contribution,
 )
@@ -51,7 +54,7 @@ from familyos_cli.plugins.runtime.runtime_state import (
 
 
 class PluginRuntime:
-    """Manage active plugin instances and their runtime contributions."""
+    """Manage active plugin instances and their runtime resources."""
 
     def __init__(
         self,
@@ -74,12 +77,22 @@ class PluginRuntime:
         self._capability_provider = CapabilityProvider()
         self._capability_registry = CapabilityRegistry()
 
+        self._capability_ids_by_plugin_id: dict[
+            str,
+            tuple[PluginCapabilityId, ...],
+        ] = {}
+
         self._contribution_provider = (
             PluginContributionProvider()
         )
         self._contribution_registry = (
             ContributionRegistry()
         )
+
+        self._contributions_by_plugin_id: dict[
+            str,
+            tuple[Contribution, ...],
+        ] = {}
 
     def activate(
         self,
@@ -125,11 +138,13 @@ class PluginRuntime:
             id(plugin)
         ] = runtime_plugin_id
 
-        for capability in (
+        capabilities = (
             self._capability_provider.capabilities(
                 plugin,
             )
-        ):
+        )
+
+        for capability in capabilities:
             self._validate_capability_ownership(
                 plugin_id=runtime_plugin_id,
                 capability=capability,
@@ -139,11 +154,20 @@ class PluginRuntime:
                 capability,
             )
 
-        for contribution in (
+        self._capability_ids_by_plugin_id[
+            runtime_plugin_id
+        ] = tuple(
+            capability.id
+            for capability in capabilities
+        )
+
+        contributions = (
             self._contribution_provider.contributions(
                 plugin,
             )
-        ):
+        )
+
+        for contribution in contributions:
             self._validate_contribution_ownership(
                 plugin_id=runtime_plugin_id,
                 contribution=contribution,
@@ -152,6 +176,10 @@ class PluginRuntime:
             self._contribution_registry.register(
                 contribution,
             )
+
+        self._contributions_by_plugin_id[
+            runtime_plugin_id
+        ] = contributions
 
     def deactivate(
         self,
@@ -356,6 +384,26 @@ class PluginRuntime:
             plugin_id,
             RuntimeState.STOPPED,
         )
+
+        for capability_id in (
+            self._capability_ids_by_plugin_id.pop(
+                plugin_id,
+                (),
+            )
+        ):
+            self._capability_registry.unregister(
+                capability_id,
+            )
+
+        for contribution in (
+            self._contributions_by_plugin_id.pop(
+                plugin_id,
+                (),
+            )
+        ):
+            self._contribution_registry.unregister(
+                contribution,
+            )
 
         self._plugins.remove(
             plugin,

@@ -70,6 +70,17 @@ class CapabilityRegistry:
             self._capabilities.values(),
         )
 
+    def unregister(
+        self,
+        capability_id: PluginCapabilityId,
+    ) -> None:
+        """Remove a registered capability."""
+
+        self._capabilities.pop(
+            capability_id,
+            None,
+        )
+
     def clear(
         self,
     ) -> None:
