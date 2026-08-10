@@ -38,6 +38,7 @@ def test_plugin_runtime_registers_domain_generation_contribution() -> None:
 
     runtime.activate(
         plugin,
+        plugin_id="familyos.test",
     )
 
     contributions = (

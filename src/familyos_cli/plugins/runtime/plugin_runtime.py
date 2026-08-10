@@ -16,6 +16,9 @@ from familyos_cli.plugins.capabilities.capability_registry import (
 from familyos_cli.plugins.capabilities.plugin_capability import (
     PluginCapability,
 )
+from familyos_cli.plugins.contributions.contribution import (
+    Contribution,
+)
 from familyos_cli.plugins.contributions.contribution_registry import (
     ContributionRegistry,
 )
@@ -36,13 +39,19 @@ from familyos_cli.plugins.contributions.template_contribution import (
 )
 from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_registry import PluginRegistry
-from familyos_cli.plugins.runtime.plugin_collection import PluginCollection
-from familyos_cli.plugins.runtime.runtime_context import RuntimeContext
-from familyos_cli.plugins.runtime.runtime_state import RuntimeState
+from familyos_cli.plugins.runtime.plugin_collection import (
+    PluginCollection,
+)
+from familyos_cli.plugins.runtime.runtime_context import (
+    RuntimeContext,
+)
+from familyos_cli.plugins.runtime.runtime_state import (
+    RuntimeState,
+)
 
 
 class PluginRuntime:
-    """Manage active plugin instances and their capabilities and contributions."""
+    """Manage active plugin instances and their runtime contributions."""
 
     def __init__(
         self,
@@ -68,7 +77,6 @@ class PluginRuntime:
         self._contribution_provider = (
             PluginContributionProvider()
         )
-
         self._contribution_registry = (
             ContributionRegistry()
         )
@@ -79,12 +87,14 @@ class PluginRuntime:
         *,
         plugin_id: str | None = None,
     ) -> None:
-        """Activate a plugin and register its capabilities and contributions."""
+        """Activate a plugin and register its runtime resources."""
 
         runtime_plugin_id = (
             plugin_id
             if plugin_id is not None
-            else self._legacy_plugin_id(plugin)
+            else self._legacy_plugin_id(
+                plugin,
+            )
         )
 
         self._context.lifecycle.register(
@@ -134,6 +144,11 @@ class PluginRuntime:
                 plugin,
             )
         ):
+            self._validate_contribution_ownership(
+                plugin_id=runtime_plugin_id,
+                contribution=contribution,
+            )
+
             self._contribution_registry.register(
                 contribution,
             )
@@ -142,7 +157,7 @@ class PluginRuntime:
         self,
         plugin: Plugin,
     ) -> None:
-        """Deactivate a plugin using its registered runtime identity."""
+        """Deactivate a plugin using its runtime identity."""
 
         runtime_plugin_id = self._runtime_plugin_id(
             plugin,
@@ -157,7 +172,7 @@ class PluginRuntime:
         self,
         plugin_id: str,
     ) -> None:
-        """Deactivate the active plugin registered under a Plugin Identifier."""
+        """Deactivate an active plugin by canonical identifier."""
 
         plugin = self.plugin(
             plugin_id,
@@ -172,7 +187,7 @@ class PluginRuntime:
         self,
         plugin_id: str,
     ) -> Plugin:
-        """Return the active plugin registered under a Plugin Identifier."""
+        """Return an active plugin by canonical identifier."""
 
         try:
             return self._plugins_by_id[
@@ -187,7 +202,7 @@ class PluginRuntime:
         self,
         plugin_id: str,
     ) -> RuntimeState:
-        """Return runtime state for a canonical Plugin Identifier."""
+        """Return runtime state for a canonical plugin identifier."""
 
         return self._context.lifecycle.state(
             plugin_id,
@@ -197,7 +212,7 @@ class PluginRuntime:
         self,
         context: GenerationContext,
     ) -> None:
-        """Dispatch before_generate hook."""
+        """Dispatch before-generate hooks."""
 
         for plugin in self._plugins.all():
             plugin.before_generate(
@@ -208,7 +223,7 @@ class PluginRuntime:
         self,
         context: GenerationContext,
     ) -> None:
-        """Dispatch after_generate hook."""
+        """Dispatch after-generate hooks."""
 
         for plugin in self._plugins.all():
             plugin.after_generate(
@@ -219,7 +234,7 @@ class PluginRuntime:
         self,
         context: GenerationContext,
     ) -> None:
-        """Dispatch before_render hook."""
+        """Dispatch before-render hooks."""
 
         for plugin in self._plugins.all():
             plugin.before_render(
@@ -230,7 +245,7 @@ class PluginRuntime:
         self,
         context: GenerationContext,
     ) -> None:
-        """Dispatch after_render hook."""
+        """Dispatch after-render hooks."""
 
         for plugin in self._plugins.all():
             plugin.after_render(
@@ -258,7 +273,7 @@ class PluginRuntime:
     def domain_generation_contributions(
         self,
     ) -> tuple[DomainGenerationContribution, ...]:
-        """Return domain generation contributions."""
+        """Return domain-generation contributions."""
 
         return self._contribution_registry.get_all(
             DomainGenerationContribution,
@@ -307,7 +322,7 @@ class PluginRuntime:
     def context(
         self,
     ) -> RuntimeContext:
-        """Return the shared runtime context."""
+        """Return shared runtime context."""
 
         return self._context
 
@@ -315,7 +330,7 @@ class PluginRuntime:
         self,
         plugin: Plugin,
     ) -> RuntimeState:
-        """Return the runtime state of a plugin."""
+        """Return runtime state for a plugin."""
 
         return self._context.lifecycle.state(
             self._runtime_plugin_id(
@@ -374,11 +389,29 @@ class PluginRuntime:
                 f"does not belong to plugin '{plugin_id}'.",
             )
 
+    def _validate_contribution_ownership(
+        self,
+        *,
+        plugin_id: str,
+        contribution: Contribution,
+    ) -> None:
+        """Validate that a contribution belongs to its providing plugin."""
+
+        expected_prefix = f"{plugin_id}."
+
+        if not contribution.id.value.startswith(
+            expected_prefix,
+        ):
+            raise ValueError(
+                f"Contribution '{contribution.id}' "
+                f"does not belong to plugin '{plugin_id}'.",
+            )
+
     def _runtime_plugin_id(
         self,
         plugin: Plugin,
     ) -> str:
-        """Return the runtime identity associated with a plugin instance."""
+        """Return runtime identity associated with a plugin instance."""
 
         return self._plugin_ids_by_instance.get(
             id(plugin),
@@ -391,7 +424,7 @@ class PluginRuntime:
         self,
         plugin: Plugin,
     ) -> str:
-        """Return the legacy runtime identity for direct plugin activation."""
+        """Return legacy identity for direct plugin activation."""
 
         metadata = plugin.get_metadata()
 
