@@ -64,3 +64,89 @@ def test_runtime_accepts_context() -> None:
     )
 
     assert runtime.context() is context
+
+
+def test_activate_plugin_with_canonical_plugin_id() -> None:
+    """Runtime should use an explicit canonical plugin identifier."""
+
+    runtime = PluginRuntime()
+
+    plugin = DummyPlugin()
+
+    runtime.activate(
+        plugin,
+        plugin_id="familyos.dummy",
+    )
+
+    assert (
+        runtime.state_by_plugin_id(
+            "familyos.dummy",
+        )
+        == RuntimeState.ACTIVE
+    )
+
+
+def test_runtime_tracks_active_plugin_by_canonical_id() -> None:
+    """Runtime should associate canonical identity with active instance."""
+
+    runtime = PluginRuntime()
+
+    plugin = DummyPlugin()
+
+    runtime.activate(
+        plugin,
+        plugin_id="familyos.dummy",
+    )
+
+    assert (
+        runtime.plugin(
+            "familyos.dummy",
+        )
+        is plugin
+    )
+
+
+def test_deactivate_plugin_by_canonical_plugin_id() -> None:
+    """Runtime should deactivate the original active plugin instance."""
+
+    runtime = PluginRuntime()
+
+    plugin = DummyPlugin()
+
+    runtime.activate(
+        plugin,
+        plugin_id="familyos.dummy",
+    )
+
+    runtime.deactivate_by_plugin_id(
+        "familyos.dummy",
+    )
+
+    assert (
+        runtime.state_by_plugin_id(
+            "familyos.dummy",
+        )
+        == RuntimeState.STOPPED
+    )
+
+    assert runtime.plugins().all() == []
+
+
+def test_explicit_plugin_id_does_not_use_display_name_for_lifecycle() -> None:
+    """Canonical identity should be independent from display metadata."""
+
+    runtime = PluginRuntime()
+
+    plugin = DummyPlugin()
+
+    runtime.activate(
+        plugin,
+        plugin_id="familyos.dummy",
+    )
+
+    assert (
+        runtime.context().lifecycle.state(
+            "familyos.dummy",
+        )
+        == RuntimeState.ACTIVE
+    )

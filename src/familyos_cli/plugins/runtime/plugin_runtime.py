@@ -56,6 +56,9 @@ class PluginRuntime:
         self._registry = PluginRegistry()
         self._plugins = PluginCollection()
 
+        self._plugins_by_id: dict[str, Plugin] = {}
+        self._plugin_ids_by_instance: dict[int, str] = {}
+
         self._capability_provider = CapabilityProvider()
         self._capability_registry = CapabilityRegistry()
 
@@ -70,32 +73,44 @@ class PluginRuntime:
     def activate(
         self,
         plugin: Plugin,
+        *,
+        plugin_id: str | None = None,
     ) -> None:
         """Activate a plugin and register its capabilities and contributions."""
 
-        plugin_name = self._plugin_name(
-            plugin,
+        runtime_plugin_id = (
+            plugin_id
+            if plugin_id is not None
+            else self._legacy_plugin_id(plugin)
         )
 
         self._context.lifecycle.register(
-            plugin_name,
+            runtime_plugin_id,
         )
 
         self._context.lifecycle.transition(
-            plugin_name,
+            runtime_plugin_id,
             RuntimeState.INITIALIZED,
         )
 
         plugin.activate()
 
         self._context.lifecycle.transition(
-            plugin_name,
+            runtime_plugin_id,
             RuntimeState.ACTIVE,
         )
 
         self._plugins.add(
             plugin,
         )
+
+        self._plugins_by_id[
+            runtime_plugin_id
+        ] = plugin
+
+        self._plugin_ids_by_instance[
+            id(plugin)
+        ] = runtime_plugin_id
 
         for capability in (
             self._capability_provider.capabilities(
@@ -119,26 +134,55 @@ class PluginRuntime:
         self,
         plugin: Plugin,
     ) -> None:
-        """Deactivate a plugin."""
+        """Deactivate a plugin using its registered runtime identity."""
 
-        plugin_name = self._plugin_name(
+        runtime_plugin_id = self._runtime_plugin_id(
             plugin,
         )
 
-        self._context.lifecycle.transition(
-            plugin_name,
-            RuntimeState.STOPPING,
-        )
-
-        plugin.deactivate()
-
-        self._context.lifecycle.transition(
-            plugin_name,
-            RuntimeState.STOPPED,
-        )
-
-        self._plugins.remove(
+        self._deactivate(
             plugin,
+            runtime_plugin_id,
+        )
+
+    def deactivate_by_plugin_id(
+        self,
+        plugin_id: str,
+    ) -> None:
+        """Deactivate the active plugin registered under a Plugin Identifier."""
+
+        plugin = self.plugin(
+            plugin_id,
+        )
+
+        self._deactivate(
+            plugin,
+            plugin_id,
+        )
+
+    def plugin(
+        self,
+        plugin_id: str,
+    ) -> Plugin:
+        """Return the active plugin registered under a Plugin Identifier."""
+
+        try:
+            return self._plugins_by_id[
+                plugin_id
+            ]
+        except KeyError as error:
+            raise ValueError(
+                f"Plugin '{plugin_id}' is not active.",
+            ) from error
+
+    def state_by_plugin_id(
+        self,
+        plugin_id: str,
+    ) -> RuntimeState:
+        """Return runtime state for a canonical Plugin Identifier."""
+
+        return self._context.lifecycle.state(
+            plugin_id,
         )
 
     def before_generate(
@@ -266,16 +310,62 @@ class PluginRuntime:
         """Return the runtime state of a plugin."""
 
         return self._context.lifecycle.state(
-            self._plugin_name(
+            self._runtime_plugin_id(
                 plugin,
             ),
         )
 
-    def _plugin_name(
+    def _deactivate(
+        self,
+        plugin: Plugin,
+        plugin_id: str,
+    ) -> None:
+        """Deactivate an active plugin under its runtime identity."""
+
+        self._context.lifecycle.transition(
+            plugin_id,
+            RuntimeState.STOPPING,
+        )
+
+        plugin.deactivate()
+
+        self._context.lifecycle.transition(
+            plugin_id,
+            RuntimeState.STOPPED,
+        )
+
+        self._plugins.remove(
+            plugin,
+        )
+
+        self._plugins_by_id.pop(
+            plugin_id,
+            None,
+        )
+
+        self._plugin_ids_by_instance.pop(
+            id(plugin),
+            None,
+        )
+
+    def _runtime_plugin_id(
         self,
         plugin: Plugin,
     ) -> str:
-        """Return the plugin runtime identifier."""
+        """Return the runtime identity associated with a plugin instance."""
+
+        return self._plugin_ids_by_instance.get(
+            id(plugin),
+            self._legacy_plugin_id(
+                plugin,
+            ),
+        )
+
+    def _legacy_plugin_id(
+        self,
+        plugin: Plugin,
+    ) -> str:
+        """Return the legacy runtime identity for direct plugin activation."""
 
         metadata = plugin.get_metadata()
 
