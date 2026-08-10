@@ -172,25 +172,60 @@ It is never delegated to a single team.
 
 # Framework Structure
 
-The Quality Framework is divided into multiple documents.
+The Quality Framework is organized into 26 canonical numbered documents.
 
-01 — Introduction
+```text
+00-EPIC.md
+01-Context.md
+02-Vision.md
+03-Quality-Principles.md
+04-Quality-Architecture.md
+05-Quality-Domains.md
+06-Quality-Rule-Model.md
+07-Quality-Profiles.md
+08-Quality-Metrics.md
+09-Quality-Evidence.md
+10-Quality-Risk-Management.md
+11-Defect-and-Quality-Debt-Management.md
+12-Quality-Reviews-and-Assessments.md
+13-Quality-Automation.md
+14-Quality-Observability.md
+15-Quality-Gates.md
+16-Quality-Compliance.md
+17-Continuous-Improvement.md
+18-Quality-Governance.md
+19-Framework-Lifecycle.md
+20-Roadmap.md
+21-References.md
+22-Validation.md
+23-Summary.md
+24-Release.md
+25-Implementation-Checklist.md
+```
 
-02 — Quality Vision
+The numbered documentation is complemented by seven control artifacts:
 
-03 — Quality Principles
+```text
+EPIC-QLT-001.md
+EPIC.yaml
+README.md
+MANIFEST.md
+CHANGELOG.md
+VALIDATION.md
+Revision-History.md
+```
 
-04 — Quality Standards
+Together, the canonical EPIC structure contains:
 
-05 — Quality Metrics
+```text
+26 numbered documents
++
+7 control documents
+=
+33 canonical files
+```
 
-06 — Quality Gates
-
-07 — Governance
-
-08 — Continuous Improvement
-
-09 — References
+The authoritative structural inventory is maintained in `MANIFEST.md`.
 
 ---
 
