@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from familyos_cli.plugins.models import PluginDescriptor
+from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_manager import PluginManager
 
 
@@ -138,12 +139,7 @@ def test_manager_activate_accepts_legacy_plugin_id_alias(
     loader.load.assert_called_once()
 
 
-@patch(
-    "familyos_cli.plugins.plugin_manager.PluginLoader",
-)
-def test_manager_deactivate_accepts_legacy_plugin_id_alias(
-    mock_loader_class,
-) -> None:
+def test_manager_deactivate_accepts_legacy_plugin_id_alias() -> None:
     """Deactivation should resolve legacy identifiers canonically."""
 
     descriptor = PluginDescriptor(
@@ -158,13 +154,59 @@ def test_manager_deactivate_accepts_legacy_plugin_id_alias(
         enabled=True,
     )
 
+    manager = PluginManager()
+    manager.register(descriptor)
+
+    runtime = Mock()
+    manager._runtime = runtime
+
+    manager.deactivate("education")
+
+    runtime.deactivate_by_plugin_id.assert_called_once_with(
+        "familyos.education",
+    )
+
+
+@patch(
+    "familyos_cli.plugins.plugin_manager.PluginLoader",
+)
+def test_manager_deactivates_the_active_plugin_instance(
+    mock_loader_class,
+) -> None:
+    """Manager should deactivate the instance previously activated."""
+
+    descriptor = PluginDescriptor(
+        id="familyos.education",
+        name="FamilyOS Education Plugin",
+        version="1.0.0",
+        author="FamilyOS Team",
+        description="Education plugin",
+        module="familyos_cli.plugins.builtin.education.plugin",
+        class_name="EducationPlugin",
+        path=Path("/tmp/education"),
+        enabled=True,
+    )
+
+    plugin = Plugin()
+
     loader = Mock()
     mock_loader_class.return_value = loader
-    loader.load.return_value = Mock()
+    loader.load.return_value = plugin
 
     manager = PluginManager()
     manager.register(descriptor)
 
+    manager.activate("education")
+
+    assert (
+        manager.runtime().plugin(
+            "familyos.education",
+        )
+        is plugin
+    )
+
     manager.deactivate("education")
 
-    loader.load.assert_called_once()
+    assert manager.runtime().plugins().all() == []
+
+    assert loader.load.call_count == 1

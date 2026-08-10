@@ -181,6 +181,7 @@ class PluginManager:
         ):
             self._runtime.activate(
                 plugin,
+                plugin_id=descriptor.id,
             )
 
     def deactivate(
@@ -202,14 +203,6 @@ class PluginManager:
                 f"Unknown plugin: {plugin_id}",
             )
 
-        plugin = PluginLoader().load(
-            descriptor,
+        self._runtime.deactivate_by_plugin_id(
+            descriptor.id,
         )
-
-        if isinstance(
-            plugin,
-            Plugin,
-        ):
-            self._runtime.deactivate(
-                plugin,
-            )
