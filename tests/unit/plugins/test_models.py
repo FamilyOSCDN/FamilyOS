@@ -9,7 +9,7 @@ def test_plugin_descriptor_should_store_data() -> None:
     """Plugin descriptor should expose its data."""
 
     plugin = PluginDescriptor(
-        id="ddd",
+        id="familyos.ddd",
         name="Domain Driven Design",
         version="1.0.0",
         author="FamilyOS Team",
@@ -20,7 +20,7 @@ def test_plugin_descriptor_should_store_data() -> None:
         enabled=True,
     )
 
-    assert plugin.id == "ddd"
+    assert plugin.id == "familyos.ddd"
     assert plugin.name == "Domain Driven Design"
     assert plugin.version == "1.0.0"
     assert plugin.author == "FamilyOS Team"

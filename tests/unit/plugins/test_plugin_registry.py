@@ -10,7 +10,7 @@ def create_descriptor() -> PluginDescriptor:
     """Create a test plugin descriptor."""
 
     return PluginDescriptor(
-        id="dummy",
+        id="familyos.dummy",
         name="Dummy Plugin",
         version="1.0.0",
         author="FamilyOS",
@@ -28,7 +28,7 @@ def test_register_plugin() -> None:
 
     registry.register(plugin)
 
-    assert registry.get("dummy") == plugin
+    assert registry.get("familyos.dummy") == plugin
 
 
 def test_get_registered_plugin() -> None:
@@ -38,7 +38,7 @@ def test_get_registered_plugin() -> None:
 
     registry.register(plugin)
 
-    result = registry.get("dummy")
+    result = registry.get("familyos.dummy")
 
     assert result == plugin
 
@@ -62,9 +62,9 @@ def test_unregister_plugin() -> None:
 
     registry.register(plugin)
 
-    registry.unregister("dummy")
+    registry.unregister("familyos.dummy")
 
-    assert registry.get("dummy") is None
+    assert registry.get("familyos.dummy") is None
 
 
 def test_register_duplicate_plugin_raises() -> None:

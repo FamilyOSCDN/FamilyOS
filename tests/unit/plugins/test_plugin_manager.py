@@ -36,7 +36,7 @@ def test_list_should_use_plugin_loader(
     mock_loader_class.return_value = loader
 
     descriptor = PluginDescriptor(
-        id="ddd",
+        id="familyos.ddd",
         name="Domain Driven Design",
         version="1.0.0",
         author="FamilyOS Team",

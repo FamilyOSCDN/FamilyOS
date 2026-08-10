@@ -56,7 +56,7 @@ def test_pipeline_discovers_and_resolves_plugins(
 
     write_plugin_manifest(
         tmp_path / "calendar",
-        plugin_id="calendar",
+        plugin_id="familyos.calendar",
         name="Calendar Plugin",
         version="1.0.0",
     )
@@ -76,16 +76,16 @@ def test_pipeline_discovers_and_resolves_plugins(
         repository=repository,
         dependencies=[
             PluginDependency(
-                name="calendar",
+                plugin_id="familyos.calendar",
             ),
         ],
     )
 
     assert len(plan.ordered_packages) == 1
-    assert plan.ordered_packages[0].name == "calendar"
+    assert plan.ordered_packages[0].name == "familyos.calendar"
     assert plan.ordered_packages[0].version == "1.0.0"
     assert plan.ordered_packages[0].identifier() == (
-        "calendar@1.0.0"
+        "familyos.calendar@1.0.0"
     )
     assert plan.diagnostics == []
 

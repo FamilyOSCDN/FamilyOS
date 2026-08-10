@@ -10,7 +10,7 @@ def test_create_plugin() -> None:
     """PluginFactory should instantiate a plugin."""
 
     descriptor = PluginDescriptor(
-        id="sample",
+        id="familyos.sample",
         name="Sample Plugin",
         version="1.0.0",
         author="FamilyOS Team",
