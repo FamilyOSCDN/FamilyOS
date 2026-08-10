@@ -25,8 +25,8 @@ def test_plugin_package_is_verified() -> None:
     assert result.reason == "Package verified."
 
 
-def test_missing_name_fails_verification() -> None:
-    """Packages without names should fail verification."""
+def test_missing_plugin_id_fails_verification() -> None:
+    """Packages without Plugin Identifiers should fail verification."""
 
     package = PluginPackage(
         name="",
@@ -39,7 +39,7 @@ def test_missing_name_fails_verification() -> None:
     result = verifier.verify(package)
 
     assert result.is_valid() is False
-    assert result.reason == "Plugin name is missing."
+    assert result.reason == "Plugin identifier is missing."
 
 
 def test_missing_version_fails_verification() -> None:

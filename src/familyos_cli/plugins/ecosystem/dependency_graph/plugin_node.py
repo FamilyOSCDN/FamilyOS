@@ -16,12 +16,20 @@ class PluginNode:
     package: PluginPackage
 
     @property
+    def plugin_id(
+        self,
+    ) -> str:
+        """Return the canonical Plugin Identifier."""
+
+        return self.package.plugin_id
+
+    @property
     def name(
         self,
     ) -> str:
-        """Return the plugin name."""
+        """Return legacy Plugin Identifier alias."""
 
-        return self.package.name
+        return self.plugin_id
 
     @property
     def version(

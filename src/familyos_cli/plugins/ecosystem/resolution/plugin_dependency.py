@@ -21,30 +21,56 @@ from familyos_cli.plugins.ecosystem.resolution.version_operator import (
     init=False,
 )
 class PluginDependency:
-    """Represent a plugin dependency requirement."""
+    """Represent a plugin dependency requirement.
 
-    name: str
+    ``plugin_id`` is the canonical dependency target.
+
+    The historical ``name`` constructor argument and property remain
+    available as compatibility aliases.
+    """
+
+    plugin_id: str
     constraint_set: ConstraintSet | None
 
     def __init__(
         self,
-        name: str,
+        name: str | None = None,
         minimum_version: str = "",
         *,
+        plugin_id: str | None = None,
         constraint: VersionConstraint | None = None,
         constraint_set: ConstraintSet | None = None,
     ) -> None:
         """Initialize a plugin dependency.
 
         Args:
-            name: Required plugin name.
+            name: Legacy alias for the required Plugin Identifier.
             minimum_version: Legacy minimum version requirement.
+            plugin_id: Canonical required Plugin Identifier.
             constraint: Legacy typed atomic constraint.
             constraint_set: Typed collection of version constraints.
 
         Raises:
-            ValueError: If multiple constraint inputs are provided.
+            ValueError: If identifier inputs disagree or multiple
+                constraint inputs are provided.
         """
+
+        if plugin_id is None:
+            plugin_id = name
+
+        if plugin_id is None:
+            raise ValueError(
+                "Plugin identifier is required.",
+            )
+
+        if (
+            name is not None
+            and name != plugin_id
+        ):
+            raise ValueError(
+                "name and plugin_id must reference "
+                "the same Plugin Identifier.",
+            )
 
         provided_inputs = sum(
             (
@@ -76,14 +102,22 @@ class PluginDependency:
 
         object.__setattr__(
             self,
-            "name",
-            name,
+            "plugin_id",
+            plugin_id,
         )
         object.__setattr__(
             self,
             "constraint_set",
             resolved_constraint_set,
         )
+
+    @property
+    def name(
+        self,
+    ) -> str:
+        """Return legacy Plugin Identifier alias."""
+
+        return self.plugin_id
 
     @property
     def constraint(
@@ -127,6 +161,6 @@ class PluginDependency:
         """Return the dependency identifier."""
 
         if self.constraint_set is None:
-            return self.name
+            return self.plugin_id
 
-        return f"{self.name}{self.constraint_set}"
+        return f"{self.plugin_id}{self.constraint_set}"

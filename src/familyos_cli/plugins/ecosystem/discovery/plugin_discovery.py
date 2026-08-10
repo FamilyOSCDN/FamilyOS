@@ -58,7 +58,7 @@ class PluginDiscovery(PluginDiscoveryPort):
 
         return [
             PluginPackage(
-                name=descriptor.id,
+                plugin_id=descriptor.id,
                 version=descriptor.version,
                 source=repository.name,
             )

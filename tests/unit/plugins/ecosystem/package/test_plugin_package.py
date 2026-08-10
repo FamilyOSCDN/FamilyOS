@@ -17,3 +17,47 @@ def test_plugin_package_creation() -> None:
     assert package.name == "calendar"
     assert package.version == "1.0.0"
     assert package.identifier() == "calendar@1.0.0"
+
+
+def test_plugin_package_exposes_canonical_plugin_id() -> None:
+    """Package should expose an explicit canonical Plugin Identifier."""
+
+    package = PluginPackage(
+        plugin_id="familyos.calendar",
+        version="1.0.0",
+        source="official",
+    )
+
+    assert package.plugin_id == "familyos.calendar"
+    assert package.name == "familyos.calendar"
+    assert package.identifier() == "familyos.calendar@1.0.0"
+
+
+def test_plugin_package_accepts_legacy_name_argument() -> None:
+    """Legacy name argument should remain compatible."""
+
+    package = PluginPackage(
+        name="familyos.calendar",
+        version="1.0.0",
+        source="official",
+    )
+
+    assert package.plugin_id == "familyos.calendar"
+    assert package.name == "familyos.calendar"
+
+
+def test_plugin_package_rejects_conflicting_identity_arguments() -> None:
+    """Canonical and legacy identity inputs must not disagree."""
+
+    import pytest
+
+    with pytest.raises(
+        ValueError,
+        match="same Plugin Identifier",
+    ):
+        PluginPackage(
+            name="calendar",
+            plugin_id="familyos.calendar",
+            version="1.0.0",
+            source="official",
+        )

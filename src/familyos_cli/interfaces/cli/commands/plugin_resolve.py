@@ -55,16 +55,16 @@ def parse_plugin_dependency(
             f"Invalid plugin dependency: {value!r}.",
         )
 
-    name = match.group("name")
+    plugin_id = match.group("name")
     constraint_value = match.group("constraint").strip()
 
     if not constraint_value:
         return PluginDependency(
-            name=name,
+            plugin_id=plugin_id,
         )
 
     return PluginDependency(
-        name=name,
+        plugin_id=plugin_id,
         constraint_set=ConstraintSet.parse(
             constraint_value,
         ),

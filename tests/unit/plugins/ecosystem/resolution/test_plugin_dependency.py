@@ -138,3 +138,41 @@ def test_dependency_rejects_multiple_constraint_inputs(
             constraint=constraint,
             constraint_set=constraint_set,
         )
+
+
+def test_plugin_dependency_exposes_canonical_plugin_id() -> None:
+    """Dependency should expose an explicit canonical Plugin Identifier."""
+
+    dependency = PluginDependency(
+        plugin_id="familyos.documentation",
+    )
+
+    assert dependency.plugin_id == "familyos.documentation"
+    assert dependency.name == "familyos.documentation"
+    assert dependency.identifier() == "familyos.documentation"
+
+
+def test_plugin_dependency_accepts_legacy_name_argument() -> None:
+    """Legacy name argument should remain compatible."""
+
+    dependency = PluginDependency(
+        name="familyos.documentation",
+    )
+
+    assert dependency.plugin_id == "familyos.documentation"
+    assert dependency.name == "familyos.documentation"
+
+
+def test_plugin_dependency_rejects_conflicting_identity_arguments() -> None:
+    """Canonical and legacy identity inputs must not disagree."""
+
+    import pytest
+
+    with pytest.raises(
+        ValueError,
+        match="same Plugin Identifier",
+    ):
+        PluginDependency(
+            name="documentation",
+            plugin_id="familyos.documentation",
+        )

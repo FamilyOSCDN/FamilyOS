@@ -26,10 +26,10 @@ class PluginVerifier:
             Package verification result.
         """
 
-        if not package.name:
+        if not package.plugin_id:
             return VerificationResult(
                 valid=False,
-                reason="Plugin name is missing.",
+                reason="Plugin identifier is missing.",
             )
 
         if not package.version:

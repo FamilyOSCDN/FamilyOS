@@ -27,11 +27,11 @@ class DependencyEdge:
 
         if (
             self.dependency is not None
-            and self.dependency.name != self.target.name
+            and self.dependency.plugin_id != self.target.plugin_id
         ):
             raise ValueError(
                 "Dependency edge requirement must reference "
-                f"target plugin {self.target.name!r}.",
+                f"target plugin {self.target.plugin_id!r}.",
             )
 
     def identifier(

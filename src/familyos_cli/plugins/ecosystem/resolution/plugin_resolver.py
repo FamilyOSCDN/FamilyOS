@@ -44,37 +44,26 @@ class PluginResolver:
         dependencies: list[PluginDependency],
         available_packages: list[PluginPackage],
     ) -> ResolutionPlan:
-        """Resolve dependencies against available plugin packages.
-
-        For every dependency, the resolver delegates package selection to
-        ``PluginPackageSelector`` and builds a structured resolution plan.
-
-        Args:
-            dependencies: Plugin dependency requirements.
-            available_packages: Packages available for resolution.
-
-        Returns:
-            Structured plugin resolution plan.
-        """
+        """Resolve dependencies against available plugin packages."""
 
         ordered_packages: list[PluginPackage] = []
         skipped_packages: list[PluginPackage] = []
         diagnostics: list[ResolutionDiagnostic] = []
 
-        packages_by_name = self._group_packages_by_name(
+        packages_by_plugin_id = self._group_packages_by_plugin_id(
             available_packages,
         )
 
         for dependency in dependencies:
-            candidates = packages_by_name.get(
-                dependency.name,
+            candidates = packages_by_plugin_id.get(
+                dependency.plugin_id,
                 [],
             )
 
             if not candidates:
                 diagnostics.append(
                     ResolutionDiagnostic(
-                        plugin=dependency.name,
+                        plugin=dependency.plugin_id,
                         message=(
                             "Required plugin dependency is not available."
                         ),
@@ -97,7 +86,7 @@ class PluginResolver:
             if selected_package is None:
                 diagnostics.append(
                     ResolutionDiagnostic(
-                        plugin=dependency.name,
+                        plugin=dependency.plugin_id,
                         message=self._build_incompatibility_message(
                             dependency,
                         ),
@@ -116,23 +105,23 @@ class PluginResolver:
         )
 
     @staticmethod
-    def _group_packages_by_name(
+    def _group_packages_by_plugin_id(
         available_packages: list[PluginPackage],
     ) -> dict[str, list[PluginPackage]]:
-        """Group available packages by plugin name."""
+        """Group available packages by Plugin Identifier."""
 
-        packages_by_name: defaultdict[
+        packages_by_plugin_id: defaultdict[
             str,
             list[PluginPackage],
         ] = defaultdict(list)
 
         for package in available_packages:
-            packages_by_name[package.name].append(
+            packages_by_plugin_id[package.plugin_id].append(
                 package,
             )
 
         return dict(
-            packages_by_name,
+            packages_by_plugin_id,
         )
 
     @staticmethod
@@ -160,7 +149,7 @@ class PluginResolver:
                 )
                 diagnostics.append(
                     ResolutionDiagnostic(
-                        plugin=dependency.name,
+                        plugin=dependency.plugin_id,
                         message=(
                             f"Plugin package version {package.version!r} "
                             "is invalid."

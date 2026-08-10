@@ -65,7 +65,7 @@ class DependencyGraphBuilder:
         manifests: tuple[PluginManifest, ...],
         graph: PluginDependencyGraph,
     ) -> dict[str, list[PluginNode]]:
-        """Create graph nodes indexed by plugin name."""
+        """Create graph nodes indexed by Plugin Identifier."""
 
         node_index: dict[
             str,
@@ -81,13 +81,13 @@ class DependencyGraphBuilder:
                 node,
             )
 
-            nodes_by_name = node_index.setdefault(
-                node.name,
+            nodes_by_plugin_id = node_index.setdefault(
+                node.plugin_id,
                 [],
             )
 
-            if node not in nodes_by_name:
-                nodes_by_name.append(
+            if node not in nodes_by_plugin_id:
+                nodes_by_plugin_id.append(
                     node,
                 )
 
@@ -137,7 +137,7 @@ class DependencyGraphBuilder:
         """Return the node representing a manifest package."""
 
         candidates = node_index.get(
-            manifest.name,
+            manifest.package.plugin_id,
             [],
         )
 
@@ -156,7 +156,7 @@ class DependencyGraphBuilder:
         """Select the node carrying the highest compatible package."""
 
         candidates = node_index.get(
-            dependency.name,
+            dependency.plugin_id,
             [],
         )
 
