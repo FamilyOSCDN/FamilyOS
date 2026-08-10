@@ -15,7 +15,7 @@ def test_resolution_plan_creation() -> None:
     """A resolution plan stores packages and diagnostics."""
 
     package = PluginPackage(
-        name="notification",
+        plugin_id="familyos.notification",
         version="1.0.0",
         source="official",
     )

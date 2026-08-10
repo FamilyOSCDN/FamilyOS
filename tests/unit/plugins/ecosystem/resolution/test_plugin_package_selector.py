@@ -15,7 +15,7 @@ def test_select_returns_none_for_empty_candidates() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
         ),
         candidates=(),
     )
@@ -27,18 +27,16 @@ def test_select_returns_single_valid_package() -> None:
     selector = PluginPackageSelector()
 
     package = PluginPackage(
-        name="identity",
+        plugin_id="familyos.identity",
         version="1.0.0",
         source="official",
     )
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
         ),
-        candidates=(
-            package,
-        ),
+        candidates=(package,),
     )
 
     assert selected_package == package
@@ -49,21 +47,21 @@ def test_select_returns_highest_valid_package() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
         ),
         candidates=(
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="1.0.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.1.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0",
                 source="official",
             ),
@@ -79,22 +77,22 @@ def test_select_applies_minimum_version_constraint() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
             minimum_version="2.0.0",
         ),
         candidates=(
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="1.5.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.3.0",
                 source="official",
             ),
@@ -110,29 +108,29 @@ def test_select_applies_constraint_set() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
             constraint_set=ConstraintSet.parse(
                 ">=2.0.0,<3.0.0",
             ),
         ),
         candidates=(
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="1.9.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.8.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="3.0.0",
                 source="official",
             ),
@@ -148,17 +146,17 @@ def test_select_returns_none_when_no_version_is_compatible() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
             minimum_version="3.0.0",
         ),
         candidates=(
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="1.0.0",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0",
                 source="official",
             ),
@@ -172,18 +170,18 @@ def test_select_ignores_invalid_semantic_versions() -> None:
     selector = PluginPackageSelector()
 
     valid_package = PluginPackage(
-        name="identity",
+        plugin_id="familyos.identity",
         version="2.0.0",
         source="official",
     )
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
         ),
         candidates=(
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="invalid",
                 source="official",
             ),
@@ -199,16 +197,16 @@ def test_select_returns_none_when_all_versions_are_invalid() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
         ),
         candidates=(
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="invalid",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="1.0",
                 source="official",
             ),
@@ -223,16 +221,16 @@ def test_select_prefers_stable_release_over_pre_release() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
         ),
         candidates=(
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0-rc.1",
                 source="official",
             ),
             PluginPackage(
-                name="identity",
+                plugin_id="familyos.identity",
                 version="2.0.0",
                 source="official",
             ),
@@ -248,12 +246,12 @@ def test_select_accepts_sequence_input() -> None:
 
     candidates = [
         PluginPackage(
-            name="identity",
+            plugin_id="familyos.identity",
             version="1.0.0",
             source="official",
         ),
         PluginPackage(
-            name="identity",
+            plugin_id="familyos.identity",
             version="2.0.0",
             source="official",
         ),
@@ -261,7 +259,7 @@ def test_select_accepts_sequence_input() -> None:
 
     selected_package = selector.select(
         dependency=PluginDependency(
-            name="identity",
+            plugin_id="familyos.identity",
         ),
         candidates=candidates,
     )
