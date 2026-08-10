@@ -13,6 +13,7 @@ from familyos_cli.plugins.ecosystem.resolution.version_constraint import (
 from familyos_cli.plugins.ecosystem.resolution.version_operator import (
     VersionOperator,
 )
+from familyos_cli.plugins.identity import PluginId
 
 
 @dataclass(
@@ -55,6 +56,8 @@ class PluginDependency:
                 constraint inputs are provided.
         """
 
+        explicit_plugin_id = plugin_id is not None
+
         if plugin_id is None:
             plugin_id = name
 
@@ -65,12 +68,18 @@ class PluginDependency:
 
         if (
             name is not None
+            and explicit_plugin_id
             and name != plugin_id
         ):
             raise ValueError(
                 "name and plugin_id must reference "
                 "the same Plugin Identifier.",
             )
+
+        if explicit_plugin_id:
+            plugin_id = PluginId(
+                plugin_id,
+            ).value
 
         provided_inputs = sum(
             (

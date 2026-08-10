@@ -60,11 +60,11 @@ def parse_plugin_dependency(
 
     if not constraint_value:
         return PluginDependency(
-            plugin_id=plugin_id,
+            name=plugin_id,
         )
 
     return PluginDependency(
-        plugin_id=plugin_id,
+        name=plugin_id,
         constraint_set=ConstraintSet.parse(
             constraint_value,
         ),

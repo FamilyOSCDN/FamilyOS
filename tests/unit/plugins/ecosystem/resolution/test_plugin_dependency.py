@@ -80,10 +80,7 @@ def test_dependency_supports_constraint_set() -> None:
     )
     assert dependency.constraint is None
     assert dependency.minimum_version == ""
-    assert (
-        dependency.identifier()
-        == "notification>=1.2.0,<2.0.0"
-    )
+    assert dependency.identifier() == "notification>=1.2.0,<2.0.0"
 
 
 @pytest.mark.parametrize(
@@ -127,10 +124,7 @@ def test_dependency_rejects_multiple_constraint_inputs(
 
     with pytest.raises(
         ValueError,
-        match=(
-            "Specify only one of minimum_version, "
-            "constraint or constraint_set."
-        ),
+        match=("Specify only one of minimum_version, constraint or constraint_set."),
     ):
         PluginDependency(
             name="notification",
@@ -176,3 +170,27 @@ def test_plugin_dependency_rejects_conflicting_identity_arguments() -> None:
             name="documentation",
             plugin_id="familyos.documentation",
         )
+
+
+def test_plugin_dependency_rejects_invalid_explicit_plugin_id() -> None:
+    """Explicit Plugin Identifiers should satisfy the canonical contract."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginDependency(
+            plugin_id="notification",
+        )
+
+
+def test_plugin_dependency_preserves_legacy_name_identity() -> None:
+    """Legacy name construction should remain compatible."""
+
+    dependency = PluginDependency(
+        name="notification",
+    )
+
+    assert dependency.plugin_id == "notification"
+    assert dependency.name == "notification"
+    assert dependency.identifier() == "notification"
