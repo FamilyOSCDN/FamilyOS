@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from familyos_cli.application.generation.generation_context import (
@@ -47,6 +48,9 @@ from familyos_cli.plugins.runtime.plugin_collection import (
 )
 from familyos_cli.plugins.runtime.runtime_context import (
     RuntimeContext,
+)
+from familyos_cli.plugins.runtime.runtime_plugin_id import (
+    RuntimePluginId,
 )
 from familyos_cli.plugins.runtime.runtime_state import (
     RuntimeState,
@@ -103,7 +107,9 @@ class PluginRuntime:
         """Activate a plugin and register its runtime resources."""
 
         runtime_plugin_id = (
-            plugin_id
+            self._canonical_plugin_id(
+                plugin_id,
+            )
             if plugin_id is not None
             else self._legacy_plugin_id(
                 plugin,
@@ -455,28 +461,53 @@ class PluginRuntime:
                 f"does not belong to plugin '{plugin_id}'.",
             )
 
+    def _canonical_plugin_id(
+        self,
+        plugin_id: str,
+    ) -> str:
+        """Validate and return a canonical runtime plugin identifier."""
+
+        return RuntimePluginId(
+            plugin_id,
+        ).value
+
     def _runtime_plugin_id(
         self,
         plugin: Plugin,
     ) -> str:
         """Return runtime identity associated with a plugin instance."""
 
-        return self._plugin_ids_by_instance.get(
+        runtime_plugin_id = self._plugin_ids_by_instance.get(
             id(plugin),
-            self._legacy_plugin_id(
-                plugin,
-            ),
+        )
+
+        if runtime_plugin_id is not None:
+            return runtime_plugin_id
+
+        return self._legacy_plugin_id(
+            plugin,
         )
 
     def _legacy_plugin_id(
         self,
         plugin: Plugin,
     ) -> str:
-        """Return legacy identity for direct plugin activation."""
+        """Return canonical fallback identity for direct activation."""
 
         metadata = plugin.get_metadata()
 
-        if metadata is not None:
-            return metadata.name
+        identity = (
+            metadata.name
+            if metadata is not None
+            else type(plugin).__name__
+        )
 
-        return type(plugin).__name__
+        normalized_identity = re.sub(
+            r"[^a-z0-9_]+",
+            "_",
+            identity.lower(),
+        ).strip("_")
+
+        return RuntimePluginId(
+            f"legacy.{normalized_identity}",
+        ).value

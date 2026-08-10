@@ -11,6 +11,9 @@ from familyos_cli.plugins.runtime.runtime_observation import (
 from familyos_cli.plugins.runtime.runtime_observation_recorder import (
     RuntimeObservationRecorder,
 )
+from familyos_cli.plugins.runtime.runtime_plugin_id import (
+    RuntimePluginId,
+)
 from familyos_cli.plugins.runtime.runtime_state import (
     RuntimeState,
 )
@@ -48,7 +51,7 @@ class RuntimeLifecycleManager:
         """Initialize runtime lifecycle storage."""
 
         self._states: dict[
-            str,
+            RuntimePluginId,
             RuntimeState,
         ] = {}
 
@@ -56,33 +59,45 @@ class RuntimeLifecycleManager:
 
     def register(
         self,
-        plugin_id: str,
+        plugin_id: str | RuntimePluginId,
     ) -> None:
         """Register a plugin runtime."""
 
+        runtime_plugin_id = self._runtime_plugin_id(
+            plugin_id,
+        )
+
         self._states[
-            plugin_id
+            runtime_plugin_id
         ] = RuntimeState.LOADED
 
     def state(
         self,
-        plugin_id: str,
+        plugin_id: str | RuntimePluginId,
     ) -> RuntimeState:
         """Return current runtime state."""
 
+        runtime_plugin_id = self._runtime_plugin_id(
+            plugin_id,
+        )
+
         return self._states[
-            plugin_id
+            runtime_plugin_id
         ]
 
     def transition(
         self,
-        plugin_id: str,
+        plugin_id: str | RuntimePluginId,
         new_state: RuntimeState,
     ) -> RuntimeTransition:
         """Transition a plugin runtime."""
 
-        current_state = self.state(
+        runtime_plugin_id = self._runtime_plugin_id(
             plugin_id,
+        )
+
+        current_state = self.state(
+            runtime_plugin_id,
         )
 
         if (
@@ -97,7 +112,7 @@ class RuntimeLifecycleManager:
             )
 
         self._states[
-            plugin_id
+            runtime_plugin_id
         ] = new_state
 
         transition = RuntimeTransition(
@@ -108,7 +123,7 @@ class RuntimeLifecycleManager:
         if self._observations is not None:
             self._observations.record(
                 RuntimeObservation(
-                    plugin_id=plugin_id,
+                    plugin_id=runtime_plugin_id,
                     previous_state=current_state,
                     new_state=new_state,
                 ),
@@ -123,3 +138,19 @@ class RuntimeLifecycleManager:
         """Attach an observation recorder to the lifecycle manager."""
 
         self._observations = observations
+
+    def _runtime_plugin_id(
+        self,
+        plugin_id: str | RuntimePluginId,
+    ) -> RuntimePluginId:
+        """Return a canonical runtime plugin identifier."""
+
+        if isinstance(
+            plugin_id,
+            RuntimePluginId,
+        ):
+            return plugin_id
+
+        return RuntimePluginId(
+            plugin_id,
+        )

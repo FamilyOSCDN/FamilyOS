@@ -6,6 +6,9 @@ from familyos_cli.plugins.runtime.runtime_context import (
 from familyos_cli.plugins.runtime.runtime_observation import (
     RuntimeObservation,
 )
+from familyos_cli.plugins.runtime.runtime_plugin_id import (
+    RuntimePluginId,
+)
 from familyos_cli.plugins.runtime.runtime_state import (
     RuntimeState,
 )
@@ -27,7 +30,7 @@ def test_lifecycle_transition_records_observation() -> None:
 
     assert context.observations.all() == (
         RuntimeObservation(
-            plugin_id="familyos.security",
+            plugin_id=RuntimePluginId("familyos.security"),
             previous_state=RuntimeState.LOADED,
             new_state=RuntimeState.INITIALIZED,
         ),
@@ -55,12 +58,12 @@ def test_multiple_lifecycle_transitions_preserve_order() -> None:
 
     assert context.observations.all() == (
         RuntimeObservation(
-            plugin_id="familyos.security",
+            plugin_id=RuntimePluginId("familyos.security"),
             previous_state=RuntimeState.LOADED,
             new_state=RuntimeState.INITIALIZED,
         ),
         RuntimeObservation(
-            plugin_id="familyos.security",
+            plugin_id=RuntimePluginId("familyos.security"),
             previous_state=RuntimeState.INITIALIZED,
             new_state=RuntimeState.ACTIVE,
         ),

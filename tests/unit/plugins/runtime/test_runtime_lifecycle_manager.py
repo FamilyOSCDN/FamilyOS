@@ -19,12 +19,12 @@ def test_register_starts_loaded() -> None:
     manager = RuntimeLifecycleManager()
 
     manager.register(
-        "security",
+        "familyos.security",
     )
 
     assert (
         manager.state(
-            "security",
+            "familyos.security",
         )
         == RuntimeState.LOADED
     )
@@ -36,27 +36,21 @@ def test_valid_transition() -> None:
     manager = RuntimeLifecycleManager()
 
     manager.register(
-        "security",
+        "familyos.security",
     )
 
     transition = manager.transition(
-        "security",
+        "familyos.security",
         RuntimeState.INITIALIZED,
     )
 
-    assert (
-        transition.previous_state
-        == RuntimeState.LOADED
-    )
+    assert transition.previous_state == RuntimeState.LOADED
 
-    assert (
-        transition.new_state
-        == RuntimeState.INITIALIZED
-    )
+    assert transition.new_state == RuntimeState.INITIALIZED
 
     assert (
         manager.state(
-            "security",
+            "familyos.security",
         )
         == RuntimeState.INITIALIZED
     )
@@ -68,13 +62,13 @@ def test_invalid_transition_raises() -> None:
     manager = RuntimeLifecycleManager()
 
     manager.register(
-        "security",
+        "familyos.security",
     )
 
     with pytest.raises(
         InvalidRuntimeTransitionError,
     ):
         manager.transition(
-            "security",
+            "familyos.security",
             RuntimeState.ACTIVE,
         )

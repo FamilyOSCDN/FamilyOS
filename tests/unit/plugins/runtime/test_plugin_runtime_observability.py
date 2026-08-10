@@ -7,6 +7,9 @@ from familyos_cli.plugins.runtime.plugin_runtime import (
 from familyos_cli.plugins.runtime.runtime_observation import (
     RuntimeObservation,
 )
+from familyos_cli.plugins.runtime.runtime_plugin_id import (
+    RuntimePluginId,
+)
 from familyos_cli.plugins.runtime.runtime_state import (
     RuntimeState,
 )
@@ -32,12 +35,12 @@ def test_activation_records_runtime_transitions() -> None:
         "familyos.observable",
     ) == (
         RuntimeObservation(
-            plugin_id="familyos.observable",
+            plugin_id=RuntimePluginId("familyos.observable"),
             previous_state=RuntimeState.LOADED,
             new_state=RuntimeState.INITIALIZED,
         ),
         RuntimeObservation(
-            plugin_id="familyos.observable",
+            plugin_id=RuntimePluginId("familyos.observable"),
             previous_state=RuntimeState.INITIALIZED,
             new_state=RuntimeState.ACTIVE,
         ),
@@ -63,22 +66,22 @@ def test_deactivation_records_runtime_transitions() -> None:
         "familyos.observable",
     ) == (
         RuntimeObservation(
-            plugin_id="familyos.observable",
+            plugin_id=RuntimePluginId("familyos.observable"),
             previous_state=RuntimeState.LOADED,
             new_state=RuntimeState.INITIALIZED,
         ),
         RuntimeObservation(
-            plugin_id="familyos.observable",
+            plugin_id=RuntimePluginId("familyos.observable"),
             previous_state=RuntimeState.INITIALIZED,
             new_state=RuntimeState.ACTIVE,
         ),
         RuntimeObservation(
-            plugin_id="familyos.observable",
+            plugin_id=RuntimePluginId("familyos.observable"),
             previous_state=RuntimeState.ACTIVE,
             new_state=RuntimeState.STOPPING,
         ),
         RuntimeObservation(
-            plugin_id="familyos.observable",
+            plugin_id=RuntimePluginId("familyos.observable"),
             previous_state=RuntimeState.STOPPING,
             new_state=RuntimeState.STOPPED,
         ),

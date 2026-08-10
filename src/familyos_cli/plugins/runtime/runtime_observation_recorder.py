@@ -5,6 +5,9 @@ from __future__ import annotations
 from familyos_cli.plugins.runtime.runtime_observation import (
     RuntimeObservation,
 )
+from familyos_cli.plugins.runtime.runtime_plugin_id import (
+    RuntimePluginId,
+)
 
 
 class RuntimeObservationRecorder:
@@ -40,14 +43,18 @@ class RuntimeObservationRecorder:
 
     def for_plugin(
         self,
-        plugin_id: str,
+        plugin_id: str | RuntimePluginId,
     ) -> tuple[RuntimeObservation, ...]:
         """Return observations associated with one plugin."""
+
+        runtime_plugin_id = self._runtime_plugin_id(
+            plugin_id,
+        )
 
         return tuple(
             observation
             for observation in self._observations
-            if observation.plugin_id == plugin_id
+            if observation.plugin_id == runtime_plugin_id
         )
 
     def clear(
@@ -56,3 +63,19 @@ class RuntimeObservationRecorder:
         """Remove all recorded observations."""
 
         self._observations.clear()
+
+    def _runtime_plugin_id(
+        self,
+        plugin_id: str | RuntimePluginId,
+    ) -> RuntimePluginId:
+        """Return a canonical runtime plugin identifier."""
+
+        if isinstance(
+            plugin_id,
+            RuntimePluginId,
+        ):
+            return plugin_id
+
+        return RuntimePluginId(
+            plugin_id,
+        )

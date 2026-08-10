@@ -6,6 +6,9 @@ from familyos_cli.plugins.runtime.runtime_observation import (
 from familyos_cli.plugins.runtime.runtime_observation_recorder import (
     RuntimeObservationRecorder,
 )
+from familyos_cli.plugins.runtime.runtime_plugin_id import (
+    RuntimePluginId,
+)
 from familyos_cli.plugins.runtime.runtime_state import (
     RuntimeState,
 )
@@ -17,13 +20,13 @@ def test_recorder_stores_runtime_observations() -> None:
     recorder = RuntimeObservationRecorder()
 
     first = RuntimeObservation(
-        plugin_id="familyos.security",
+        plugin_id=RuntimePluginId("familyos.security"),
         previous_state=RuntimeState.LOADED,
         new_state=RuntimeState.INITIALIZED,
     )
 
     second = RuntimeObservation(
-        plugin_id="familyos.security",
+        plugin_id=RuntimePluginId("familyos.security"),
         previous_state=RuntimeState.INITIALIZED,
         new_state=RuntimeState.ACTIVE,
     )
@@ -47,13 +50,13 @@ def test_recorder_filters_observations_by_plugin_id() -> None:
     recorder = RuntimeObservationRecorder()
 
     security = RuntimeObservation(
-        plugin_id="familyos.security",
+        plugin_id=RuntimePluginId("familyos.security"),
         previous_state=RuntimeState.INITIALIZED,
         new_state=RuntimeState.ACTIVE,
     )
 
     finance = RuntimeObservation(
-        plugin_id="familyos.finance",
+        plugin_id=RuntimePluginId("familyos.finance"),
         previous_state=RuntimeState.INITIALIZED,
         new_state=RuntimeState.ACTIVE,
     )
@@ -67,9 +70,7 @@ def test_recorder_filters_observations_by_plugin_id() -> None:
 
     assert recorder.for_plugin(
         "familyos.security",
-    ) == (
-        security,
-    )
+    ) == (security,)
 
 
 def test_recorder_can_be_cleared() -> None:
@@ -79,7 +80,7 @@ def test_recorder_can_be_cleared() -> None:
 
     recorder.record(
         RuntimeObservation(
-            plugin_id="familyos.security",
+            plugin_id=RuntimePluginId("familyos.security"),
             previous_state=RuntimeState.INITIALIZED,
             new_state=RuntimeState.ACTIVE,
         ),

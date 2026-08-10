@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from familyos_cli.plugins.runtime.runtime_plugin_id import (
+    RuntimePluginId,
+)
 from familyos_cli.plugins.runtime.runtime_state import (
     RuntimeState,
 )
@@ -16,6 +19,6 @@ from familyos_cli.plugins.runtime.runtime_state import (
 class RuntimeObservation:
     """Describe an observable plugin runtime state transition."""
 
-    plugin_id: str
+    plugin_id: RuntimePluginId
     previous_state: RuntimeState
     new_state: RuntimeState

@@ -15,7 +15,7 @@ def test_load_all_should_activate_plugins(
 
     (plugin_dir / "plugin.yaml").write_text(
         """
-id: sample
+id: familyos.sample
 name: Sample Plugin
 version: 1.0.0
 author: FamilyOS Team
