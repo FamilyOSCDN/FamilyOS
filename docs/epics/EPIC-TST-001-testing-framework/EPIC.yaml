@@ -1,78 +1,234 @@
 id: EPIC-TST-001
 title: Testing Framework
+status: completed
 version: 1.0.0
-status: proposed
-category: engineering
-owner: FamilyOS Team
-language: en
-repository: FamilyOS
 
-scope:
-  - unit-testing
-  - integration-testing
-  - functional-testing
-  - contract-testing
-  - regression-testing
-  - fixtures
-  - mocks-and-fakes
-  - test-coverage
-  - test-reporting
-  - parallel-test-execution
+type: framework
+domain: engineering
+category: testing
+
+summary: >
+Establish the official FamilyOS Testing Framework defining testing principles,
+architecture, levels, execution, reporting, automation, testing gates,
+governance, lifecycle, validation, and implementation requirements across
+the FamilyOS engineering platform.
+
+purpose: >
+Provide a coherent, reliable, maintainable, and evolvable testing foundation
+that enables FamilyOS engineering changes to produce trustworthy validation
+evidence throughout the complete development and release lifecycle.
 
 objectives:
-  - Standardize the structure and naming conventions of tests.
-  - Define testing levels and their responsibilities.
-  - Provide reusable fixtures and testing utilities.
-  - Establish coverage objectives.
-  - Integrate testing into local and CI workflows.
+
+* define official FamilyOS testing principles
+* establish the Testing Framework architecture
+* define testing levels and their responsibilities
+* standardize unit and integration testing
+* define functional and system testing
+* establish contract testing
+* establish regression testing
+* govern test data and fixtures
+* define mocks and test doubles
+* enforce test isolation and determinism
+* define test coverage principles
+* define test execution and performance requirements
+* establish test reporting and observability
+* integrate testing with automation and continuous integration
+* define testing gates
+* establish testing governance and test lifecycle
+* define the lifecycle of the Testing Framework itself
+* establish a Testing Framework roadmap
+* define framework validation
+* provide an implementation checklist
+
+principles:
+
+* reliability before speed
+* deterministic execution
+* test isolation
+* reproducibility
+* meaningful validation
+* fast responsible feedback
+* actionable failures
+* automation where practical
+* observable testing evidence
+* governed lifecycle
+* evidence-based engineering progression
+
+scope:
+includes:
+- core platform testing
+- official plugin testing
+- domain testing
+- runtime testing
+- CLI testing
+- integration testing
+- contract testing
+- regression testing
+- test infrastructure
+- CI testing
+- test reporting
+- testing gates
+- testing governance
+- Testing Framework lifecycle
+excludes:
+- implementation of every future roadmap capability
+- domain-specific quality policy outside testing
+- security governance owned by the Security Framework
+- release governance owned by the Release Framework
+- build governance owned by the Build Framework
+
+canonical_directory: docs/epics/EPIC-TST-001-testing-framework
 
 deliverables:
-  - EPIC-TST-001.md
-  - README.md
-  - Revision-History.md
-  - 01-Introduction.md
-  - 02-Vision.md
-  - 03-Engineering-Principles.md
-  - 04-Repository-Architecture.md
-  - 05-Development-Workflow.md
-  - 06-Coding-Standards.md
-  - 07-Project-Structure.md
-  - 08-Toolchain.md
-  - 09-Environment-Management.md
-  - 10-Dependency-Management.md
-  - 11-Configuration-Management.md
-  - 12-Build-Philosophy.md
-  - 13-Testing-Philosophy.md
-  - 14-Documentation-Philosophy.md
-  - 15-Quality-Philosophy.md
-  - 16-Technical-Governance.md
-  - 17-Engineering-Lifecycle.md
-  - 18-Roadmap.md
-  - 19-References.md
-  - MANIFEST.md
-  - CHANGELOG.md
-  - VALIDATION.md
 
-dependencies:
-  - EPIC-ENG-001
-  - EPIC-DOC-001
+* 00-EPIC.md
+* 01-Context.md
+* 02-Vision.md
+* 03-Testing-Principles.md
+* 04-Testing-Architecture.md
+* 05-Testing-Levels.md
+* 06-Unit-Testing.md
+* 07-Integration-Testing.md
+* 08-Functional-and-System-Testing.md
+* 09-Contract-Testing.md
+* 10-Regression-Testing.md
+* 11-Test-Data-and-Fixtures.md
+* 12-Mocks-and-Test-Doubles.md
+* 13-Test-Isolation-and-Determinism.md
+* 14-Test-Coverage.md
+* 15-Test-Execution-and-Performance.md
+* 16-Test-Reporting-and-Observability.md
+* 17-Automation-and-CI-Integration.md
+* 18-Testing-Gates.md
+* 19-Governance-and-Test-Lifecycle.md
+* 20-Framework-Lifecycle.md
+* 21-Roadmap.md
+* 22-Validation.md
+* 23-Implementation-Checklist.md
+* README.md
+* Revision-History.md
+* CHANGELOG.md
+* VALIDATION.md
+* MANIFEST.md
+* EPIC.yaml
 
-enables:
-  - EPIC-QLT-001
-  - EPIC-BLD-001
-  - EPIC-REL-001
+deliverable_count: 30
 
-quality_gates:
-  pytest: required
-  test_structure_review: required
-  coverage_validation: required
-  documentation_review: required
-  repository_clean: required
+relationships:
+depends_on:
+- EPIC-ENG-001
+contributes_to:
+- EPIC-QLT-001
+- EPIC-BLD-001
+- EPIC-REL-001
+applies_to:
+- FamilyOS core platform
+- official plugins
+- shared engineering frameworks
+- runtime
+- CLI
+- integrations
+related_architecture:
+- Engineering Foundation
+- Quality Framework
+- Build Framework
+- Release Framework
+- Official Plugins Architecture
 
-acceptance_criteria:
-  - Testing levels are clearly defined.
-  - Tests follow a standardized structure.
-  - Shared fixtures are documented.
-  - Minimum coverage is measurable.
-  - Tests can be executed locally and in CI.
-  - The EPIC manifest and validation report are complete.
+testing_levels:
+
+* unit
+* integration
+* functional
+* system
+* contract
+* regression
+* performance
+
+execution_profiles:
+
+* developer
+* pull-request
+* protected-branch
+* full-validation
+* release
+
+lifecycle:
+stages:
+- draft
+- defined
+- adopted
+- implemented
+- operational
+- mature
+- evolving
+
+roadmap:
+stages:
+- foundation
+- standardization
+- automation
+- enforcement
+- observability
+- optimization
+- ecosystem-scale
+- quality-intelligence
+
+validation:
+documentation:
+required: true
+structural:
+required: true
+behavioral:
+required: true
+automation:
+required: true
+reporting:
+required: true
+governance:
+required: true
+repository:
+commands:
+- pytest
+- ruff check .
+- mypy src
+
+acceptance:
+requirements:
+- canonical documentation set exists
+- required documents are non-empty
+- naming is consistent
+- Testing Framework architecture is coherent
+- testing levels are clearly defined
+- execution model is defined
+- reporting model is defined
+- CI integration is defined
+- testing gates are defined
+- governance is defined
+- framework lifecycle is defined
+- roadmap is defined
+- validation model is defined
+- implementation requirements are traceable
+
+governance:
+owner: FamilyOS Engineering
+change_control: governed
+breaking_changes_require_migration: true
+exceptions_must_be_traceable: true
+deprecated_capabilities_require_replacement_guidance: true
+
+documentation:
+language: en
+format: markdown
+manifest: MANIFEST.md
+validation_record: VALIDATION.md
+changelog: CHANGELOG.md
+revision_history: Revision-History.md
+implementation_checklist: 23-Implementation-Checklist.md
+
+baseline:
+framework_version: 1.0.0
+documentation_status: completed
+repository_validation_status: validated
+final_validation_status: validated
