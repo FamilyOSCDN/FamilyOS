@@ -45,6 +45,8 @@ def test_communication_plugin_description() -> None:
 
     metadata = plugin.get_metadata()
 
+    assert metadata is not None
+
     assert (
         "communication management"
         in metadata.description
