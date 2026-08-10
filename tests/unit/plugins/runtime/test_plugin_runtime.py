@@ -1,5 +1,13 @@
 """Tests for the plugin runtime."""
 
+import pytest
+
+from familyos_cli.plugins.capabilities.plugin_capability import (
+    PluginCapability,
+)
+from familyos_cli.plugins.capabilities.plugin_capability_id import (
+    PluginCapabilityId,
+)
 from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_metadata import PluginMetadata
 from familyos_cli.plugins.runtime.plugin_runtime import PluginRuntime
@@ -150,3 +158,73 @@ def test_explicit_plugin_id_does_not_use_display_name_for_lifecycle() -> None:
         )
         == RuntimeState.ACTIVE
     )
+
+
+class OwnedCapabilityPlugin(Plugin):
+    """Plugin exposing a capability in its canonical namespace."""
+
+    def capabilities(
+        self,
+    ) -> tuple[PluginCapability, ...]:
+        """Return capabilities owned by the plugin."""
+
+        return (
+            PluginCapability(
+                id=PluginCapabilityId(
+                    "familyos.dummy.example",
+                ),
+                display_name="Example",
+            ),
+        )
+
+
+class ForeignCapabilityPlugin(Plugin):
+    """Plugin exposing a capability from another plugin namespace."""
+
+    def capabilities(
+        self,
+    ) -> tuple[PluginCapability, ...]:
+        """Return a capability owned by another plugin."""
+
+        return (
+            PluginCapability(
+                id=PluginCapabilityId(
+                    "familyos.finance.account",
+                ),
+                display_name="Finance Account",
+            ),
+        )
+
+
+def test_runtime_accepts_capability_owned_by_plugin() -> None:
+    """Runtime should accept capabilities in the plugin namespace."""
+
+    runtime = PluginRuntime()
+
+    runtime.activate(
+        OwnedCapabilityPlugin(),
+        plugin_id="familyos.dummy",
+    )
+
+    capability_id = PluginCapabilityId(
+        "familyos.dummy.example",
+    )
+
+    assert runtime.capabilities().contains(
+        capability_id,
+    )
+
+
+def test_runtime_rejects_capability_owned_by_another_plugin() -> None:
+    """Runtime should reject capabilities outside the plugin namespace."""
+
+    runtime = PluginRuntime()
+
+    with pytest.raises(
+        ValueError,
+        match="does not belong to plugin 'familyos.dummy'",
+    ):
+        runtime.activate(
+            ForeignCapabilityPlugin(),
+            plugin_id="familyos.dummy",
+        )

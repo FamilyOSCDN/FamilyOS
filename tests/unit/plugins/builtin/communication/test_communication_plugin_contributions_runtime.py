@@ -22,6 +22,7 @@ def activate_communication_plugin() -> PluginRuntime:
 
     runtime.activate(
         CommunicationPlugin(),
+        plugin_id="familyos.communication",
     )
 
     return runtime

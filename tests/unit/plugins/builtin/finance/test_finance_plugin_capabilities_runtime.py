@@ -11,6 +11,7 @@ def test_finance_plugin_registers_capabilities_in_runtime() -> None:
 
     runtime.activate(
         FinancePlugin(),
+        plugin_id="familyos.finance",
     )
 
     capabilities = (
@@ -28,6 +29,7 @@ def test_finance_plugin_runtime_contains_expected_capabilities() -> None:
 
     runtime.activate(
         FinancePlugin(),
+        plugin_id="familyos.finance",
     )
 
     identifiers = {

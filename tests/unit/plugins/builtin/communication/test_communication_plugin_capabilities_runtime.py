@@ -11,6 +11,7 @@ def test_communication_plugin_registers_capabilities_in_runtime() -> None:
 
     runtime.activate(
         CommunicationPlugin(),
+        plugin_id="familyos.communication",
     )
 
     capabilities = (
@@ -28,6 +29,7 @@ def test_communication_plugin_runtime_contains_expected_capabilities() -> None:
 
     runtime.activate(
         CommunicationPlugin(),
+        plugin_id="familyos.communication",
     )
 
     identifiers = {

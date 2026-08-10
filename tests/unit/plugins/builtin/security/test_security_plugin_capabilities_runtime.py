@@ -15,6 +15,7 @@ def test_security_plugin_registers_capabilities_in_runtime() -> None:
 
     runtime.activate(
         SecurityPlugin(),
+        plugin_id="familyos.security",
     )
 
     capabilities = (
@@ -32,6 +33,7 @@ def test_security_plugin_runtime_contains_expected_capabilities() -> None:
 
     runtime.activate(
         SecurityPlugin(),
+        plugin_id="familyos.security",
     )
 
     identifiers = {

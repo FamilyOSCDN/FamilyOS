@@ -16,6 +16,7 @@ def test_education_plugin_can_be_activated() -> None:
 
     runtime.activate(
         plugin,
+        plugin_id="familyos.education",
     )
 
     assert runtime.state(
@@ -30,6 +31,7 @@ def test_education_plugin_is_registered_after_activation() -> None:
 
     runtime.activate(
         plugin,
+        plugin_id="familyos.education",
     )
 
     plugins = runtime.plugins()

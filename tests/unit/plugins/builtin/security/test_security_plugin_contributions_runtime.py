@@ -22,6 +22,7 @@ def activate_security_plugin() -> PluginRuntime:
 
     runtime.activate(
         SecurityPlugin(),
+        plugin_id="familyos.security",
     )
 
     return runtime

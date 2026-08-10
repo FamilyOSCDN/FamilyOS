@@ -22,6 +22,7 @@ def activate_documents_plugin() -> PluginRuntime:
 
     runtime.activate(
         DocumentsPlugin(),
+        plugin_id="familyos.documents",
     )
 
     return runtime

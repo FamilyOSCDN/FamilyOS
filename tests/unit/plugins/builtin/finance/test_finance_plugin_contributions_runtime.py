@@ -22,6 +22,7 @@ def activate_finance_plugin() -> PluginRuntime:
 
     runtime.activate(
         FinancePlugin(),
+        plugin_id="familyos.finance",
     )
 
     return runtime

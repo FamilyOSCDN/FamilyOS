@@ -13,6 +13,9 @@ from familyos_cli.plugins.capabilities.capability_provider import (
 from familyos_cli.plugins.capabilities.capability_registry import (
     CapabilityRegistry,
 )
+from familyos_cli.plugins.capabilities.plugin_capability import (
+    PluginCapability,
+)
 from familyos_cli.plugins.contributions.contribution_registry import (
     ContributionRegistry,
 )
@@ -117,6 +120,11 @@ class PluginRuntime:
                 plugin,
             )
         ):
+            self._validate_capability_ownership(
+                plugin_id=runtime_plugin_id,
+                capability=capability,
+            )
+
             self._capability_registry.register(
                 capability,
             )
@@ -347,6 +355,24 @@ class PluginRuntime:
             id(plugin),
             None,
         )
+
+    def _validate_capability_ownership(
+        self,
+        *,
+        plugin_id: str,
+        capability: PluginCapability,
+    ) -> None:
+        """Validate that a capability belongs to its providing plugin."""
+
+        expected_prefix = f"{plugin_id}."
+
+        if not capability.id.value.startswith(
+            expected_prefix,
+        ):
+            raise ValueError(
+                f"Capability '{capability.id}' "
+                f"does not belong to plugin '{plugin_id}'.",
+            )
 
     def _runtime_plugin_id(
         self,

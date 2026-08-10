@@ -11,6 +11,7 @@ def test_education_plugin_registers_capabilities_in_runtime() -> None:
 
     runtime.activate(
         EducationPlugin(),
+        plugin_id="familyos.education",
     )
 
     capabilities = (

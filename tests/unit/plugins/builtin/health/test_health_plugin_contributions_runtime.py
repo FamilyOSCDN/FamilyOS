@@ -22,6 +22,7 @@ def activate_health_plugin() -> PluginRuntime:
 
     runtime.activate(
         HealthPlugin(),
+        plugin_id="familyos.health",
     )
 
     return runtime

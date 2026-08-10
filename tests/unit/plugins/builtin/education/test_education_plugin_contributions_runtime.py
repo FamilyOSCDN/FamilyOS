@@ -22,6 +22,7 @@ def activate_education_plugin() -> PluginRuntime:
 
     runtime.activate(
         EducationPlugin(),
+        plugin_id="familyos.education",
     )
 
     return runtime

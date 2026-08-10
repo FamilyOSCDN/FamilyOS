@@ -11,6 +11,7 @@ def test_documents_plugin_registers_capabilities_in_runtime() -> None:
 
     runtime.activate(
         DocumentsPlugin(),
+        plugin_id="familyos.documents",
     )
 
     capabilities = (
@@ -28,6 +29,7 @@ def test_documents_plugin_runtime_contains_expected_capabilities() -> None:
 
     runtime.activate(
         DocumentsPlugin(),
+        plugin_id="familyos.documents",
     )
 
     identifiers = {

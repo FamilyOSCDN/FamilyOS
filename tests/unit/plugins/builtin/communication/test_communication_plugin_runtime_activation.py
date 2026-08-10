@@ -16,6 +16,7 @@ def test_communication_plugin_can_be_activated_by_runtime() -> None:
 
     runtime.activate(
         plugin,
+        plugin_id="familyos.communication",
     )
 
     assert plugin in runtime.plugins().all()
@@ -28,6 +29,7 @@ def test_communication_plugin_reaches_active_state() -> None:
 
     runtime.activate(
         plugin,
+        plugin_id="familyos.communication",
     )
 
     assert runtime.state(

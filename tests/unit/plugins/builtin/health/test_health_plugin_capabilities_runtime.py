@@ -16,6 +16,7 @@ def test_health_plugin_capabilities_are_registered_in_runtime() -> None:
 
     runtime.activate(
         plugin,
+        plugin_id="familyos.health",
     )
 
     registry = runtime.capabilities()
