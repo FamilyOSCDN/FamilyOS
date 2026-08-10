@@ -11,6 +11,7 @@ from typing import cast
 
 import yaml
 
+from familyos_cli.plugins.identity import PluginId
 from familyos_cli.plugins.models import PluginDescriptor
 from familyos_cli.plugins.plugin import Plugin
 from familyos_cli.plugins.plugin_context import PluginContext
@@ -91,8 +92,12 @@ class PluginLoader:
             ),
         )
 
+        plugin_id = PluginId(
+            data["id"],
+        )
+
         return PluginDescriptor(
-            id=data["id"],
+            id=plugin_id.value,
             name=data["name"],
             version=data["version"],
             author=data["author"],
