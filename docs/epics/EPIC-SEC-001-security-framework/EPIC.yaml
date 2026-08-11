@@ -155,8 +155,10 @@ closure:
   documentation_complete: true
   control_documents_aligned: true
   validation_passed: true
+  historical_release_verified: true
   final_commit_created: true
+  historical_tags_preserved: true
   release_tag_created: true
   remote_publication_verified: true
-  working_tree_clean: false
+  working_tree_clean: true
   epic_closed: true
