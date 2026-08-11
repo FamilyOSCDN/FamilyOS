@@ -1,4 +1,4 @@
-# EPIC-SEC-001 — Security Plugin Implementation Changelog
+# EPIC-SPL-001 — Security Plugin Implementation Changelog
 
 ## 1.0.0 — Initial EPIC
 

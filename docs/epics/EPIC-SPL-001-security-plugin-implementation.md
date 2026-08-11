@@ -1,10 +1,10 @@
-# EPIC-SEC-001 — Security Plugin Implementation
+# EPIC-SPL-001 — Security Plugin Implementation
 
 ## Metadata
 
 | Field      | Value                          |
 | ---------- | ------------------------------ |
-| Identifier | EPIC-SEC-001                   |
+| Identifier | EPIC-SPL-001                   |
 | Title      | Security Plugin Implementation |
 | Category   | Engineering Epic               |
 | Version    | 1.0.0                          |
@@ -201,7 +201,7 @@ Before completion:
 
 # 14. Success Criteria
 
-EPIC-SEC-001 is complete when:
+EPIC-SPL-001 is complete when:
 
 * Security Plugin loads through Runtime;
 * capabilities are discoverable;

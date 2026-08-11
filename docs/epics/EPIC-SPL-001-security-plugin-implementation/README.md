@@ -1,4 +1,4 @@
-# EPIC-SEC-001 — Security Plugin Implementation
+# EPIC-SPL-001 — Security Plugin Implementation
 
 ## Status
 
@@ -8,7 +8,7 @@ Implementation completed. Repository revalidation pending.
 
 The historical master document is stored at:
 
-`docs/epics/EPIC-SEC-001-security-plugin-implementation.md`
+`docs/epics/EPIC-SPL-001-security-plugin-implementation.md`
 
 The master document is preserved as the authoritative implementation EPIC.
 

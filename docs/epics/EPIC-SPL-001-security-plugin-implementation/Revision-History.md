@@ -1,4 +1,4 @@
-# EPIC-SEC-001 — Security Plugin Implementation Revision History
+# EPIC-SPL-001 — Security Plugin Implementation Revision History
 
 ## Initial EPIC
 

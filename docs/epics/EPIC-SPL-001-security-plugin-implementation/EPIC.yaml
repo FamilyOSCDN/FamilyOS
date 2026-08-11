@@ -1,13 +1,14 @@
-id: EPIC-SEC-001
+id: EPIC-SPL-001
 title: Security Plugin Implementation
 type: official-plugin-implementation
 domain: security
 version: 1.0.0
 status: completed
 master_document:
-  path: ../EPIC-SEC-001-security-plugin-implementation.md
+  path: ../EPIC-SPL-001-security-plugin-implementation.md
   historical_status: planned
   current_repository_status: completed
+  historical_id: EPIC-SEC-001
 structure:
   numbered_documents: 0
   control_documents: 6
@@ -24,6 +25,7 @@ historical_release:
   release_status: published
   tag_immutable: true
   master_present_at_release: true
+  historical_epic_id: EPIC-SEC-001
 historical_evolution:
   initial_epic_tag: v3.0.0-security-plugin-implementation
   later_reference_normalization_commit: e4ea9e239c9672c07808aa81432d555f9e84724c
@@ -43,7 +45,13 @@ closure:
   validation_passed: true
   historical_release_verified: true
   final_commit_created: true
-  historical_tag_preserved: true
+  historical_tags_preserved: true
   remote_publication_verified: true
   working_tree_clean: true
   epic_closed: true
+identity_migration:
+  previous_repository_id: EPIC-SEC-001
+  canonical_repository_id: EPIC-SPL-001
+  reason: Resolve identifier collision with EPIC-SEC-001 Security Framework
+  historical_identity_preserved: true
+  historical_tags_modified: false

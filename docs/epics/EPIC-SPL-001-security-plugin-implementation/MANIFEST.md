@@ -1,4 +1,4 @@
-# EPIC-SEC-001 — Security Plugin Implementation Manifest
+# EPIC-SPL-001 — Security Plugin Implementation Manifest
 
 ## Canonical Model
 
@@ -9,7 +9,7 @@ Plugin Implementation EPIC.
 
 External historical master:
 
-`docs/epics/EPIC-SEC-001-security-plugin-implementation.md`
+`docs/epics/EPIC-SPL-001-security-plugin-implementation.md`
 
 The master is not duplicated inside this control directory.
 

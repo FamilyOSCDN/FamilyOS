@@ -1,4 +1,4 @@
-# EPIC-SEC-001 — Security Plugin Implementation Validation
+# EPIC-SPL-001 — Security Plugin Implementation Validation
 
 ## Current Validation State
 
@@ -24,7 +24,7 @@ The historical master document must exist at that tag.
 
 The current master:
 
-`docs/epics/EPIC-SEC-001-security-plugin-implementation.md`
+`docs/epics/EPIC-SPL-001-security-plugin-implementation.md`
 
 must remain substantively aligned with the historical implementation EPIC.
 
@@ -81,4 +81,4 @@ The EPIC may only be closed when:
 - historical tag remains unchanged
 - working tree is clean
 
-EPIC-SEC-001 REVALIDATION: PASS
+EPIC-SPL-001 REVALIDATION: PASS
