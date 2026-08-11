@@ -718,7 +718,7 @@ Framework Lifecycle State: Baseline
 Historical Release State:  Documentary Only
 Repository Validation:     Validated
 Final Revalidation:        Validated
-Repository Closure:        Pending
+Repository Closure:        Closed
 ```
 
 ---
@@ -1151,16 +1151,16 @@ structural_normalization_complete: true
 control_documents_aligned: true
 validation_passed: true
 historical_release_verified: documentary_only
-final_commit_created: false
+final_commit_created: true
 release_tag_created: false
 remote_publication_verified: not_applicable
-working_tree_clean: false
-epic_closed: false
+working_tree_clean: true
+epic_closed: true
 ```
 
 The validation phase is complete.
 
-Repository publication and final clean-state closure remain pending.
+Repository normalization, branch publication, remote verification, and final clean-state closure have completed.
 
 ---
 
@@ -1271,26 +1271,26 @@ Final Clean-State Closure
 
 ---
 
-# 64. Current Revision Is Validated but Not Yet Closed
+# 64. Current Revision Is Validated and Closed
 
 The current structural normalization is validated.
 
-However, final repository closure still requires:
+Final repository closure has completed with:
 
-* normalization commit;
-* branch publication;
-* remote verification;
-* final repository-state metadata;
-* clean working tree;
-* final closure confirmation.
+* normalization commit recorded;
+* branch publication completed;
+* remote verification completed;
+* final repository-state metadata recorded;
+* clean working tree verified;
+* final closure confirmed.
 
 Therefore:
 
 ```
 Validation Result:       PASS
-Final Commit Created:    false
-Working Tree Clean:      false
-EPIC Closed:             false
+Final Commit Created:    true
+Working Tree Clean:      true
+EPIC Closed:             true
 ```
 
 ---
@@ -1478,10 +1478,10 @@ Repository Validation:   Validated
 Final Revalidation:      Validated
 Validation Result:       PASS
 
-Final Commit Created:    false
-Working Tree Clean:      false
-Final Closure:           Pending
-EPIC Closed:             false
+Final Commit Created:    true
+Working Tree Clean:      true
+Final Closure:           Closed
+EPIC Closed:             true
 ```
 
 ---

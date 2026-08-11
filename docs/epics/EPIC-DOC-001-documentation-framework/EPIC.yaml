@@ -301,6 +301,7 @@ closure:
   control_documents_aligned: true
   validation_passed: true
   historical_release_verified: documentary_only
+  historical_tags_preserved: not_applicable
   final_commit_created: true
   release_tag_created: false
   remote_publication_verified: not_applicable

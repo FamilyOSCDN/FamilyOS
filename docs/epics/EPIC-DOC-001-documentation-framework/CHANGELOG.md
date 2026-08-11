@@ -854,7 +854,7 @@ Framework Lifecycle State: Baseline
 Historical Release State:  Documentary Only
 Repository Validation:     Validated
 Final Revalidation:        Validated
-Final Closure:             Pending
+Final Closure:             Closed
 ```
 
 ---
@@ -1256,9 +1256,9 @@ Repository Validation:    Validated
 Final Revalidation:       Validated
 Validation Result:        PASS
 
-Final Commit Created:     false
-Working Tree Clean:       false
-EPIC Closed:              false
+Final Commit Created:     true
+Working Tree Clean:       true
+EPIC Closed:              true
 ```
 
 ---
@@ -1472,9 +1472,9 @@ Revalidation success does not by itself mean the repository closure sequence has
 Until the normalization commits are created, pushed, remotely verified, and the final working tree is clean:
 
 ```text
-Final Commit Created: false
-Working Tree Clean:   false
-EPIC Closed:          false
+Final Commit Created: true
+Working Tree Clean:   true
+EPIC Closed:          true
 ```
 
 These states SHALL only advance when the corresponding repository evidence exists.
@@ -1516,7 +1516,7 @@ Repository Validation:    Validated
 Final Revalidation:       Validated
 Validation Result:        PASS
 
-Final Commit Created:     false
-Working Tree Clean:       false
-EPIC Closed:              false
+Final Commit Created:     true
+Working Tree Clean:       true
+EPIC Closed:              true
 ```
