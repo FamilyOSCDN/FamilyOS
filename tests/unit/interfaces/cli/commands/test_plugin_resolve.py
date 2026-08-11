@@ -24,6 +24,8 @@ from familyos_cli.plugins.ecosystem.resolution import (
 
 
 def test_should_parse_dependency_without_constraint() -> None:
+    """CLI should parse a canonical Plugin Identifier."""
+
     dependency = parse_plugin_dependency(
         "familyos.documentation",
     )
@@ -34,6 +36,8 @@ def test_should_parse_dependency_without_constraint() -> None:
 
 
 def test_should_parse_dependency_with_constraint_set() -> None:
+    """CLI should preserve version constraints."""
+
     dependency = parse_plugin_dependency(
         "familyos.calendar>=1.0.0,<2.0.0",
     )
@@ -56,6 +60,18 @@ def test_should_reject_short_plugin_identifier() -> None:
         )
 
 
+def test_should_reject_unknown_short_plugin_identifier() -> None:
+    """Unknown short identifiers must not bypass canonical validation."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        parse_plugin_dependency(
+            "notification",
+        )
+
+
 @patch(
     "familyos_cli.interfaces.cli.commands.plugin_resolve.CommandContext",
 )
@@ -66,6 +82,8 @@ def test_should_resolve_plugins_through_pipeline(
     mock_success: Mock,
     mock_context_type: Mock,
 ) -> None:
+    """CLI should send canonical dependencies to the pipeline."""
+
     pipeline = Mock()
     pipeline.resolve.return_value = ResolutionPlan(
         ordered_packages=[
@@ -133,6 +151,8 @@ def test_should_build_explain_render_and_display_diagnostics(
     mock_renderer_type: Mock,
     mock_output_diagnostic: Mock,
 ) -> None:
+    """CLI should render resolution diagnostics."""
+
     resolution_plan = ResolutionPlan(
         diagnostics=[
             ResolutionDiagnostic(
@@ -210,6 +230,8 @@ def test_should_report_invalid_dependency_expression(
     mock_error: Mock,
     mock_context_type: Mock,
 ) -> None:
+    """CLI should report malformed dependency expressions."""
+
     plugin_resolve(
         dependencies=[
             "familyos.documentation-invalid-constraint?",

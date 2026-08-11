@@ -13,7 +13,10 @@ from familyos_cli.plugins.ecosystem.resolution.version_constraint import (
 from familyos_cli.plugins.ecosystem.resolution.version_operator import (
     VersionOperator,
 )
-from familyos_cli.plugins.identity import PluginId
+from familyos_cli.plugins.identity import (
+    PluginId,
+    normalize_plugin_id,
+)
 
 
 @dataclass(
@@ -42,7 +45,19 @@ class PluginDependency:
         constraint: VersionConstraint | None = None,
         constraint_set: ConstraintSet | None = None,
     ) -> None:
-        """Initialize a plugin dependency."""
+        """Initialize a plugin dependency.
+
+        Args:
+            name: Legacy alias for the required Plugin Identifier.
+            minimum_version: Legacy minimum version requirement.
+            plugin_id: Canonical or legacy required Plugin Identifier.
+            constraint: Legacy typed atomic constraint.
+            constraint_set: Typed collection of version constraints.
+
+        Raises:
+            ValueError: If no identifier is provided, if identifier inputs
+                disagree, or if multiple constraint inputs are provided.
+        """
 
         explicit_plugin_id = plugin_id is not None
 
@@ -54,7 +69,15 @@ class PluginDependency:
                 "Plugin identifier is required.",
             )
 
-        if name is not None and explicit_plugin_id and name != plugin_id:
+        normalized_plugin_id = normalize_plugin_id(
+            plugin_id,
+        )
+
+        if (
+            name is not None
+            and explicit_plugin_id
+            and normalize_plugin_id(name) != normalized_plugin_id
+        ):
             raise ValueError(
                 "name and plugin_id must reference the same Plugin Identifier.",
             )
@@ -72,10 +95,6 @@ class PluginDependency:
                 "Specify only one of minimum_version, constraint or constraint_set.",
             )
 
-        plugin_id = PluginId(
-            plugin_id,
-        ).value
-
         resolved_constraint_set = constraint_set
 
         if minimum_version:
@@ -88,10 +107,14 @@ class PluginDependency:
                 constraints=(constraint,),
             )
 
+        canonical_plugin_id = PluginId(
+            normalized_plugin_id,
+        ).value
+
         object.__setattr__(
             self,
             "plugin_id",
-            plugin_id,
+            canonical_plugin_id,
         )
         object.__setattr__(
             self,

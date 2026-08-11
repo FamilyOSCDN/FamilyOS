@@ -28,6 +28,54 @@ def test_dependency_without_constraint_identifier() -> None:
     assert dependency.identifier() == "familyos.notification"
 
 
+def test_dependency_normalizes_legacy_plugin_id_alias() -> None:
+    """Known legacy Plugin Identifier aliases should become canonical."""
+
+    dependency = PluginDependency(
+        plugin_id="documentation",
+    )
+
+    assert dependency.plugin_id == "familyos.documentation"
+    assert dependency.name == "familyos.documentation"
+    assert dependency.identifier() == "familyos.documentation"
+
+
+def test_dependency_normalizes_legacy_name_alias() -> None:
+    """The legacy name argument should normalize known Plugin IDs."""
+
+    dependency = PluginDependency(
+        name="documentation",
+    )
+
+    assert dependency.plugin_id == "familyos.documentation"
+    assert dependency.name == "familyos.documentation"
+    assert dependency.identifier() == "familyos.documentation"
+
+
+def test_dependency_rejects_unknown_non_canonical_plugin_id() -> None:
+    """Unknown short identifiers should not bypass canonical validation."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginDependency(
+            plugin_id="notification",
+        )
+
+
+def test_dependency_rejects_unknown_non_canonical_legacy_name() -> None:
+    """Unknown short identifiers must also fail through the legacy API."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginDependency(
+            name="notification",
+        )
+
+
 def test_dependency_supports_legacy_minimum_version() -> None:
     """The legacy minimum-version API should remain compatible."""
 
@@ -128,7 +176,7 @@ def test_dependency_rejects_multiple_constraint_inputs(
         match=("Specify only one of minimum_version, constraint or constraint_set."),
     ):
         PluginDependency(
-            name="notification",
+            plugin_id="familyos.notification",
             minimum_version=minimum_version,
             constraint=constraint,
             constraint_set=constraint_set,
@@ -147,8 +195,8 @@ def test_plugin_dependency_exposes_canonical_plugin_id() -> None:
     assert dependency.identifier() == "familyos.documentation"
 
 
-def test_plugin_dependency_accepts_legacy_name_argument() -> None:
-    """Legacy name argument should remain compatible."""
+def test_plugin_dependency_accepts_canonical_legacy_name_argument() -> None:
+    """Legacy name construction should accept canonical Plugin IDs."""
 
     dependency = PluginDependency(
         name="familyos.documentation",
@@ -161,37 +209,11 @@ def test_plugin_dependency_accepts_legacy_name_argument() -> None:
 def test_plugin_dependency_rejects_conflicting_identity_arguments() -> None:
     """Canonical and legacy identity inputs must not disagree."""
 
-    import pytest
-
     with pytest.raises(
         ValueError,
         match="same Plugin Identifier",
     ):
         PluginDependency(
             name="documentation",
-            plugin_id="familyos.documentation",
-        )
-
-
-def test_plugin_dependency_rejects_invalid_explicit_plugin_id() -> None:
-    """Explicit Plugin Identifiers should satisfy the canonical contract."""
-
-    with pytest.raises(
-        ValueError,
-        match="Invalid Plugin Identifier",
-    ):
-        PluginDependency(
-            plugin_id="notification",
-        )
-
-
-def test_plugin_dependency_rejects_invalid_legacy_name_identity() -> None:
-    """Legacy name construction must still use canonical Plugin IDs."""
-
-    with pytest.raises(
-        ValueError,
-        match="Invalid Plugin Identifier",
-    ):
-        PluginDependency(
-            name="notification",
+            plugin_id="familyos.calendar",
         )

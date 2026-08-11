@@ -16,9 +16,10 @@ from familyos_cli.plugins.ecosystem.resolution import (
     ConstraintSet,
     PluginDependency,
 )
+from familyos_cli.plugins.identity import PluginId
 
 _DEPENDENCY_PATTERN = re.compile(
-    r"^(?P<name>[A-Za-z0-9][A-Za-z0-9._-]*)(?P<constraint>.*)$",
+    r"^(?P<plugin_id>[A-Za-z0-9][A-Za-z0-9._-]*)(?P<constraint>.*)$",
 )
 
 
@@ -29,10 +30,10 @@ def parse_plugin_dependency(
 
     Supported examples include:
 
-    - ``documentation``
-    - ``documentation>=1.0.0``
-    - ``security^2.0.0``
-    - ``calendar>=1.0.0,<2.0.0``
+    - ``familyos.documentation``
+    - ``familyos.documentation>=1.0.0``
+    - ``familyos.security^2.0.0``
+    - ``familyos.calendar>=1.0.0,<2.0.0``
 
     Args:
         value: Dependency expression supplied by the user.
@@ -41,7 +42,8 @@ def parse_plugin_dependency(
         Parsed plugin dependency.
 
     Raises:
-        ValueError: If the dependency expression is invalid.
+        ValueError: If the dependency expression is invalid or if the
+            Plugin Identifier is not canonical.
     """
 
     normalized_value = value.strip()
@@ -55,16 +57,24 @@ def parse_plugin_dependency(
             f"Invalid plugin dependency: {value!r}.",
         )
 
-    plugin_id = match.group("name")
+    plugin_id = match.group("plugin_id")
+
+    # The CLI boundary requires canonical Plugin Identifiers.
+    # Legacy aliases may be accepted by lower-level compatibility APIs,
+    # but they must never enter the resolution pipeline through this CLI.
+    canonical_plugin_id = PluginId(
+        plugin_id,
+    ).value
+
     constraint_value = match.group("constraint").strip()
 
     if not constraint_value:
         return PluginDependency(
-            name=plugin_id,
+            plugin_id=canonical_plugin_id,
         )
 
     return PluginDependency(
-        name=plugin_id,
+        plugin_id=canonical_plugin_id,
         constraint_set=ConstraintSet.parse(
             constraint_value,
         ),
