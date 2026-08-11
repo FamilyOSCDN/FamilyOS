@@ -1,4 +1,4 @@
-"""Plugin lifecycle manager."""
+"""Plugin lifecycle state manager."""
 
 from __future__ import annotations
 
@@ -8,45 +8,52 @@ from familyos_cli.plugins.ecosystem.lifecycle.lifecycle_event import (
 from familyos_cli.plugins.ecosystem.lifecycle.plugin_state import (
     PluginState,
 )
+from familyos_cli.plugins.identity import PluginId
 
 
 class PluginLifecycleManager:
-    """Manage installed plugin lifecycle states."""
+    """Manage plugin lifecycle states."""
 
     def __init__(self) -> None:
-        """Initialize lifecycle storage."""
+        """Initialize the lifecycle manager."""
 
         self._states: dict[str, PluginState] = {}
 
     def register(
         self,
-        plugin_name: str,
+        plugin_id: str,
     ) -> None:
-        """Register a discovered plugin."""
+        """Register a plugin in the discovered state."""
 
-        self._states[plugin_name] = PluginState.DISCOVERED
+        canonical_plugin_id = PluginId(plugin_id).value
+
+        self._states[canonical_plugin_id] = PluginState.DISCOVERED
 
     def transition(
         self,
-        plugin_name: str,
+        plugin_id: str,
         new_state: PluginState,
     ) -> LifecycleEvent:
-        """Move plugin to another lifecycle state."""
+        """Move a plugin to another lifecycle state."""
 
-        previous_state = self._states[plugin_name]
+        canonical_plugin_id = PluginId(plugin_id).value
 
-        self._states[plugin_name] = new_state
+        previous_state = self._states[canonical_plugin_id]
+
+        self._states[canonical_plugin_id] = new_state
 
         return LifecycleEvent(
-            plugin_name=plugin_name,
+            plugin_id=canonical_plugin_id,
             previous_state=previous_state,
             new_state=new_state,
         )
 
     def state(
         self,
-        plugin_name: str,
+        plugin_id: str,
     ) -> PluginState:
-        """Return current plugin state."""
+        """Return the current lifecycle state of a plugin."""
 
-        return self._states[plugin_name]
+        canonical_plugin_id = PluginId(plugin_id).value
+
+        return self._states[canonical_plugin_id]
