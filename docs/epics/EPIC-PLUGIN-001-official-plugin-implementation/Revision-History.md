@@ -71,7 +71,7 @@ The empty historical `VALIDATION.md` is populated, the implementation-strategy
 reference is aligned to ADR-0013, and the EPIC status is aligned with the
 completed governance baseline.
 
-Repository revalidation and final closure remain pending until all validation
+Repository revalidation and final closure have completed after all validation
 and repository-state gates pass.
 
 ---
@@ -90,5 +90,5 @@ Canonical Files:    7
 Documentation Status:      Completed
 Repository Validation:     Validated
 Final Validation:          Validated
-EPIC Closure:              Pending
+EPIC Closure:              Closed
 ```

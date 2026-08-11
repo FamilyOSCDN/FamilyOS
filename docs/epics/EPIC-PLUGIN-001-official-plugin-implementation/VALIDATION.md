@@ -111,7 +111,7 @@ The normalized EPIC SHALL pass:
 
 The historical baseline checks have passed.
 
-The normalized seven-file repository state has not yet completed the full
+The normalized seven-file repository state has completed the full
 post-normalization revalidation workflow.
 
 ```text
@@ -124,10 +124,10 @@ Architecture Consistency:   PASS
 Repository Quality Gates:   PASS
 Repository Validation:      Validated
 Final Validation:           Validated
-EPIC Closure:               Pending
+EPIC Closure:               Closed
 ```
 
-No final closure state SHALL be recorded until the normalized repository state
+Final closure is recorded because the normalized repository state
 has been validated, committed, pushed, remotely verified, and confirmed with a
 clean working tree.
 
