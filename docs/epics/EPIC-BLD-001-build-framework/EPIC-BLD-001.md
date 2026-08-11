@@ -1173,7 +1173,7 @@ The purpose is to:
 * record current validation evidence;
 * preserve historical publication integrity.
 
-Historical publication remains valid while current revalidation is pending.
+Historical publication remains valid, and current repository revalidation has completed successfully.
 
 ---
 

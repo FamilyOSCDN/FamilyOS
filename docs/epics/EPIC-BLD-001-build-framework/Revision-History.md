@@ -1145,7 +1145,7 @@ The authoritative execution evidence belongs in:
 VALIDATION.md
 ```
 
-Until the current evidence is complete, this document SHALL NOT claim that current repository revalidation has passed.
+Current evidence is complete and supports the validated repository revalidation state recorded by this document.
 
 ---
 
