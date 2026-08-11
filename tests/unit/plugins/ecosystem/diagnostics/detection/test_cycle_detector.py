@@ -36,8 +36,8 @@ def test_cycle_detector_finds_simple_cycle() -> None:
     detector = CycleDetector(
         FakeCycleDetectionSource(
             {
-                "security": ("crypto",),
-                "crypto": ("security",),
+                "familyos.security": ("familyos.crypto",),
+                "familyos.crypto": ("familyos.security",),
             },
         ),
     )
@@ -47,9 +47,9 @@ def test_cycle_detector_finds_simple_cycle() -> None:
     assert cycles == (
         DependencyCycle(
             path=(
-                "crypto",
-                "security",
-                "crypto",
+                "familyos.crypto",
+                "familyos.security",
+                "familyos.crypto",
             ),
         ),
     )
@@ -61,9 +61,9 @@ def test_cycle_detector_finds_long_cycle() -> None:
     detector = CycleDetector(
         FakeCycleDetectionSource(
             {
-                "a": ("b",),
-                "b": ("c",),
-                "c": ("a",),
+                "familyos.plugin_a": ("familyos.plugin_b",),
+                "familyos.plugin_b": ("familyos.plugin_c",),
+                "familyos.plugin_c": ("familyos.plugin_a",),
             },
         ),
     )
@@ -73,10 +73,10 @@ def test_cycle_detector_finds_long_cycle() -> None:
     assert cycles == (
         DependencyCycle(
             path=(
-                "a",
-                "b",
-                "c",
-                "a",
+                "familyos.plugin_a",
+                "familyos.plugin_b",
+                "familyos.plugin_c",
+                "familyos.plugin_a",
             ),
         ),
     )
@@ -88,8 +88,8 @@ def test_cycle_detector_ignores_acyclic_graph() -> None:
     detector = CycleDetector(
         FakeCycleDetectionSource(
             {
-                "security": ("crypto",),
-                "crypto": (),
+                "familyos.security": ("familyos.crypto",),
+                "familyos.crypto": (),
             },
         ),
     )
@@ -103,7 +103,7 @@ def test_cycle_detector_detects_self_cycle() -> None:
     detector = CycleDetector(
         FakeCycleDetectionSource(
             {
-                "security": ("security",),
+                "familyos.security": ("familyos.security",),
             },
         ),
     )
@@ -111,8 +111,8 @@ def test_cycle_detector_detects_self_cycle() -> None:
     assert detector.detect() == (
         DependencyCycle(
             path=(
-                "security",
-                "security",
+                "familyos.security",
+                "familyos.security",
             ),
         ),
     )
@@ -124,9 +124,9 @@ def test_cycle_detector_does_not_duplicate_cycles() -> None:
     detector = CycleDetector(
         FakeCycleDetectionSource(
             {
-                "a": ("b",),
-                "b": ("a",),
-                "c": ("b",),
+                "familyos.plugin_a": ("familyos.plugin_b",),
+                "familyos.plugin_b": ("familyos.plugin_a",),
+                "familyos.plugin_c": ("familyos.plugin_b",),
             },
         ),
     )

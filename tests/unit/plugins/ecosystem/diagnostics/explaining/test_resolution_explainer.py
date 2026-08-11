@@ -17,14 +17,12 @@ def make_diagnostic(
         kind=kind,
         severity=DiagnosticSeverity.ERROR,
         message="Technical diagnostic.",
-        plugin="security",
-        details=(
-            "security depends on crypto",
-        ),
+        plugin="familyos.security",
+        details=("familyos.security depends on familyos.crypto",),
         path=(
-            "security",
-            "crypto",
-            "security",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.security",
         ),
     )
 
@@ -38,9 +36,7 @@ def test_explains_missing_dependency() -> None:
         ),
     )
 
-    assert explanation.title == (
-        "Missing plugin dependency"
-    )
+    assert explanation.title == ("Missing plugin dependency")
     assert explanation.has_suggestions()
 
 
@@ -53,9 +49,7 @@ def test_explains_version_conflict() -> None:
         ),
     )
 
-    assert explanation.title == (
-        "Plugin version conflict"
-    )
+    assert explanation.title == ("Plugin version conflict")
     assert explanation.has_causes()
 
 
@@ -68,12 +62,8 @@ def test_explains_dependency_cycle() -> None:
         ),
     )
 
-    assert explanation.title == (
-        "Dependency cycle detected"
-    )
-    assert explanation.suggestions == (
-        "Remove one dependency from the cycle.",
-    )
+    assert explanation.title == ("Dependency cycle detected")
+    assert explanation.suggestions == ("Remove one dependency from the cycle.",)
 
 
 def test_explains_unknown_diagnostic() -> None:
@@ -85,7 +75,5 @@ def test_explains_unknown_diagnostic() -> None:
         ),
     )
 
-    assert explanation.title == (
-        "Plugin resolution issue"
-    )
+    assert explanation.title == ("Plugin resolution issue")
     assert explanation.has_suggestions()

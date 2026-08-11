@@ -10,6 +10,7 @@ from familyos_cli.plugins.ecosystem.diagnostics.diagnostic_kind import (
 from familyos_cli.plugins.ecosystem.diagnostics.diagnostic_severity import (
     DiagnosticSeverity,
 )
+from familyos_cli.plugins.identity import PluginId
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,10 +24,30 @@ class PluginResolutionDiagnostic:
     details: tuple[str, ...] = field(default_factory=tuple)
     path: tuple[str, ...] = field(default_factory=tuple)
 
-    def concerns(self, plugin_name: str) -> bool:
+    def __post_init__(self) -> None:
+        """Validate plugin identifiers."""
+
+        if self.plugin:
+            object.__setattr__(
+                self,
+                "plugin",
+                PluginId(self.plugin).value,
+            )
+
+        canonical_path = tuple(PluginId(plugin_id).value for plugin_id in self.path)
+
+        object.__setattr__(
+            self,
+            "path",
+            canonical_path,
+        )
+
+    def concerns(self, plugin_id: str) -> bool:
         """Return whether this diagnostic concerns the given plugin."""
 
-        return self.plugin == plugin_name
+        canonical_plugin_id = PluginId(plugin_id).value
+
+        return self.plugin == canonical_plugin_id
 
     def is_error(self) -> bool:
         """Return whether the diagnostic represents an error."""

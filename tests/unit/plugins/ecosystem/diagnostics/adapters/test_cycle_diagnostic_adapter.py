@@ -13,9 +13,9 @@ def test_cycle_adapter_creates_dependency_cycle_diagnostic() -> None:
 
     cycle = DependencyCycle(
         path=(
-            "security",
-            "crypto",
-            "security",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.security",
         ),
     )
 
@@ -29,17 +29,15 @@ def test_cycle_adapter_creates_dependency_cycle_diagnostic() -> None:
 
     assert diagnostic.kind is DiagnosticKind.DEPENDENCY_CYCLE
     assert diagnostic.severity is DiagnosticSeverity.ERROR
-    assert diagnostic.plugin == "security"
-    assert diagnostic.message == (
-        "Plugin dependency cycle detected."
-    )
+    assert diagnostic.plugin == "familyos.security"
+    assert diagnostic.message == ("Plugin dependency cycle detected.")
     assert diagnostic.path == (
-        "security",
-        "crypto",
-        "security",
+        "familyos.security",
+        "familyos.crypto",
+        "familyos.security",
     )
     assert diagnostic.details == (
-        "Dependency path: security -> crypto -> security",
+        "Dependency path: familyos.security -> familyos.crypto -> familyos.security",
     )
 
 
@@ -60,27 +58,24 @@ def test_cycle_adapter_preserves_multiple_cycles_order() -> None:
         (
             DependencyCycle(
                 path=(
-                    "security",
-                    "crypto",
-                    "security",
+                    "familyos.security",
+                    "familyos.crypto",
+                    "familyos.security",
                 ),
             ),
             DependencyCycle(
                 path=(
-                    "backup",
-                    "storage",
-                    "backup",
+                    "familyos.backup",
+                    "familyos.storage",
+                    "familyos.backup",
                 ),
             ),
         ),
     )
 
-    assert tuple(
-        diagnostic.plugin
-        for diagnostic in diagnostics
-    ) == (
-        "security",
-        "backup",
+    assert tuple(diagnostic.plugin for diagnostic in diagnostics) == (
+        "familyos.security",
+        "familyos.backup",
     )
 
 
@@ -91,18 +86,18 @@ def test_cycle_adapter_keeps_cycle_path_information() -> None:
         (
             DependencyCycle(
                 path=(
-                    "a",
-                    "b",
-                    "c",
-                    "a",
+                    "familyos.plugin_a",
+                    "familyos.plugin_b",
+                    "familyos.plugin_c",
+                    "familyos.plugin_a",
                 ),
             ),
         ),
     )[0]
 
     assert diagnostic.path == (
-        "a",
-        "b",
-        "c",
-        "a",
+        "familyos.plugin_a",
+        "familyos.plugin_b",
+        "familyos.plugin_c",
+        "familyos.plugin_a",
     )

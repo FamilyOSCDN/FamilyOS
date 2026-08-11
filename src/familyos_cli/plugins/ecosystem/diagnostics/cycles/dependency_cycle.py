@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from familyos_cli.plugins.identity import PluginId
+
 
 @dataclass(frozen=True, slots=True)
 class DependencyCycle:
@@ -14,6 +16,14 @@ class DependencyCycle:
     def __post_init__(self) -> None:
         """Validate the dependency cycle path."""
 
+        canonical_path = tuple(PluginId(plugin_id).value for plugin_id in self.path)
+
+        object.__setattr__(
+            self,
+            "path",
+            canonical_path,
+        )
+
         if len(self.path) < 2:
             raise ValueError(
                 "A dependency cycle must contain at least two nodes.",
@@ -21,8 +31,7 @@ class DependencyCycle:
 
         if self.path[0] != self.path[-1]:
             raise ValueError(
-                "A dependency cycle path must start and end "
-                "with the same plugin.",
+                "A dependency cycle path must start and end with the same plugin.",
             )
 
     @property
@@ -39,11 +48,13 @@ class DependencyCycle:
 
     def contains(
         self,
-        plugin_name: str,
+        plugin_id: str,
     ) -> bool:
         """Return whether the cycle contains the given plugin."""
 
-        return plugin_name in self.path[:-1]
+        canonical_plugin_id = PluginId(plugin_id).value
+
+        return canonical_plugin_id in self.path[:-1]
 
     def unique_plugins(self) -> tuple[str, ...]:
         """Return cycle plugins without the repeated closing node."""
@@ -68,10 +79,7 @@ class DependencyCycle:
         start_index = plugins.index(
             smallest_plugin,
         )
-        normalized_plugins = (
-            plugins[start_index:]
-            + plugins[:start_index]
-        )
+        normalized_plugins = plugins[start_index:] + plugins[:start_index]
 
         return DependencyCycle(
             path=(

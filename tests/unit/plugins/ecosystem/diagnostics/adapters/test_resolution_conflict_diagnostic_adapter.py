@@ -16,10 +16,8 @@ def test_adapter_builds_diagnostic_from_resolution_plan() -> None:
     plan = ResolutionPlan(
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="security",
-                message=(
-                    "Required plugin dependency is not available."
-                ),
+                plugin="familyos.security",
+                message=("Required plugin dependency is not available."),
             ),
         ],
     )
@@ -29,7 +27,7 @@ def test_adapter_builds_diagnostic_from_resolution_plan() -> None:
     )
 
     assert len(diagnostics) == 1
-    assert diagnostics[0].plugin == "security"
+    assert diagnostics[0].plugin == "familyos.security"
     assert diagnostics[0].kind is DiagnosticKind.MISSING_DEPENDENCY
 
 

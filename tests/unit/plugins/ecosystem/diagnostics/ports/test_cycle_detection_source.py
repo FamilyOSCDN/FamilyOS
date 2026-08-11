@@ -10,16 +10,16 @@ class FakeCycleDetectionSource:
 
     def plugins(self) -> tuple[str, ...]:
         return (
-            "security",
-            "crypto",
+            "familyos.security",
+            "familyos.crypto",
         )
 
     def dependencies_of(
         self,
         plugin: str,
     ) -> tuple[str, ...]:
-        if plugin == "security":
-            return ("crypto",)
+        if plugin == "familyos.security":
+            return ("familyos.crypto",)
 
         return ()
 
@@ -27,16 +27,12 @@ class FakeCycleDetectionSource:
 def test_cycle_detection_source_protocol() -> None:
     """A concrete source satisfies the protocol."""
 
-    source: CycleDetectionSource = (
-        FakeCycleDetectionSource()
-    )
+    source: CycleDetectionSource = FakeCycleDetectionSource()
 
     assert source.plugins() == (
-        "security",
-        "crypto",
+        "familyos.security",
+        "familyos.crypto",
     )
     assert source.dependencies_of(
-        "security",
-    ) == (
-        "crypto",
-    )
+        "familyos.security",
+    ) == ("familyos.crypto",)

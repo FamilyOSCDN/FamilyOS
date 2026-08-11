@@ -12,20 +12,20 @@ def test_dependency_cycle_creation() -> None:
 
     cycle = DependencyCycle(
         path=(
-            "security",
-            "crypto",
-            "storage",
-            "security",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.storage",
+            "familyos.security",
         ),
     )
 
     assert cycle.path == (
-        "security",
-        "crypto",
-        "storage",
-        "security",
+        "familyos.security",
+        "familyos.crypto",
+        "familyos.storage",
+        "familyos.security",
     )
-    assert cycle.plugin == "security"
+    assert cycle.plugin == "familyos.security"
     assert cycle.length == 3
 
 
@@ -34,12 +34,10 @@ def test_dependency_cycle_requires_at_least_two_nodes() -> None:
 
     with pytest.raises(
         ValueError,
-        match=(
-            "A dependency cycle must contain at least two nodes."
-        ),
+        match=("A dependency cycle must contain at least two nodes."),
     ):
         DependencyCycle(
-            path=("security",),
+            path=("familyos.security",),
         )
 
 
@@ -48,16 +46,13 @@ def test_dependency_cycle_requires_closed_path() -> None:
 
     with pytest.raises(
         ValueError,
-        match=(
-            "A dependency cycle path must start and end "
-            "with the same plugin."
-        ),
+        match=("A dependency cycle path must start and end with the same plugin."),
     ):
         DependencyCycle(
             path=(
-                "security",
-                "crypto",
-                "storage",
+                "familyos.security",
+                "familyos.crypto",
+                "familyos.storage",
             ),
         )
 
@@ -67,15 +62,15 @@ def test_dependency_cycle_supports_self_cycle() -> None:
 
     cycle = DependencyCycle(
         path=(
-            "security",
-            "security",
+            "familyos.security",
+            "familyos.security",
         ),
     )
 
-    assert cycle.plugin == "security"
+    assert cycle.plugin == "familyos.security"
     assert cycle.length == 1
-    assert cycle.contains("security")
-    assert cycle.unique_plugins() == ("security",)
+    assert cycle.contains("familyos.security")
+    assert cycle.unique_plugins() == ("familyos.security",)
 
 
 def test_dependency_cycle_identifies_contained_plugins() -> None:
@@ -83,17 +78,17 @@ def test_dependency_cycle_identifies_contained_plugins() -> None:
 
     cycle = DependencyCycle(
         path=(
-            "security",
-            "crypto",
-            "storage",
-            "security",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.storage",
+            "familyos.security",
         ),
     )
 
-    assert cycle.contains("security")
-    assert cycle.contains("crypto")
-    assert cycle.contains("storage")
-    assert not cycle.contains("backup")
+    assert cycle.contains("familyos.security")
+    assert cycle.contains("familyos.crypto")
+    assert cycle.contains("familyos.storage")
+    assert not cycle.contains("familyos.backup")
 
 
 def test_dependency_cycle_returns_unique_plugins() -> None:
@@ -101,17 +96,17 @@ def test_dependency_cycle_returns_unique_plugins() -> None:
 
     cycle = DependencyCycle(
         path=(
-            "security",
-            "crypto",
-            "storage",
-            "security",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.storage",
+            "familyos.security",
         ),
     )
 
     assert cycle.unique_plugins() == (
-        "security",
-        "crypto",
-        "storage",
+        "familyos.security",
+        "familyos.crypto",
+        "familyos.storage",
     )
 
 
@@ -120,15 +115,15 @@ def test_dependency_cycle_removes_repeated_internal_plugins() -> None:
 
     cycle = DependencyCycle(
         path=(
-            "security",
-            "crypto",
-            "security",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.security",
         ),
     )
 
     assert cycle.unique_plugins() == (
-        "security",
-        "crypto",
+        "familyos.security",
+        "familyos.crypto",
     )
 
 
@@ -137,27 +132,27 @@ def test_dependency_cycle_normalizes_rotation() -> None:
 
     first = DependencyCycle(
         path=(
-            "security",
-            "crypto",
-            "storage",
-            "security",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.storage",
+            "familyos.security",
         ),
     )
     second = DependencyCycle(
         path=(
-            "storage",
-            "security",
-            "crypto",
-            "storage",
+            "familyos.storage",
+            "familyos.security",
+            "familyos.crypto",
+            "familyos.storage",
         ),
     )
 
     assert first.normalized() == second.normalized()
     assert first.normalized().path == (
-        "crypto",
-        "storage",
-        "security",
-        "crypto",
+        "familyos.crypto",
+        "familyos.storage",
+        "familyos.security",
+        "familyos.crypto",
     )
 
 
@@ -166,8 +161,8 @@ def test_dependency_cycle_normalization_preserves_self_cycle() -> None:
 
     cycle = DependencyCycle(
         path=(
-            "security",
-            "security",
+            "familyos.security",
+            "familyos.security",
         ),
     )
 

@@ -11,7 +11,10 @@ class FakeConflictDetectionSource:
     """Simple implementation of the protocol."""
 
     def plugins(self) -> tuple[str, ...]:
-        return ("security", "backup")
+        return (
+            "familyos.security",
+            "familyos.backup",
+        )
 
     def candidate_versions(
         self,
@@ -29,7 +32,7 @@ class FakeConflictDetectionSource:
         self,
         plugin: str,
     ) -> tuple[str, ...]:
-        return ("application",)
+        return ("familyos.application",)
 
 
 def test_conflict_detection_source_protocol() -> None:
@@ -38,9 +41,15 @@ def test_conflict_detection_source_protocol() -> None:
     source: ConflictDetectionSource = FakeConflictDetectionSource()
 
     assert source.plugins() == (
-        "security",
-        "backup",
+        "familyos.security",
+        "familyos.backup",
     )
-    assert source.candidate_versions("security") == ("1.0.0",)
-    assert source.constraints_for("security") == (">=1.0.0",)
-    assert source.dependents_of("security") == ("application",)
+    assert source.candidate_versions(
+        "familyos.security",
+    ) == ("1.0.0",)
+    assert source.constraints_for(
+        "familyos.security",
+    ) == (">=1.0.0",)
+    assert source.dependents_of(
+        "familyos.security",
+    ) == ("familyos.application",)

@@ -21,19 +21,19 @@ from familyos_cli.plugins.ecosystem.resolution import (
 
 def test_should_parse_dependency_without_constraint() -> None:
     dependency = parse_plugin_dependency(
-        "documentation",
+        "familyos.documentation",
     )
 
-    assert dependency.name == "documentation"
+    assert dependency.name == "familyos.documentation"
     assert dependency.constraint_set is None
 
 
 def test_should_parse_dependency_with_constraint_set() -> None:
     dependency = parse_plugin_dependency(
-        "calendar>=1.0.0,<2.0.0",
+        "familyos.calendar>=1.0.0,<2.0.0",
     )
 
-    assert dependency.name == "calendar"
+    assert dependency.name == "familyos.calendar"
     assert dependency.constraint_set is not None
     assert str(dependency.constraint_set) == ">=1.0.0,<2.0.0"
 
@@ -52,7 +52,7 @@ def test_should_resolve_plugins_through_pipeline(
     pipeline.resolve.return_value = ResolutionPlan(
         ordered_packages=[
             PluginPackage(
-                name="documentation",
+                plugin_id="familyos.documentation",
                 version="1.0.0",
                 source="official",
             ),
@@ -65,7 +65,7 @@ def test_should_resolve_plugins_through_pipeline(
 
     plugin_resolve(
         dependencies=[
-            "documentation>=1.0.0",
+            "familyos.documentation>=1.0.0",
         ],
         repository_name="official",
         repository_url="https://plugins.familyos.dev",
@@ -84,14 +84,11 @@ def test_should_resolve_plugins_through_pipeline(
     assert repository.repository_type == "remote"
 
     assert len(dependencies) == 1
-    assert dependencies[0].name == "documentation"
+    assert dependencies[0].name == "familyos.documentation"
     assert str(dependencies[0].constraint_set) == ">=1.0.0"
 
     mock_success.assert_called_once_with(
-        (
-            "Plugin resolution completed successfully: "
-            "1 package(s) selected."
-        ),
+        ("Plugin resolution completed successfully: 1 package(s) selected."),
     )
 
 
@@ -99,16 +96,13 @@ def test_should_resolve_plugins_through_pipeline(
     "familyos_cli.interfaces.cli.commands.plugin_resolve.Output.diagnostic",
 )
 @patch(
-    "familyos_cli.interfaces.cli.commands.plugin_resolve."
-    "DiagnosticCliRenderer",
+    "familyos_cli.interfaces.cli.commands.plugin_resolve.DiagnosticCliRenderer",
 )
 @patch(
-    "familyos_cli.interfaces.cli.commands.plugin_resolve."
-    "ResolutionExplainer",
+    "familyos_cli.interfaces.cli.commands.plugin_resolve.ResolutionExplainer",
 )
 @patch(
-    "familyos_cli.interfaces.cli.commands.plugin_resolve."
-    "DiagnosticPipeline",
+    "familyos_cli.interfaces.cli.commands.plugin_resolve.DiagnosticPipeline",
 )
 @patch(
     "familyos_cli.interfaces.cli.commands.plugin_resolve.CommandContext",
@@ -123,10 +117,8 @@ def test_should_build_explain_render_and_display_diagnostics(
     resolution_plan = ResolutionPlan(
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="missing",
-                message=(
-                    "Required plugin dependency is not available."
-                ),
+                plugin="familyos.missing",
+                message=("Required plugin dependency is not available."),
             ),
         ],
     )
@@ -141,16 +133,12 @@ def test_should_build_explain_render_and_display_diagnostics(
     diagnostic = PluginResolutionDiagnostic(
         kind=DiagnosticKind.MISSING_DEPENDENCY,
         severity=DiagnosticSeverity.ERROR,
-        message=(
-            "Required plugin dependency is not available."
-        ),
-        plugin="missing",
+        message=("Required plugin dependency is not available."),
+        plugin="familyos.missing",
     )
 
     diagnostic_report = DiagnosticReport(
-        diagnostics=(
-            diagnostic,
-        ),
+        diagnostics=(diagnostic,),
     )
 
     diagnostic_pipeline = Mock()
@@ -169,7 +157,7 @@ def test_should_build_explain_render_and_display_diagnostics(
 
     plugin_resolve(
         dependencies=[
-            "missing",
+            "familyos.missing",
         ],
         repository_name="official",
         repository_url="https://plugins.familyos.dev",
@@ -205,7 +193,7 @@ def test_should_report_invalid_dependency_expression(
 ) -> None:
     plugin_resolve(
         dependencies=[
-            "documentation-invalid-constraint?",
+            "familyos.documentation-invalid-constraint?",
         ],
         repository_name="official",
         repository_url="https://plugins.familyos.dev",

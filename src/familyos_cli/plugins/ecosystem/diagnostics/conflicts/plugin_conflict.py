@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from familyos_cli.plugins.ecosystem.diagnostics.conflicts.conflict_reason import (
     ConflictReason,
 )
+from familyos_cli.plugins.identity import PluginId
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,15 +20,39 @@ class PluginConflict:
     requested_constraints: tuple[str, ...] = field(default_factory=tuple)
     available_versions: tuple[str, ...] = field(default_factory=tuple)
 
-    def concerns(self, plugin_name: str) -> bool:
+    def __post_init__(self) -> None:
+        """Validate plugin identifiers."""
+
+        canonical_plugin = PluginId(self.plugin).value
+
+        canonical_required_by = tuple(
+            PluginId(plugin_id).value for plugin_id in self.required_by
+        )
+
+        object.__setattr__(
+            self,
+            "plugin",
+            canonical_plugin,
+        )
+        object.__setattr__(
+            self,
+            "required_by",
+            canonical_required_by,
+        )
+
+    def concerns(self, plugin_id: str) -> bool:
         """Return whether this conflict concerns the given plugin."""
 
-        return self.plugin == plugin_name
+        canonical_plugin_id = PluginId(plugin_id).value
 
-    def is_required_by(self, plugin_name: str) -> bool:
+        return self.plugin == canonical_plugin_id
+
+    def is_required_by(self, plugin_id: str) -> bool:
         """Return whether the given plugin introduced this requirement."""
 
-        return plugin_name in self.required_by
+        canonical_plugin_id = PluginId(plugin_id).value
+
+        return canonical_plugin_id in self.required_by
 
     def has_available_versions(self) -> bool:
         """Return whether versions were available for the conflicted plugin."""

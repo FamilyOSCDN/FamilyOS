@@ -1,5 +1,7 @@
 """Tests for the plugin resolution diagnostic model."""
 
+import pytest
+
 from familyos_cli.plugins.ecosystem.diagnostics import (
     DiagnosticKind,
     DiagnosticSeverity,
@@ -14,26 +16,30 @@ def test_plugin_resolution_diagnostic_creation() -> None:
         kind=DiagnosticKind.VERSION_CONFLICT,
         severity=DiagnosticSeverity.ERROR,
         message="No compatible version exists.",
-        plugin="crypto",
+        plugin="familyos.crypto",
         details=(
-            "security requires crypto>=3.0",
-            "backup requires crypto<3.0",
+            "familyos.security requires familyos.crypto>=3.0",
+            "familyos.backup requires familyos.crypto<3.0",
         ),
-        path=("application", "security", "crypto"),
+        path=(
+            "familyos.application",
+            "familyos.security",
+            "familyos.crypto",
+        ),
     )
 
     assert diagnostic.kind is DiagnosticKind.VERSION_CONFLICT
     assert diagnostic.severity is DiagnosticSeverity.ERROR
     assert diagnostic.message == "No compatible version exists."
-    assert diagnostic.plugin == "crypto"
+    assert diagnostic.plugin == "familyos.crypto"
     assert diagnostic.details == (
-        "security requires crypto>=3.0",
-        "backup requires crypto<3.0",
+        "familyos.security requires familyos.crypto>=3.0",
+        "familyos.backup requires familyos.crypto<3.0",
     )
     assert diagnostic.path == (
-        "application",
-        "security",
-        "crypto",
+        "familyos.application",
+        "familyos.security",
+        "familyos.crypto",
     )
 
 
@@ -51,6 +57,39 @@ def test_plugin_resolution_diagnostic_defaults() -> None:
     assert diagnostic.path == ()
 
 
+def test_plugin_resolution_diagnostic_rejects_non_canonical_plugin_id() -> None:
+    """A diagnostic should reject non-canonical plugin identifiers."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginResolutionDiagnostic(
+            kind=DiagnosticKind.UNKNOWN_PLUGIN,
+            severity=DiagnosticSeverity.ERROR,
+            message="Plugin is not available.",
+            plugin="security",
+        )
+
+
+def test_plugin_resolution_diagnostic_rejects_non_canonical_path_id() -> None:
+    """Diagnostic paths should use canonical plugin identifiers."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginResolutionDiagnostic(
+            kind=DiagnosticKind.DEPENDENCY_CYCLE,
+            severity=DiagnosticSeverity.ERROR,
+            message="Dependency cycle detected.",
+            path=(
+                "familyos.security",
+                "crypto",
+            ),
+        )
+
+
 def test_plugin_resolution_diagnostic_concerns_plugin() -> None:
     """A diagnostic identifies the plugin it concerns."""
 
@@ -58,11 +97,11 @@ def test_plugin_resolution_diagnostic_concerns_plugin() -> None:
         kind=DiagnosticKind.UNKNOWN_PLUGIN,
         severity=DiagnosticSeverity.ERROR,
         message="Plugin is not available.",
-        plugin="security",
+        plugin="familyos.security",
     )
 
-    assert diagnostic.concerns("security")
-    assert not diagnostic.concerns("backup")
+    assert diagnostic.concerns("familyos.security")
+    assert not diagnostic.concerns("familyos.backup")
 
 
 def test_plugin_resolution_diagnostic_severity_helpers() -> None:

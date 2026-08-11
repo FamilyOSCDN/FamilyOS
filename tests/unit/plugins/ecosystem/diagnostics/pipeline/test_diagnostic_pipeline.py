@@ -47,10 +47,8 @@ def test_default_pipeline_builds_conflict_report() -> None:
     plan = ResolutionPlan(
         diagnostics=[
             ResolutionDiagnostic(
-                plugin="security",
-                message=(
-                    "Required plugin dependency is not available."
-                ),
+                plugin="familyos.security",
+                message=("Required plugin dependency is not available."),
             ),
         ],
     )
@@ -60,10 +58,8 @@ def test_default_pipeline_builds_conflict_report() -> None:
     )
 
     assert len(report.diagnostics) == 1
-    assert report.diagnostics[0].plugin == "security"
-    assert report.diagnostics[0].kind is (
-        DiagnosticKind.MISSING_DEPENDENCY
-    )
+    assert report.diagnostics[0].plugin == "familyos.security"
+    assert report.diagnostics[0].kind is (DiagnosticKind.MISSING_DEPENDENCY)
     assert report.has_errors()
 
 
@@ -81,8 +77,8 @@ def test_pipeline_returns_successful_empty_report() -> None:
 def test_pipeline_aggregates_multiple_adapters() -> None:
     """The pipeline aggregates adapters in registration order."""
 
-    first = make_diagnostic("security")
-    second = make_diagnostic("backup")
+    first = make_diagnostic("familyos.security")
+    second = make_diagnostic("familyos.backup")
 
     pipeline = DiagnosticPipeline(
         adapters=(
