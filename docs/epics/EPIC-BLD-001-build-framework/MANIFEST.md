@@ -1,48 +1,152 @@
-# Build Framework
+# EPIC-BLD-001 — Build Framework Manifest
 
-# EPIC-BLD-001
+## Metadata
 
-## Manifest
+| Field                      | Value                    |
+| -------------------------- | ------------------------ |
+| Identifier                 | EPIC-BLD-001             |
+| Title                      | Build Framework          |
+| Version                    | 1.0.0                    |
+| Status                     | Completed                |
+| Type                       | Engineering Framework    |
+| Domain                     | Engineering Platform     |
+| Category                   | Build                    |
+| Owner                      | FamilyOS Engineering     |
+| Language                   | English                  |
+| Repository                 | FamilyOS                 |
+| Historical Publication Tag | `v4.7.0-build-framework` |
 
-## Overview
+---
 
-This manifest defines the canonical document inventory for:
+# 1. Purpose
+
+This manifest defines the authoritative canonical document inventory for:
 
 **EPIC-BLD-001 — Build Framework**
 
-The manifest establishes the official structure of the Build Framework documentation baseline and identifies the documents that collectively define the normative FamilyOS build engineering model.
+The Build Framework establishes the FamilyOS engineering foundation for transforming controlled engineering state into validated, traceable, reproducible, and trustworthy software artifacts.
 
-The Build Framework provides the architectural foundation for transforming controlled engineering state into validated, traceable, and trustworthy software artifacts.
+This manifest defines:
 
----
+* the canonical numbered document sequence;
+* the canonical control document set;
+* the complete canonical file inventory;
+* structural integrity requirements;
+* document ownership boundaries;
+* inventory validation requirements;
+* synchronization requirements;
+* historical publication context.
 
-# Manifest Status
-
-```text
-EPIC: EPIC-BLD-001
-Framework: Build Framework
-Document Set: Canonical
-Numbered Documents: 24
-Control Documents: 7
-Total Canonical Files: 31
-Structure Status: COMPLETE
-```
+The physical repository inventory and `EPIC.yaml` SHALL remain consistent with this manifest.
 
 ---
 
-# Canonical Directory
+# 2. Canonical Directory
+
+The canonical framework directory is:
 
 ```text
 docs/epics/EPIC-BLD-001-build-framework/
 ```
 
-This directory is the authoritative location for the EPIC-BLD-001 Build Framework documentation.
+All canonical Build Framework documents defined by this manifest SHALL exist directly within this directory.
 
 ---
 
-# Canonical Document Set
+# 3. Canonical Structure
 
-The Build Framework consists of exactly twenty-four numbered normative chapters.
+EPIC-BLD-001 contains two document classes:
+
+```text
+Numbered Framework Documents
+        +
+Control Documents
+```
+
+The numbered framework documentation consists of exactly:
+
+```text
+00 → 23
+```
+
+representing:
+
+```text
+24 numbered documents
+```
+
+The EPIC additionally contains:
+
+```text
+7 control documents
+```
+
+Therefore, the complete canonical inventory is:
+
+```text
+24 numbered documents
++
+7 control documents
+=
+31 canonical files
+```
+
+---
+
+# 4. Numbered Document Inventory
+
+| No. | Document                                   | Purpose                                                                                                                             |
+| --: | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+|  00 | `00-EPIC.md`                               | Defines the Build Framework EPIC, scope, objectives, responsibilities, structure, relationships, and expected outcomes.             |
+|  01 | `01-Context.md`                            | Defines the engineering context, build challenges, motivations, constraints, and need for a canonical Build Framework.              |
+|  02 | `02-Vision.md`                             | Defines the long-term FamilyOS build vision and desired engineering build state.                                                    |
+|  03 | `03-Build-Principles.md`                   | Establishes the foundational principles governing FamilyOS build behavior and engineering decisions.                                |
+|  04 | `04-Build-Architecture.md`                 | Defines the canonical Build Architecture, responsibilities, boundaries, components, flows, and integration model.                   |
+|  05 | `05-Build-Lifecycle.md`                    | Defines the lifecycle through which controlled inputs become candidate, validated, and trusted artifacts.                           |
+|  06 | `06-Build-Input-Requirements.md`           | Defines how build inputs are identified, classified, validated, controlled, and traced.                                             |
+|  07 | `07-Build-Inputs-and-Project-Structure.md` | Defines canonical build inputs and project-structure expectations relevant to build execution.                                      |
+|  08 | `08-Build-Toolchain.md`                    | Defines build toolchain requirements, ownership, versioning, reproducibility, validation, and governance.                           |
+|  09 | `09-Build-Environment-Management.md`       | Defines build environment identity, isolation, consistency, lifecycle, validation, and governance.                                  |
+|  10 | `10-Dependency-Management.md`              | Defines dependency declaration, resolution, pinning, verification, lifecycle, and build-related governance.                         |
+|  11 | `11-Build-Configuration.md`                | Defines how build configuration is declared, resolved, validated, versioned, applied, observed, and governed.                       |
+|  12 | `12-Build-Philosophy.md`                   | Defines the conceptual meaning of build success, validated output, trusted artifact, reproducibility, and build trust.              |
+|  13 | `13-Build-Execution.md`                    | Defines canonical build execution semantics, stages, state transitions, failure behavior, and evidence expectations.                |
+|  14 | `14-Artifact-Management.md`                | Defines artifact identity, storage, integrity, provenance, metadata, lifecycle, and trust requirements.                             |
+|  15 | `15-Build-Validation.md`                   | Defines validation requirements for build inputs, execution, outputs, artifacts, evidence, and framework compliance.                |
+|  16 | `16-Build-Governance.md`                   | Defines authority, ownership, decision structures, exceptions, policy control, escalation, and governance responsibilities.         |
+|  17 | `17-Build-Automation-and-CI.md`            | Defines build automation principles and integration with FamilyOS continuous integration workflows.                                 |
+|  18 | `18-Roadmap.md`                            | Defines progressive implementation, adoption, automation, reproducibility, assurance, and long-term evolution.                      |
+|  19 | `19-References.md`                         | Identifies authoritative FamilyOS artifacts and relevant external concepts that constrain or complement the Build Framework.        |
+|  20 | `20-Validation.md`                         | Defines how the Build Framework itself is structurally, semantically, architecturally, and operationally validated.                 |
+|  21 | `21-Summary.md`                            | Consolidates the Build Framework's principal concepts, responsibilities, boundaries, and engineering outcomes.                      |
+|  22 | `22-Release.md`                            | Defines release readiness, publication, validation, versioning, governance, and release handoff requirements.                       |
+|  23 | `23-Implementation-Checklist.md`           | Defines the progressive implementation path from normative Build Framework documentation to executable FamilyOS build capabilities. |
+
+---
+
+# 5. Control Document Inventory
+
+The Build Framework contains exactly seven canonical control documents.
+
+| Document              | Purpose                                                                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EPIC-BLD-001.md`     | Provides the concise EPIC-level definition, scope, objectives, dependencies, completion state, and success criteria.                                |
+| `EPIC.yaml`           | Provides the machine-readable EPIC contract, canonical inventory, dependencies, quality gates, baseline state, and historical publication metadata. |
+| `README.md`           | Provides the human-readable entry point and navigation guide for the Build Framework.                                                               |
+| `MANIFEST.md`         | Defines the authoritative canonical inventory and structural contract for EPIC-BLD-001.                                                             |
+| `CHANGELOG.md`        | Records significant Build Framework changes and historical evolution.                                                                               |
+| `VALIDATION.md`       | Records actual validation execution, evidence, results, and final revalidation state.                                                               |
+| `Revision-History.md` | Preserves the historical revision and publication record of the Build Framework.                                                                    |
+
+These documents are canonical framework artifacts.
+
+They are not optional metadata.
+
+---
+
+# 6. Complete Canonical Inventory
+
+The complete canonical inventory is:
 
 ```text
 00-EPIC.md
@@ -69,17 +173,6 @@ The Build Framework consists of exactly twenty-four numbered normative chapters.
 21-Summary.md
 22-Release.md
 23-Implementation-Checklist.md
-```
-
-No additional numbered chapter is part of the canonical EPIC-BLD-001 baseline.
-
----
-
-# Control Document Set
-
-The Build Framework contains seven control documents.
-
-```text
 EPIC-BLD-001.md
 EPIC.yaml
 README.md
@@ -89,347 +182,45 @@ VALIDATION.md
 Revision-History.md
 ```
 
-These documents govern framework identity, navigation, lifecycle state, inventory, revision history, validation, and release traceability.
-
----
-
-# Complete Canonical Inventory
-
-The final canonical EPIC-BLD-001 directory contains:
+Canonical inventory:
 
 ```text
-EPIC-BLD-001-build-framework/
-├── 00-EPIC.md
-├── 01-Context.md
-├── 02-Vision.md
-├── 03-Build-Principles.md
-├── 04-Build-Architecture.md
-├── 05-Build-Lifecycle.md
-├── 06-Build-Input-Requirements.md
-├── 07-Build-Inputs-and-Project-Structure.md
-├── 08-Build-Toolchain.md
-├── 09-Build-Environment-Management.md
-├── 10-Dependency-Management.md
-├── 11-Build-Configuration.md
-├── 12-Build-Philosophy.md
-├── 13-Build-Execution.md
-├── 14-Artifact-Management.md
-├── 15-Build-Validation.md
-├── 16-Build-Governance.md
-├── 17-Build-Automation-and-CI.md
-├── 18-Roadmap.md
-├── 19-References.md
-├── 20-Validation.md
-├── 21-Summary.md
-├── 22-Release.md
-├── 23-Implementation-Checklist.md
-├── CHANGELOG.md
-├── EPIC-BLD-001.md
-├── EPIC.yaml
-├── MANIFEST.md
-├── README.md
-├── Revision-History.md
-└── VALIDATION.md
-```
-
-The canonical baseline therefore contains:
-
-```text
-24 numbered documents
-+
-7 control documents
-=
-31 canonical files
+Numbered Documents: 24
+Control Documents:   7
+Canonical Files:     31
+Canonical Range:     00 → 23
 ```
 
 ---
 
-# Normative Hierarchy
+# 7. Structural Requirements
 
-The Build Framework documentation follows the following conceptual hierarchy:
+The canonical Build Framework SHALL satisfy all of the following:
 
 ```text
-EPIC Definition
-      ↓
-Context
-      ↓
-Vision
-      ↓
-Principles
-      ↓
-Architecture
-      ↓
-Lifecycle
-      ↓
-Build Inputs
-      ↓
-Toolchain / Environment / Dependencies / Configuration
-      ↓
-Build Philosophy
-      ↓
-Execution
-      ↓
-Artifact Management
-      ↓
-Build Validation
-      ↓
-Governance
-      ↓
-Automation and CI
-      ↓
-Roadmap
-      ↓
-References
-      ↓
-Framework Validation
-      ↓
-Summary
-      ↓
-Framework Release
-      ↓
-Implementation Checklist
+Exactly 24 numbered documents
+Sequential numbering from 00 through 23
+Exactly one canonical document for each number
+Exactly 7 control documents
+Exactly 31 canonical files
+No duplicate document numbers
+No missing canonical numbers
+No empty required canonical documents
+No unresolved legacy migration files
+No unresolved temporary framework files
+Canonical filenames match their responsibilities
+EPIC.yaml matches the physical repository inventory
+MANIFEST.md matches the physical repository inventory
+Control documents describe the same framework state
 ```
 
-This hierarchy reflects the progression from architectural intent to implementation readiness.
+Any violation SHALL be treated as a structural integrity finding until resolved or explicitly governed.
 
 ---
 
-# Document Responsibilities
+# 8. Numbering Integrity
 
-## `00-EPIC.md`
-
-Defines the complete EPIC mission, scope, boundaries, deliverables, acceptance criteria, and strategic role of the Build Framework.
-
----
-
-## `01-Context.md`
-
-Defines the engineering context, problem statement, platform needs, risks, and motivation for the Build Framework.
-
----
-
-## `02-Vision.md`
-
-Defines the strategic target state for FamilyOS build engineering.
-
----
-
-## `03-Build-Principles.md`
-
-Defines the durable principles governing FamilyOS build behavior independently of specific tools.
-
----
-
-## `04-Build-Architecture.md`
-
-Defines the canonical structural architecture of the FamilyOS build capability.
-
----
-
-## `05-Build-Lifecycle.md`
-
-Defines the temporal lifecycle from build design and preparation through artifact trust, handoff, maintenance, and continuous improvement.
-
----
-
-## `06-Build-Input-Requirements.md`
-
-Defines what constitutes a build input and how build-relevant inputs must be identified, controlled, validated, and traced.
-
----
-
-## `07-Build-Inputs-and-Project-Structure.md`
-
-Defines how repository structure, source layout, generated state, outputs, and project organization participate in reliable build behavior.
-
----
-
-## `08-Build-Toolchain.md`
-
-Defines the runtime, build tooling, validation tooling, generation tooling, and toolchain governance model.
-
----
-
-## `09-Build-Environment-Management.md`
-
-Defines environment discovery, provisioning, isolation, validation, reproducibility, and environment governance.
-
----
-
-## `10-Dependency-Management.md`
-
-Defines dependency declaration, resolution, locking, compatibility, security, updates, and dependency traceability.
-
----
-
-## `11-Build-Configuration.md`
-
-Defines canonical build configuration, configuration precedence, profiles, validation, overrides, and effective configuration behavior.
-
----
-
-## `12-Build-Philosophy.md`
-
-Defines the conceptual meaning of build trust and establishes the distinction between successful execution, generated output, validated artifact, and trusted artifact.
-
----
-
-## `13-Build-Execution.md`
-
-Defines canonical build execution, orchestration, stages, workspaces, failure handling, output collection, and execution observability.
-
----
-
-## `14-Artifact-Management.md`
-
-Defines artifact discovery, identity, metadata, integrity, lifecycle, storage, retention, trust, and downstream handoff.
-
----
-
-## `15-Build-Validation.md`
-
-Defines validation of individual FamilyOS builds and artifacts.
-
-It covers validation of inputs, configuration, dependencies, toolchain, environment, execution, artifacts, integrity, evidence, and applicable policies.
-
----
-
-## `16-Build-Governance.md`
-
-Defines ownership, decision authority, review expectations, exceptions, technical debt, risk, standards, and framework evolution.
-
----
-
-## `17-Build-Automation-and-CI.md`
-
-Defines how automation and Continuous Integration execute canonical FamilyOS build semantics.
-
----
-
-## `18-Roadmap.md`
-
-Defines the incremental maturity path from build foundation through standardization, automation, artifact trust, reproducibility, release integration, and future supply-chain assurance.
-
----
-
-## `19-References.md`
-
-Defines internal FamilyOS references, external standards, architecture relationships, and reference precedence relevant to the Build Framework.
-
----
-
-## `20-Validation.md`
-
-Defines validation of EPIC-BLD-001 as a framework.
-
-It is distinct from `15-Build-Validation.md`, which validates individual builds.
-
----
-
-## `21-Summary.md`
-
-Provides the consolidated architectural summary of the complete Build Framework.
-
----
-
-## `22-Release.md`
-
-Defines the conditions for validating, versioning, tagging, and releasing EPIC-BLD-001 as an authoritative FamilyOS engineering framework.
-
-It does not replace EPIC-REL-001.
-
----
-
-## `23-Implementation-Checklist.md`
-
-Translates the normative Build Framework into an actionable and maturity-aware implementation sequence.
-
----
-
-# Control Document Responsibilities
-
-## `EPIC-BLD-001.md`
-
-Provides the high-level EPIC definition and framework summary.
-
-It must remain aligned with `00-EPIC.md`.
-
----
-
-## `EPIC.yaml`
-
-Provides machine-readable EPIC metadata and lifecycle information.
-
-It should identify:
-
-* EPIC ID;
-* title;
-* status;
-* framework relationships;
-* deliverables;
-* relevant decisions;
-* lifecycle state.
-
----
-
-## `README.md`
-
-Provides human-readable navigation and orientation for the Build Framework documentation set.
-
----
-
-## `MANIFEST.md`
-
-Defines the canonical document inventory and normative structure of EPIC-BLD-001.
-
----
-
-## `CHANGELOG.md`
-
-Records meaningful framework changes and framework release history.
-
----
-
-## `VALIDATION.md`
-
-Records the actual validation state and evidence for the Build Framework baseline.
-
----
-
-## `Revision-History.md`
-
-Records significant framework revisions and architectural evolution.
-
----
-
-# Normative Versus Control Documents
-
-The document set is divided into:
-
-```text
-Normative Chapters
-        ↓
-Define Build Framework Architecture And Behavior
-
-Control Documents
-        ↓
-Govern Framework Identity, Inventory, Status,
-Validation, Navigation, And History
-```
-
-Control documents must not silently redefine architecture established by normative chapters.
-
----
-
-# Structural Invariants
-
-The following structural invariants apply to the canonical Build Framework.
-
-## Invariant 1 — Numbered Document Count
-
-Exactly twenty-four numbered documents must exist.
-
-They must cover the sequence:
+The numbered sequence SHALL be continuous:
 
 ```text
 00
@@ -458,536 +249,551 @@ They must cover the sequence:
 23
 ```
 
----
-
-## Invariant 2 — Unique Numbering
-
-Each chapter number must occur exactly once.
-
-Duplicate numbered chapters are prohibited.
-
----
-
-## Invariant 3 — Control Document Count
-
-Exactly seven canonical control documents are defined by this manifest.
-
----
-
-## Invariant 4 — No Legacy Canonical Documents
-
-The following inherited filenames are not part of the canonical Build Framework:
+There SHALL be:
 
 ```text
-01-Introduction.md
-03-Engineering-Principles.md
-04-Repository-Architecture.md
-05-Development-Workflow.md
-06-Coding-Standards.md
-07-Project-Structure.md
-08-Toolchain.md
-09-Environment-Management.md
-11-Configuration-Management.md
-13-Testing-Philosophy.md
-14-Documentation-Philosophy.md
-15-Quality-Philosophy.md
-16-Technical-Governance.md
-17-Engineering-Lifecycle.md
+24 / 24 numbered documents present
+0 missing numbers
+0 duplicate numbers
 ```
 
-These names belong to the previous generic framework structure and must not coexist as canonical EPIC-BLD-001 chapters.
+Additional numbered documents SHALL NOT be introduced without a governed framework structure change.
 
 ---
 
-## Invariant 5 — No Migration Files
+# 9. Control Document Integrity
 
-Temporary migration documents such as:
+The required control documents are:
 
 ```text
-legacy-Introduction.md
-legacy-Project-Structure.md
+EPIC-BLD-001.md
+EPIC.yaml
+README.md
+MANIFEST.md
+CHANGELOG.md
+VALIDATION.md
+Revision-History.md
 ```
 
-must not exist in the validated framework baseline.
-
----
-
-## Invariant 6 — No Temporary Files
-
-Temporary files such as:
+Expected result:
 
 ```text
-*.tmp.md
+7 / 7 control documents present
 ```
 
-must not form part of the canonical baseline.
+A missing control document invalidates the canonical inventory.
 
 ---
 
-## Invariant 7 — No Empty Normative Documents
+# 10. File Completeness
 
-Every numbered document must contain substantive framework content.
+Every canonical file SHALL:
 
-An empty canonical chapter invalidates structural completeness.
+* exist;
+* be readable;
+* be non-empty;
+* contain substantive content appropriate to its responsibility;
+* use its canonical filename;
+* remain part of the governed framework inventory.
 
----
-
-## Invariant 8 — Manifest Consistency
-
-The actual repository tree must match this manifest before EPIC-BLD-001 can be declared structurally validated.
-
----
-
-# Framework Architecture Coverage
-
-The canonical document set collectively covers:
-
-```text
-Build Context
-      ↓
-Build Principles
-      ↓
-Build Architecture
-      ↓
-Build Lifecycle
-      ↓
-Build Inputs
-      ↓
-Project Structure
-      ↓
-Toolchain
-      ↓
-Environment
-      ↓
-Dependencies
-      ↓
-Configuration
-      ↓
-Build Execution
-      ↓
-Artifact Management
-      ↓
-Artifact Validation
-      ↓
-Build Evidence
-      ↓
-Automation / CI
-      ↓
-Governance
-      ↓
-Release Handoff
-```
-
-No single chapter is expected to redefine the complete framework independently.
-
-The framework emerges from the coordinated normative document set.
+Placeholder-only files do not satisfy canonical completeness.
 
 ---
 
-# Build Trust Model
+# 11. Canonical Ownership
 
-The canonical framework preserves the following progression:
+The Build Framework owns detailed engineering guidance for:
 
-```text
-Build Execution
-      ↓
-Raw Output
-      ↓
-Candidate Artifact
-      ↓
-Artifact Validation
-      ↓
-Validated Artifact
-      ↓
-Build Evidence
-      ↓
-Trusted Artifact
-```
+* Build Principles;
+* Build Architecture;
+* Build Lifecycle;
+* build inputs;
+* build input requirements;
+* build project structure;
+* Build Toolchain;
+* Build Environment Management;
+* dependency management as it affects builds;
+* Build Configuration;
+* Build Philosophy;
+* Build Execution;
+* Artifact Management;
+* Build Validation;
+* Build Governance;
+* Build Automation;
+* CI build integration;
+* build evidence;
+* artifact trust;
+* build reproducibility;
+* build traceability;
+* release handoff from the build domain.
 
-The manifest considers this distinction architecturally normative across the Build Framework.
+These responsibilities SHALL remain coherent across the numbered and control documents.
 
 ---
 
-# Build And Release Boundary
+# 12. Framework Boundaries
 
-EPIC-BLD-001 ends with:
+EPIC-BLD-001 operates within the broader FamilyOS engineering architecture.
+
+The Build Framework depends on foundational engineering capabilities including:
+
+* `EPIC-ENG-001` — Engineering Foundation;
+* `EPIC-DOC-001` — Documentation Foundation;
+* `EPIC-TST-001` — Testing Framework;
+* `EPIC-QLT-001` — Quality Framework.
+
+It integrates with specialized frameworks including:
+
+* `EPIC-REL-001` — Release Framework;
+* `EPIC-OBS-001` — Observability Framework;
+* `EPIC-SEC-001` — Security Framework;
+* `EPIC-OPS-001` — Operations Framework.
+
+The Build Framework SHALL NOT silently absorb responsibilities owned by those specialized frameworks.
+
+---
+
+# 13. Build and Release Boundary
+
+The Build Framework owns the transformation of controlled engineering state into validated build artifacts and associated evidence.
+
+The Release Framework owns release planning, release candidates, release approval, publication, distribution, rollback, and release lifecycle governance.
+
+The Build Framework may provide a release handoff containing:
 
 ```text
 Trusted Artifact Set
-        +
+Build ID
+Artifact Manifest
+Artifact Digests
+Validation Result
 Build Evidence
+Provenance Information
 ```
 
-The downstream relationship is:
-
-```text
-EPIC-BLD-001
-Build Framework
-      ↓
-Trusted Artifact + Evidence
-      ↓
-EPIC-REL-001
-Release Framework
-```
-
-Release authorization, version selection, promotion, publication, and distribution remain outside the Build Framework boundary.
+The Build Framework SHALL NOT treat artifact generation alone as release publication.
 
 ---
 
-# Cross-Framework Relationships
+# 14. Build Trust Model
 
-EPIC-BLD-001 participates in the broader FamilyOS Engineering Platform.
-
-Its primary relationships include:
+The canonical Build Framework distinguishes between:
 
 ```text
-EPIC-ENG-001
-Engineering Foundation
+Successful Execution
         ↓
-EPIC-TST-001
-Testing Framework
+Generated Output
         ↓
-EPIC-QLT-001
-Quality Framework
+Validated Artifact
         ↓
-EPIC-DOC-001
-Documentation Framework
-        ↓
-EPIC-PLUGIN-002
-Plugin Compliance Framework
-        ↓
-EPIC-BLD-001
-Build Framework
-        ↓
-EPIC-REL-001
-Release Framework
-```
-
-This sequence represents architectural relationships and lifecycle integration.
-
-It does not imply that every framework owns the responsibilities of the framework preceding or following it.
-
----
-
-# Engineering Foundation Relationship
-
-EPIC-BLD-001 specializes engineering principles established by:
-
-```text
-EPIC-ENG-001 — Engineering Foundation
-```
-
-The Build Framework must remain compatible with FamilyOS engineering governance, repository architecture, development practices, and technical standards.
-
----
-
-# Testing Framework Relationship
-
-EPIC-BLD-001 integrates with:
-
-```text
-EPIC-TST-001 — Testing Framework
-```
-
-The Build Framework may invoke or consume test execution and evidence.
-
-Testing semantics remain governed by EPIC-TST-001.
-
----
-
-# Quality Framework Relationship
-
-EPIC-BLD-001 integrates with:
-
-```text
-EPIC-QLT-001 — Quality Framework
-```
-
-Build validation and Build Evidence may contribute to quality gates.
-
-Quality policy remains governed by EPIC-QLT-001.
-
----
-
-# Documentation Framework Relationship
-
-EPIC-BLD-001 documentation follows:
-
-```text
-EPIC-DOC-001 — Documentation Framework
-```
-
-Documentation architecture and governance remain external to Build Framework ownership.
-
----
-
-# Plugin Compliance Relationship
-
-Official plugin build workflows may integrate:
-
-```text
-EPIC-PLUGIN-002 — Plugin Compliance Framework
-```
-
-Build automation may execute compliance checks or consume compliance evidence.
-
-Compliance rules remain governed by EPIC-PLUGIN-002.
-
----
-
-# Release Framework Relationship
-
-EPIC-BLD-001 provides the trusted artifact boundary required by:
-
-```text
-EPIC-REL-001 — Release Framework
-```
-
-The preferred long-term relationship is:
-
-```text
-Controlled Source
-      ↓
-Build
-      ↓
-Validate
-      ↓
 Trusted Artifact
-      ↓
-Release Evaluation
-      ↓
-Promote Same Artifact
 ```
+
+A successful build command does not by itself establish artifact trust.
+
+Artifact trust requires controlled production conditions, validation, traceability, and sufficient evidence to understand the artifact's origin.
 
 ---
 
-# Framework Validation Relationship
+# 15. Build Evidence
 
-Two distinct validation responsibilities exist within the canonical document set.
+Build Evidence may include:
 
-```text
-15-Build-Validation.md
-        ↓
-Validates Builds And Artifacts
+* source revision identity;
+* Build ID;
+* build configuration;
+* toolchain identity;
+* environment identity;
+* dependency state;
+* execution metadata;
+* validation results;
+* artifact identity;
+* artifact digests;
+* provenance information;
+* timestamps;
+* relevant quality evidence.
 
-20-Validation.md
-        ↓
-Validates EPIC-BLD-001 Itself
-```
-
-These responsibilities must remain separate.
-
----
-
-# Framework Release Relationship
-
-`22-Release.md` defines release of the Build Framework documentation baseline.
-
-It does not define software release behavior.
-
-The distinction is:
-
-```text
-22-Release.md
-      ↓
-Release Of EPIC-BLD-001 Framework
-
-EPIC-REL-001
-      ↓
-Release Of FamilyOS Software
-```
+Evidence requirements SHALL remain aligned with Build Validation and release handoff responsibilities.
 
 ---
 
-# Implementation Relationship
+# 16. Repository Inventory Contract
 
-`23-Implementation-Checklist.md` translates the normative architecture into implementation work.
+The physical repository SHALL match this manifest.
 
-The hierarchy remains:
-
-```text
-Normative Framework
-        ↓
-Implementation Checklist
-        ↓
-Engineering Implementation
-```
-
-Implementation must remain subordinate to the normative framework.
-
----
-
-# Manifest Validation
-
-This manifest should be validated against the repository before framework closure.
-
-Recommended structural checks include:
+The expected top-level inventory is:
 
 ```text
-tree docs/epics/EPIC-BLD-001-build-framework
+31 files
 ```
 
-and:
-
-```text
-find docs/epics/EPIC-BLD-001-build-framework \
-  -maxdepth 1 \
-  -type f \
-  -name '[0-9][0-9]-*.md' \
-  | sort
-```
-
-The expected numbered-document count is:
-
-```text
-24
-```
-
----
-
-# Duplicate Number Validation
-
-The numbered sequence must contain no duplicate numbers.
-
-Expected result:
-
-```text
-No duplicates
-```
-
----
-
-# Empty File Validation
-
-The canonical directory must contain no empty normative or control document.
-
-Expected result:
-
-```text
-No empty files
-```
-
----
-
-# Legacy File Validation
-
-The validated baseline must contain no migration files matching:
-
-```text
-legacy-*
-```
-
-Expected result:
-
-```text
-No legacy files
-```
-
----
-
-# Canonical File Count
-
-The expected final canonical file count is:
-
-```text
-31
-```
-
-composed of:
+with:
 
 ```text
 24 numbered documents
 7 control documents
 ```
 
+Validation SHALL compare the declared inventory against the physical filesystem.
+
+Expected result:
+
+```text
+Declared Files:   31
+Filesystem Files: 31
+Missing Files:    0
+Unexpected Files: 0
+```
+
 ---
 
-# Change Control
+# 17. EPIC.yaml Synchronization
 
-Changes to this manifest require review whenever they modify:
+`EPIC.yaml` SHALL declare the same canonical structure:
 
-* canonical chapter count;
-* chapter numbering;
-* canonical filenames;
-* document responsibilities;
-* control-document inventory;
-* normative hierarchy;
+```yaml
+structure:
+  numbered_documents: 24
+  canonical_document_range: "00-23"
+  control_documents: 7
+  canonical_files: 31
+```
+
+Its deliverable inventory SHALL contain exactly the 31 files defined by this manifest.
+
+The following relationship SHALL hold:
+
+```text
+EPIC.yaml deliverables
+        =
+MANIFEST.md inventory
+        =
+physical repository inventory
+```
+
+---
+
+# 18. Validation Authority
+
+This manifest defines structure.
+
+It does not independently prove that engineering quality gates have passed.
+
+Actual validation evidence belongs in:
+
+```text
+VALIDATION.md
+```
+
+Normative validation requirements belong primarily in:
+
+```text
+20-Validation.md
+```
+
+Release requirements belong primarily in:
+
+```text
+22-Release.md
+```
+
+Only evidence from actual execution SHALL be used to convert pending engineering checks into PASS results.
+
+---
+
+# 19. Revalidation State
+
+The Build Framework has a historical published baseline.
+
+Historical publication:
+
+```text
+Framework Version: 1.0.0
+Historical Tag:     v4.7.0-build-framework
+Publication State:  Published
+```
+
+The historical publication tag SHALL remain immutable.
+
+The current documentation normalization is a post-release correction and revalidation activity.
+
+Until actual revalidation evidence is recorded in `VALIDATION.md`, the machine-readable baseline may remain:
+
+```yaml
+repository_validation_status: pending_revalidation
+final_validation_status: pending_revalidation
+```
+
+The historical publication itself is not invalidated by this revalidation process.
+
+---
+
+# 20. Historical Tag Immutability
+
+The historical publication tag is:
+
+```text
+v4.7.0-build-framework
+```
+
+This tag identifies the original published Build Framework baseline.
+
+Post-release documentation normalization SHALL NOT move, recreate, overwrite, or reinterpret this historical tag.
+
+Corrections after historical publication SHALL be represented by subsequent commits.
+
+---
+
+# 21. Legacy File Policy
+
+Legacy, temporary, migration, backup, or duplicate framework files SHALL NOT remain in the canonical baseline unless explicitly governed.
+
+Examples include:
+
+```text
+*.bak
+*.tmp
+*.orig
+*.old
+*~
+migration scripts
+temporary generated files
+duplicate numbered documents
+obsolete canonical replacements
+```
+
+The canonical inventory SHALL remain explicit and inspectable.
+
+---
+
+# 22. Duplicate Responsibility Policy
+
+Documents that duplicate canonical responsibilities SHOULD NOT coexist indefinitely.
+
+Where historical restructuring produces overlapping documents:
+
+1. identify the canonical owner;
+2. migrate required information;
+3. preserve historical context where necessary;
+4. remove the obsolete active duplicate;
+5. update references;
+6. validate the resulting inventory.
+
+One framework responsibility SHOULD have one clear canonical documentation owner.
+
+---
+
+# 23. Naming Requirements
+
+Canonical filenames SHALL remain stable unless a governed structure change explicitly requires renaming.
+
+Renaming a canonical document requires coordinated updates to:
+
+* `EPIC.yaml`;
+* `MANIFEST.md`;
+* `README.md`;
+* local Markdown references;
+* validation rules;
+* revision history;
+* any affected governance documentation.
+
+Uncoordinated renaming SHALL be treated as an integrity defect.
+
+---
+
+# 24. Reference Integrity
+
+Local references between Build Framework documents SHALL resolve to existing canonical files.
+
+Validation SHOULD detect:
+
+* references to missing files;
+* obsolete canonical filenames;
+* broken local Markdown links;
+* references to removed migration files;
+* ambiguous document ownership.
+
+Reference integrity SHALL be recorded in `VALIDATION.md`.
+
+---
+
+# 25. Semantic Integrity
+
+Structural completeness alone is insufficient.
+
+The canonical corpus SHALL remain semantically coherent regarding:
+
+* Build Architecture;
+* Build Lifecycle;
+* build input terminology;
+* environment terminology;
+* dependency semantics;
+* configuration semantics;
+* Build Execution;
+* artifact terminology;
+* artifact trust;
+* Build Validation;
+* Build Governance;
+* automation responsibilities;
+* release handoff;
 * framework boundaries.
 
-Simple corrections that do not alter these properties may follow normal documentation maintenance procedures.
+Semantic contradictions SHALL be resolved before final revalidation is declared complete.
 
 ---
 
-# Manifest Authority
+# 26. Governance Integrity
 
-When uncertainty exists regarding the canonical EPIC-BLD-001 file inventory, this manifest defines the expected document structure.
-
-Architectural meaning remains governed by the normative chapters themselves.
-
-The manifest governs inventory, not detailed Build Framework semantics.
-
----
-
-# Completion Criteria
-
-The manifest is considered satisfied when:
-
-* all 24 numbered documents exist;
-* all seven control documents exist;
-* the canonical file count is 31;
-* chapter numbering is unique;
-* no numbered chapter is missing;
-* no legacy migration file remains;
-* no temporary framework file remains;
-* no canonical file is empty;
-* filenames match this manifest;
-* document responsibilities are represented;
-* the actual repository structure matches the declared canonical structure.
-
----
-
-# Current Structural State
-
-Following the EPIC-BLD-001 structural normalization, the expected canonical state is:
+Governance responsibilities SHALL remain aligned across:
 
 ```text
-Numbered Documents: 24
-Control Documents: 7
-Total Files: 31
-Duplicate Numbers: 0
-Empty Files: 0
-Legacy Files: 0
+16-Build-Governance.md
+20-Validation.md
+22-Release.md
+23-Implementation-Checklist.md
+EPIC-BLD-001.md
+EPIC.yaml
+MANIFEST.md
+VALIDATION.md
 ```
 
-This represents the required structural baseline for final Build Framework validation.
+A control document SHALL NOT silently redefine authority established by the normative framework.
 
 ---
 
-# Final Manifest
+# 27. Change Control
 
-The authoritative EPIC-BLD-001 documentation baseline is:
+Any modification to the canonical inventory SHALL evaluate:
+
+* whether numbering changes;
+* whether a canonical responsibility changes;
+* whether `EPIC.yaml` requires modification;
+* whether `MANIFEST.md` requires modification;
+* whether README navigation changes;
+* whether references require migration;
+* whether validation evidence must be regenerated;
+* whether the framework version should change;
+* whether downstream frameworks are affected.
+
+Structural changes SHALL be explicit and reviewable.
+
+---
+
+# 28. Validation Procedure
+
+The canonical inventory SHOULD be validated programmatically.
+
+Example conceptual validation:
 
 ```text
-EPIC-BLD-001
-Build Framework
-
-24 Normative Numbered Documents
-+
-7 Framework Control Documents
-=
-31 Canonical Files
+Load EPIC.yaml
+        ↓
+Read declared deliverables
+        ↓
+Enumerate physical files
+        ↓
+Compare inventories
+        ↓
+Validate numbered sequence
+        ↓
+Validate control documents
+        ↓
+Validate non-empty files
+        ↓
+Validate references
+        ↓
+Record evidence in VALIDATION.md
 ```
 
-The structure establishes a complete progression from Build Framework definition through architecture, lifecycle, execution, artifact trust, validation, governance, automation, release preparation, and implementation planning.
+Expected structural outcome:
+
+```text
+YAML Parse:            PASS
+Declared Deliverables: 31
+Filesystem Files:      31
+Numbered Documents:    24
+Control Documents:     7
+Missing Files:         0
+Unexpected Files:      0
+Empty Required Files:  0
+```
 
 ---
 
-# Final Principle
+# 29. Canonical Validation Commands
 
-The EPIC-BLD-001 manifest is founded on the following rule:
+Repository validation may include commands such as:
 
-> A framework cannot be considered governed if its own authoritative structure is ambiguous.
+```text
+ruff check .
+mypy src
+pytest -q
+git diff --check
+```
 
-This manifest therefore establishes one explicit, inspectable, and validated document inventory for the FamilyOS Build Framework.
+These commands are evidence-producing operations.
 
-Any future structural evolution of EPIC-BLD-001 must preserve that same principle of explicit architectural ownership and controlled change.
+Their results SHALL NOT be marked PASS in this manifest merely because they are required.
+
+Actual execution results belong in `VALIDATION.md`.
+
+---
+
+# 30. Structural Acceptance Criteria
+
+The manifest contract is satisfied when:
+
+* [x] the canonical numbered range is defined as `00 → 23`;
+* [x] exactly 24 numbered documents are declared;
+* [x] exactly 7 control documents are declared;
+* [x] exactly 31 canonical files are declared;
+* [x] every canonical filename is explicitly listed;
+* [x] framework ownership is defined;
+* [x] Build and Release responsibilities are separated;
+* [x] historical publication context is identified;
+* [x] historical tag immutability is defined;
+* [x] validation authority is separated from inventory authority.
+
+Repository-level confirmation of these conditions SHALL be recorded in `VALIDATION.md`.
+
+---
+
+# 31. Canonical Manifest Summary
+
+```text
+EPIC:                 EPIC-BLD-001
+Framework:            Build Framework
+Framework Version:    1.0.0
+Status:               Completed
+
+Numbered Documents:   24
+Canonical Range:      00 → 23
+Control Documents:    7
+Canonical Files:      31
+
+Historical Tag:       v4.7.0-build-framework
+Publication Status:   Published
+Historical Tag:       Immutable
+
+Manifest Authority:   Canonical Inventory
+Validation Evidence:  VALIDATION.md
+```
+
+---
+
+# 32. Final Manifest Principle
+
+The Build Framework cannot be governed reliably if its canonical structure is ambiguous.
+
+Therefore:
+
+> One Build Framework must have one explicit canonical inventory, one authoritative structural contract, clearly separated validation evidence, and an immutable historical publication record.
+
+---
+
+**Canonical Numbered Documents:** 24
+**Control Documents:** 7
+**Canonical Files:** 31
+**Canonical Range:** `00-23`
+**Historical Publication:** `v4.7.0-build-framework`
+**Manifest Status:** Complete

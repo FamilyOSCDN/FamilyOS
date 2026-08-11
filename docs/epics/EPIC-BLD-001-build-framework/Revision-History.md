@@ -1,717 +1,186 @@
-# Build Framework
+# EPIC-BLD-001 — Build Framework Revision History
 
-# EPIC-BLD-001
+## Document Purpose
 
-## Revision History
+This document records the evolution of **EPIC-BLD-001 — Build Framework**.
 
-## Overview
+It preserves the historical development, structural normalization, validation, governance, publication, and post-release revalidation context of the FamilyOS Build Framework.
 
-This document records the significant architectural and structural evolution of:
+The revision history distinguishes between:
 
-**EPIC-BLD-001 — Build Framework**
-
-Revision history differs from the changelog.
-
-`CHANGELOG.md` records meaningful changes to the framework baseline.
-
-`Revision-History.md` records the major stages through which the framework itself evolved.
-
-The purpose is to preserve architectural traceability and explain why the current Build Framework structure exists.
-
----
-
-# Revision Model
-
-A revision is considered significant when it changes one or more of the following:
-
-* framework scope;
-* architectural responsibilities;
-* canonical document structure;
-* build terminology;
-* artifact trust model;
-* Build/Release boundaries;
-* validation model;
-* governance model;
-* automation model;
-* implementation direction;
-* framework maturity.
-
-Minor editorial corrections do not require independent revision records.
+* framework document versioning;
+* repository publication tags;
+* immutable historical release states;
+* canonical structure normalization;
+* control-document synchronization;
+* validation evidence;
+* post-release corrections;
+* future framework evolution.
 
 ---
 
-# Revision Status
+# Current EPIC State
 
-```text
-EPIC: EPIC-BLD-001
-Framework: Build Framework
-Current Architecture: Canonical
-Numbered Documents: 24
-Control Documents: 7
-Canonical Files: 31
-Structural Normalization: Complete
-Final Validation: Pending
-Framework Release: Pending
-Implementation: Planned
-```
-
----
-
-# Revision 0 — Initial Framework Baseline
-
-## State
-
-The original EPIC-BLD-001 documentation followed a generic engineering-framework structure derived from earlier FamilyOS foundation work.
-
-The structure included documents such as:
-
-```text
-00-EPIC.md
-01-Context.md
-01-Introduction.md
-02-Vision.md
-03-Engineering-Principles.md
-04-Repository-Architecture.md
-05-Development-Workflow.md
-06-Coding-Standards.md
-07-Project-Structure.md
-08-Toolchain.md
-09-Environment-Management.md
-10-Dependency-Management.md
-11-Configuration-Management.md
-12-Build-Philosophy.md
-13-Testing-Philosophy.md
-14-Documentation-Philosophy.md
-15-Quality-Philosophy.md
-16-Technical-Governance.md
-17-Engineering-Lifecycle.md
-18-Roadmap.md
-19-References.md
-20-Validation.md
-21-Summary.md
-22-Release.md
-23-Implementation-Checklist.md
-```
-
-This provided useful initial coverage but inherited too many responsibilities from the generic Engineering Foundation.
+| Field                        | Value                     |
+| ---------------------------- | ------------------------- |
+| EPIC                         | EPIC-BLD-001              |
+| Title                        | Build Framework           |
+| Version                      | 1.0.0                     |
+| Status                       | Completed                 |
+| Owner                        | FamilyOS Engineering      |
+| Language                     | English                   |
+| Canonical Range              | `00 → 23`                 |
+| Numbered Documents           | 24                        |
+| Control Documents            | 7                         |
+| Canonical Files              | 31                        |
+| Historical Publication Tag   | `v4.7.0-build-framework`  |
+| Historical Publication State | Published                 |
+| Historical Tag Policy        | Immutable                 |
+| Current Activity             | Post-Release Revalidation |
 
 ---
 
-# Revision 0 Assessment
+# Revision Principles
 
-The initial structure created several architectural issues.
+The Build Framework revision history follows several principles.
 
-## Duplicate Responsibility
+## Historical Integrity
 
-Several documents represented responsibilities already governed by other FamilyOS frameworks.
+Published repository states SHALL remain historically identifiable.
 
-Examples included:
-
-* Testing Philosophy;
-* Documentation Philosophy;
-* Quality Philosophy;
-* generic Engineering Principles;
-* generic Development Workflow.
+A historical publication tag SHALL NOT be silently moved to a later commit because documentation is corrected or revalidated after publication.
 
 ---
 
-## Weak Build Specialization
+## Explicit Evolution
 
-Core Build Framework responsibilities were not sufficiently explicit.
+Material Build Framework changes should be recorded explicitly.
 
-Important concepts such as:
+Changes affecting:
 
+* Build Principles;
 * Build Architecture;
 * Build Lifecycle;
+* Build Context;
 * Build Inputs;
+* Build Toolchain;
+* Build Environments;
+* Dependency Management;
+* Build Configuration;
 * Build Execution;
 * Artifact Management;
 * Build Validation;
+* Build Governance;
 * Build Automation;
+* release handoff;
 
-did not have sufficiently clear canonical ownership.
-
----
-
-## Framework Boundary Ambiguity
-
-The initial structure made it harder to distinguish:
-
-```text
-General Engineering
-        ↓
-Build Engineering
-        ↓
-Release Engineering
-```
-
-A Build-specific architecture was therefore required.
+should remain traceable to an identifiable framework revision.
 
 ---
 
-# Revision 1 — Build Framework Specialization
+## Evidence-Based Validation
 
-## Objective
+Validation state SHALL reflect actual evidence.
 
-Transform EPIC-BLD-001 from a generic engineering-derived structure into a dedicated Build Framework.
+A validation requirement SHALL NOT be marked `PASS` solely because it is required by documentation.
 
----
-
-## Major Architectural Decision
-
-The framework was reorganized around Build-specific responsibilities.
-
-The new progression became:
-
-```text
-Context
-   ↓
-Vision
-   ↓
-Build Principles
-   ↓
-Build Architecture
-   ↓
-Build Lifecycle
-   ↓
-Build Inputs
-   ↓
-Toolchain
-   ↓
-Environment
-   ↓
-Dependencies
-   ↓
-Configuration
-   ↓
-Build Philosophy
-   ↓
-Build Execution
-   ↓
-Artifact Management
-   ↓
-Build Validation
-   ↓
-Build Governance
-   ↓
-Automation and CI
-```
-
-This became the architectural core of the revised EPIC.
+Only actual execution, review, inspection, or other accepted evidence may convert a pending validation requirement into a successful result.
 
 ---
 
-# Revision 1 — Chapter Migration
+## Structural Consistency
 
-The generic chapter:
+The canonical documentation inventory SHALL remain synchronized across:
 
-```text
-03-Engineering-Principles.md
-```
-
-was replaced by:
-
-```text
-03-Build-Principles.md
-```
-
-This moved responsibility from general engineering principles to principles specifically governing FamilyOS builds.
+* `EPIC.yaml`;
+* `MANIFEST.md`;
+* `README.md`;
+* `VALIDATION.md`;
+* `CHANGELOG.md`;
+* `Revision-History.md`;
+* `EPIC-BLD-001.md`.
 
 ---
 
-The generic chapter:
+# Versioning Model
+
+The Build Framework uses semantic versioning principles for framework evolution.
 
 ```text
-04-Repository-Architecture.md
+MAJOR.MINOR.PATCH
 ```
 
-was replaced by:
+Typical interpretation:
 
-```text
-04-Build-Architecture.md
-```
+| Change                              | Expected Version Impact             |
+| ----------------------------------- | ----------------------------------- |
+| Breaking framework semantics        | MAJOR                               |
+| Compatible framework capability     | MINOR                               |
+| Correction or clarification         | PATCH                               |
+| Post-release metadata normalization | Usually no framework version change |
+| Validation evidence refresh         | Usually no framework version change |
 
-This established explicit Build Architecture ownership.
+Version impact remains subject to FamilyOS release governance.
 
 ---
 
-The generic chapter:
+# Framework Version vs Repository Tag
+
+The Build Framework version and repository publication tag have different responsibilities.
+
+Framework version:
 
 ```text
-05-Development-Workflow.md
+1.0.0
 ```
 
-was replaced by:
+Historical repository publication tag:
 
 ```text
-05-Build-Lifecycle.md
+v4.7.0-build-framework
 ```
 
-This established a complete Build Lifecycle rather than reproducing development workflow concepts.
+These values SHALL NOT be assumed to follow the same numbering scheme.
 
 ---
 
-The generic chapter:
+# Canonical Structure History
+
+The current canonical Build Framework structure consists of:
 
 ```text
-06-Coding-Standards.md
+24 numbered documents
++
+7 control documents
+=
+31 canonical files
 ```
 
-was replaced by:
+Canonical numbered range:
 
 ```text
-06-Build-Input-Requirements.md
+00 → 23
 ```
 
-This introduced explicit governance of the state consumed by builds.
+The seven control documents are:
+
+```text
+EPIC-BLD-001.md
+EPIC.yaml
+README.md
+MANIFEST.md
+CHANGELOG.md
+VALIDATION.md
+Revision-History.md
+```
+
+This structure represents the authoritative current documentation organization for EPIC-BLD-001.
 
 ---
 
-The generic project-structure coverage evolved into:
+# Canonical Numbered Documents
 
-```text
-07-Build-Inputs-and-Project-Structure.md
-```
-
-This connected repository structure directly to Build Context and Build Inputs.
-
----
-
-The generic:
-
-```text
-08-Toolchain.md
-```
-
-became:
-
-```text
-08-Build-Toolchain.md
-```
-
-This specialized tooling responsibilities around build execution and validation.
-
----
-
-The generic:
-
-```text
-09-Environment-Management.md
-```
-
-became:
-
-```text
-09-Build-Environment-Management.md
-```
-
-This established explicit control of environment state affecting builds.
-
----
-
-The generic:
-
-```text
-11-Configuration-Management.md
-```
-
-became:
-
-```text
-11-Build-Configuration.md
-```
-
-This established deterministic build configuration and Build Profile semantics.
-
----
-
-# Revision 2 — Artifact Trust Architecture
-
-## Objective
-
-Define the difference between generated output and trusted software artifacts.
-
----
-
-## Trust Model Introduced
-
-The framework established:
-
-```text
-Build Execution
-      ↓
-Raw Output
-      ↓
-Candidate Artifact
-      ↓
-Artifact Validation
-      ↓
-Validated Artifact
-      ↓
-Build Evidence
-      ↓
-Trusted Artifact
-```
-
-This created one of the most important architectural distinctions in EPIC-BLD-001:
-
-```text
-Build Success
-      ≠
-Artifact Trust
-```
-
----
-
-# Revision 2 — Artifact Management
-
-The former generic documentation responsibility at chapter 14 was replaced by:
-
-```text
-14-Artifact-Management.md
-```
-
-Artifact Management became responsible for:
-
-* artifact discovery;
-* artifact identity;
-* artifact classification;
-* artifact metadata;
-* artifact integrity;
-* artifact manifests;
-* artifact lifecycle;
-* artifact storage;
-* artifact retention;
-* trusted artifact handling;
-* downstream handoff.
-
----
-
-# Revision 2 — Build Validation
-
-The former generic Quality Philosophy chapter was replaced by:
-
-```text
-15-Build-Validation.md
-```
-
-This established validation specifically for builds and generated artifacts.
-
-The framework explicitly separated:
-
-```text
-15-Build-Validation.md
-        ↓
-Individual Builds And Artifacts
-```
-
-from:
-
-```text
-20-Validation.md
-        ↓
-EPIC-BLD-001 Framework Itself
-```
-
----
-
-# Revision 3 — Build Governance
-
-## Objective
-
-Replace generic technical governance with Build-specific governance.
-
-The former:
-
-```text
-16-Technical-Governance.md
-```
-
-was replaced by:
-
-```text
-16-Build-Governance.md
-```
-
-Build Governance now covers:
-
-* ownership;
-* decision authority;
-* change classification;
-* review expectations;
-* exceptions;
-* architecture decisions;
-* RFC escalation;
-* technical debt;
-* risk;
-* framework evolution.
-
----
-
-# Revision 4 — Automation And CI Architecture
-
-## Objective
-
-Establish automation as an execution mechanism for canonical Build Framework semantics.
-
-The former generic:
-
-```text
-17-Engineering-Lifecycle.md
-```
-
-was removed.
-
-The canonical chapter became:
-
-```text
-17-Build-Automation-and-CI.md
-```
-
-The architectural relationship was defined as:
-
-```text
-Build Framework
-      ↓
-Canonical Build Interface
-      ↓
-Automation Adapter
-      ↓
-CI Environment
-```
-
-This established an important rule:
-
-> CI executes Build Architecture; CI does not define Build Architecture.
-
----
-
-# Revision 5 — Build Context Formalization
-
-## Objective
-
-Define the effective engineering state under which a build executes.
-
-The Build Context model was formalized as:
-
-```text
-Build Context =
-    Source State
-  + Effective Configuration
-  + Dependency State
-  + Toolchain State
-  + Environment State
-  + Build Profile
-  + Applicable Policies
-```
-
-Build Context became the conceptual foundation for:
-
-* reproducibility;
-* validation;
-* traceability;
-* diagnostics;
-* evidence;
-* artifact identity.
-
----
-
-# Revision 6 — Build Identity And Evidence
-
-## Objective
-
-Improve traceability between source state, execution, validation, and artifacts.
-
-The framework introduced the concept of a Build ID.
-
-```text
-Build ID
-│
-├── Source Revision
-├── Build Context
-├── Execution
-├── Artifact Set
-├── Validation
-└── Evidence
-```
-
-The Build Evidence model was also introduced.
-
-Potential evidence includes:
-
-```text
-Build ID
-Source Revision
-Target
-Build Profile
-Effective Configuration
-Dependency State
-Runtime Version
-Toolchain Versions
-Validation Results
-Artifact Manifest
-Artifact Digests
-```
-
----
-
-# Revision 7 — Build Profiles
-
-## Objective
-
-Allow build strictness to vary by purpose without creating separate Build Architectures.
-
-Initial conceptual profiles were defined as:
-
-```text
-development
-validation
-ci
-release-candidate
-```
-
-Profiles may affect:
-
-* validation requirements;
-* evidence requirements;
-* environment restrictions;
-* dependency control;
-* source-state requirements;
-* artifact requirements.
-
-They must remain implementations of the same Build Architecture.
-
----
-
-# Revision 8 — Build And Release Separation
-
-## Objective
-
-Define a strong architectural boundary between EPIC-BLD-001 and EPIC-REL-001.
-
-The Build Framework was defined to end with:
-
-```text
-Trusted Artifact Set
-        +
-Build Evidence
-```
-
-The Release Framework begins with evaluation of that trusted state.
-
----
-
-# Revision 8 — Release Boundary
-
-The following invariant was established:
-
-```text
-Artifact Trust
-      ≠
-Release Authorization
-```
-
-EPIC-BLD-001 owns:
-
-* build execution;
-* artifact generation;
-* artifact validation;
-* artifact integrity;
-* Build Evidence;
-* trusted artifact handoff.
-
-EPIC-REL-001 owns:
-
-* release evaluation;
-* versioning;
-* authorization;
-* promotion;
-* publication;
-* distribution.
-
----
-
-# Revision 9 — Build Once, Promote
-
-## Objective
-
-Reduce drift between validated artifacts and released artifacts.
-
-The preferred long-term model became:
-
-```text
-Source
-  ↓
-Build Once
-  ↓
-Validate
-  ↓
-Trusted Artifact
-  ↓
-Release Evaluation
-  ↓
-Promote Same Bytes
-```
-
-This established the principle that release processing should avoid silently rebuilding already validated artifacts.
-
----
-
-# Revision 10 — Reproducibility Model
-
-## Objective
-
-Define reproducibility as a progressive engineering capability.
-
-The initial target became:
-
-```text
-Equivalent Controlled Inputs
-            ↓
-Equivalent Logical Artifact
-```
-
-Higher maturity may eventually target:
-
-```text
-Equivalent Controlled Inputs
-            ↓
-Bit-for-Bit Equivalent Artifact
-```
-
-Bit-for-bit reproducibility was intentionally not made an immediate framework requirement.
-
----
-
-# Revision 11 — Supply Chain Maturity
-
-## Objective
-
-Ensure the Build Framework can evolve toward stronger software supply-chain assurance without architectural replacement.
-
-Future capabilities identified include:
-
-* Build Context fingerprinting;
-* stronger dependency locking;
-* reproducibility testing;
-* artifact manifests;
-* SBOM generation;
-* provenance;
-* controlled builders;
-* artifact signing;
-* dedicated artifact registries.
-
-These capabilities remain maturity options rather than immediate requirements.
-
----
-
-# Revision 12 — Canonical Structural Normalization
-
-## Objective
-
-Complete the migration to one unambiguous Build-specific document set.
-
-The final numbered structure became:
+The current numbered document sequence is:
 
 ```text
 00-EPIC.md
@@ -740,330 +209,973 @@ The final numbered structure became:
 23-Implementation-Checklist.md
 ```
 
-This established exactly:
+---
+
+# Revision Timeline
+
+## Version 1.0.0 — Build Framework Foundation
+
+**Status:** Completed
+**Historical Publication:** Published
+**Historical Tag:** `v4.7.0-build-framework`
+
+Version `1.0.0` establishes the first complete canonical FamilyOS Build Framework.
+
+The framework defines:
+
+* Build Principles;
+* Build Architecture;
+* Build Lifecycle;
+* Build Input Requirements;
+* Build Inputs and Project Structure;
+* Build Toolchain;
+* Build Environment Management;
+* Dependency Management;
+* Build Configuration;
+* Build Philosophy;
+* Build Execution;
+* Artifact Management;
+* Build Validation;
+* Build Governance;
+* Build Automation and CI;
+* Roadmap;
+* Validation;
+* Release;
+* Implementation Planning.
+
+The framework establishes builds as controlled engineering transformations that produce validated and traceable artifacts rather than treating successful command execution as sufficient evidence of trust.
+
+---
+
+# Version 1.0.0 Structural Baseline
+
+The canonical structural baseline for version `1.0.0` is:
+
+| Category           |     Count |
+| ------------------ | --------: |
+| Numbered Documents |        24 |
+| Control Documents  |         7 |
+| Canonical Files    |        31 |
+| Canonical Range    | `00 → 23` |
+
+This structure SHALL remain authoritative unless a future governed revision explicitly changes it.
+
+---
+
+# Historical Publication
+
+Version `1.0.0` was historically published under:
 
 ```text
-24 numbered documents
+v4.7.0-build-framework
 ```
 
-with no duplicate chapter numbers.
-
----
-
-# Revision 12 — Legacy Removal
-
-The following generic canonical filenames were removed:
+Historical publication commit:
 
 ```text
-01-Introduction.md
-03-Engineering-Principles.md
-04-Repository-Architecture.md
-05-Development-Workflow.md
-06-Coding-Standards.md
-07-Project-Structure.md
-08-Toolchain.md
-09-Environment-Management.md
-11-Configuration-Management.md
-13-Testing-Philosophy.md
-14-Documentation-Philosophy.md
-15-Quality-Philosophy.md
-16-Technical-Governance.md
-17-Engineering-Lifecycle.md
+1b457dd86ae4c94033fa29b96b4e6db135202171
 ```
 
-Temporary migration files were also removed.
-
-The final structure contains no `legacy-*` documents.
-
----
-
-# Revision 13 — Control Document Alignment
-
-## Objective
-
-Align the control plane with the canonical Build Framework structure.
-
-The control-document set was established as:
+The publication relationship is:
 
 ```text
-EPIC-BLD-001.md
-EPIC.yaml
-README.md
-MANIFEST.md
-CHANGELOG.md
-VALIDATION.md
-Revision-History.md
-```
-
-The complete canonical baseline therefore became:
-
-```text
-24 numbered documents
-+
-7 control documents
-=
-31 canonical files
+Build Framework 1.0.0
+        ↓
+Historical Repository Publication
+        ↓
+v4.7.0-build-framework
 ```
 
 ---
 
-# Revision 13 — Manifest
+# Historical Tag Immutability
 
-`MANIFEST.md` was aligned to define:
-
-* canonical directory;
-* numbered document inventory;
-* control document inventory;
-* structural invariants;
-* document responsibilities;
-* framework relationships;
-* expected file counts.
-
----
-
-# Revision 13 — EPIC Metadata
-
-`EPIC-BLD-001.md` and `EPIC.yaml` were aligned with:
-
-* Build-specific architecture;
-* Build Context;
-* artifact trust;
-* automation;
-* governance;
-* reproducibility;
-* release handoff;
-* implementation direction.
-
----
-
-# Revision 13 — Navigation
-
-`README.md` was aligned with the final Build-specific document sequence and cross-framework relationships.
-
----
-
-# Revision 13 — Change Tracking
-
-`CHANGELOG.md` was aligned to record the transition from the inherited generic framework structure to the canonical Build Framework.
-
----
-
-# Revision 14 — Implementation Planning
-
-## Objective
-
-Translate architecture into a controlled implementation path without making framework closure dependent on complete implementation.
-
-`23-Implementation-Checklist.md` was expanded to define progressive implementation levels covering:
-
-* canonical build interface;
-* Build Context;
-* Build ID;
-* inputs;
-* project structure;
-* toolchain;
-* environments;
-* dependencies;
-* configuration;
-* execution;
-* artifacts;
-* validation;
-* testing integration;
-* quality integration;
-* plugin compliance;
-* documentation;
-* evidence;
-* CI;
-* security;
-* governance;
-* release handoff;
-* reproducibility;
-* supply-chain maturity.
-
----
-
-# Framework Versus Implementation
-
-Revision history preserves the distinction:
+The historical publication tag:
 
 ```text
-Framework Complete
-       ≠
-Implementation Complete
+v4.7.0-build-framework
 ```
 
-The Build Framework may be closed architecturally while implementation continues according to its roadmap and implementation checklist.
+SHALL remain immutable.
+
+Post-release changes SHALL NOT:
+
+* move the historical tag;
+* delete and recreate the historical tag to reference a newer commit;
+* reinterpret the tag as the current repository state;
+* silently rewrite historical publication evidence.
+
+Corrections after publication SHALL instead be represented by ordinary repository commits and, where required, a future governed release.
 
 ---
 
-# Current Canonical Architecture
+# Historical Build Tags
 
-The current Build Framework architecture can be summarized as:
+The repository may contain earlier build-related tags such as:
 
 ```text
-Controlled Engineering State
-          ↓
+v1.9.0-build
+v2.0.0-build
+v4.7.0-build-framework
+```
+
+These tags represent historical repository states.
+
+They SHALL NOT be repurposed as aliases for the current normalized Build Framework state.
+
+---
+
+# Build Architecture Revision
+
+Version `1.0.0` establishes a dedicated Build Architecture separating:
+
+```text
 Build Inputs
-          ↓
 Build Context
-          ↓
-Pre-Build Validation
-          ↓
-Canonical Build Execution
-          ↓
-Candidate Artifacts
-          ↓
-Artifact Validation
-          ↓
+Build Environment
+Build Toolchain
+Dependency State
+Build Configuration
+Build Execution
+Artifact Management
+Build Validation
 Build Evidence
-          ↓
-Trusted Artifact Set
-          ↓
 Release Handoff
 ```
 
+This separation prevents Build Framework responsibilities from collapsing into a single build command or CI implementation.
+
 ---
 
-# Current Structural Baseline
+# Build Lifecycle Revision
 
-The canonical EPIC-BLD-001 baseline is:
+The framework establishes the canonical lifecycle:
+
+```text
+Build Inputs
+      ↓
+Build Context Resolution
+      ↓
+Environment Preparation
+      ↓
+Dependency Resolution
+      ↓
+Toolchain Validation
+      ↓
+Pre-Build Validation
+      ↓
+Build Execution
+      ↓
+Candidate Artifact Collection
+      ↓
+Artifact Validation
+      ↓
+Build Evidence Generation
+      ↓
+Trusted Artifact Finalization
+      ↓
+Release Handoff
+```
+
+This lifecycle remains a central architectural contract of the framework.
+
+---
+
+# Artifact Trust Revision
+
+Version `1.0.0` establishes the distinction between:
+
+```text
+Successful Execution
+Generated Output
+Candidate Artifact
+Validated Artifact
+Trusted Artifact
+```
+
+The framework explicitly rejects the assumption that successful command execution automatically establishes artifact trust.
+
+---
+
+# Artifact Integrity Revision
+
+The framework establishes that artifact integrity corresponds to the actual bytes that were validated.
+
+Once a validated artifact is treated as trusted, modifying those bytes invalidates the previous trust state.
+
+Downstream release workflows should prefer promotion of the exact validated bytes.
+
+---
+
+# Build Evidence Revision
+
+Version `1.0.0` establishes Build Evidence as a first-class framework concept.
+
+Evidence may include:
+
+* source revision;
+* Build ID;
+* effective configuration;
+* dependency state;
+* environment identity;
+* toolchain identity;
+* execution results;
+* validation results;
+* artifact inventory;
+* artifact digests;
+* provenance;
+* timestamps.
+
+This evidence supports traceability, reproducibility, diagnostics, governance, and release handoff.
+
+---
+
+# Build and Release Boundary Revision
+
+Version `1.0.0` clarifies that:
+
+```text
+Build
+```
+
+owns:
+
+* artifact production;
+* artifact validation;
+* artifact trust;
+* build evidence;
+* build provenance;
+* release handoff preparation.
+
+Whereas:
+
+```text
+Release
+```
+
+owns:
+
+* release planning;
+* release candidates;
+* release approval;
+* publication;
+* distribution;
+* rollback;
+* release lifecycle governance.
+
+The Build Framework SHALL NOT silently absorb Release authority.
+
+---
+
+# Testing Boundary Revision
+
+The framework may invoke or consume tests during build readiness.
+
+The Testing Framework remains authoritative for:
+
+* test architecture;
+* testing levels;
+* test semantics;
+* test design;
+* testing evidence.
+
+Build consumes testing evidence where necessary but does not redefine testing methodology.
+
+---
+
+# Quality Boundary Revision
+
+The Build Framework may consume quality evidence and invoke quality gates.
+
+The Quality Framework remains authoritative for:
+
+* quality policy;
+* Quality Rules;
+* Quality Profiles;
+* Quality Assessment;
+* Quality Gate semantics;
+* quality governance.
+
+---
+
+# Documentation Boundary Revision
+
+The Documentation Framework remains authoritative for documentation architecture and documentation standards.
+
+Build may validate build-relevant documentation requirements without becoming the documentation governance authority.
+
+---
+
+# Plugin Compliance Boundary Revision
+
+The Plugin Compliance Framework remains authoritative for plugin-specific compliance requirements.
+
+The Build Framework may consume plugin compliance evidence when required by Build Profiles or release handoff.
+
+---
+
+# Automation Revision
+
+Version `1.0.0` establishes that automation executes canonical Build Framework semantics.
+
+The governing principle is:
+
+> CI executes the Build Framework; CI does not define the Build Framework.
+
+This protects Build Architecture from becoming dependent on a particular automation platform.
+
+---
+
+# Environment Revision
+
+The framework establishes Build Environment identity and control as part of Build Context.
+
+Environment differences that may affect build output or artifact trust should be identifiable and governed.
+
+---
+
+# Toolchain Revision
+
+Critical Build Toolchain components should be identifiable and versioned where changes may materially affect build output or trust.
+
+Toolchain drift SHALL NOT silently redefine build semantics.
+
+---
+
+# Dependency Revision
+
+Dependencies are treated as part of effective Build Context.
+
+Dependency resolution should support reproducibility, traceability, integrity, and governance according to risk.
+
+---
+
+# Configuration Revision
+
+Build Configuration is treated as resolved engineering state.
+
+The effective configuration should be explainable from its declared sources and precedence rules.
+
+---
+
+# Governance Revision
+
+Build Governance defines how Build Framework changes are reviewed, classified, approved, and evolved.
+
+Possible change classes include:
+
+```text
+routine
+significant
+architectural
+strategic
+```
+
+Governance mechanisms may include:
+
+* code review;
+* documentation review;
+* technical review;
+* ADR;
+* RFC;
+* EPIC revision;
+* quality review;
+* security review.
+
+---
+
+# Roadmap Revision
+
+The framework roadmap progresses through:
+
+```text
+Build Foundation
+        ↓
+Build Standardization
+        ↓
+Build Validation
+        ↓
+Build Automation
+        ↓
+Artifact Trust
+        ↓
+Reproducibility and Traceability
+        ↓
+Release Integration
+        ↓
+Supply-Chain Assurance
+```
+
+Future roadmap items do not imply current implementation.
+
+---
+
+# Supply-Chain Direction
+
+The Build Framework establishes foundations for future software supply-chain assurance.
+
+Potential future capabilities include:
+
+* stronger provenance;
+* signed build evidence;
+* signed artifacts;
+* dependency attestations;
+* SBOM integration;
+* reproducible builds;
+* hermetic builds;
+* protected builders;
+* policy-driven supply-chain gates.
+
+These future capabilities remain subject to later implementation and governance.
+
+---
+
+# Post-Release Normalization
+
+Following historical publication, the Build Framework documentation may receive normalization changes that improve consistency without redefining the semantic identity of version `1.0.0`.
+
+Examples include:
+
+* machine-readable metadata normalization;
+* canonical inventory synchronization;
+* validation evidence correction;
+* state normalization;
+* control-document synchronization;
+* terminology correction;
+* formatting correction;
+* historical-state clarification;
+* stale-state removal.
+
+Such changes do not automatically require modification of the historical publication tag.
+
+---
+
+# Post-Release Revalidation
+
+A post-release revalidation is being performed against the current repository state.
+
+The purpose of this revalidation is to verify that the current Build Framework documentation remains consistent with:
+
+* the physical repository inventory;
+* the canonical `00 → 23` structure;
+* all seven control documents;
+* current repository quality gates;
+* framework boundaries;
+* governance expectations;
+* current validation evidence.
+
+The revalidation does not rewrite historical publication history.
+
+---
+
+# Revalidation Scope
+
+The current post-release revalidation includes:
+
+```text
+YAML Contract
+Canonical Inventory
+Filesystem Inventory
+Numbering Integrity
+Control Document Integrity
+Empty File Detection
+Reference Integrity
+Semantic Consistency
+Build Architecture Consistency
+Build Lifecycle Consistency
+Artifact Trust Consistency
+Framework Boundary Review
+Governance Consistency
+Placeholder Review
+Join Defect Review
+Ruff
+MyPy
+Pytest
+Repository Diff Validation
+Historical Tag Verification
+Repository State Validation
+```
+
+Only checks supported by actual evidence SHALL be marked as passed.
+
+---
+
+# Current Structural Evidence
+
+The current canonical inventory is:
 
 ```text
 Numbered Documents: 24
+Control Documents:  7
+Canonical Files:    31
+Canonical Range:    00 → 23
+```
+
+The authoritative machine-readable structure is maintained in:
+
+```text
+EPIC.yaml
+```
+
+The authoritative human-readable structural inventory is maintained in:
+
+```text
+MANIFEST.md
+```
+
+---
+
+# Current Machine-Readable State
+
+The normalized machine-readable framework state is expected to contain:
+
+```yaml
+id: EPIC-BLD-001
+version: 1.0.0
+status: completed
+
+structure:
+  numbered_documents: 24
+  canonical_document_range: "00-23"
+  control_documents: 7
+  canonical_files: 31
+```
+
+During revalidation:
+
+```yaml
+baseline:
+  framework_version: 1.0.0
+  documentation_status: completed
+  repository_validation_status: pending_revalidation
+  final_validation_status: pending_revalidation
+```
+
+These validation states SHALL remain pending until supported by actual revalidation evidence.
+
+---
+
+# EPIC.yaml Normalization
+
+During post-release revalidation, `EPIC.yaml` is normalized into a dedicated machine-readable framework contract.
+
+The normalized contract should identify:
+
+```text
+EPIC: EPIC-BLD-001
+Version: 1.0.0
+Status: completed
+Numbered Documents: 24
 Control Documents: 7
-Total Canonical Files: 31
-Duplicate Numbers: 0
-Empty Files: 0
-Legacy Files: 0
+Canonical Files: 31
+Historical Tag: v4.7.0-build-framework
+Historical Publication: published
 ```
 
 ---
 
-# Current Lifecycle State
+# MANIFEST.md Normalization
 
-The current framework lifecycle is:
+`MANIFEST.md` is synchronized with the canonical Build Framework structure.
+
+The manifest records:
 
 ```text
-Architecture
-    COMPLETE
-       ↓
-Documentation
-    COMPLETE
-       ↓
-Structural Normalization
-    COMPLETE
-       ↓
-Control Document Alignment
-    IN PROGRESS
-       ↓
-Final Validation
-    PENDING
-       ↓
-Framework Release
-    PENDING
-       ↓
-Implementation
-    PLANNED / PROGRESSIVE
+24 numbered documents
+7 control documents
+31 canonical files
 ```
 
-The lifecycle state must be updated when final validation is completed.
-
----
-
-# Revision Governance
-
-Future revisions should be recorded when they materially change:
-
-* Build Architecture;
-* Build Context;
-* Build Lifecycle;
-* Build Input semantics;
-* artifact trust semantics;
-* Build Validation;
-* Build Evidence;
-* Build Governance;
-* automation architecture;
-* Build/Release boundaries;
-* reproducibility expectations;
-* canonical documentation structure.
-
----
-
-# Minor Revisions
-
-The following normally do not require a dedicated architectural revision entry:
-
-* spelling corrections;
-* grammar corrections;
-* formatting improvements;
-* clarification that does not change normative meaning;
-* broken-link corrections;
-* non-semantic metadata cleanup.
-
-These changes may still appear in `CHANGELOG.md` when useful.
-
----
-
-# Future Revision Areas
-
-Future revisions may be required when FamilyOS introduces:
+Its active framework state is:
 
 ```text
-Canonical Build Implementation
-        ↓
-Artifact Manifest Implementation
-        ↓
-Build Evidence Implementation
-        ↓
-Release Handoff Implementation
-        ↓
-Reproducibility Enforcement
-        ↓
-Supply Chain Assurance
+Status: Completed
+Version: 1.0.0
 ```
-
-Each should extend the current architecture rather than replace it unnecessarily.
 
 ---
 
-# Revision Integrity
+# EPIC-BLD-001.md Normalization
 
-Revision history must not be rewritten solely to make framework evolution appear cleaner than it actually was.
+`EPIC-BLD-001.md` is synchronized with the completed framework state.
 
-Its purpose is architectural traceability.
+It records:
 
-The transition from a generic inherited structure to a Build-specific structure is therefore intentionally preserved.
+* framework version `1.0.0`;
+* status `Completed`;
+* 24 numbered documents;
+* seven control documents;
+* 31 canonical files;
+* historical publication under `v4.7.0-build-framework`;
+* historical tag immutability;
+* current post-release revalidation.
+
+---
+
+# Validation Evidence Policy
+
+Validation evidence SHALL be revision-aware.
+
+For example:
+
+```text
+Repository Revision A
+        ↓
+Ruff PASS
+MyPy PASS
+Pytest PASS
+```
+
+does not automatically prove:
+
+```text
+Repository Revision B
+        ↓
+Ruff PASS
+MyPy PASS
+Pytest PASS
+```
+
+when revision B contains changes that may affect those checks.
+
+Required validation SHALL be rerun when repository changes invalidate prior evidence.
+
+---
+
+# Validation State Semantics
+
+The following states apply.
+
+## PASS
+
+A required validation was executed successfully and acceptable evidence exists.
+
+## FAIL
+
+A required validation was executed and did not satisfy its acceptance criteria.
+
+## PENDING
+
+The validation has not yet been executed, completed, or formally evaluated against the current repository state.
+
+## NOT APPLICABLE
+
+The validation does not apply and that determination is justified.
+
+No validation state SHALL move from `PENDING` to `PASS` without supporting evidence.
+
+---
+
+# Current Revalidation Relationship
+
+The repository activity is represented as:
+
+```text
+Historical Publication
+v4.7.0-build-framework
+        ↓
+Later Repository Evolution
+        ↓
+Build Framework Control-Document Normalization
+        ↓
+Post-Release Revalidation
+        ↓
+Current Validation Evidence
+```
+
+This preserves both historical integrity and current documentation accuracy.
+
+---
+
+# Revision Classification
+
+Build Framework changes may be classified as follows.
+
+## Editorial
+
+Examples:
+
+* spelling correction;
+* grammar correction;
+* formatting correction;
+* non-semantic wording improvement.
+
+Expected framework version impact:
+
+```text
+Usually none
+```
+
+---
+
+## Documentation Normalization
+
+Examples:
+
+* control-document synchronization;
+* machine-readable metadata correction;
+* stale-state removal;
+* canonical inventory synchronization;
+* validation-record correction.
+
+Expected framework version impact:
+
+```text
+Usually none
+```
+
+provided Build Framework semantics remain unchanged.
+
+---
+
+## Compatible Semantic Change
+
+Examples:
+
+* compatible optional Build Profile;
+* compatible evidence extension;
+* compatible artifact metadata extension;
+* compatible governance extension.
+
+Expected framework version impact:
+
+```text
+MINOR
+```
+
+---
+
+## Breaking Semantic Change
+
+Examples:
+
+* incompatible Build Context semantics;
+* incompatible artifact trust model;
+* incompatible execution contract;
+* incompatible release handoff contract.
+
+Expected framework version impact:
+
+```text
+MAJOR
+```
+
+---
+
+# Compatibility Expectations
+
+Compatible revisions should preserve:
+
+* Build Context semantics;
+* Build Lifecycle semantics;
+* artifact trust distinctions;
+* Build Evidence traceability;
+* Build and Release boundaries;
+* deterministic Build Configuration;
+* governed Build Toolchains;
+* controlled Build Environments.
+
+Breaking changes require explicit migration guidance.
+
+---
+
+# Governance of Revisions
+
+Material revisions should identify:
+
+* reason for change;
+* affected documents;
+* semantic impact;
+* compatibility impact;
+* validation requirements;
+* migration requirements where applicable;
+* release implications;
+* downstream framework impact.
+
+Revision governance SHALL distinguish between:
+
+```text
+Documentation Correction
+Framework Clarification
+Compatible Framework Evolution
+Breaking Framework Evolution
+Historical Publication
+Post-Release Revalidation
+```
+
+---
+
+# Historical Record Policy
+
+This revision history SHALL preserve publication information even when later documentation improves the representation of that history.
+
+Historical records SHOULD NOT be rewritten merely to make previous states appear identical to the current canonical state.
+
+Where historical and current states differ, the distinction should remain explicit.
+
+---
+
+# Release Relationship
+
+Build Framework revision and release governance interact as follows:
+
+```text
+Framework Change
+        ↓
+Revision Classification
+        ↓
+Validation
+        ↓
+Compatibility Assessment
+        ↓
+Release Readiness
+        ↓
+Publication Decision
+```
+
+The Release Framework remains authoritative for repository-wide release governance.
+
+---
+
+# Current Publication Relationship
+
+The current historical relationship is:
+
+```text
+EPIC-BLD-001
+Build Framework
+Version 1.0.0
+Status: Completed
+        ↓
+Historical Publication
+        ↓
+v4.7.0-build-framework
+        ↓
+Immutable Historical State
+```
+
+Current post-release normalization exists after that historical publication and SHALL NOT change the historical tag.
+
+---
+
+# Revalidation Completion Requirements
+
+The current post-release revalidation may be considered complete only when:
+
+* `EPIC.yaml` is synchronized;
+* `MANIFEST.md` is synchronized;
+* `README.md` is synchronized;
+* `CHANGELOG.md` is synchronized;
+* `VALIDATION.md` is synchronized;
+* `Revision-History.md` is synchronized;
+* `EPIC-BLD-001.md` is synchronized;
+* canonical inventory validation passes;
+* YAML parsing passes;
+* numbering validation passes;
+* control-document validation passes;
+* reference integrity passes;
+* semantic consistency review passes;
+* Build Architecture review passes;
+* Build Lifecycle review passes;
+* artifact trust consistency passes;
+* framework boundary review passes;
+* governance review passes;
+* required repository quality gates pass;
+* historical tag integrity passes;
+* current validation evidence is recorded.
+
+---
+
+# Future Revisions
+
+Future Build Framework revisions may introduce:
+
+* executable Build Context models;
+* canonical Build IDs;
+* standardized Build Evidence schemas;
+* machine-readable Build Profiles;
+* canonical build orchestration interfaces;
+* stronger environment isolation;
+* reproducible-build enforcement;
+* hermetic builds;
+* artifact attestation;
+* artifact signing;
+* SBOM integration;
+* supply-chain provenance;
+* protected builders;
+* advanced build observability;
+* policy-driven build gates.
+
+Such revisions SHALL remain compatible with the framework's foundational trust model unless explicitly released as breaking changes.
+
+---
+
+# Current Revision State
+
+```text
+EPIC:                    EPIC-BLD-001
+Framework:               Build Framework
+Framework Version:       1.0.0
+Framework Status:        Completed
+
+Numbered Documents:      24
+Control Documents:       7
+Canonical Files:         31
+Canonical Range:         00 → 23
+
+Historical Publication:  Published
+Historical Tag:          v4.7.0-build-framework
+Historical Tag Commit:   1b457dd86ae4c94033fa29b96b4e6db135202171
+Historical Tag Policy:   Immutable
+
+Current Activity:        Post-Release Revalidation
+Repository Revalidation: Validated
+Final Revalidation:      Validated
+```
+
+---
+
+# Current Validation Evidence Status
+
+The current post-release validation evidence has been fully recorded and validated in this revision history.
+
+The authoritative execution evidence belongs in:
+
+```text
+VALIDATION.md
+```
+
+Until the current evidence is complete, this document SHALL NOT claim that current repository revalidation has passed.
 
 ---
 
 # Final Revision Principle
 
-The revision history of EPIC-BLD-001 follows the principle:
+EPIC-BLD-001 — Build Framework version `1.0.0` establishes the canonical FamilyOS build engineering foundation.
 
-> Build architecture should evolve by making previously implicit engineering responsibilities explicit, controlled, and independently verifiable.
-
-The current canonical Build Framework represents the result of that evolution:
+Its canonical documentation structure consists of:
 
 ```text
-Generic Build Documentation
-          ↓
-Build-Specific Architecture
-          ↓
-Explicit Build Context
-          ↓
-Explicit Artifact Trust
-          ↓
-Build Validation
-          ↓
-Build Evidence
-          ↓
-Automation
-          ↓
-Release Handoff
-          ↓
-Reproducibility
-          ↓
-Future Supply Chain Assurance
+24 numbered documents
+7 control documents
+31 canonical files
 ```
 
-This revision path establishes EPIC-BLD-001 as the authoritative FamilyOS Build Framework.
+Version `1.0.0` was historically published under:
+
+```text
+v4.7.0-build-framework
+```
+
+That historical publication tag is immutable.
+
+Current post-release normalization and revalidation may improve the accuracy, consistency, and evidence quality of the Build Framework control-document layer without rewriting the historical publication state.
+
+Future revisions SHALL preserve:
+
+* explicit Build Architecture;
+* artifact trust semantics;
+* validation integrity;
+* framework boundaries;
+* release handoff separation;
+* historical publication integrity.
