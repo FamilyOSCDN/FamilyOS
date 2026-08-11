@@ -39,7 +39,4 @@ class DependencyEdge:
     ) -> str:
         """Return a stable edge identifier."""
 
-        return (
-            f"{self.source.identifier()}"
-            f"->{self.target.identifier()}"
-        )
+        return f"{self.source.identifier()}->{self.target.identifier()}"

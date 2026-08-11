@@ -82,10 +82,7 @@ class PluginDependencyGraph:
     ) -> bool:
         """Return whether a node belongs to the graph."""
 
-        return (
-            node.identifier()
-            in self._nodes
-        )
+        return node.identifier() in self._nodes
 
     def outgoing_edges(
         self,
@@ -93,11 +90,7 @@ class PluginDependencyGraph:
     ) -> tuple[DependencyEdge, ...]:
         """Return outgoing edges of a node."""
 
-        return tuple(
-            edge
-            for edge in self._edges
-            if edge.source == node
-        )
+        return tuple(edge for edge in self._edges if edge.source == node)
 
     def incoming_edges(
         self,
@@ -105,8 +98,4 @@ class PluginDependencyGraph:
     ) -> tuple[DependencyEdge, ...]:
         """Return incoming edges of a node."""
 
-        return tuple(
-            edge
-            for edge in self._edges
-            if edge.target == node
-        )
+        return tuple(edge for edge in self._edges if edge.target == node)

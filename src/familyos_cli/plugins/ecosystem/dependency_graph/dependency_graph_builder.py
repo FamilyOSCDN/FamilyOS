@@ -160,10 +160,7 @@ class DependencyGraphBuilder:
             [],
         )
 
-        packages = tuple(
-            node.package
-            for node in candidates
-        )
+        packages = tuple(node.package for node in candidates)
 
         selected_package = self._package_selector.select(
             dependency=dependency,

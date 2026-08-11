@@ -43,9 +43,7 @@ class TopologicalSorter:
             for node in graph.nodes
         }
 
-        ready_nodes: list[
-            tuple[str, PluginNode]
-        ] = [
+        ready_nodes: list[tuple[str, PluginNode]] = [
             (
                 node.identifier(),
                 node,
@@ -92,8 +90,7 @@ class TopologicalSorter:
 
         if len(ordered_nodes) != len(graph.nodes):
             raise ValueError(
-                "Cannot topologically sort a dependency graph "
-                "containing a cycle.",
+                "Cannot topologically sort a dependency graph containing a cycle.",
             )
 
         return tuple(

@@ -24,7 +24,7 @@ def make_node(
 
     return PluginNode(
         package=PluginPackage(
-            name=name,
+            plugin_id=f"familyos.{name}",
             version="1.0.0",
             source="test",
         ),

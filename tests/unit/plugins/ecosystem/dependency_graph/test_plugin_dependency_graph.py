@@ -17,7 +17,7 @@ from familyos_cli.plugins.ecosystem.package import (
 def make_node(name: str) -> PluginNode:
     return PluginNode(
         package=PluginPackage(
-            name=name,
+            plugin_id=f"familyos.{name}",
             version="1.0.0",
             source="test",
         ),

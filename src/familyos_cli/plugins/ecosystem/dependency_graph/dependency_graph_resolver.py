@@ -27,9 +27,7 @@ class DependencyGraphResolver:
         """Initialize the dependency graph resolver."""
 
         self._cycle_detector = (
-            cycle_detector
-            if cycle_detector is not None
-            else CycleDetector()
+            cycle_detector if cycle_detector is not None else CycleDetector()
         )
         self._topological_sorter = (
             topological_sorter

@@ -24,7 +24,7 @@ def make_node(
 
     return PluginNode(
         package=PluginPackage(
-            name=name,
+            plugin_id=name,
             version=version,
             source="test",
         ),

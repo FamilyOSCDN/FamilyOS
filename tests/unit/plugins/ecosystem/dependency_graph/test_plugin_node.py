@@ -121,5 +121,5 @@ def test_plugin_node_is_immutable() -> None:
         ),
     )
 
-    assert node.package.name == "familyos.documentation"
+    assert node.package.plugin_id == "familyos.documentation"
     assert node.package.version == "1.2.0"

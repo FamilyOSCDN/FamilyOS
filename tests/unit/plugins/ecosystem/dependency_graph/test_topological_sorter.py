@@ -26,7 +26,7 @@ def make_node(
 
     return PluginNode(
         package=PluginPackage(
-            name=name,
+            plugin_id=f"familyos.{name}",
             version="1.0.0",
             source="test",
         ),
@@ -72,9 +72,7 @@ def test_single_node_is_returned() -> None:
         graph,
     )
 
-    assert result == (
-        core,
-    )
+    assert result == (core,)
 
 
 def test_dependency_is_placed_before_dependent() -> None:
@@ -295,10 +293,7 @@ def test_two_node_cycle_raises_value_error() -> None:
 
     with pytest.raises(
         ValueError,
-        match=(
-            "Cannot topologically sort a dependency graph "
-            "containing a cycle."
-        ),
+        match=("Cannot topologically sort a dependency graph containing a cycle."),
     ):
         TopologicalSorter().sort(
             graph,
@@ -319,10 +314,7 @@ def test_self_dependency_raises_value_error() -> None:
 
     with pytest.raises(
         ValueError,
-        match=(
-            "Cannot topologically sort a dependency graph "
-            "containing a cycle."
-        ),
+        match=("Cannot topologically sort a dependency graph containing a cycle."),
     ):
         TopologicalSorter().sort(
             graph,

@@ -1,26 +1,14 @@
 """Tests for plugin package model."""
 
+import pytest
+
 from familyos_cli.plugins.ecosystem.package import (
     PluginPackage,
 )
 
 
 def test_plugin_package_creation() -> None:
-    """Plugin package should be created."""
-
-    package = PluginPackage(
-        name="calendar",
-        version="1.0.0",
-        source="official",
-    )
-
-    assert package.name == "calendar"
-    assert package.version == "1.0.0"
-    assert package.identifier() == "calendar@1.0.0"
-
-
-def test_plugin_package_exposes_canonical_plugin_id() -> None:
-    """Package should expose an explicit canonical Plugin Identifier."""
+    """Plugin package should be created with a canonical identifier."""
 
     package = PluginPackage(
         plugin_id="familyos.calendar",
@@ -29,44 +17,24 @@ def test_plugin_package_exposes_canonical_plugin_id() -> None:
     )
 
     assert package.plugin_id == "familyos.calendar"
-    assert package.name == "familyos.calendar"
+    assert package.version == "1.0.0"
     assert package.identifier() == "familyos.calendar@1.0.0"
 
 
-def test_plugin_package_accepts_legacy_name_argument() -> None:
-    """Legacy name argument should remain compatible."""
+def test_plugin_package_normalizes_canonical_plugin_id() -> None:
+    """Canonical Plugin Identifiers should be validated on construction."""
 
     package = PluginPackage(
-        name="familyos.calendar",
+        plugin_id="familyos.calendar",
         version="1.0.0",
         source="official",
     )
 
     assert package.plugin_id == "familyos.calendar"
-    assert package.name == "familyos.calendar"
 
 
-def test_plugin_package_rejects_conflicting_identity_arguments() -> None:
-    """Canonical and legacy identity inputs must not disagree."""
-
-    import pytest
-
-    with pytest.raises(
-        ValueError,
-        match="same Plugin Identifier",
-    ):
-        PluginPackage(
-            name="calendar",
-            plugin_id="familyos.calendar",
-            version="1.0.0",
-            source="official",
-        )
-
-
-def test_plugin_package_rejects_invalid_explicit_plugin_id() -> None:
-    """Explicit Plugin Identifiers should satisfy the canonical contract."""
-
-    import pytest
+def test_plugin_package_rejects_invalid_plugin_id() -> None:
+    """Invalid Plugin Identifiers should be rejected."""
 
     with pytest.raises(
         ValueError,
@@ -79,14 +47,31 @@ def test_plugin_package_rejects_invalid_explicit_plugin_id() -> None:
         )
 
 
-def test_plugin_package_preserves_legacy_name_identity() -> None:
-    """Legacy name construction should remain compatible."""
+def test_plugin_package_preserves_optional_metadata() -> None:
+    """Optional package metadata should be preserved."""
 
     package = PluginPackage(
-        name="calendar",
+        plugin_id="familyos.calendar",
+        version="1.0.0",
+        source="official",
+        checksum="sha256:test",
+        signature="signature",
+    )
+
+    assert package.checksum == "sha256:test"
+    assert package.signature == "signature"
+
+
+def test_plugin_package_is_immutable() -> None:
+    """Plugin package identity and metadata should be immutable."""
+
+    package = PluginPackage(
+        plugin_id="familyos.calendar",
         version="1.0.0",
         source="official",
     )
 
-    assert package.plugin_id == "calendar"
-    assert package.name == "calendar"
+    with pytest.raises(
+        AttributeError,
+    ):
+        package.plugin_id = "familyos.documents"  # type: ignore[misc]
