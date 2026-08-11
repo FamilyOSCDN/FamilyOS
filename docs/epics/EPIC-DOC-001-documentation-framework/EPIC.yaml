@@ -301,8 +301,8 @@ closure:
   control_documents_aligned: true
   validation_passed: true
   historical_release_verified: documentary_only
-  final_commit_created: false
+  final_commit_created: true
   release_tag_created: false
   remote_publication_verified: not_applicable
-  working_tree_clean: false
-  epic_closed: false
+  working_tree_clean: true
+  epic_closed: true
