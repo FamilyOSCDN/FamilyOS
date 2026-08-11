@@ -1,36 +1,60 @@
 id: EPIC-PLUGIN-002
 title: Plugin Compliance Framework
-type: engineering-framework
+status: baseline
+version: 1.0.0
 category: engineering-platform
 domain: plugin-ecosystem
-status: completed
-version: 1.0.0
-summary: Establish the official FamilyOS Plugin Compliance Framework for evaluating,
-  validating, governing, reporting, and enforcing plugin conformance against architectural,
-  engineering, security, testing, quality, documentation, compatibility, lifecycle,
-  and governance requirements.
-structure:
-  numbered_documents: 24
-  canonical_document_range: 00-23
-  control_documents: 7
-  canonical_files: 31
-historical_structure:
-  numbered_documents: 24
-  canonical_document_range: 00-23
-  control_documents: 6
-  canonical_files: 30
-baseline:
-  framework_version: 1.0.0
-  documentation_status: completed
-  repository_validation_status: validated
-  final_validation_status: validated
-historical_release:
-  baseline_tag: v4.5.0-plugin-compliance-framework
-  baseline_commit: 34f635c5fedeb7d3923cb97c31d09a32bc63eca5
-  baseline_tag_verified_local: true
-  baseline_tag_verified_remote: true
-  baseline_tag_immutable: true
-  historical_release_status: published
+summary: Establish the official FamilyOS Plugin Compliance Framework for evaluating, validating, governing,
+  reporting, and enforcing plugin conformance against architectural, engineering, security, testing, quality,
+  documentation, compatibility, lifecycle, and governance requirements.
+purpose:
+- define the FamilyOS plugin compliance model
+- establish explicit compliance domains
+- define governed compliance rules
+- define compliance profiles
+- define deterministic validation architecture
+- define evidence requirements and trust semantics
+- define findings and severity semantics
+- define compliance reporting
+- integrate compliance into local and CI workflows
+- define lifecycle compliance gates
+- establish certification eligibility integration
+- define rule and framework governance
+- define security and trust boundaries
+- establish lifecycle and release expectations
+- provide an implementation roadmap
+scope:
+  includes:
+  - plugin identity compliance
+  - metadata compliance
+  - structural compliance
+  - architectural compliance
+  - capability compliance
+  - contribution compliance
+  - dependency compliance
+  - configuration compliance
+  - security compliance
+  - testing compliance
+  - quality compliance
+  - documentation compliance
+  - compatibility compliance
+  - lifecycle compliance
+  - governance compliance
+  - compliance automation
+  - compliance reporting
+  - compliance gates
+  - certification readiness
+  - framework governance
+  - framework lifecycle
+  excludes:
+  - domain-specific business correctness
+  - replacement of the Plugin Architecture
+  - replacement of the Testing Framework
+  - replacement of the Quality Framework
+  - replacement of the Documentation Framework
+  - replacement of the Security Architecture
+  - final certification decisions
+  - automatic trust assignment
 principles:
 - compliance is explicit
 - compliance is evidence-based
@@ -94,6 +118,13 @@ dependencies:
   - EPIC-QLT-001
   - EPIC-BLD-001
   - EPIC-REL-001
+  architecture:
+  - Plugin Architecture
+  - Security Architecture
+  - Runtime Architecture
+  - Configuration Architecture
+  - Governance Architecture
+  - Documentation Architecture
   decisions:
   - ADR-0007
   - ADR-0008
@@ -133,17 +164,119 @@ deliverables:
 - 21-Summary.md
 - 22-Release.md
 - 23-Checklist.md
-- EPIC-PLUGIN-002.md
-- EPIC.yaml
 - README.md
+- EPIC.yaml
 - MANIFEST.md
-- CHANGELOG.md
 - VALIDATION.md
+- CHANGELOG.md
 - Revision-History.md
+- EPIC-PLUGIN-002.md
 deliverable_count: 31
+implementation_strategy:
+  initial_scope:
+    official_plugins: 1
+    compliance_profiles: 1
+    deterministic_rules_min: 10
+    deterministic_rules_max: 20
+    reports:
+    - human-readable
+    - json
+  progression:
+  - core-models
+  - rule-registry
+  - profile-registry
+  - validator-registry
+  - validation-engine
+  - initial-rule-catalog
+  - official-plugin-pilot
+  - cli-integration
+  - ci-integration
+  - merge-gate
+  - evidence-maturity
+  - build-integration
+  - release-gate
+  - governance-automation
+  - certification-eligibility
+  - security-hardening
+  - third-party-readiness
+  - continuous-compliance
+validation:
+  documentation:
+    required: true
+    no_empty_required_files: true
+    structural_review: true
+    terminology_review: true
+  architecture:
+    required: true
+    semantic_boundary_review: true
+  implementation:
+    when_available:
+    - ruff
+    - mypy
+    - pytest
+  pilot:
+    official_plugins_required: true
+  reporting:
+    machine_readable_required: true
+  security:
+    trust_boundary_review_required: true
+governance:
+  rule_lifecycle:
+  - DRAFT
+  - ACTIVE
+  - DEPRECATED
+  - RETIRED
+  framework_release_policy: governed
+  breaking_changes_require_migration: true
+  historical_results_immutable: true
+  compliance_and_certification_separated: true
+certification:
+  compliance_role: certification-eligibility
+  final_decision_owned_by: certification-governance
+  artifact_binding_required_for_high_assurance: true
+maturity:
+  current: framework-definition
+  target:
+  - operational
+  - ci-enforced
+  - release-enforced
+  - certification-ready
+  - third-party-ready
+  - continuous-compliance
+success_criteria:
+- compliance requirements are formally documented
+- compliance domains are explicitly defined
+- rule semantics are machine-representable
+- profile semantics are explicit
+- validation is deterministic where applicable
+- evidence is traceable and governed
+- findings are actionable
+- reporting is machine-readable
+- local and CI semantics are consistent
+- lifecycle gates can consume canonical compliance results
+- certification can consume compliance evidence without depending on validator internals
+- framework evolution is governed and versioned
+structure:
+  numbered_documents: 24
+  canonical_document_range: 00-23
+  control_documents: 7
+  canonical_files: 31
+historical_structure:
+  numbered_documents: 24
+  canonical_document_range: 00-23
+  control_documents: 6
+  canonical_files: 30
+historical_release:
+  baseline_tag: v4.5.0-plugin-compliance-framework
+  baseline_commit: 34f635c5fedeb7d3923cb97c31d09a32bc63eca5
+  baseline_tag_immutable: true
+repository_validation:
+  documentation_status: completed
+  framework_definition_validation: validated
+  repository_validation_status: validated
+  final_validation_status: validated
 closure:
   documentation_complete: true
-  structural_normalization_complete: true
   control_documents_aligned: true
   validation_passed: true
   historical_baseline_verified: true
