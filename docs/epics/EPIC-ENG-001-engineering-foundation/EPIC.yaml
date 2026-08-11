@@ -1,18 +1,19 @@
 id: EPIC-ENG-001
 title: Engineering Foundation
 version: 1.0.0
-status: in-progress
+status: completed
 category: engineering
 owner: FamilyOS Team
 language: en
 repository: FamilyOS
+
 scope:
   - engineering-principles
   - repository-architecture
   - development-workflow
   - coding-standards
   - project-structure
-  - toolchain
+  - engineering-toolchain
   - environment-management
   - dependency-management
   - configuration-management
@@ -22,17 +23,20 @@ scope:
   - quality-philosophy
   - technical-governance
   - engineering-lifecycle
+  - validation
+  - release-readiness
+
 objectives:
-  - Establish the official engineering foundation for FamilyOS.
-  - Define repository-wide engineering principles and standards.
-  - Standardize development, validation, review, build, and release workflows.
-  - Provide a common technical governance model for all FamilyOS components.
-  - Create the foundation for documentation, testing, quality, build, and release frameworks.
+  - Establish the canonical engineering foundation for FamilyOS.
+  - Define shared engineering principles and repository expectations.
+  - Standardize development, validation, and governance practices.
+  - Establish explicit boundaries with specialized engineering frameworks.
+  - Ensure engineering changes remain maintainable, testable, traceable, and reproducible.
+  - Provide a validated baseline for sustainable FamilyOS engineering evolution.
+
 deliverables:
-  - EPIC-ENG-001.md
-  - README.md
-  - Revision-History.md
-  - 01-Introduction.md
+  - 00-EPIC.md
+  - 01-Context.md
   - 02-Vision.md
   - 03-Engineering-Principles.md
   - 04-Repository-Architecture.md
@@ -51,34 +55,56 @@ deliverables:
   - 17-Engineering-Lifecycle.md
   - 18-Roadmap.md
   - 19-References.md
+  - 20-Validation.md
+  - 21-Summary.md
+  - 22-Release.md
+  - 23-Implementation-Checklist.md
+  - EPIC-ENG-001.md
+  - EPIC.yaml
+  - README.md
   - MANIFEST.md
   - CHANGELOG.md
   - VALIDATION.md
-dependencies:
-  - ADR-0007
-  - EPIC-COM-001
-  - RFC-0010
-  - RFC-0011
-  - RFC-0012
-  - RFC-0013
-  - RFC-0014
-  - RFC-0015
+  - Revision-History.md
+
+dependencies: []
+
 enables:
   - EPIC-DOC-001
   - EPIC-TST-001
   - EPIC-QLT-001
   - EPIC-BLD-001
   - EPIC-REL-001
+  - EPIC-OBS-001
+  - EPIC-SEC-001
+  - EPIC-OPS-001
+
 quality_gates:
   mypy: required
   ruff: required
   pytest: required
   documentation_review: required
   repository_clean: required
+
 acceptance_criteria:
-  - All declared documents exist and are non-empty.
-  - All documents are written in English.
-  - Engineering rules are internally consistent.
-  - Responsibilities between engineering frameworks are clearly separated.
-  - Repository-wide validation remains green.
-  - The EPIC manifest and validation report are complete.
+  - The canonical Engineering Foundation structure is complete.
+  - All 31 declared deliverables are present.
+  - The numbered document sequence is complete from 00 through 23.
+  - Documentation is complete and internally consistent.
+  - Local Markdown references resolve successfully.
+  - Specialized framework ownership boundaries are explicit.
+  - Documentation review passes.
+  - Engineering review passes.
+  - Ruff validation passes.
+  - MyPy validation passes.
+  - Pytest validation passes.
+  - Repository diff validation passes.
+  - Repository validation passes.
+  - Release readiness passes.
+  - Final approval is recorded.
+
+structure:
+  numbered_documents: 24
+  canonical_document_range: "00-23"
+  control_documents: 7
+  canonical_files: 31
