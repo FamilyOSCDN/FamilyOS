@@ -1,80 +1,188 @@
 id: EPIC-REL-001
-
 title: Release Framework
-
-type: engineering-framework
-
-status: in-progress
-
 version: 4.8.0
+status: completed
+type: framework
+domain: engineering
+category: release
+owner: FamilyOS Engineering
+language: en
+repository: FamilyOS
+summary: 'Establish the canonical FamilyOS Release Framework defining release principles, architecture,
+  lifecycle, versioning, release types and channels, planning, readiness, release candidates, artifacts
+  and provenance, validation, automation, CI/CD integration, changelog and release notes, tagging, publishing,
+  rollback, security, observability, governance, compliance, metrics, risk management, framework lifecycle,
+  validation, release closure, and implementation requirements.
 
-summary: >
-  Establishes the official FamilyOS Release Framework governing release
-  planning, readiness, release candidates, versioning, artifacts, provenance,
-  validation, automation, CI/CD integration, release communication,
-  repository state, tagging, publishing, distribution, rollback, recovery,
-  security, observability, governance, compliance, metrics, risk management,
-  and framework lifecycle evolution.
+  '
+purpose: 'Provide a coherent, deterministic, evidence-based, traceable, secure, observable, governed,
+  and reproducible release foundation that enables FamilyOS software and framework changes to move from
+  validated engineering state to controlled publication while preserving artifact integrity, provenance,
+  rollback capability, repository consistency, and historical release evidence.
 
-purpose: >
-  Provide a consistent, evidence-based, secure, traceable, governable, and
-  progressively automatable release engineering foundation for the FamilyOS
-  ecosystem.
-
+  '
 scope:
-  includes:
-    - release principles
-    - release architecture
-    - release lifecycle
-    - semantic versioning strategy
-    - release types
-    - release channels
-    - release planning
-    - release readiness
-    - release candidate management
-    - release artifact management
-    - release provenance
-    - release validation
-    - release automation
-    - CI/CD integration
-    - changelog management
-    - release notes
-    - Git repository release state
-    - release tagging
-    - publishing
-    - distribution
-    - rollback
-    - recovery
-    - release security
-    - release observability
-    - release governance
-    - release compliance
-    - release metrics
-    - release risk management
-    - release framework lifecycle
-    - release roadmap
-    - release implementation guidance
-
-  excludes:
-    - concrete deployment platform implementation
-    - complete release orchestrator implementation
-    - mandatory artifact signing infrastructure
-    - mandatory SBOM generation
-    - mandatory signed provenance
-    - mandatory SLSA attestations
-    - implementation of every future release automation capability
-    - provider-specific CI/CD architecture
-    - provider-specific package registry architecture
-
-repository:
-  path: docs/epics/EPIC-REL-001-release-framework
-  canonical_document_range: "00-31"
+- release-principles
+- release-architecture
+- release-lifecycle
+- versioning-strategy
+- release-types
+- release-channels
+- release-planning
+- release-readiness
+- release-candidates
+- artifacts
+- provenance
+- release-validation
+- release-automation
+- ci-cd-integration
+- changelog-management
+- release-notes
+- repository-tagging
+- repository-state
+- publishing
+- distribution
+- rollback
+- recovery
+- release-security
+- release-observability
+- release-governance
+- release-compliance
+- release-metrics
+- release-risk-management
+- framework-lifecycle
+- framework-validation
+- release-closure
+- implementation-planning
+objectives:
+- Establish the canonical Release Framework for FamilyOS.
+- Define shared release principles and engineering expectations.
+- Establish explicit release lifecycle states and transitions.
+- Define canonical versioning, release type, and channel semantics.
+- Establish deterministic release readiness and candidate requirements.
+- Preserve artifact identity, integrity, provenance, and traceability.
+- Integrate release validation with FamilyOS engineering quality gates.
+- Define controlled automation and CI/CD integration boundaries.
+- Establish canonical tagging, publishing, and distribution requirements.
+- Define rollback and recovery requirements.
+- Integrate security, observability, governance, compliance, metrics, and risk.
+- Preserve historical release evidence and immutable publication records.
+- Establish explicit boundaries with Build, Testing, Quality, Security, and Operations frameworks.
+deliverables:
+- 00-EPIC.md
+- 01-Context.md
+- 02-Vision.md
+- 03-Release-Principles.md
+- 04-Release-Architecture.md
+- 05-Release-Lifecycle.md
+- 06-Versioning-Strategy.md
+- 07-Release-Types-and-Channels.md
+- 08-Release-Planning.md
+- 09-Release-Readiness.md
+- 10-Release-Candidates.md
+- 11-Artifacts-and-Provenance.md
+- 12-Release-Validation.md
+- 13-Release-Automation.md
+- 14-CI-CD-Integration.md
+- 15-Changelog-and-Release-Notes.md
+- 16-Tagging-and-Repository-State.md
+- 17-Publishing-and-Distribution.md
+- 18-Rollback-and-Recovery.md
+- 19-Release-Security.md
+- 20-Release-Observability.md
+- 21-Release-Governance.md
+- 22-Release-Compliance.md
+- 23-Release-Metrics.md
+- 24-Release-Risk-Management.md
+- 25-Framework-Lifecycle.md
+- 26-Roadmap.md
+- 27-References.md
+- 28-Validation.md
+- 29-Summary.md
+- 30-Release.md
+- 31-Implementation-Checklist.md
+- EPIC-REL-001.md
+- EPIC.yaml
+- README.md
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- Revision-History.md
+deliverable_count: 39
+dependencies:
+- EPIC-ENG-001
+- EPIC-DOC-001
+- EPIC-TST-001
+- EPIC-QLT-001
+- EPIC-BLD-001
+integrates_with:
+- EPIC-SEC-001
+- EPIC-OPS-001
+- EPIC-PLUGIN-002
+quality_gates:
+  yaml_parse: required
+  yaml_contract: required
+  canonical_inventory: required
+  numbering_integrity: required
+  control_documents: required
+  empty_file_check: required
+  manifest_synchronization: required
+  documentation_review: required
+  reference_integrity: required
+  semantic_consistency: required
+  release_architecture_consistency: required
+  release_lifecycle_consistency: required
+  versioning_consistency: required
+  readiness_consistency: required
+  release_candidate_consistency: required
+  artifact_provenance_consistency: required
+  framework_boundaries: required
+  governance_consistency: required
+  historical_tag_integrity: required
+  remote_publication_verification: required
+  ruff: required
+  mypy: required
+  pytest: required
+  diff_check: required
+  repository_clean: required
+acceptance_criteria:
+- The canonical Release Framework structure is complete.
+- All 39 declared deliverables are present.
+- The numbered document sequence is complete from 00 through 31.
+- All seven control documents are present and synchronized.
+- No required canonical document is empty.
+- EPIC.yaml parses successfully as a single YAML document.
+- EPIC.yaml matches the physical repository inventory.
+- MANIFEST.md matches the physical repository inventory.
+- Documentation is complete and internally consistent.
+- Local Markdown references resolve successfully.
+- Release architecture and lifecycle semantics are internally consistent.
+- Versioning and release channel semantics are internally consistent.
+- Release readiness and release candidate semantics are internally consistent.
+- Artifact and provenance requirements are internally consistent.
+- Specialized framework ownership boundaries are explicit.
+- Governance responsibilities are internally consistent.
+- Historical publication evidence is preserved.
+- The historical release tag remains immutable.
+- The historical release tag resolves to the recorded publication commit.
+- Authoritative remote publication is verified.
+- Ruff validation passes.
+- MyPy validation passes.
+- Pytest validation passes.
+- Repository diff validation passes.
+- Repository validation passes.
+- Final revalidation passes.
+- Final approval is recorded.
+structure:
   numbered_documents: 32
+  canonical_document_range: 00-31
   control_documents: 7
   canonical_files: 39
-  authoritative_remote: origin
-  release_branch: feature/foundation-engineering-docs
-
+baseline:
+  framework_version: 4.8.0
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
 release:
   intended_version: 4.8.0
   intended_tag: v4.8.0-release-framework
@@ -82,280 +190,17 @@ release:
   target_channel: stable
   publication_model: git
   tag_type: annotated
-  publication_status: pending
-  final_commit: pending
-  remote_verification: pending
-
-lifecycle:
-  current_state: prepared
-  target_state: released
-
-  canonical_states:
-    - planned
-    - prepared
-    - ready
-    - candidate
-    - validated
-    - approved
-    - released
-    - published
-    - distributed
-    - completed
-
-  exceptional_states:
-    - blocked
-    - failed
-    - withdrawn
-    - superseded
-    - rolled-back
-
-deliverables:
-  numbered:
-    - 00-EPIC.md
-    - 01-Context.md
-    - 02-Vision.md
-    - 03-Release-Principles.md
-    - 04-Release-Architecture.md
-    - 05-Release-Lifecycle.md
-    - 06-Versioning-Strategy.md
-    - 07-Release-Types-and-Channels.md
-    - 08-Release-Planning.md
-    - 09-Release-Readiness.md
-    - 10-Release-Candidates.md
-    - 11-Artifacts-and-Provenance.md
-    - 12-Release-Validation.md
-    - 13-Release-Automation.md
-    - 14-CI-CD-Integration.md
-    - 15-Changelog-and-Release-Notes.md
-    - 16-Tagging-and-Repository-State.md
-    - 17-Publishing-and-Distribution.md
-    - 18-Rollback-and-Recovery.md
-    - 19-Release-Security.md
-    - 20-Release-Observability.md
-    - 21-Release-Governance.md
-    - 22-Release-Compliance.md
-    - 23-Release-Metrics.md
-    - 24-Release-Risk-Management.md
-    - 25-Framework-Lifecycle.md
-    - 26-Roadmap.md
-    - 27-References.md
-    - 28-Validation.md
-    - 29-Summary.md
-    - 30-Release.md
-    - 31-Implementation-Checklist.md
-
-  control:
-    - EPIC-REL-001.md
-    - README.md
-    - MANIFEST.md
-    - CHANGELOG.md
-    - VALIDATION.md
-    - Revision-History.md
-    - EPIC.yaml
-
-canonical_documents:
-  epic: 00-EPIC.md
-  context: 01-Context.md
-  vision: 02-Vision.md
-  principles: 03-Release-Principles.md
-  architecture: 04-Release-Architecture.md
-  lifecycle: 05-Release-Lifecycle.md
-  versioning: 06-Versioning-Strategy.md
-  release_types_and_channels: 07-Release-Types-and-Channels.md
-  planning: 08-Release-Planning.md
-  readiness: 09-Release-Readiness.md
-  candidates: 10-Release-Candidates.md
-  artifacts_and_provenance: 11-Artifacts-and-Provenance.md
-  validation_model: 12-Release-Validation.md
-  automation: 13-Release-Automation.md
-  ci_cd: 14-CI-CD-Integration.md
-  changelog_and_release_notes: 15-Changelog-and-Release-Notes.md
-  tagging_and_repository_state: 16-Tagging-and-Repository-State.md
-  publishing_and_distribution: 17-Publishing-and-Distribution.md
-  rollback_and_recovery: 18-Rollback-and-Recovery.md
-  security: 19-Release-Security.md
-  observability: 20-Release-Observability.md
-  governance: 21-Release-Governance.md
-  compliance: 22-Release-Compliance.md
-  metrics: 23-Release-Metrics.md
-  risk_management: 24-Release-Risk-Management.md
-  framework_lifecycle: 25-Framework-Lifecycle.md
-  roadmap: 26-Roadmap.md
-  references: 27-References.md
-  validation: 28-Validation.md
-  summary: 29-Summary.md
-  release: 30-Release.md
-  implementation_checklist: 31-Implementation-Checklist.md
-
-dependencies:
-  frameworks:
-    - EPIC-ENG-001
-    - EPIC-TST-001
-    - EPIC-QLT-001
-    - EPIC-DOC-001
-    - EPIC-BLD-001
-    - EPIC-PLUGIN-002
-
-  foundations:
-    - Engineering-Constitution
-    - Architecture-Vision
-    - Architecture-Map
-    - Framework-Lifecycle
-    - Release-Strategy
-    - Deployment-Architecture
-    - Security-Architecture
-    - Observability-Architecture
-    - Configuration-Architecture
-    - Infrastructure-Architecture
-    - Integration-Architecture
-    - Plugin-Architecture
-    - Documentation-Architecture
-
-architecture_decisions:
-  - ADR-0007
-  - ADR-0008
-  - ADR-0009
-  - ADR-0010
-  - ADR-0011
-  - ADR-0013
-
-related_rfcs:
-  - RFC-0010
-  - RFC-0011
-  - RFC-0012
-  - RFC-0013
-  - RFC-0014
-  - RFC-0015
-
-principles:
-  - build-is-not-release
-  - explicit-release-identity
-  - evidence-based-readiness
-  - candidate-bound-validation
-  - immutable-published-identity
-  - explicit-release-authority
-  - verified-publication
-  - observable-partial-failure
-  - recovery-by-design
-  - automation-implements-policy
-  - historical-reconstructability
-
-release_profiles:
-  - framework-release
-  - documentation-release
-  - plugin-release
-  - platform-release
-  - maintenance-release
-  - security-release
-  - emergency-release
-
-versioning:
-  model: semantic
-  format: MAJOR.MINOR.PATCH
-  pre_release_supported: true
-  release_candidate_supported: true
-  candidate_format: MAJOR.MINOR.PATCH-rc.N
-  immutable_published_versions: true
-
-tagging:
-  framework_tag_format: v<version>-<release-subject>
-  current_intended_tag: v4.8.0-release-framework
-  annotated_tags_required_for_framework_release: true
-  immutable_after_publication: true
-  conflicting_tag_behavior: block
-
-validation:
-  required: true
-  final_document: 28-Validation.md
-  evidence_document: VALIDATION.md
-
-  required_domains:
-    - structure
-    - completeness
-    - semantic-consistency
-    - cross-references
-    - control-documents
-    - version
-    - repository-state
-    - release-readiness
-
-  blocking_findings_allowed: 0
-
-governance:
-  release_owner_required: true
-  explicit_release_approval: true
-  explicit_publication_authority: true
-  explicit_risk_acceptance: true
-  explicit_exception_handling: true
-  emergency_authority_defined: true
-  framework_change_governance: true
-
-security:
-  release_credentials_in_repository: prohibited
-  least_privilege: required
-  tag_integrity: required
-  candidate_integrity: required
-  artifact_integrity: profile-dependent
-  trusted_publication_identity: required
-
-  signing:
-    current_requirement: optional
-    future_capability: true
-
-  sbom:
-    current_requirement: optional
-    future_capability: true
-
-  signed_provenance:
-    current_requirement: optional
-    future_capability: true
-
-automation:
-  current_maturity: manual-governed
-  manual_release_supported: true
-  automated_readiness: roadmap
-  automated_candidate_creation: roadmap
-  release_manifest: roadmap
-  policy_as_code: roadmap
-  release_orchestrator: roadmap
-  automated_multi_target_publication: roadmap
-  automated_recovery: roadmap
-
-current_implementation:
-  framework_documentation: required
-  manual_validation: required
-  git_release_workflow: required
-  annotated_tagging: required
-  remote_publication_verification: required
-  full_release_orchestrator: deferred
-  mandatory_artifact_signing: deferred
-  mandatory_sbom: deferred
-  mandatory_signed_provenance: deferred
-
-completion_criteria:
-  - canonical numbered documents complete
-  - no duplicate document numbers
-  - no empty required documents
-  - all 7 control documents exist
-  - control documents aligned
-  - semantic consistency validated
-  - cross-references validated
-  - implementation checklist complete for current maturity
-  - release validation passes
-  - final release version confirmed
-  - final release commit created
-  - annotated release tag created
-  - release branch published
-  - release tag published
-  - authoritative remote state verified
-  - working tree clean
-
+  historical_tag: v4.8.0-release-framework
+  historical_commit: 306338d7ca3df2c1d4d9b74247a837aa01deb637
+  publication_status: published
+  historical_tag_immutable: true
+  remote_publication_verified: true
 closure:
-  documentation_complete: pending
-  control_documents_aligned: pending
-  validation_passed: pending
-  final_commit_created: pending
-  release_tag_created: pending
-  remote_publication_verified: pending
-  working_tree_clean: pending
-  epic_closed: false
+  documentation_complete: true
+  control_documents_aligned: true
+  validation_passed: true
+  final_commit_created: true
+  release_tag_created: true
+  remote_publication_verified: true
+  working_tree_clean: true
+  epic_closed: true

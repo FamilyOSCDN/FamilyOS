@@ -1,170 +1,193 @@
-# Release Framework
+# EPIC-REL-001 — Release Framework Revision History
 
-# Revision History
+## Document Purpose
 
-## Overview
+This document records the evolution of **EPIC-REL-001 — Release Framework**.
 
-This document records the chronological evolution of **EPIC-REL-001 — Release Framework**.
+It preserves the historical development, publication, canonical structure, validation, governance, and post-release normalization history of the FamilyOS Release Framework.
 
-The revision history provides a durable record of significant framework changes, structural updates, normative modifications, validation milestones, and release transitions.
+The revision history distinguishes between:
 
-It complements:
-
-* `CHANGELOG.md`;
-* `EPIC.yaml`;
-* `MANIFEST.md`;
-* `VALIDATION.md`;
-* Git history;
-* release tags.
-
-The governing principle is:
-
-> Material evolution of the Release Framework must remain historically traceable.
+* framework versioning;
+* repository release tagging;
+* immutable historical publication;
+* canonical documentation structure;
+* control-document normalization;
+* validation evidence;
+* post-release corrections;
+* current revalidation;
+* future framework evolution.
 
 ---
 
-# Purpose
+# Current EPIC State
 
-The purpose of this revision history is to document how EPIC-REL-001 evolves over time.
-
-It records changes affecting:
-
-* framework structure;
-* normative release rules;
-* release lifecycle;
-* release states;
-* governance;
-* validation;
-* compliance;
-* rollback and recovery;
-* observability;
-* risk management;
-* metrics;
-* roadmap;
-* release status.
-
-This document is not a replacement for Git history.
-
-It provides a human-readable framework evolution record.
+| Field                         | Value                                      |
+| ----------------------------- | ------------------------------------------ |
+| EPIC                          | EPIC-REL-001                               |
+| Title                         | Release Framework                          |
+| Version                       | 4.8.0                                      |
+| Status                        | Completed                                  |
+| Owner                         | FamilyOS Engineering                       |
+| Language                      | English                                    |
+| Canonical Range               | `00 → 31`                                  |
+| Numbered Documents            | 32                                         |
+| Control Documents             | 7                                          |
+| Canonical Files               | 39                                         |
+| Historical Publication Tag    | `v4.8.0-release-framework`                 |
+| Historical Publication Commit | `306338d7ca3df2c1d4d9b74247a837aa01deb637` |
+| Historical Publication State  | Published                                  |
+| Historical Tag Policy         | Immutable                                  |
+| Current Activity              | Post-Release Revalidation                  |
 
 ---
 
-# Revision Model
+# Revision Principles
 
-Each revision should identify:
+The Release Framework revision history follows several foundational principles.
 
-```text
-Version
-Date
-Status
-Change Type
-Summary
-Impact
-```
+## Historical Integrity
 
-Where relevant, revisions may also reference:
+Published release state SHALL remain historically identifiable.
 
-* Git commit;
-* release tag;
-* ADR;
-* RFC;
-* validation result.
+An official release tag SHALL NOT be moved to a later correction commit merely because documentation is normalized or revalidated after publication.
 
 ---
 
-# Change Types
+## Explicit Evolution
 
-Framework revisions may be classified as:
+Material framework changes SHOULD remain traceable.
 
-```text
-FOUNDATION
-STRUCTURAL
-NORMATIVE
-EDITORIAL
-VALIDATION
-GOVERNANCE
-RELEASE
-```
-
-## FOUNDATION
-
-Introduces major framework capabilities or baseline architecture.
-
-## STRUCTURAL
-
-Changes document inventory, numbering, naming, or organization.
-
-## NORMATIVE
-
-Changes mandatory release behavior or release governance.
-
-## EDITORIAL
-
-Improves wording or formatting without changing normative meaning.
-
-## VALIDATION
-
-Records validation-related corrections or status changes.
-
-## GOVERNANCE
-
-Changes ownership, approval, or policy relationships.
-
-## RELEASE
-
-Marks an official framework release or release transition.
-
----
-
-# Revision History
-
-## Version 4.8.0 — Release Framework Baseline
-
-**Date:** 2026-08-10
-**Status:** Complete
-**Change Type:** FOUNDATION / RELEASE
-
-Established the first complete baseline of **EPIC-REL-001 — Release Framework**.
-
-The framework defines the official FamilyOS release engineering model from release preparation through production acceptance and recovery.
-
-Major capabilities established include:
+Changes affecting:
 
 * release principles;
 * release architecture;
 * release lifecycle;
-* versioning strategy;
-* release types and channels;
-* release planning;
-* release readiness;
-* release candidate management;
-* artifacts and provenance;
-* release validation;
-* release automation;
-* CI/CD integration;
-* changelog and release notes;
-* tagging and repository state;
-* publishing and distribution;
-* rollback and recovery;
-* release security;
-* release observability;
-* release governance;
-* release compliance;
-* release metrics;
-* release risk management;
-* framework lifecycle;
-* roadmap;
-* references;
+* versioning;
+* release types;
+* release channels;
+* readiness;
+* candidates;
+* artifacts;
+* provenance;
 * validation;
-* framework summary;
-* framework release process;
-* implementation checklist.
+* automation;
+* CI/CD integration;
+* repository tagging;
+* publication;
+* rollback;
+* security;
+* observability;
+* governance;
+* compliance;
+* metrics;
+* risk;
 
-The release establishes the canonical Release Framework baseline for future FamilyOS engineering work.
+SHOULD be associated with explicit revision history.
 
-### Structural Baseline
+---
 
-The canonical numbered document set was established as:
+## Evidence-Based Validation
+
+Validation state SHALL reflect actual evidence.
+
+A documented validation requirement SHALL NOT become PASS merely because it exists.
+
+Only successful execution, inspection, review, or other accepted evidence may establish a PASS result.
+
+---
+
+## Canonical Structural Consistency
+
+The canonical framework inventory SHALL remain synchronized across:
+
+* `EPIC.yaml`;
+* `MANIFEST.md`;
+* `README.md`;
+* `CHANGELOG.md`;
+* `VALIDATION.md`;
+* `Revision-History.md`;
+* `EPIC-REL-001.md`.
+
+---
+
+# Framework Versioning
+
+The historically published Release Framework version is:
+
+```text
+4.8.0
+```
+
+This version is retained as part of the historical framework identity.
+
+Post-release normalization SHALL NOT rewrite version `4.8.0` merely to conform to a different framework's versioning convention.
+
+---
+
+# Framework Version vs Repository History
+
+The Release Framework version and Git history serve different purposes.
+
+Framework version:
+
+```text
+4.8.0
+```
+
+Historical publication tag:
+
+```text
+v4.8.0-release-framework
+```
+
+Historical publication commit:
+
+```text
+306338d7ca3df2c1d4d9b74247a837aa01deb637
+```
+
+A later correction commit may have a different repository identity while the framework remains version `4.8.0`.
+
+---
+
+# Canonical Structure History
+
+The current canonical Release Framework structure consists of:
+
+```text
+32 numbered documents
++
+7 control documents
+=
+39 canonical files
+```
+
+Canonical numbered range:
+
+```text
+00 → 31
+```
+
+The seven control documents are:
+
+```text
+EPIC-REL-001.md
+EPIC.yaml
+README.md
+MANIFEST.md
+CHANGELOG.md
+VALIDATION.md
+Revision-History.md
+```
+
+This represents the authoritative current structure for EPIC-REL-001.
+
+---
+
+# Canonical Numbered Documents
+
+The numbered sequence is:
 
 ```text
 00-EPIC.md
@@ -201,642 +224,1061 @@ The canonical numbered document set was established as:
 31-Implementation-Checklist.md
 ```
 
-Supporting artifacts established:
+---
+
+# Revision Timeline
+
+## Version 4.8.0 — Release Framework Foundation
+
+**Status:** Completed
+**Historical Publication:** Published
+**Historical Tag:** `v4.8.0-release-framework`
+
+Version `4.8.0` establishes the canonical FamilyOS Release Framework.
+
+It defines:
+
+* Release Principles;
+* Release Architecture;
+* Release Lifecycle;
+* Versioning Strategy;
+* Release Types and Channels;
+* Release Planning;
+* Release Readiness;
+* Release Candidates;
+* Artifacts and Provenance;
+* Release Validation;
+* Release Automation;
+* CI/CD Integration;
+* Changelog and Release Notes;
+* Tagging and Repository State;
+* Publishing and Distribution;
+* Rollback and Recovery;
+* Release Security;
+* Release Observability;
+* Release Governance;
+* Release Compliance;
+* Release Metrics;
+* Release Risk Management;
+* Framework Lifecycle;
+* Roadmap;
+* Framework Validation;
+* Release Completion;
+* Implementation Planning.
+
+---
+
+# Version 4.8.0 Structural Baseline
+
+The canonical structural baseline is:
+
+| Category           |     Count |
+| ------------------ | --------: |
+| Numbered Documents |        32 |
+| Control Documents  |         7 |
+| Canonical Files    |        39 |
+| Canonical Range    | `00 → 31` |
+
+This structure SHALL remain authoritative unless a future governed revision explicitly changes it.
+
+---
+
+# Historical Publication
+
+Version `4.8.0` was historically published under:
+
+```text
+v4.8.0-release-framework
+```
+
+Historical publication commit:
+
+```text
+306338d7ca3df2c1d4d9b74247a837aa01deb637
+```
+
+Annotated tag object:
+
+```text
+6173105841167426c17ec08486980abb56e7085b
+```
+
+The relationship is:
+
+```text
+Release Framework 4.8.0
+        ↓
+Historical Repository Publication
+        ↓
+v4.8.0-release-framework
+        ↓
+306338d7ca3df2c1d4d9b74247a837aa01deb637
+```
+
+---
+
+# Historical Tag Immutability
+
+The tag:
+
+```text
+v4.8.0-release-framework
+```
+
+SHALL remain immutable.
+
+Post-release changes SHALL NOT:
+
+* move the tag;
+* delete and recreate it to reference another commit;
+* rewrite its target;
+* reinterpret a later correction commit as the original publication;
+* overwrite historical publication evidence.
+
+Corrections SHALL be represented by ordinary forward commits.
+
+---
+
+# Historical Publication Evidence
+
+The historical tag audit established:
+
+```text
+Annotated Tag Object:
+6173105841167426c17ec08486980abb56e7085b
+
+Dereferenced Tag Commit:
+306338d7ca3df2c1d4d9b74247a837aa01deb637
+```
+
+Remote inspection showed that the remote annotated tag dereferences to the same historical publication commit.
+
+This distinction matters because:
+
+```text
+annotated tag object
+        ≠
+tag target commit
+```
+
+The dereferenced commit is the authoritative historical publication commit.
+
+---
+
+# Release Architecture Revision
+
+Version `4.8.0` establishes a dedicated Release Architecture separating:
+
+```text
+Release Planning
+Release Readiness
+Release Candidate
+Artifacts
+Provenance
+Validation
+Approval
+Release Identity
+Publication
+Distribution
+Recovery
+Governance
+Evidence
+```
+
+This prevents release engineering from collapsing into a single tag or publication command.
+
+---
+
+# Release Lifecycle Revision
+
+The framework establishes an explicit lifecycle conceptually including:
+
+```text
+PLANNED
+    ↓
+PREPARING
+    ↓
+READY
+    ↓
+CANDIDATE
+    ↓
+VALIDATED
+    ↓
+APPROVED
+    ↓
+TAGGED
+    ↓
+PUBLISHED
+    ↓
+VERIFIED
+    ↓
+COMPLETED
+```
+
+Alternative states may include:
+
+```text
+BLOCKED
+FAILED
+WITHDRAWN
+ROLLED_BACK
+RECOVERING
+```
+
+---
+
+# Release Identity Revision
+
+Version `4.8.0` establishes explicit release identity through combinations of:
+
+* version;
+* candidate identity;
+* source commit;
+* release tag;
+* artifact identity;
+* provenance;
+* publication metadata.
+
+Release identity SHALL remain traceable across the release lifecycle.
+
+---
+
+# Release Candidate Revision
+
+The framework establishes Release Candidates as sufficiently stable release objects suitable for validation and approval.
+
+The candidate that is validated SHALL remain traceable to the candidate considered for publication.
+
+---
+
+# Artifact Revision
+
+Release artifacts are treated as explicit release objects.
+
+Artifacts should preserve:
+
+* identity;
+* version;
+* integrity;
+* checksums where appropriate;
+* Build Evidence;
+* candidate association;
+* provenance;
+* publication status.
+
+---
+
+# Provenance Revision
+
+Version `4.8.0` establishes provenance as a first-class release concept.
+
+Provenance may connect:
+
+```text
+source commit
+build state
+artifact identity
+candidate identity
+release version
+publication target
+publication result
+```
+
+This supports traceability and long-term reconstruction.
+
+---
+
+# Validation Revision
+
+The Release Framework distinguishes:
+
+```text
+Build Validation
+Testing Evidence
+Quality Evidence
+Security Evidence
+Release Validation
+Framework Validation
+```
+
+Release Validation qualifies the exact candidate intended for publication.
+
+Framework Validation evaluates EPIC-REL-001 itself.
+
+---
+
+# Publication Revision
+
+Version `4.8.0` defines publication as a controlled release state transition.
+
+The framework explicitly distinguishes:
+
+```text
+attempted publication
+```
+
+from:
+
+```text
+verified publication
+```
+
+A successful command alone does not establish successful publication.
+
+---
+
+# Publication / Distribution Revision
+
+Publication and distribution are distinct concepts.
+
+Publication establishes authoritative release state.
+
+Distribution determines how release material reaches consumers.
+
+A release may be published while some distribution transitions occur later.
+
+---
+
+# Partial Publication Revision
+
+The framework explicitly recognizes partial publication.
+
+If some mandatory publication operations succeed and others fail, the state SHALL remain visible.
+
+Partial publication SHALL NOT be represented as full success.
+
+---
+
+# Rollback and Recovery Revision
+
+Rollback and recovery are built into the release architecture.
+
+The framework defines responses to:
+
+* failed validation;
+* failed publication;
+* partial publication;
+* defective release;
+* withdrawal;
+* rollback;
+* restoration;
+* corrective publication.
+
+---
+
+# Security Revision
+
+The framework defines release-specific security responsibilities including:
+
+* publication authority;
+* release credentials;
+* artifact integrity;
+* provenance;
+* protected automation;
+* trusted execution environments;
+* repository protections;
+* release authorization.
+
+---
+
+# Observability Revision
+
+Release observability establishes visibility into:
+
+* lifecycle state;
+* candidate state;
+* validation;
+* approval;
+* publication;
+* partial publication;
+* failures;
+* rollback;
+* recovery;
+* completion.
+
+---
+
+# Governance Revision
+
+Release Governance distinguishes:
+
+* ownership;
+* technical validation;
+* approval authority;
+* publication authority;
+* exception authority;
+* risk acceptance;
+* emergency release authority;
+* withdrawal authority;
+* framework evolution authority.
+
+---
+
+# Compliance Revision
+
+Release Compliance defines how release requirements, evidence, exceptions, and controls are evaluated.
+
+Compliance does not replace technical validation.
+
+It complements release decision-making.
+
+---
+
+# Metrics Revision
+
+The framework establishes release metrics such as:
+
+* release frequency;
+* lead time;
+* validation duration;
+* publication duration;
+* failure rate;
+* rollback rate;
+* recovery time;
+* partial publication rate.
+
+Metrics SHALL support improvement rather than automatically determine release correctness.
+
+---
+
+# Risk Revision
+
+The framework establishes explicit release-risk management.
+
+Relevant risks include:
+
+* incorrect version;
+* candidate mutation;
+* stale artifacts;
+* wrong source commit;
+* publication collision;
+* incomplete validation;
+* unauthorized publication;
+* partial publication;
+* publication-target failure;
+* rollback failure;
+* provenance loss.
+
+---
+
+# Automation Revision
+
+The framework establishes automation as execution of canonical release semantics.
+
+Automation SHALL NOT become the release architecture itself.
+
+A release pipeline implements governed release policy.
+
+It does not invent release policy.
+
+---
+
+# CI/CD Revision
+
+The Release Framework establishes a separation between:
+
+```text
+validation pipelines
+```
+
+and:
+
+```text
+privileged publication pipelines
+```
+
+This supports least privilege and prevents ordinary validation jobs from automatically acquiring stable publication authority.
+
+---
+
+# Build / Release Boundary Revision
+
+The Build Framework produces trusted artifacts.
+
+The Release Framework consumes those artifacts and governs:
+
+* release readiness;
+* candidate identity;
+* versioning;
+* approval;
+* tagging;
+* publication;
+* distribution;
+* rollback;
+* recovery.
+
+The relationship is:
+
+```text
+Build Framework
+        ↓
+Trusted Artifact Set
+        ↓
+Release Framework
+        ↓
+Official Release
+```
+
+---
+
+# Testing Boundary Revision
+
+The Testing Framework remains authoritative for testing methodology.
+
+The Release Framework consumes testing evidence as part of readiness and validation.
+
+---
+
+# Quality Boundary Revision
+
+The Quality Framework owns general quality rules and quality-gate semantics.
+
+The Release Framework consumes quality evidence within release decisions.
+
+---
+
+# Security Boundary Revision
+
+The Security Framework owns general security architecture.
+
+The Release Framework applies security requirements to release-specific concerns such as credentials, artifact integrity, publication authority, and supply-chain trust.
+
+---
+
+# Operations Boundary Revision
+
+Release publication and runtime operations remain distinct.
+
+The Release Framework does not automatically own deployment or runtime management.
+
+The Operations Framework remains authoritative for operational runtime concerns.
+
+---
+
+# Post-Release Normalization
+
+Following publication, EPIC-REL-001 may receive documentation corrections that improve current canonical consistency without redefining the historical identity of version `4.8.0`.
+
+Examples include:
+
+* machine-readable metadata correction;
+* canonical inventory synchronization;
+* active lifecycle-state correction;
+* historical-publication clarification;
+* validation-record normalization;
+* control-document alignment;
+* terminology corrections;
+* malformed text-join corrections.
+
+---
+
+# Post-Release Revalidation
+
+The current activity is a post-release revalidation.
+
+Its purpose is to confirm that the current canonical representation remains consistent with:
+
+* the physical repository;
+* canonical numbering `00 → 31`;
+* 32 numbered documents;
+* seven control documents;
+* 39 canonical files;
+* historical publication evidence;
+* framework architecture;
+* framework lifecycle;
+* versioning;
+* readiness;
+* candidate semantics;
+* artifact provenance;
+* publication semantics;
+* recovery;
+* security;
+* observability;
+* governance;
+* repository quality gates.
+
+---
+
+# Revalidation Scope
+
+The current revalidation includes:
+
+```text
+YAML Parse
+YAML Contract
+Filesystem Contract
+Canonical Inventory
+Numbering Integrity
+Control Document Integrity
+Empty File Validation
+Manifest Synchronization
+README Synchronization
+EPIC Summary Synchronization
+CHANGELOG Synchronization
+Revision History Synchronization
+State Consistency
+Reference Integrity
+Release Architecture Consistency
+Release Lifecycle Consistency
+Versioning Consistency
+Readiness Consistency
+Candidate Consistency
+Artifact and Provenance Consistency
+Publication Semantic Consistency
+Rollback and Recovery Consistency
+Release Security Consistency
+Observability Consistency
+Governance Consistency
+Framework Boundary Validation
+Placeholder Validation
+Join Defect Validation
+Ruff
+MyPy
+Pytest
+Repository Diff Validation
+Historical Tag Integrity
+Remote Branch Verification
+Final Repository Cleanliness
+```
+
+---
+
+# Validation Evidence Policy
+
+Validation evidence SHALL be revision-aware.
+
+Evidence produced for one repository state does not automatically prove a later modified repository state.
+
+The required model is:
+
+```text
+Execute
+    ↓
+Observe
+    ↓
+Evaluate
+    ↓
+Record
+```
+
+---
+
+# Revalidation State Model
+
+During current normalization:
+
+```yaml
+baseline:
+  framework_version: 4.8.0
+  documentation_status: completed
+  repository_validation_status: pending_revalidation
+  final_validation_status: pending_revalidation
+```
+
+After successful evidence-based revalidation:
+
+```yaml
+baseline:
+  framework_version: 4.8.0
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
+```
+
+---
+
+# Historical Release Metadata
+
+Historical release metadata remains:
+
+```yaml
+release:
+  historical_tag: v4.8.0-release-framework
+  historical_commit: 306338d7ca3df2c1d4d9b74247a837aa01deb637
+  publication_status: published
+  historical_tag_immutable: true
+  remote_publication_verified: true
+```
+
+These values describe historical publication and do not depend on current revalidation completion.
+
+---
+
+# Current Canonical Inventory
+
+```text
+Numbered Documents: 32
+Control Documents:   7
+Canonical Files:    39
+Canonical Range:    00 → 31
+```
+
+The physical filesystem audit observed:
+
+```text
+all files: 39
+numbered: 32
+first numbered: 00-EPIC.md
+last numbered: 31-Implementation-Checklist.md
+control files: 7
+missing controls: []
+unexpected controls: []
+```
+
+Final structural validation SHALL be rerun after normalization.
+
+---
+
+# Current Publication Relationship
+
+The historical relationship is:
+
+```text
+EPIC-REL-001
+Release Framework
+Version 4.8.0
+        ↓
+Historical Publication
+        ↓
+v4.8.0-release-framework
+        ↓
+306338d7ca3df2c1d4d9b74247a837aa01deb637
+```
+
+Current corrections occur later in repository history.
+
+They SHALL NOT change this relationship.
+
+---
+
+# Current Repository Relationship
+
+Current repository HEAD may be newer than:
+
+```text
+306338d7ca3df2c1d4d9b74247a837aa01deb637
+```
+
+This is expected.
+
+The correct model is:
+
+```text
+Historical Publication
+        ↓
+Later Repository Evolution
+        ↓
+Post-Release Documentation Normalization
+        ↓
+Current Revalidation
+```
+
+---
+
+# Revision Classification
+
+Release Framework changes may be classified as follows.
+
+## Editorial
+
+Examples:
+
+* spelling correction;
+* grammar correction;
+* formatting correction;
+* non-semantic wording improvement.
+
+Expected version impact:
+
+```text
+Usually none
+```
+
+---
+
+## Documentation Normalization
+
+Examples:
+
+* stale active-state correction;
+* metadata normalization;
+* canonical inventory synchronization;
+* validation-record correction;
+* control-document alignment.
+
+Expected version impact:
+
+```text
+Usually none
+```
+
+when framework semantics remain unchanged.
+
+---
+
+## Compatible Semantic Change
+
+Examples:
+
+* new compatible release profile;
+* compatible evidence extension;
+* compatible release metadata extension;
+* compatible optional publication capability.
+
+Expected version impact:
+
+```text
+MINOR
+```
+
+subject to FamilyOS release governance.
+
+---
+
+## Breaking Semantic Change
+
+Examples:
+
+* incompatible lifecycle state changes;
+* incompatible version semantics;
+* incompatible candidate identity rules;
+* incompatible publication contract;
+* incompatible artifact trust semantics.
+
+Expected version impact:
+
+```text
+MAJOR
+```
+
+subject to governance.
+
+---
+
+# Historical Record Policy
+
+Historical states SHALL remain preserved when they represent actual earlier lifecycle conditions.
+
+For example, historical references to:
+
+```text
+in-progress
+prepared
+pending
+candidate
+```
+
+may remain if clearly associated with an earlier historical phase.
+
+They SHALL NOT remain as the current authoritative state after historical publication has already occurred.
+
+---
+
+# Active State Policy
+
+The current authoritative historical framework state is:
+
+```text
+Framework Status:       Completed
+Historical Publication: Published
+```
+
+The current post-release activity is:
+
+```text
+Post-Release Revalidation
+```
+
+During current revalidation:
+
+```text
+Repository Validation: Validated
+Final Revalidation:     Validated
+```
+
+These current validation states SHALL transition only after actual evidence supports them.
+
+---
+
+# Control Document Synchronization
+
+Post-release normalization requires synchronization of:
 
 ```text
 EPIC-REL-001.md
-README.md
 EPIC.yaml
+README.md
 MANIFEST.md
 CHANGELOG.md
 VALIDATION.md
 Revision-History.md
 ```
 
-### Strategic Impact
+These documents SHALL agree on:
 
-This revision establishes the Release Framework as the governance bridge between:
+* identifier;
+* title;
+* version;
+* completed framework status;
+* canonical structure;
+* historical publication;
+* historical tag;
+* historical commit;
+* current revalidation state.
+
+---
+
+# Revalidation Completion Requirements
+
+Current revalidation may be considered technically complete only when:
+
+* `EPIC.yaml` parses;
+* YAML contract passes;
+* filesystem contract passes;
+* numbering passes;
+* all control documents exist;
+* no required canonical file is empty;
+* manifest synchronization passes;
+* reference integrity passes;
+* active state consistency passes;
+* release architecture review passes;
+* lifecycle review passes;
+* versioning review passes;
+* readiness review passes;
+* candidate review passes;
+* artifact/provenance review passes;
+* publication semantics pass;
+* rollback/recovery semantics pass;
+* security semantics pass;
+* observability semantics pass;
+* governance review passes;
+* framework boundaries pass;
+* placeholder validation passes;
+* join-defect validation passes;
+* Ruff passes;
+* MyPy passes;
+* Pytest passes;
+* Git diff validation passes;
+* historical tag integrity passes.
+
+---
+
+# Repository Completion Requirements
+
+Post-release normalization workflow is fully complete when:
+
+* correction files are staged;
+* staged content is validated;
+* post-release correction commit is created;
+* quality gates pass after commit;
+* branch is pushed;
+* authoritative remote branch matches local HEAD;
+* historical tag remains unchanged locally and remotely;
+* working tree is clean.
+
+---
+
+# Future Revisions
+
+Future Release Framework revisions may introduce:
+
+* executable release state machines;
+* machine-readable release profiles;
+* canonical candidate manifests;
+* release evidence schemas;
+* automated version reservation;
+* automated release readiness;
+* stronger artifact attestations;
+* artifact signing;
+* automated provenance validation;
+* protected publication orchestration;
+* multi-target publication transactions;
+* automated rollback orchestration;
+* release-policy engines;
+* release compliance automation;
+* advanced release observability.
+
+These future capabilities SHALL preserve the foundational framework principles unless explicitly released as breaking changes.
+
+---
+
+# Current Revision State
 
 ```text
-Build
-  |
-  v
-Testing
-  |
-  v
-Quality
-  |
-  v
-Compliance
-  |
-  v
-Release
-  |
-  v
-Production
-```
-
-It formalizes release engineering as a first-class FamilyOS platform capability.
-
----
-
-## Version 0.9.0 — Final Validation Preparation
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** VALIDATION
-
-Prepared the framework for final validation and release.
-
-Key changes included:
-
-* completion of validation requirements;
-* cross-document consistency review;
-* structural verification model;
-* final release acceptance criteria;
-* release evidence requirements;
-* framework release procedure.
-
-This revision represented the transition from framework construction to release readiness.
-
----
-
-## Version 0.8.0 — Roadmap and Evolution Model
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** FOUNDATION
-
-Introduced the long-term Release Framework evolution model.
-
-Major roadmap stages included:
-
-```text
-Defined
-  |
-  v
-Standardized
-  |
-  v
-Automated
-  |
-  v
-Observable
-  |
-  v
-Risk-Aware
-  |
-  v
-Progressive
-  |
-  v
-Adaptive
-```
-
-Defined future capabilities such as:
-
-* automated release manifests;
-* CI-integrated release evidence;
-* artifact promotion;
-* automated release gates;
-* progressive delivery;
-* automated rollback;
-* policy-as-code;
-* release intelligence.
-
----
-
-## Version 0.7.0 — Release Risk Management
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** NORMATIVE
-
-Established the formal release risk management model.
-
-Introduced:
-
-```text
-LOW
-MEDIUM
-HIGH
-CRITICAL
-```
-
-release risk classifications.
-
-Defined:
-
-* risk identification;
-* likelihood;
-* impact;
-* mitigation;
-* residual risk;
-* risk ownership;
-* risk acceptance;
-* escalation;
-* dynamic reassessment.
-
-Risk became an explicit release readiness input.
-
----
-
-## Version 0.6.0 — Release Metrics
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** FOUNDATION
-
-Established the release measurement model.
-
-Defined key metrics including:
-
-* release frequency;
-* release lead time;
-* deployment success rate;
-* release success rate;
-* change failure rate;
-* rollback rate;
-* rollback success rate;
-* mean time to detect;
-* mean time to recover;
-* compliance exception rate;
-* readiness gate pass rate.
-
-Defined the principle that release metrics are system improvement tools rather than individual performance scores.
-
----
-
-## Version 0.5.0 — Release Compliance
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** NORMATIVE
-
-Established the release compliance model.
-
-Introduced compliance states:
-
-```text
-COMPLIANT
-COMPLIANT_WITH_EXCEPTIONS
-NON_COMPLIANT
-PENDING
-```
-
-Defined compliance controls for:
-
-* governance;
-* build;
-* testing;
-* quality;
-* security;
-* documentation;
-* artifact integrity;
-* deployment;
-* recovery;
-* observability;
-* approvals;
-* evidence retention.
-
-Defined fail-closed behavior for missing mandatory evidence.
-
----
-
-## Version 0.4.0 — Release Observability
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** FOUNDATION
-
-Established release-aware runtime observability.
-
-Defined requirements for:
-
-* release identity visibility;
-* deployment markers;
-* metrics;
-* logs;
-* traces;
-* health checks;
-* alerts;
-* plugin observability;
-* dependency observability;
-* configuration observability;
-* recovery observability.
-
-Established the principle:
-
-> A release that cannot be observed cannot be confidently declared successful.
-
----
-
-## Version 0.3.0 — Rollback and Recovery
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** NORMATIVE
-
-Established the rollback and recovery model.
-
-Introduced rollback classifications:
-
-```text
-DIRECT_ROLLBACK
-CONDITIONAL_ROLLBACK
-FORWARD_RECOVERY_ONLY
-```
-
-Defined:
-
-* previous stable release;
-* artifact retention;
-* rollback triggers;
-* rollback authority;
-* configuration recovery;
-* migration recovery;
-* data recovery;
-* plugin recovery;
-* forward recovery;
-* recovery verification.
-
-Established recovery as a mandatory production release capability.
-
----
-
-## Version 0.2.0 — Release Readiness and Control Model
-
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** NORMATIVE
-
-Defined the release control architecture.
-
-Introduced:
-
-* release candidates;
-* release readiness;
-* release gates;
-* approval semantics;
-* artifact promotion;
-* deployment governance;
-* post-deployment verification;
-* stabilization;
-* release acceptance.
-
-Established the distinction between:
-
-```text
-Deployment Success
-```
-
-and:
-
-```text
-Release Success
+EPIC:                    EPIC-REL-001
+Framework:               Release Framework
+Framework Version:       4.8.0
+Framework Status:        Completed
+
+Numbered Documents:      32
+Control Documents:        7
+Canonical Files:         39
+Canonical Range:         00 → 31
+
+Historical Publication:  Published
+Historical Tag:          v4.8.0-release-framework
+Historical Tag Object:   6173105841167426c17ec08486980abb56e7085b
+Historical Tag Commit:   306338d7ca3df2c1d4d9b74247a837aa01deb637
+Historical Tag Policy:   Immutable
+
+Current Activity:        Post-Release Revalidation
+Repository Revalidation: Validated
+Final Revalidation:      Validated
 ```
 
 ---
 
-## Version 0.1.0 — Initial Release Framework Foundation
+# Current Validation Evidence Status
 
-**Date:** 2026-08-10
-**Status:** Superseded
-**Change Type:** FOUNDATION
+Historical publication evidence has been identified.
 
-Created the initial EPIC-REL-001 Release Framework foundation.
+Current repository revalidation evidence is not yet complete.
 
-Established:
-
-* release context;
-* vision;
-* foundational principles;
-* high-level lifecycle;
-* relationship with FamilyOS engineering foundations.
-
-This revision initiated formal Release Framework development.
-
----
-
-# Current Revision
-
-The current official framework revision is:
+The authoritative current execution evidence belongs in:
 
 ```text
-Version: 4.8.0
-Status: Complete
-Framework: EPIC-REL-001 — Release Framework
-```
-
-The corresponding official repository release identity is determined by the Git release tag established when EPIC-REL-001 is formally published.
-
----
-
-# Revision and Git History
-
-This document provides semantic framework history.
-
-Git remains the authoritative source for exact repository changes.
-
-The relationship is:
-
-```text
-Revision History
-       |
-       v
-Framework Meaning
-       |
-       +-------------------+
-       |                   |
-       v                   v
-CHANGELOG.md          Git History
-       |                   |
-       +---------+---------+
-                 |
-                 v
-          Release Identity
-```
-
-The revision history should not attempt to duplicate every commit.
-
----
-
-# Revision and Changelog
-
-`CHANGELOG.md` records changes organized around framework versions and release notes.
-
-`Revision-History.md` records the chronological evolution and architectural significance of those revisions.
-
-The two documents are complementary.
-
----
-
-# Revision and Validation
-
-Material revisions may require revalidation.
-
-Examples include changes to:
-
-* release lifecycle;
-* mandatory gates;
-* compliance semantics;
-* risk classifications;
-* rollback requirements;
-* approval authority;
-* release states.
-
-The expected model is:
-
-```text
-Normative Revision
-       |
-       v
-Impact Assessment
-       |
-       v
-Validation
-       |
-       v
-Updated Framework Version
-```
-
----
-
-# Editorial Revisions
-
-Editorial revisions may include:
-
-* spelling corrections;
-* formatting corrections;
-* clearer wording;
-* reference corrections.
-
-Editorial revisions must not alter normative meaning.
-
-If meaning changes, the revision must be classified as normative.
-
----
-
-# Structural Revisions
-
-Structural changes include:
-
-* renaming documents;
-* adding documents;
-* removing documents;
-* changing numbering;
-* changing canonical inventory.
-
-Structural revisions require synchronized updates to:
-
-```text
-MANIFEST.md
-README.md
-EPIC.yaml
 VALIDATION.md
-Revision-History.md
 ```
 
-where applicable.
+Until current evidence is complete, this revision history SHALL NOT claim final current repository validation.
 
 ---
 
-# Normative Revisions
+# Final Revision Principle
 
-Normative revisions affect how FamilyOS releases are governed.
+EPIC-REL-001 — Release Framework version `4.8.0` establishes the canonical FamilyOS release engineering foundation.
 
-Examples include changes to:
-
-* release gate behavior;
-* compliance requirements;
-* approval rules;
-* rollback requirements;
-* risk acceptance;
-* evidence requirements.
-
-Normative changes require explicit review.
-
-Material architectural changes may require an ADR.
-
----
-
-# Release Revisions
-
-An official framework release should record:
-
-* framework version;
-* release date;
-* validation state;
-* release tag;
-* significant changes.
-
-Future entries may use the following template:
+Its canonical documentation structure consists of:
 
 ```text
-## Version X.Y.Z — <Revision Title>
-
-Date: YYYY-MM-DD
-Status: Released
-Change Type: <TYPE>
-
-Summary:
-<description>
-
-Major Changes:
-- ...
-
-Validation:
-PASS
-
-Release Tag:
-<tag>
+32 numbered documents
+7 control documents
+39 canonical files
 ```
 
----
-
-# Revision Status Values
-
-Recommended revision status values are:
+Version `4.8.0` was historically published under:
 
 ```text
-Draft
-In Progress
-Validating
-Released
-Superseded
-Deprecated
+v4.8.0-release-framework
 ```
 
-The exact machine-readable lifecycle is governed by EPIC metadata.
-
----
-
-# Traceability Requirements
-
-Significant revisions should remain traceable through:
+at:
 
 ```text
-Framework Version
-      |
-      v
-Revision History
-      |
-      v
-CHANGELOG
-      |
-      v
-Git Commit
-      |
-      v
-Release Tag
+306338d7ca3df2c1d4d9b74247a837aa01deb637
 ```
 
-This provides both human-readable and repository-level history.
+That historical publication identity is immutable.
 
----
+Current post-release normalization may improve metadata, documentation consistency, validation evidence, and active-state accuracy without rewriting historical publication.
 
-# Historical Integrity
+Future revisions SHALL preserve:
 
-Historical revision entries must not be silently rewritten to conceal previous framework states.
-
-Corrections to historical entries should themselves remain visible where material.
-
-The purpose of revision history is historical accountability.
-
----
-
-# Retention
-
-Revision history is a permanent framework artifact.
-
-Released entries should remain available for the lifetime of the framework.
-
-Old framework versions may be superseded, but their historical existence must remain traceable.
-
----
-
-# Governance
-
-Revision history is maintained under Release Framework governance.
-
-Governance is responsible for ensuring that:
-
-* major revisions are recorded;
-* version transitions are accurate;
-* normative changes are identified;
-* validation requirements are respected;
-* release history remains consistent with Git evidence.
-
----
-
-# Validation Requirements
-
-Revision history validation should confirm:
-
-```text
-[ ] Current framework version is recorded
-[ ] Major framework milestones are represented
-[ ] Release dates use consistent format
-[ ] Status values are understandable
-[ ] Normative revisions are identifiable
-[ ] Current entry matches framework metadata
-[ ] Released revisions remain historically traceable
-```
-
----
-
-# Anti-Patterns
-
-The following practices are prohibited or strongly discouraged.
-
-## No Revision History
-
-Allowing major framework evolution without maintaining a human-readable historical record.
-
-## Commit-by-Commit Duplication
-
-Copying the entire Git history into this document.
-
-## Hidden Normative Changes
-
-Changing release behavior without recording the revision.
-
-## Historical Rewriting
-
-Removing previous framework states to make history appear cleaner.
-
-## Version Drift
-
-Allowing this file to identify a different current version from other framework metadata.
-
-## Unclassified Major Changes
-
-Recording substantial changes without identifying whether they are structural, normative, validation-related, or release-related.
-
----
-
-# Required Outcomes
-
-This revision history must ensure that:
-
-* framework evolution remains understandable;
-* major release engineering milestones are recorded;
-* normative changes are distinguishable from editorial changes;
-* framework versions remain historically traceable;
-* validation events can be associated with revisions;
-* future maintainers can understand how EPIC-REL-001 reached its current state;
-* the released framework baseline remains identifiable.
-
----
-
-# Final Revision History Principle
-
-The Release Framework will evolve as FamilyOS evolves.
-
-That evolution must remain understandable.
-
-The final principle is:
-
-> Every material evolution of EPIC-REL-001 must leave a clear historical record showing what changed, when it changed, why the framework state changed, and which version established the new baseline.
-
-`Revision-History.md` therefore preserves the historical continuity of the FamilyOS Release Framework.
+* explicit release identity;
+* candidate stability;
+* artifact provenance;
+* validation integrity;
+* publication verification;
+* recovery capability;
+* governance separation;
+* historical release integrity.

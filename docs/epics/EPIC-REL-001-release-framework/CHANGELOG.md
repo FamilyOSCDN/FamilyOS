@@ -21,7 +21,7 @@ The changelog preserves the historical development of the framework and provides
 ## Changed
 
 * Final control-document alignment remains pending.
-* Framework lifecycle status remains `in-progress` until the final release sequence is completed.
+* Framework lifecycle status is `completed`; historical publication and remote verification have been completed.
 
 ---
 
@@ -1115,4 +1115,4 @@ Version **4.8.0** establishes the first canonical **FamilyOS Release Framework**
 
 It transforms release engineering from a collection of repository operations into a governed platform capability covering release planning, readiness, candidate identity, versioning, artifacts, provenance, validation, automation, CI/CD, repository state, tagging, publishing, distribution, security, observability, governance, compliance, metrics, risk management, and recovery.
 
-Until the final validation and publication sequence is completed, **EPIC-REL-001 remains `in-progress` and version `4.8.0` remains prepared for release rather than officially released.**
+EPIC-REL-001 version `4.8.0` is completed and historically published under the immutable tag `v4.8.0-release-framework`.
