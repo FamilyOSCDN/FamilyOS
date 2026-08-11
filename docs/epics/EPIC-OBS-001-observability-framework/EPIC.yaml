@@ -115,5 +115,5 @@ closure:
   final_commit_created: true
   release_tag_created: true
   remote_publication_verified: true
-  working_tree_clean: false
+  working_tree_clean: true
   epic_closed: true
