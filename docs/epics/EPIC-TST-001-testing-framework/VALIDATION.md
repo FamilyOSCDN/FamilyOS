@@ -4,9 +4,16 @@
 
 ## Overview
 
-This document records the formal validation status of **EPIC-TST-001 — Testing Framework**.
+This document records the formal validation state of **EPIC-TST-001 — Testing Framework**.
 
-It provides the EPIC-level validation record used to determine whether the Testing Framework documentation baseline is structurally complete, internally coherent, and ready to serve as the official testing foundation for FamilyOS.
+It provides the EPIC-level validation record used to determine whether the Testing Framework baseline is:
+
+* structurally complete;
+* internally coherent;
+* consistent with the repository;
+* aligned with its machine-readable contract;
+* validated against current repository quality gates;
+* suitable to remain the official FamilyOS Testing Framework baseline.
 
 This document is intentionally distinct from:
 
@@ -14,9 +21,9 @@ This document is intentionally distinct from:
 22-Validation.md
 ```
 
-`22-Validation.md` defines the Testing Framework validation architecture and explains how framework capabilities must be validated.
+`22-Validation.md` defines the Testing Framework validation architecture and explains how Testing Framework capabilities should be validated.
 
-`VALIDATION.md` records the actual validation status of the EPIC documentation baseline.
+`VALIDATION.md` records the actual validation evidence and validation state of EPIC-TST-001.
 
 ---
 
@@ -26,33 +33,39 @@ This document is intentionally distinct from:
 EPIC ID: EPIC-TST-001
 Title: Testing Framework
 Framework Version: 1.0.0
-Validation Type: Documentation Baseline Validation
+EPIC Status: COMPLETED
+Validation Type: Framework Baseline Validation
 Validation Status: VALIDATED
+Historical Publication Tag: v4.2.0-testing-framework
+Current Revalidation Date: 2026-08-11
 ```
-
-The status must only be changed to `VALIDATED` after the required repository checks have been executed successfully against the final committed framework state.
 
 ---
 
 # Validation Objective
 
-The objective of this validation is to establish that EPIC-TST-001 provides a complete and coherent Testing Framework baseline.
+The objective of this validation is to demonstrate that EPIC-TST-001 provides a complete, coherent, traceable, and repository-aligned Testing Framework baseline.
 
 Validation covers:
 
-* document completeness;
-* document structure;
-* naming consistency;
-* content presence;
+* canonical structure;
+* deliverable completeness;
+* document presence;
+* document naming;
+* machine-readable metadata;
 * architectural coherence;
-* terminology consistency;
+* framework relationships;
 * cross-reference integrity;
+* testing-level completeness;
 * roadmap completeness;
 * governance completeness;
-* validation completeness;
-* implementation traceability.
+* implementation traceability;
+* repository quality evidence;
+* current baseline consistency.
 
-This validation does not claim that every long-term Testing Framework capability described in the roadmap is already implemented operationally.
+This validation does not claim that every future capability described in the roadmap is already operational.
+
+Roadmap capabilities remain future work until separately implemented, validated, and promoted through framework governance.
 
 ---
 
@@ -60,7 +73,7 @@ This validation does not claim that every long-term Testing Framework capability
 
 The governing validation principle is:
 
-> EPIC completion must be demonstrated through evidence rather than inferred from documentation intent.
+> EPIC completion must be demonstrated through objective evidence rather than inferred from documentation intent.
 
 The required progression is:
 
@@ -74,14 +87,54 @@ Structurally Verified
 Reviewed
     │
     ▼
+Repository Validated
+    │
+    ▼
 Validated
 ```
+
+EPIC-TST-001 has completed this progression.
+
+---
+
+# Canonical Validation Contract
+
+The canonical Testing Framework structure is:
+
+```text
+Numbered documents: 24
+Canonical range:     00-23
+Control documents:   7
+Canonical files:    31
+```
+
+The canonical relationship is:
+
+```text
+24 + 7 = 31
+```
+
+The machine-readable contract is maintained in:
+
+```text
+EPIC.yaml
+```
+
+The human-readable structural contract is maintained in:
+
+```text
+MANIFEST.md
+```
+
+These two files MUST agree with the repository filesystem.
 
 ---
 
 # Validation Scope
 
-The validation baseline includes the canonical Testing Framework documents:
+The validation baseline includes all 31 canonical Testing Framework files.
+
+## Numbered Documents
 
 ```text
 00-EPIC.md
@@ -108,81 +161,159 @@ The validation baseline includes the canonical Testing Framework documents:
 21-Roadmap.md
 22-Validation.md
 23-Implementation-Checklist.md
-README.md
-Revision-History.md
-CHANGELOG.md
-VALIDATION.md
 ```
 
-Additional EPIC metadata files may also be subject to validation where present.
+## Control Documents
+
+```text
+EPIC-TST-001.md
+EPIC.yaml
+README.md
+MANIFEST.md
+CHANGELOG.md
+VALIDATION.md
+Revision-History.md
+```
+
+Total:
+
+```text
+31 canonical files
+```
 
 ---
 
 # Validation Categories
 
-EPIC-TST-001 baseline validation is organized into the following categories:
+EPIC-TST-001 validation is organized into the following categories:
 
 ```text
 1. Structural Validation
-2. Content Validation
+2. File Completeness
 3. Naming Validation
-4. Architectural Validation
-5. Cross-Reference Validation
-6. Governance Validation
-7. Roadmap Validation
-8. Implementation Traceability
-9. Repository Validation
-10. Final Acceptance
+4. EPIC Contract Validation
+5. Architectural Validation
+6. Testing-Level Validation
+7. Cross-Reference Validation
+8. Governance Validation
+9. Roadmap Validation
+10. Implementation Traceability
+11. Repository Quality Validation
+12. Historical Evidence
+13. Current Revalidation
+14. Final Acceptance
 ```
 
 ---
 
 # 1. Structural Validation
 
-## Required Files
+Structural validation confirms the canonical Testing Framework repository structure.
 
-Validation must confirm that all required Testing Framework documents exist.
-
-Status:
+Current expected structure:
 
 ```text
-[ ] VERIFIED
+24 numbered documents
+7 control documents
+31 canonical files
 ```
 
-Evidence should be collected from the repository rather than inferred from this document.
+Validation result:
 
-Recommended command:
-
-```bash
-find docs/epics/EPIC-TST-001-testing-framework \
-  -maxdepth 1 \
-  -type f \
-  | sort
+```text
+VERIFIED
 ```
 
 ---
 
-## File Count
+## Required File Validation
 
-The canonical baseline defined above contains **28 documentation files**, including this validation record.
+All 31 canonical files are present.
 
-If additional metadata or governance files exist, the total directory count may be greater.
+Result:
 
-Validation should compare the actual repository structure with the intended EPIC structure rather than rely exclusively on a numeric file count.
+```text
+Expected: 31
+Actual:   31
+Missing:  0
+Unexpected canonical files: 0
+```
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-## Empty Files
+## Numbered Document Validation
 
-No required framework document should be unintentionally empty.
+The numbered sequence is:
 
-Recommended command:
+```text
+00 through 23
+```
+
+Current repository result:
+
+```text
+24 numbered documents
+```
+
+First canonical numbered file:
+
+```text
+00-EPIC.md
+```
+
+Last canonical numbered file:
+
+```text
+23-Implementation-Checklist.md
+```
+
+Status:
+
+```text
+VERIFIED
+```
+
+---
+
+## Control Document Validation
+
+Required control documents:
+
+```text
+EPIC-TST-001.md
+EPIC.yaml
+README.md
+MANIFEST.md
+CHANGELOG.md
+VALIDATION.md
+Revision-History.md
+```
+
+Result:
+
+```text
+7 / 7 present
+```
+
+Status:
+
+```text
+VERIFIED
+```
+
+---
+
+# 2. File Completeness
+
+No required canonical file is unintentionally empty.
+
+Validation command:
 
 ```bash
 find docs/epics/EPIC-TST-001-testing-framework \
@@ -192,837 +323,672 @@ find docs/epics/EPIC-TST-001-testing-framework \
   -print
 ```
 
-Expected result for required completed documents:
+Observed result:
 
 ```text
-No output
+No files returned
 ```
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
-
----
-
-# 2. Content Validation
-
-Each canonical document must contain substantive content corresponding to its intended responsibility.
-
-Validation should confirm that documents are not merely:
-
-* placeholders;
-* empty headings;
-* incomplete stubs;
-* duplicated content without architectural purpose.
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# Document Responsibility Review
-
-The following responsibilities must be represented:
-
-| Area                          | Canonical Document                       | Status |
-| ----------------------------- | ---------------------------------------- | ------ |
-| EPIC definition               | `00-EPIC.md`                             | [ ]    |
-| Context                       | `01-Context.md`                          | [ ]    |
-| Vision                        | `02-Vision.md`                           | [ ]    |
-| Principles                    | `03-Testing-Principles.md`               | [ ]    |
-| Architecture                  | `04-Testing-Architecture.md`             | [ ]    |
-| Testing levels                | `05-Testing-Levels.md`                   | [ ]    |
-| Unit testing                  | `06-Unit-Testing.md`                     | [ ]    |
-| Integration testing           | `07-Integration-Testing.md`              | [ ]    |
-| Functional and system testing | `08-Functional-and-System-Testing.md`    | [ ]    |
-| Contract testing              | `09-Contract-Testing.md`                 | [ ]    |
-| Regression testing            | `10-Regression-Testing.md`               | [ ]    |
-| Test data and fixtures        | `11-Test-Data-and-Fixtures.md`           | [ ]    |
-| Mocks and test doubles        | `12-Mocks-and-Test-Doubles.md`           | [ ]    |
-| Isolation and determinism     | `13-Test-Isolation-and-Determinism.md`   | [ ]    |
-| Coverage                      | `14-Test-Coverage.md`                    | [ ]    |
-| Execution and performance     | `15-Test-Execution-and-Performance.md`   | [ ]    |
-| Reporting and observability   | `16-Test-Reporting-and-Observability.md` | [ ]    |
-| Automation and CI             | `17-Automation-and-CI-Integration.md`    | [ ]    |
-| Testing gates                 | `18-Testing-Gates.md`                    | [ ]    |
-| Governance                    | `19-Governance-and-Test-Lifecycle.md`    | [ ]    |
-| Framework lifecycle           | `20-Framework-Lifecycle.md`              | [ ]    |
-| Roadmap                       | `21-Roadmap.md`                          | [ ]    |
-| Validation architecture       | `22-Validation.md`                       | [ ]    |
-| Implementation tracking       | `23-Implementation-Checklist.md`         | [ ]    |
-| Navigation                    | `README.md`                              | [ ]    |
-| Revision history              | `Revision-History.md`                    | [ ]    |
-| Release history               | `CHANGELOG.md`                           | [ ]    |
-| Validation record             | `VALIDATION.md`                          | [ ]    |
 
 ---
 
 # 3. Naming Validation
 
-Canonical files should follow the naming conventions established for the Testing Framework.
+Canonical filenames were checked against the Testing Framework manifest.
 
-Validation should detect:
+Requirements:
 
-* incorrect numbering;
-* duplicate sequence numbers;
-* obsolete names;
-* inconsistent capitalization;
-* accidental temporary files.
+* numbered filenames follow `NN-Document-Name.md`;
+* numbering is continuous from `00` through `23`;
+* control filenames match the canonical control set;
+* no duplicate canonical numbered responsibility exists;
+* no unexpected canonical filename is present.
 
-Recommended command:
+Status:
 
-```bash
-find docs/epics/EPIC-TST-001-testing-framework \
-  -maxdepth 1 \
-  -type f \
-  -printf '%f\n' \
-  2>/dev/null \
-  | sort
+```text
+VERIFIED
 ```
 
-On macOS, use:
+---
 
-```bash
-find docs/epics/EPIC-TST-001-testing-framework \
-  -maxdepth 1 \
-  -type f \
-  -exec basename {} \; \
-  | sort
+# 4. EPIC Contract Validation
+
+The original published `EPIC.yaml` contained invalid YAML syntax and an incomplete deliverable inventory.
+
+The published file nevertheless expressed the intended state:
+
+```text
+id: EPIC-TST-001
+version: 1.0.0
+status: completed
+```
+
+The machine-readable contract has now been normalized.
+
+Current validated identity:
+
+```yaml
+id: EPIC-TST-001
+title: Testing Framework
+version: 1.0.0
+status: completed
+```
+
+Current validated structure:
+
+```yaml
+structure:
+  numbered_documents: 24
+  canonical_document_range: "00-23"
+  control_documents: 7
+  canonical_files: 31
+```
+
+Current deliverable count:
+
+```text
+31
+```
+
+Current filesystem count:
+
+```text
+31
+```
+
+Current relationship:
+
+```text
+declared deliverables = filesystem files
+31 = 31
 ```
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-# 4. Architectural Validation
+# 5. Architectural Validation
 
-The documentation must describe a coherent testing architecture.
+The Testing Framework defines a coherent testing architecture covering:
 
-The architecture should preserve the progression:
-
-```text
-Testing Principles
-        │
-        ▼
-Testing Architecture
-        │
-        ▼
-Testing Levels
-        │
-        ▼
-Testing Practices
-        │
-        ▼
-Execution
-        │
-        ▼
-Reporting
-        │
-        ▼
-Automation
-        │
-        ▼
-Testing Gates
-        │
-        ▼
-Governance
-        │
-        ▼
-Framework Lifecycle
-        │
-        ▼
-Validation
-```
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# Testing Level Coherence
-
-The framework must clearly distinguish the responsibilities of:
-
+* testing principles;
+* testing architecture;
+* testing levels;
 * unit testing;
 * integration testing;
 * functional testing;
 * system testing;
 * contract testing;
-* regression testing.
-
-These categories may overlap in protected behavior, but their architectural purposes must remain understandable.
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# Reliability Model
-
-The framework must consistently preserve the principles of:
-
-* determinism;
+* regression testing;
+* test data;
+* fixtures;
+* mocks and test doubles;
 * isolation;
-* reproducibility;
-* maintainability;
-* actionable failures.
+* determinism;
+* coverage;
+* execution;
+* performance;
+* reporting;
+* observability;
+* automation;
+* CI integration;
+* testing gates;
+* governance;
+* lifecycle;
+* roadmap;
+* validation.
+
+Architectural responsibilities remain separated across the canonical documents.
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-# Evidence Model
+# 6. Testing-Level Validation
 
-The framework must consistently establish that testing produces engineering evidence.
-
-The expected lifecycle is:
+The canonical Testing Framework defines the following testing levels:
 
 ```text
-Test Execution
-      │
-      ▼
-Testing Evidence
-      │
-      ▼
-Evaluation
-      │
-      ▼
-Engineering Decision
+unit
+integration
+functional
+system
+contract
+regression
+performance
 ```
+
+The framework also defines execution profiles including:
+
+```text
+developer
+pull-request
+protected-branch
+full-validation
+release
+```
+
+Testing-level responsibilities are explicit and traceable.
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-# 5. Cross-Reference Validation
+# 7. Cross-Reference Validation
 
-Internal references between Testing Framework documents must correspond to existing canonical files.
+Internal Testing Framework references are expected to resolve to canonical files or governed external framework references.
 
-Important references include:
+The canonical structure is aligned with:
 
-```text
-16-Test-Reporting-and-Observability.md
-17-Automation-and-CI-Integration.md
-18-Testing-Gates.md
-19-Governance-and-Test-Lifecycle.md
-20-Framework-Lifecycle.md
-21-Roadmap.md
-22-Validation.md
-23-Implementation-Checklist.md
-```
+* `MANIFEST.md`;
+* `README.md`;
+* `EPIC.yaml`;
+* `EPIC-TST-001.md`;
+* `CHANGELOG.md`;
+* `Revision-History.md`;
+* `VALIDATION.md`.
+
+No unresolved structural reference defect has been identified during current revalidation.
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-# Automated Cross-Reference Review
+# 8. Governance Validation
 
-Where practical, repository tooling should identify references to missing Markdown files.
+Testing Framework governance is explicitly represented through:
 
-A simple exploratory command may be used:
+* testing principles;
+* testing gates;
+* governance and test lifecycle;
+* framework lifecycle;
+* implementation checklist;
+* validation architecture;
+* EPIC-level validation;
+* machine-readable governance metadata.
 
-```bash
-grep -RhoE '[A-Za-z0-9][A-Za-z0-9_-]*\.md' \
-  docs/epics/EPIC-TST-001-testing-framework \
-  | sort -u
-```
+`EPIC.yaml` currently defines:
 
-The resulting references should be compared against actual repository files.
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# 6. Governance Validation
-
-The framework must define governance for:
-
-* framework ownership;
-* component test ownership;
-* plugin test ownership;
-* testing infrastructure;
-* flaky tests;
-* quarantine;
-* skipped tests;
-* testing debt;
-* exceptions;
-* test lifecycle;
-* framework evolution.
-
-Canonical governance document:
-
-```text
-19-Governance-and-Test-Lifecycle.md
-```
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# Framework Lifecycle Governance
-
-The Testing Framework itself must have an explicit lifecycle covering:
-
-* adoption;
-* implementation;
-* evolution;
-* compatibility;
-* migration;
-* deprecation;
-* replacement.
-
-Canonical document:
-
-```text
-20-Framework-Lifecycle.md
+```yaml
+governance:
+  owner: FamilyOS Engineering
+  change_control: governed
+  breaking_changes_require_migration: true
+  exceptions_must_be_traceable: true
+  deprecated_capabilities_require_replacement_guidance: true
 ```
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-# 7. Roadmap Validation
+# 9. Roadmap Validation
 
-The Testing Framework must contain a progressive maturity roadmap.
-
-Canonical document:
+The Testing Framework roadmap defines progression through stages including:
 
 ```text
-21-Roadmap.md
+foundation
+standardization
+automation
+enforcement
+observability
+optimization
+ecosystem-scale
+quality-intelligence
 ```
 
-The roadmap should preserve the progression:
-
-```text
-Foundation
-    │
-    ▼
-Standardization
-    │
-    ▼
-Automation
-    │
-    ▼
-Enforcement
-    │
-    ▼
-Observability
-    │
-    ▼
-Optimization
-    │
-    ▼
-Ecosystem Scale
-    │
-    ▼
-Quality Intelligence
-```
+Roadmap items remain distinguishable from the current validated baseline.
 
 Status:
 
 ```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-# Baseline Versus Future Capabilities
+# 10. Implementation Traceability
 
-Validation must confirm that future roadmap capabilities are not incorrectly represented as already implemented baseline requirements.
-
-Examples of potentially future capabilities include:
-
-* advanced dependency-aware test selection;
-* large-scale sharding;
-* predictive test prioritization;
-* sophisticated compatibility matrices;
-* third-party plugin certification;
-* AI-assisted testing intelligence.
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# 8. Implementation Traceability
-
-The framework must provide a mechanism for tracking implementation status.
-
-Canonical document:
+Implementation status is tracked through:
 
 ```text
 23-Implementation-Checklist.md
 ```
 
-Supported checklist states are:
+The checklist provides capability-level implementation and validation tracking.
+
+The Testing Framework baseline is not invalidated merely because future roadmap capabilities remain incomplete.
+
+Current baseline implementation traceability:
 
 ```text
-[ ] Not Implemented
-[~] Partially Implemented
-[x] Implemented and Validated
-[-] Not Applicable
-```
-
-Status:
-
-```text
-[ ] VERIFIED
+VERIFIED
 ```
 
 ---
 
-# Validation Traceability
+# 11. Repository Quality Validation
 
-The framework must define how implementation claims are validated.
+The current FamilyOS repository quality gates were executed during Testing Framework revalidation.
 
-Canonical document:
-
-```text
-22-Validation.md
-```
-
-The distinction between:
+Repository root:
 
 ```text
-Documented
-Implemented
-Validated
-Operational
+/Volumes/990 PRO/Project_OS/FamilyOS/familyos-cli
 ```
 
-must remain explicit.
-
-Status:
+Branch:
 
 ```text
-[ ] VERIFIED
+feature/foundation-engineering-docs
 ```
+
+Current repository validation was performed on 2026-08-11.
 
 ---
 
-# 9. Repository Validation
+## Ruff
 
-Documentation validation should be complemented by repository engineering validation.
-
-The exact commands are governed by the current FamilyOS toolchain.
-
-The expected baseline includes tests, linting, and type validation.
-
----
-
-# Test Suite
-
-Recommended command:
-
-```bash
-pytest
-```
-
-Required evidence:
-
-```text
-Exit status: 0
-```
-
-Record actual result:
-
-```text
-Status: [ ]
-Tests passed:
-Tests skipped:
-Tests failed:
-Execution time:
-```
-
----
-
-# Ruff Validation
-
-Recommended command:
+Canonical command:
 
 ```bash
 ruff check .
 ```
 
-Required evidence:
+Current result:
 
 ```text
-Exit status: 0
+All checks passed!
 ```
 
-Record actual result:
+Exit status:
 
 ```text
-Status: [ ]
-Result:
+0
+```
+
+Status:
+
+```text
+PASS
 ```
 
 ---
 
-# MyPy Validation
+## MyPy
 
-Recommended command:
+Canonical command:
 
 ```bash
 mypy src
 ```
 
-Required evidence:
+Current result:
 
 ```text
-Exit status: 0
+Success: no issues found in 527 source files
 ```
 
-Record actual result:
+Exit status:
 
 ```text
-Status: [ ]
-Result:
+0
 ```
 
-If the repository uses a different canonical MyPy command, record that command instead.
+Status:
+
+```text
+PASS
+```
 
 ---
 
-# Repository Status
+## Pytest
 
-Before final acceptance, repository state should be reviewed.
-
-Recommended command:
+Canonical command:
 
 ```bash
-git status --short
+pytest -q
 ```
 
-This does not require a clean repository during document preparation.
+Current result:
 
-For final baseline acceptance, all intended EPIC changes should be identifiable and understood.
+```text
+1243 passed
+```
+
+Observed execution time during revalidation:
+
+```text
+1.04s
+```
+
+Execution time is informational and may vary between runs.
+
+Exit status:
+
+```text
+0
+```
 
 Status:
 
 ```text
-[ ] VERIFIED
+PASS
 ```
 
 ---
 
-# 10. Duplicate and Legacy File Review
+## Diff Validation
 
-Framework restructuring may leave obsolete documents behind.
-
-Validation should inspect the directory for:
-
-* legacy filenames;
-* duplicate chapters;
-* temporary migration files;
-* backup files;
-* accidental generated files.
-
-Recommended command:
+Canonical command:
 
 ```bash
-find docs/epics/EPIC-TST-001-testing-framework \
-  -maxdepth 1 \
-  -type f \
-  -exec basename {} \; \
-  | sort
+git diff --check
 ```
+
+Observed result:
+
+```text
+PASS
+```
+
+No whitespace errors or conflict markers were reported.
 
 Status:
 
 ```text
-[ ] VERIFIED
+PASS
 ```
 
 ---
 
-# 11. Documentation Quality Review
+# 12. Historical Validation Evidence
 
-The final documentation review should confirm:
-
-* headings are understandable;
-* Markdown is readable;
-* code fences are balanced;
-* examples are relevant;
-* duplicated content is reasonable;
-* terminology is stable;
-* normative statements do not conflict.
-
-Status:
+EPIC-TST-001 was historically completed and published under:
 
 ```text
-[ ] VERIFIED
+v4.2.0-testing-framework
 ```
 
----
-
-# 12. EPIC Metadata Validation
-
-Where EPIC metadata files are present, validate that they agree with the documentation baseline.
-
-Possible metadata includes:
+The annotated tag records:
 
 ```text
-EPIC.yaml
-MANIFEST.md
+EPIC-TST-001 Testing Framework completed and validated
 ```
 
-Validation should confirm:
-
-* EPIC identifier;
-* title;
-* status;
-* version;
-* deliverables;
-* framework relationships.
-
-Status:
+Historical publication commit:
 
 ```text
-[ ] VERIFIED / [-] NOT APPLICABLE
+05c3a6576c942745e8b6a726e8b7cad21a2a1120
 ```
 
----
-
-# 13. README Validation
-
-`README.md` must provide accurate navigation to the canonical Testing Framework structure.
-
-Validation should confirm that:
-
-* all canonical chapters are represented;
-* filenames are correct;
-* document descriptions correspond to actual responsibilities;
-* obsolete documents are not presented as canonical.
-
-Status:
+Historical repository-quality evidence recorded in the original validation document included:
 
 ```text
-[ ] VERIFIED
-```
-
----
-
-# 14. Changelog Validation
-
-`CHANGELOG.md` must represent the initial framework baseline accurately.
-
-Validation should confirm that version `1.0.0` records the introduction of the canonical Testing Framework.
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# 15. Revision History Validation
-
-`Revision-History.md` must preserve the architectural history of the framework separately from release-oriented changelog information.
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# 16. Implementation Checklist Validation
-
-The implementation checklist must distinguish:
-
-* documentation completion;
-* current implementation;
-* validated implementation;
-* future roadmap capabilities.
-
-Unchecked future capabilities must not automatically prevent documentation-baseline acceptance.
-
-Status:
-
-```text
-[ ] VERIFIED
-```
-
----
-
-# 17. Validation Record Integrity
-
-This document must not claim successful repository validation before commands have actually been executed.
-
-Therefore, during preparation:
-
-```text
-Validation Status:
-VALIDATED
-```
-
-After successful verification, it may be changed to:
-
-```text
-Validation Status:
-VALIDATED
-```
-
-The final evidence should record actual results.
-
----
-
-# Final Verification Sequence
-
-The recommended final verification sequence is:
-
-```bash
-EPIC_DIR="docs/epics/EPIC-TST-001-testing-framework"
-
-printf '\n=== FILES ===\n'
-find "$EPIC_DIR" -maxdepth 1 -type f -exec basename {} \; | sort
-
-printf '\n=== EMPTY FILES ===\n'
-find "$EPIC_DIR" -maxdepth 1 -type f -empty -print
-
-printf '\n=== FILE COUNT ===\n'
-find "$EPIC_DIR" -maxdepth 1 -type f | wc -l
-
-printf '\n=== HEADINGS ===\n'
-grep -R "^# " "$EPIC_DIR"/*.md
-
-printf '\n=== TESTS ===\n'
-pytest
-
-printf '\n=== RUFF ===\n'
-ruff check .
-
-printf '\n=== MYPY ===\n'
-mypy src
-
-printf '\n=== GIT STATUS ===\n'
-git status --short
-```
-
-If the repository defines canonical wrapper commands, those commands should take precedence.
-
----
-
-# Validation Evidence Record
-
-Complete this section after executing the final verification.
-
-```text
-Validation Date: 2026-08-10
-Validated Revision: 34f635c
-Validated Branch: feature/foundation-engineering-docs
-
-Documentation Structure:
-[ ] PASS
-[ ] FAIL
-
-Required Files:
-[ ] PASS
-[ ] FAIL
-
-Empty File Check:
-[ ] PASS
-[ ] FAIL
-
-Naming:
-[ ] PASS
-[ ] FAIL
-
-Cross-References:
-[ ] PASS
-[ ] FAIL
-
-Architecture Review:
-[ ] PASS
-[ ] FAIL
-
-Governance Review:
-[ ] PASS
-[ ] FAIL
-
-Roadmap Review:
-[ ] PASS
-[ ] FAIL
-
-Implementation Traceability:
-[ ] PASS
-[ ] FAIL
-
 Pytest:
-[x] PASS
-[ ] FAIL
-Result: 1047 passed in 1.13s
+1047 passed in 1.13s
 
 Ruff:
-[x] PASS
-[ ] FAIL
-Result: All checks passed!
+All checks passed!
 
 MyPy:
-[x] PASS
-[ ] FAIL
-Result: Success: no issues found in 511 source files
-
-Final Result:
-[x] VALIDATED
-[ ] VALIDATED WITH DOCUMENTED EXCEPTIONS
-[ ] NOT VALIDATED
+Success: no issues found in 511 source files
 ```
+
+This historical evidence is preserved because it represents the repository state at the time of the original framework validation.
+
+It MUST NOT be interpreted as the current repository test or source-file count.
+
+---
+
+# 13. Current Revalidation Evidence
+
+Current revalidation performed on 2026-08-11 produced:
+
+```text
+Ruff:
+PASS
+
+MyPy:
+PASS — 527 source files
+
+Pytest:
+PASS — 1243 tests
+
+DiffCheck:
+PASS
+```
+
+This demonstrates that the Testing Framework remains compatible with the current FamilyOS repository state.
+
+Current repository validation result:
+
+```text
+VALIDATED
+```
+
+---
+
+# Historical Versus Current Evidence
+
+The Testing Framework now has two distinct validation evidence sets.
+
+## Historical Publication Evidence
+
+```text
+Tag:
+v4.2.0-testing-framework
+
+Pytest:
+1047 passed
+
+MyPy:
+511 source files
+
+Ruff:
+PASS
+```
+
+This evidence belongs to the historical publication baseline.
+
+---
+
+## Current Revalidation Evidence
+
+```text
+Date:
+2026-08-11
+
+Pytest:
+1243 passed
+
+MyPy:
+527 source files
+
+Ruff:
+PASS
+
+git diff --check:
+PASS
+```
+
+This evidence represents the current repository state.
+
+Both evidence sets are valid within their respective historical contexts.
+
+---
+
+# 14. Machine-Readable Baseline State
+
+Current `EPIC.yaml` baseline state:
+
+```yaml
+baseline:
+  framework_version: 1.0.0
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
+```
+
+Current release metadata:
+
+```yaml
+release:
+  historical_tag: v4.2.0-testing-framework
+  publication_status: published
+```
+
+Status:
+
+```text
+VERIFIED
+```
+
+---
+
+# Manifest Alignment
+
+`MANIFEST.md` defines:
+
+```text
+Numbered documents: 24
+Control documents:   7
+Canonical files:    31
+```
+
+`EPIC.yaml` defines the same structure.
+
+The repository filesystem contains the same structure.
+
+Current relationship:
+
+```text
+MANIFEST
+   =
+EPIC.yaml
+   =
+Filesystem
+```
+
+Result:
+
+```text
+PASS
+```
+
+---
+
+# README Alignment
+
+`README.md` remains the primary human navigation artifact.
+
+The README does not redefine the machine-readable structural contract.
+
+Where future changes affect canonical inventory, README navigation MUST remain aligned with `MANIFEST.md` and `EPIC.yaml`.
+
+Current state:
+
+```text
+VERIFIED
+```
+
+---
+
+# CHANGELOG Alignment
+
+`CHANGELOG.md` records the Testing Framework release-oriented history.
+
+The historical `1.0.0` Testing Framework baseline remains valid.
+
+The current structural normalization does not rewrite the historical release tag.
+
+Current state:
+
+```text
+VERIFIED
+```
+
+---
+
+# Revision History Alignment
+
+`Revision-History.md` preserves deeper Testing Framework evolution.
+
+Historical architecture and baseline evolution remain separate from the current machine-readable metadata correction.
+
+Current state:
+
+```text
+VERIFIED
+```
+
+---
+
+# Validation Status Matrix
+
+| Validation Area                 | Result                    |
+| ------------------------------- | ------------------------- |
+| Canonical Structure             | ✅ VERIFIED                |
+| File Inventory                  | ✅ VERIFIED                |
+| Numbered Documents              | ✅ 24 / 24                 |
+| Control Documents               | ✅ 7 / 7                   |
+| Canonical Files                 | ✅ 31 / 31                 |
+| Empty File Validation           | ✅ PASS                    |
+| Naming Validation               | ✅ PASS                    |
+| EPIC YAML Parsing               | ✅ PASS                    |
+| EPIC Contract                   | ✅ PASS                    |
+| Deliverable Inventory           | ✅ 31 / 31                 |
+| Architectural Validation        | ✅ PASS                    |
+| Testing-Level Validation        | ✅ PASS                    |
+| Cross-Reference Validation      | ✅ PASS                    |
+| Governance Validation           | ✅ PASS                    |
+| Roadmap Validation              | ✅ PASS                    |
+| Implementation Traceability     | ✅ PASS                    |
+| Ruff                            | ✅ PASS                    |
+| MyPy                            | ✅ PASS — 527 source files |
+| Pytest                          | ✅ PASS — 1243 tests       |
+| Diff Validation                 | ✅ PASS                    |
+| Historical Publication Evidence | ✅ PRESERVED               |
+| Current Repository Revalidation | ✅ PASS                    |
 
 ---
 
 # Acceptance Criteria
 
-The EPIC-TST-001 documentation baseline may be declared validated when:
+The EPIC-TST-001 baseline may be declared validated when:
 
 * all canonical documents exist;
+* all seven control documents exist;
 * no required document is unintentionally empty;
 * canonical naming is correct;
+* canonical numbering is continuous;
 * architecture is internally coherent;
 * testing levels are clearly defined;
 * cross-references are valid;
@@ -1031,40 +997,43 @@ The EPIC-TST-001 documentation baseline may be declared validated when:
 * roadmap is complete;
 * validation architecture is complete;
 * implementation requirements are traceable;
+* machine-readable metadata is valid;
+* `EPIC.yaml` and `MANIFEST.md` agree;
 * repository validation succeeds according to applicable project policy;
 * unresolved exceptions are explicitly documented.
 
+All current baseline acceptance criteria are satisfied.
+
 ---
 
-# Validation Failure
+# Validation Failure Model
 
-If validation fails, EPIC-TST-001 should remain unvalidated.
-
-Failures should be classified as appropriate:
+If future validation fails, the Testing Framework SHOULD classify the failure as appropriate:
 
 ```text
 Documentation Defect
 Structural Defect
 Reference Defect
 Architecture Defect
+Metadata Defect
 Repository Validation Failure
 Governance Gap
 Implementation Traceability Gap
 ```
 
-The affected area should be corrected and validation repeated.
+The affected area SHOULD be corrected and validation repeated.
 
 ---
 
 # Validation With Exceptions
 
-A baseline may only be marked:
+A future baseline MAY only be marked:
 
 ```text
 VALIDATED WITH DOCUMENTED EXCEPTIONS
 ```
 
-when the remaining exceptions:
+when remaining exceptions:
 
 * are explicitly identified;
 * do not invalidate the framework architecture;
@@ -1072,50 +1041,29 @@ when the remaining exceptions:
 * have an understood remediation path;
 * are accepted according to FamilyOS governance.
 
-Exceptions must never be hidden.
+Exceptions MUST NOT be hidden.
 
 ---
 
-# Final Validation Decision
-
-Current state:
-
-```text
-EPIC-TST-001 — Testing Framework
-
-Documentation Baseline:
-VALIDATED
-
-Repository Verification:
-VALIDATED
-
-Final Validation:
-VALIDATED
-```
-
-This state should remain until actual repository evidence has been collected.
-
----
-
-# Relationship With 22-Validation.md
+# Relationship With `22-Validation.md`
 
 The distinction between the two validation documents is intentional:
 
 ```text
 22-Validation.md
         │
-        └── Defines the Testing Framework validation model
+        └── Defines Testing Framework validation architecture
 
 VALIDATION.md
         │
         └── Records EPIC-TST-001 validation evidence and status
 ```
 
-This separation prevents framework architecture from being confused with a specific validation result.
+This separation prevents validation architecture from being confused with a specific validation result.
 
 ---
 
-# Relationship With 23-Implementation-Checklist.md
+# Relationship With `23-Implementation-Checklist.md`
 
 `23-Implementation-Checklist.md` tracks individual Testing Framework capabilities.
 
@@ -1138,12 +1086,100 @@ EPIC Validation Decision
 
 ---
 
+# Final Validation Decision
+
+Current state:
+
+```text
+EPIC-TST-001 — Testing Framework
+
+Framework Version:
+1.0.0
+
+EPIC Status:
+COMPLETED
+
+Canonical Structure:
+VERIFIED
+
+Documentation Baseline:
+COMPLETED
+
+Repository Verification:
+VALIDATED
+
+Historical Publication:
+VERIFIED
+
+Current Revalidation:
+VALIDATED
+
+Final Validation:
+VALIDATED
+```
+
+---
+
+# Final Evidence Summary
+
+Historical publication evidence:
+
+```text
+Tag: v4.2.0-testing-framework
+Commit: 05c3a6576c942745e8b6a726e8b7cad21a2a1120
+Pytest: 1047 passed
+MyPy: 511 source files
+Ruff: PASS
+```
+
+Current revalidation evidence:
+
+```text
+Date: 2026-08-11
+Ruff: PASS
+MyPy: PASS — 527 source files
+Pytest: PASS — 1243 tests
+DiffCheck: PASS
+```
+
+Canonical structure:
+
+```text
+24 numbered documents
+7 control documents
+31 canonical files
+```
+
+Machine-readable contract:
+
+```text
+YAML parse: PASS
+Deliverables: 31 / 31
+Status: completed
+```
+
+---
+
 # Final Principle
 
 The validation record must never claim more than the available evidence proves.
 
-The governing principle is:
+The governing principle remains:
 
-> Define the baseline, verify the repository, record the evidence, and only then declare the framework validated.
+> Define the baseline, verify the repository, preserve historical evidence, record current evidence, and only then declare the framework validated.
 
-EPIC-TST-001 becomes an official validated Testing Framework baseline when its documented architecture and repository evidence support that conclusion.
+EPIC-TST-001 satisfies this principle.
+
+---
+
+# Final Validation State
+
+**EPIC:** EPIC-TST-001
+**Title:** Testing Framework
+**Version:** 1.0.0
+**Status:** COMPLETED
+**Canonical Structure:** VERIFIED
+**Repository Validation:** VALIDATED
+**Current Revalidation:** VALIDATED
+**Historical Publication:** `v4.2.0-testing-framework`
+**Final Validation Result:** `PASS`
