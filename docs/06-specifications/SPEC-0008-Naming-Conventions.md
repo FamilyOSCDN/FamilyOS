@@ -906,7 +906,7 @@ RFC-NNNN-Title-In-Pascal-Kebab-Case.md
 Example:
 
 ```text
-RFC-0010-Official-Security-Plugin.md
+RFC-0010-Security-Plugin.md
 ```
 
 Temporary drafting identifiers MAY be used only when permitted by the RFC governance process.
@@ -1486,7 +1486,7 @@ Identifier:
 RFC-0010
 
 Filename:
-RFC-0010-Official-Security-Plugin.md
+RFC-0010-Security-Plugin.md
 ```
 
 ---

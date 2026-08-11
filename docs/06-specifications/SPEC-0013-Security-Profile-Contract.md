@@ -84,7 +84,7 @@ Related architecture decisions:
 
 Related RFC:
 
-- RFC-0010 — Official Security Plugin
+- RFC-0010 — Security Plugin
 
 ---
 

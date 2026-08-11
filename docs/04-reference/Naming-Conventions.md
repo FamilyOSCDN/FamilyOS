@@ -1263,7 +1263,7 @@ RFC-NNNN-Descriptive-Title.md
 Examples:
 
 ```text
-RFC-0010-Official-Security-Plugin.md
+RFC-0010-Security-Plugin.md
 RFC-0011-Official-Health-Plugin.md
 ```
 

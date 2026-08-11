@@ -458,7 +458,7 @@ These constraints are intentional to preserve long-term FamilyOS stability.
 - ADR-0007 — Official Plugins Architecture
 - ADR-0010 — Official Plugin Domain Maturity Review
 - RFC-000Y — Plugin SDK v2
-- RFC-0010 — Official Security Plugin
+- RFC-0010 — Security Plugin
 - RFC-0011 — Official Health Plugin
 - RFC-0012 — Official Finance Plugin
 
