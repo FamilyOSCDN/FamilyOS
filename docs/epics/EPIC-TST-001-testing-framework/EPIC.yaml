@@ -259,3 +259,14 @@ baseline:
 release:
   historical_tag: v4.2.0-testing-framework
   publication_status: published
+
+closure:
+  documentation_complete: true
+  control_documents_aligned: true
+  validation_passed: true
+  historical_release_verified: true
+  final_commit_created: false
+  historical_tags_preserved: true
+  remote_publication_verified: true
+  working_tree_clean: false
+  epic_closed: false
