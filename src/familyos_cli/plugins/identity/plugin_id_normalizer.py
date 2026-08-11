@@ -1,6 +1,5 @@
 """Plugin Identifier compatibility normalization."""
 
-
 LEGACY_PLUGIN_ID_ALIASES: dict[str, str] = {
     "education": "familyos.education",
     "documents": "familyos.documents",

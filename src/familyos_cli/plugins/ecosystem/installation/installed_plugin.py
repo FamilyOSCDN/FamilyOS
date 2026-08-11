@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from familyos_cli.plugins.identity import PluginId
+from familyos_cli.plugins.identity import (
+    PluginId,
+    normalize_plugin_id,
+)
 
 
 @dataclass(
@@ -43,11 +46,9 @@ class InstalledPlugin:
 
         Raises:
             ValueError: If no Plugin Identifier is provided, if
-                identity inputs disagree, or if an explicit canonical
-                Plugin Identifier is invalid.
+                identity inputs disagree, or if the resolved Plugin
+                Identifier is invalid.
         """
-
-        explicit_plugin_id = plugin_id is not None
 
         if plugin_id is None:
             plugin_id = name
@@ -57,15 +58,23 @@ class InstalledPlugin:
                 "Plugin identifier is required.",
             )
 
-        if name is not None and explicit_plugin_id and name != plugin_id:
-            raise ValueError(
-                "name and plugin_id must reference the same Plugin Identifier.",
+        plugin_id = normalize_plugin_id(
+            plugin_id,
+        )
+
+        if name is not None:
+            normalized_name = normalize_plugin_id(
+                name,
             )
 
-        if explicit_plugin_id:
-            plugin_id = PluginId(
-                plugin_id,
-            ).value
+            if normalized_name != plugin_id:
+                raise ValueError(
+                    "name and plugin_id must reference the same Plugin Identifier.",
+                )
+
+        plugin_id = PluginId(
+            plugin_id,
+        ).value
 
         object.__setattr__(
             self,
