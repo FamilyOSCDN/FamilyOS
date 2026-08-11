@@ -387,9 +387,6 @@ follow the FamilyOS RFC and ADR processes.
 
 ## ADRs
 
-- ADR-0001 Family Aggregate Root
-- ADR-0002 Membership Links Person And Family
-- ADR-0003 Model-First Architecture
 
 ## Specifications
 

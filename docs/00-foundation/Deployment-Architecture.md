@@ -393,7 +393,6 @@ boundaries should follow the FamilyOS RFC and ADR processes.
 
 ## ADRs
 
-- ADR-0003 Model-First Architecture
 
 ## Specifications
 
