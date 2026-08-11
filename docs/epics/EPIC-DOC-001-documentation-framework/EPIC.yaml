@@ -1,7 +1,308 @@
 id: EPIC-DOC-001
 title: Documentation Framework
+type: engineering-framework
+domain: documentation
 version: 1.0.0
 status: baseline
-category: documentation
-language: en
-owner: FamilyOS Team
+summary: Establish the canonical FamilyOS Documentation Framework governing documentation
+  architecture, standards, lifecycle, templates, metadata, versioning, governance,
+  automation, quality gates, repository organization, review, maintenance, migration,
+  deprecation, metrics, validation, release, and long-term engineering knowledge preservation.
+objectives:
+- establish documentation as a first-class FamilyOS engineering capability
+- define a canonical documentation architecture
+- establish documentation standards and conventions
+- define documentation lifecycle requirements
+- define reusable documentation templates
+- establish canonical documentation metadata requirements
+- define documentation versioning rules
+- establish documentation governance responsibilities
+- define documentation automation capabilities
+- establish documentation quality gates
+- define repository organization requirements
+- establish documentation review processes
+- define documentation maintenance requirements
+- establish documentation migration strategies
+- define documentation deprecation policies
+- establish documentation metrics
+- define framework-level documentation validation
+- define documentation-framework release requirements
+- preserve engineering knowledge and traceability over time
+deliverables:
+- 00-EPIC.md
+- 01-Introduction.md
+- 02-Documentation-Vision.md
+- 03-Documentation-Architecture.md
+- 04-Documentation-Standards.md
+- 05-Documentation-Lifecycle.md
+- 06-Documentation-Templates.md
+- 07-Documentation-Metadata.md
+- 08-Documentation-Versioning.md
+- 09-Documentation-Lifecycle.md
+- 10-Documentation-Governance.md
+- 11-Documentation-Templates.md
+- 12-Documentation-Automation.md
+- 13-Documentation-Quality-Gates.md
+- 14-Documentation-Repository-Organization.md
+- 15-Documentation-Review-Process.md
+- 16-Documentation-Maintenance.md
+- 17-Documentation-Migration-Strategy.md
+- 18-Documentation-Deprecation-Policy.md
+- 19-Documentation-Metrics.md
+- 20-Documentation-Framework-Validation.md
+- 21-Documentation-Framework-Summary.md
+- 22-Documentation-Framework-Release.md
+- 23-Documentation-Framework-Implementation-Checklist.md
+- EPIC-DOC-001.md
+- EPIC.yaml
+- README.md
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- Revision-History.md
+structure:
+  numbered_documents: 24
+  canonical_document_range: 00-23
+  control_documents: 7
+  canonical_files: 31
+historical_structure:
+  numbered_documents: 33
+  canonical_document_range: 01-23
+  control_documents: 7
+  canonical_files: 40
+  documentation_model: mixed-reorganization
+  duplicate_number_groups: 10
+  duplicate_number_range: 09-18
+  duplicate_skeleton_documents: 10
+baseline:
+  framework_version: 1.0.0
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
+repository:
+  path: docs/epics/EPIC-DOC-001-documentation-framework
+  canonical_document_range: 00-23
+  numbered_documents: 24
+  control_documents: 7
+  canonical_files: 31
+  authoritative_remote: origin
+  release_branch: feature/foundation-engineering-docs
+normalization:
+  activity: structural-normalization-and-revalidation
+  source_structure: mixed-reorganization
+  canonical_target_structure: normalized-framework
+  preserves_substantive_numbered_documents: true
+  removes_duplicate_skeleton_documents: true
+  adds_canonical_00_epic: true
+  changes_framework_version: false
+  semantic_intent_preserved: true
+removed_duplicate_skeleton_documents:
+- 09-Documentation-Validation.md
+- 10-Documentation-Automation.md
+- 11-Documentation-Generation.md
+- 12-Documentation-Publishing.md
+- 13-Documentation-Traceability.md
+- 14-Documentation-Quality.md
+- 15-Documentation-Governance.md
+- 16-Documentation-Toolchain.md
+- 17-Roadmap.md
+- 18-References.md
+canonical_numbered_documents:
+- 00-EPIC.md
+- 01-Introduction.md
+- 02-Documentation-Vision.md
+- 03-Documentation-Architecture.md
+- 04-Documentation-Standards.md
+- 05-Documentation-Lifecycle.md
+- 06-Documentation-Templates.md
+- 07-Documentation-Metadata.md
+- 08-Documentation-Versioning.md
+- 09-Documentation-Lifecycle.md
+- 10-Documentation-Governance.md
+- 11-Documentation-Templates.md
+- 12-Documentation-Automation.md
+- 13-Documentation-Quality-Gates.md
+- 14-Documentation-Repository-Organization.md
+- 15-Documentation-Review-Process.md
+- 16-Documentation-Maintenance.md
+- 17-Documentation-Migration-Strategy.md
+- 18-Documentation-Deprecation-Policy.md
+- 19-Documentation-Metrics.md
+- 20-Documentation-Framework-Validation.md
+- 21-Documentation-Framework-Summary.md
+- 22-Documentation-Framework-Release.md
+- 23-Documentation-Framework-Implementation-Checklist.md
+control_documents:
+- EPIC-DOC-001.md
+- EPIC.yaml
+- README.md
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- Revision-History.md
+documentation_principles:
+- documentation-is-an-engineering-artifact
+- single-source-of-truth
+- explicit-ownership
+- traceability
+- maintainability
+- version-control
+- validation
+- controlled-evolution
+documentation_domains:
+- documentation-architecture
+- documentation-standards
+- documentation-lifecycle
+- documentation-templates
+- documentation-metadata
+- documentation-versioning
+- documentation-governance
+- documentation-automation
+- documentation-quality-gates
+- repository-organization
+- documentation-review
+- documentation-maintenance
+- documentation-migration
+- documentation-deprecation
+- documentation-metrics
+- documentation-validation
+- documentation-release
+documentation_architecture:
+  layers:
+  - strategic-documentation
+  - governance-documentation
+  - specification-documentation
+  - implementation-documentation
+lifecycle:
+  canonical_states:
+  - draft
+  - review
+  - validation
+  - approval
+  - publication
+  - maintenance
+  - revision
+  - deprecation
+  - archival
+  traceability_required: true
+  destructive_history_rewrite_prohibited: true
+governance:
+  documentation_is_normative: true
+  version_control_required: true
+  ownership_required: true
+  review_required: true
+  validation_required: true
+  lifecycle_governance_required: true
+  change_traceability_required: true
+  repository_history_preservation_required: true
+quality:
+  correctness_required: true
+  completeness_required: true
+  consistency_required: true
+  clarity_required: true
+  discoverability_required: true
+  traceability_required: true
+  maintainability_required: true
+  structural_validity_required: true
+  quality_gates_required: true
+automation:
+  metadata_validation_supported: true
+  naming_validation_supported: true
+  structure_validation_supported: true
+  link_validation_supported: true
+  inventory_validation_supported: true
+  documentation_generation_supported: true
+  quality_gate_enforcement_supported: true
+  release_validation_supported: true
+  automation_must_not_replace_review: true
+  automation_must_not_replace_ownership: true
+validation:
+  yaml_parse_required: true
+  yaml_contract_required: true
+  filesystem_contract_required: true
+  numbered_document_integrity_required: true
+  control_document_integrity_required: true
+  duplicate_number_check_required: true
+  empty_file_check_required: true
+  markdown_reference_validation_required: true
+  placeholder_validation_required: true
+  semantic_consistency_validation_required: true
+  documentation_quality_validation_required: true
+  historical_release_validation_required: true
+  ruff_required: true
+  mypy_required: true
+  pytest_required: true
+  diff_check_required: true
+quality_gates:
+  ruff: required
+  mypy: required
+  pytest: required
+  diff_check: required
+framework_boundaries:
+  engineering_foundation_authority: EPIC-ENG-001
+  testing_authority: EPIC-TST-001
+  quality_authority: EPIC-QLT-001
+  build_authority: EPIC-BLD-001
+  release_authority: EPIC-REL-001
+  observability_authority: EPIC-OBS-001
+  security_authority: EPIC-SEC-001
+  operations_authority: EPIC-OPS-001
+  documentation_authority: EPIC-DOC-001
+release:
+  intended_version: 1.0.0
+  release_type: framework
+  target_channel: stable
+  publication_model: documentary
+  historical_release_model: documentary_only
+  historical_release_declared: true
+  historical_release_date: '2026-08-06'
+  historical_tag: null
+  historical_commit: null
+  publication_status: documentary_release
+  historical_tag_immutable: not_applicable
+  remote_publication_verified: not_applicable
+historical_evidence:
+  release_document:
+    file: 22-Documentation-Framework-Release.md
+    declared_version: 1.0.0
+    declared_status: released
+    declared_date: '2026-08-06'
+  dedicated_framework_tag_found: false
+  dedicated_framework_commit_found: false
+  git_release_identity: documentary_only
+  examined_repository_history:
+    reorganization_commit: 4775299d0039a26051115a66ce4e7063c303c179
+    reorganization_date: '2026-08-06'
+    later_epic_doc_commit: e4ea9e239c9672c07808aa81432d555f9e84724c
+  excluded_tags:
+  - tag: v3.5.0-documents-plugin
+    commit: 935865417f851f15fc617a56da8d5230c0361f41
+    reason: Documents Plugin release, not Documentation Framework release
+  - tag: v4.2.0-adr-governance-consolidation
+    commit: e4ea9e239c9672c07808aa81432d555f9e84724c
+    reason: ADR governance consolidation, not Documentation Framework release
+acceptance:
+  canonical_numbered_range: 00-23
+  expected_numbered_documents: 24
+  expected_control_documents: 7
+  expected_canonical_files: 31
+  duplicate_number_groups_expected: 0
+  empty_canonical_files_expected: 0
+  yaml_filesystem_alignment_required: true
+  manifest_alignment_required: true
+  readme_alignment_required: true
+  validation_evidence_required: true
+  historical_release_classification_required: true
+  repository_quality_gates_required: true
+  clean_final_repository_required: true
+closure:
+  documentation_complete: true
+  structural_normalization_complete: true
+  control_documents_aligned: true
+  validation_passed: true
+  historical_release_verified: documentary_only
+  final_commit_created: false
+  release_tag_created: false
+  remote_publication_verified: not_applicable
+  working_tree_clean: false
+  epic_closed: false
