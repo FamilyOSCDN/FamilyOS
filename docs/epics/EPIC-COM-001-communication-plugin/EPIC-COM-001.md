@@ -527,10 +527,10 @@ Current repository-control state:
 Documentation Status:      Completed
 Repository Validation:     Validated
 Final Validation:          Validated
-EPIC Closure:              Pending
+EPIC Closure:              Closed
 ```
 
-Historical completion and current repository validation remain independently traceable. Technical revalidation is complete; final repository closure remains pending until the normalization commit, push, remote branch verification, final closure metadata update, and clean working-tree verification are complete.
+Historical completion and current repository validation remain independently traceable. Technical revalidation and final repository closure are complete, with publication, remote branch verification, final closure metadata, and clean working-tree verification recorded.
 
 ---
 
@@ -666,13 +666,13 @@ control_documents_aligned:    true
 validation_passed:            true
 historical_release_verified:  true
 final_commit_created:         true
-historical_tag_preserved:     true
+historical_tags_preserved:     true
 remote_publication_verified:  true
 working_tree_clean:           true
 epic_closed:                  true
 ```
 
-Until those conditions are proven, repository closure remains pending.
+Those conditions have been proven; repository closure is complete.
 
 ---
 
@@ -700,7 +700,7 @@ Remote Tag Integrity:       Verified
 
 Repository Validation:      Validated
 Final Validation:           Validated
-EPIC Closure:               Pending
+EPIC Closure:               Closed
 ```
 
 ---

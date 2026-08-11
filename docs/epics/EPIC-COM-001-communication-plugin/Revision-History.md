@@ -609,7 +609,7 @@ Canonical Files:            25
 
 Repository Validation:      Validated
 Final Validation:           Validated
-EPIC Closure:               Pending
+EPIC Closure:               Closed
 ```
 
 ---

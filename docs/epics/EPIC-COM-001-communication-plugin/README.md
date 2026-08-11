@@ -375,10 +375,10 @@ Current state:
 Documentation Status:      Completed
 Repository Validation:     Validated
 Final Validation:          Validated
-EPIC Closure:              Pending
+EPIC Closure:              Closed
 ```
 
-Technical revalidation is complete. EPIC closure remains pending until the normalization changes are committed and pushed, the local and remote branch heads are verified to match, final closure metadata is recorded, and the working tree is clean.
+Technical revalidation and EPIC closure are complete. The normalization changes are committed and published, local and remote branch heads have been verified, final closure metadata is recorded, and the working tree is clean.
 
 Final validation SHALL verify:
 
@@ -448,7 +448,7 @@ Remote Tag Integrity:       Verified
 
 Repository Validation:      Validated
 Final Validation:           Validated
-EPIC Closure:               Pending
+EPIC Closure:               Closed
 ```
 
 ---

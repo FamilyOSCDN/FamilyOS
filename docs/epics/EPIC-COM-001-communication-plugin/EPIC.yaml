@@ -169,7 +169,7 @@ closure:
   validation_passed: true
   historical_release_verified: true
   final_commit_created: true
-  historical_tag_preserved: true
+  historical_tags_preserved: true
   remote_publication_verified: true
   working_tree_clean: true
   epic_closed: true

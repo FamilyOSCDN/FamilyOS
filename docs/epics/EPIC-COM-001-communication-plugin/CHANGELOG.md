@@ -589,7 +589,7 @@ control_documents_aligned:     true
 validation_passed:             true
 historical_release_verified:   true
 final_commit_created:          false
-historical_tag_preserved:      true
+historical_tags_preserved:      true
 remote_publication_verified:   true
 working_tree_clean:            false
 epic_closed:                   false
@@ -656,7 +656,7 @@ Canonical Files:            25
 
 Repository Validation:      Validated
 Final Validation:           Validated
-Final Closure:              Pending
+Final Closure:              Closed
 ```
 
 ---
