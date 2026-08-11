@@ -34,7 +34,7 @@ Title:       Plugin Compliance Framework
 Category:    Engineering Platform
 Domain:      Plugin Ecosystem
 Version:     1.0.0
-Status:      In Progress
+Status:      Baseline
 Maturity:    Framework Definition
 ```
 
