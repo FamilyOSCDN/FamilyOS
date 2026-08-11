@@ -7,7 +7,7 @@
 | Identifier | EPIC-QLT-001         |
 | Title      | Quality Framework    |
 | Version    | 1.0.0                |
-| Status     | Draft                |
+| Status     | Completed            |
 | Category   | Engineering          |
 | Domain     | Engineering Platform |
 | Owner      | FamilyOS Engineering |

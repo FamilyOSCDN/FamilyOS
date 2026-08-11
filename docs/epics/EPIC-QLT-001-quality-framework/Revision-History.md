@@ -1,135 +1,179 @@
 # EPIC-QLT-001 — Quality Framework Revision History
 
-## Metadata
+## Document Purpose
 
-| Field           | Value                |
-| --------------- | -------------------- |
-| EPIC            | EPIC-QLT-001         |
-| Framework       | Quality Framework    |
-| Current Version | 1.0.0                |
-| Current Status  | Draft                |
-| Owner           | FamilyOS Engineering |
-| Language        | English              |
+This document records the evolution of **EPIC-QLT-001 — Quality Framework**.
+
+It preserves the historical development, normalization, validation, governance, publication, and post-publication revalidation context of the FamilyOS Quality Framework.
+
+The revision history distinguishes between:
+
+* framework document versioning;
+* repository-wide publication tagging;
+* historical immutable release states;
+* canonical structure normalization;
+* validation evidence;
+* post-publication corrections;
+* future framework evolution.
 
 ---
 
-# Purpose
+# Current EPIC State
 
-This document records the revision history of EPIC-QLT-001 — Quality Framework.
+| Field                        | Value                         |
+| ---------------------------- | ----------------------------- |
+| EPIC                         | EPIC-QLT-001                  |
+| Title                        | Quality Framework             |
+| Version                      | 1.0.0                         |
+| Status                       | Completed                     |
+| Owner                        | FamilyOS Engineering          |
+| Language                     | English                       |
+| Numbered Documents           | 26                            |
+| Control Documents            | 7                             |
+| Canonical Files              | 33                            |
+| Canonical Range              | `00 → 25`                     |
+| Historical Publication Tag   | `v4.6.0-quality-framework`    |
+| Historical Publication State | Published                     |
+| Historical Tag Policy        | Immutable                     |
+| Current Activity             | Post-publication revalidation |
 
-It provides traceability for significant changes affecting:
+---
 
-* framework structure;
-* normative concepts;
-* quality architecture;
-* document organization;
+# Revision Principles
+
+The Quality Framework revision history follows several principles.
+
+## Historical Integrity
+
+Published repository states SHALL remain historically identifiable.
+
+A historical publication tag SHALL NOT be silently moved to a later commit merely because documentation is corrected or revalidated after publication.
+
+---
+
+## Explicit Evolution
+
+Material framework changes should be recorded explicitly.
+
+Changes affecting:
+
+* architecture;
+* semantics;
 * governance;
-* lifecycle;
-* dependencies;
-* validation;
-* implementation strategy;
-* release state.
+* canonical structure;
+* quality rules;
+* quality evidence;
+* quality gates;
+* compliance;
+* lifecycle requirements;
 
-The revision history complements:
-
-* `CHANGELOG.md`, which describes significant changes by version;
-* `VALIDATION.md`, which records actual validation evidence and status;
-* `EPIC.yaml`, which provides machine-readable framework metadata;
-* `MANIFEST.md`, which defines the authoritative structural inventory.
+should be traceable to an identifiable framework revision.
 
 ---
 
-# Revision Policy
+## Evidence-Based Validation
 
-A revision SHOULD be recorded when a change materially affects the Quality Framework.
+Validation state SHALL reflect actual evidence.
 
-Examples include:
+A validation result SHALL NOT be recorded as `PASS` merely because a document expects or requires that validation.
 
-* canonical document restructuring;
-* addition or removal of normative concepts;
-* quality model changes;
-* rule model changes;
-* profile model changes;
-* evidence model changes;
-* gate semantics changes;
-* governance changes;
-* framework lifecycle changes;
-* dependency changes;
-* validation model changes;
-* release-state transitions.
-
-Minor wording or formatting corrections do not necessarily require a dedicated revision entry unless they alter normative meaning.
+Only actual execution, review, or other accepted evidence may convert a pending validation requirement into a successful validation result.
 
 ---
 
-# Revision States
+## Structural Consistency
 
-Framework revisions may use lifecycle states such as:
+The canonical documentation inventory SHALL remain synchronized across:
+
+* `EPIC.yaml`;
+* `MANIFEST.md`;
+* `README.md`;
+* `VALIDATION.md`;
+* `CHANGELOG.md`;
+* `Revision-History.md`;
+* `EPIC-QLT-001.md`.
+
+---
+
+# Versioning Model
+
+The Quality Framework uses semantic versioning principles for framework evolution.
 
 ```text
-Draft
-  ↓
-Review
-  ↓
-Validated
-  ↓
-Approved
-  ↓
-Released
-  ↓
-Superseded
+MAJOR.MINOR.PATCH
 ```
 
-Not every internal working revision requires publication.
+The interpretation is:
 
-Published revisions must remain traceable through version control.
+| Change                                  | Expected Version Impact             |
+| --------------------------------------- | ----------------------------------- |
+| Breaking framework semantics            | MAJOR                               |
+| Compatible framework capability         | MINOR                               |
+| Correction or clarification             | PATCH                               |
+| Post-publication metadata normalization | Usually no framework version change |
+| Validation evidence refresh             | Usually no framework version change |
 
----
-
-# Revision History
-
-## Version 1.0.0 — Draft
-
-**Status:** In Progress
-
-**Owner:** FamilyOS Engineering
-
-### Summary
-
-Version 1.0.0 establishes the first complete normative architecture of the FamilyOS Quality Framework.
-
-The revision transforms EPIC-QLT-001 from a generic engineering-derived documentation structure into a dedicated quality engineering framework.
-
-The framework now defines quality as a first-class engineering capability spanning:
-
-* principles;
-* architecture;
-* domains;
-* rules;
-* profiles;
-* metrics;
-* evidence;
-* risks;
-* defects;
-* quality debt;
-* reviews;
-* assessments;
-* automation;
-* observability;
-* gates;
-* compliance;
-* continuous improvement;
-* governance;
-* lifecycle;
-* validation;
-* release;
-* implementation.
+Version impact remains subject to FamilyOS release governance.
 
 ---
 
-## Structural Revision
+# Framework Version vs Repository Tag
 
-The canonical numbered documentation was reorganized into exactly 26 documents:
+The Quality Framework version and repository publication tag serve different purposes.
+
+The framework version identifies the semantic version of the Quality Framework:
+
+```text
+1.0.0
+```
+
+The historical repository publication tag identifies the repository state under which that framework version was published:
+
+```text
+v4.6.0-quality-framework
+```
+
+These values SHALL NOT be assumed to use the same numbering scheme.
+
+---
+
+# Canonical Structure History
+
+The current canonical Quality Framework structure consists of:
+
+```text
+26 numbered documents
++
+7 control documents
+=
+33 canonical files
+```
+
+The canonical numbered sequence is:
+
+```text
+00 → 25
+```
+
+The seven control documents are:
+
+```text
+EPIC-QLT-001.md
+EPIC.yaml
+README.md
+MANIFEST.md
+CHANGELOG.md
+VALIDATION.md
+Revision-History.md
+```
+
+This structure represents the authoritative current documentation organization for EPIC-QLT-001.
+
+---
+
+# Canonical Numbered Documents
+
+The current numbered document sequence is:
 
 ```text
 00-EPIC.md
@@ -160,596 +204,705 @@ The canonical numbered documentation was reorganized into exactly 26 documents:
 25-Implementation-Checklist.md
 ```
 
-This establishes a complete sequential structure from `00` through `25`.
+---
+
+# Revision Timeline
+
+## Version 1.0.0 — Quality Framework Foundation
+
+**Status:** Completed
+**Historical Publication:** Published
+**Historical Tag:** `v4.6.0-quality-framework`
+
+Version `1.0.0` establishes the first complete canonical FamilyOS Quality Framework.
+
+The framework defines:
+
+* Quality Principles;
+* Quality Architecture;
+* Quality Domains;
+* Quality Rule Model;
+* Quality Profiles;
+* Quality Metrics;
+* Quality Evidence;
+* Quality Risk Management;
+* Defect and Quality Debt Management;
+* Quality Reviews and Assessments;
+* Quality Automation;
+* Quality Observability;
+* Quality Gates;
+* Quality Compliance;
+* Continuous Improvement;
+* Quality Governance;
+* Framework Lifecycle;
+* Roadmap;
+* Validation;
+* Release;
+* Implementation Planning.
+
+The framework establishes quality as a continuous, evidence-based, explainable, measurable, risk-aware, and governed engineering capability.
 
 ---
 
-## Previous Structure Replacement
+# Version 1.0.0 Structural Baseline
 
-The previous generic engineering-oriented structure was retired.
+The final canonical structural baseline for version `1.0.0` is:
 
-It included documents based on responsibilities such as:
+| Category           |     Count |
+| ------------------ | --------: |
+| Numbered Documents |        26 |
+| Control Documents  |         7 |
+| Canonical Files    |        33 |
+| Canonical Range    | `00 → 25` |
+
+The canonical structure SHALL be treated as authoritative unless a future governed framework revision explicitly changes it.
+
+---
+
+# Historical Publication
+
+Version `1.0.0` was historically published under:
 
 ```text
-Engineering Principles
-Repository Architecture
-Development Workflow
-Coding Standards
-Project Structure
-Toolchain
-Environment Management
-Dependency Management
-Configuration Management
-Build Philosophy
-Testing Philosophy
-Documentation Philosophy
-Quality Philosophy
-Technical Governance
-Engineering Lifecycle
+v4.6.0-quality-framework
 ```
 
-Those subjects remain important within FamilyOS but are primarily governed by their respective engineering frameworks.
+The tag represents a historical repository state.
 
-EPIC-QLT-001 now concentrates specifically on quality engineering responsibilities.
+It is not a mutable pointer to the latest documentation corrections.
 
----
-
-## Quality Architecture Revision
-
-Version 1.0.0 establishes a dedicated Quality Architecture.
-
-The framework introduces a conceptual progression:
+The publication relationship is therefore:
 
 ```text
-Quality Expectations
+Quality Framework 1.0.0
         ↓
-Quality Rules
+Historical Repository Publication
         ↓
-Quality Profiles
-        ↓
-Quality Targets
-        ↓
-Verification
-        ↓
-Quality Evidence
-        ↓
-Quality Findings
-        ↓
-Quality Assessments
-        ↓
-Quality Gates
-        ↓
-Engineering Decisions
-```
-
-This provides a common quality abstraction without replacing specialized engineering tools.
-
----
-
-## Quality Domain Revision
-
-A dedicated Quality Domain model was established.
-
-Initial domains include:
-
-* architecture;
-* source code;
-* static analysis;
-* typing;
-* testing;
-* documentation;
-* dependencies;
-* build;
-* release;
-* security;
-* plugins;
-* compliance;
-* governance.
-
-Quality Domains provide a stable organizational boundary for rules, evidence, metrics, assessments, and governance.
-
----
-
-## Quality Rule Revision
-
-The framework introduces Quality Rules as governed and traceable quality expectations.
-
-Rules may define:
-
-* applicability;
-* severity;
-* evaluation semantics;
-* expected evidence;
-* ownership;
-* lifecycle;
-* governance.
-
-Rules should remain explainable and deterministic whenever possible.
-
----
-
-## Quality Profile Revision
-
-Quality Profiles were introduced to group applicable quality expectations for categories of engineering targets.
-
-Profiles allow FamilyOS to avoid applying identical controls indiscriminately to every target.
-
-Conceptually:
-
-```text
-Target
-   ↓
-Profile
-   ↓
-Applicable Rules
-   ↓
-Evaluation
+v4.6.0-quality-framework
 ```
 
 ---
 
-## Quality Evidence Revision
+# Historical Tag Immutability
 
-Quality Evidence was established as a first-class framework concept.
-
-Evidence is expected to be:
-
-* structured;
-* reproducible;
-* traceable;
-* revision-aware;
-* machine-readable;
-* attributable.
-
-This creates a foundation for reliable quality assessments and gates.
-
----
-
-## Quality Assessment Revision
-
-Quality Reviews and Quality Assessments were formalized as mechanisms for interpreting quality evidence and findings.
-
-Assessment results should remain explainable and traceable to applicable expectations.
-
----
-
-## Quality Risk Revision
-
-Quality Risk was introduced as a first-class concept for quality concerns that cannot always be represented through deterministic rules.
-
-The framework establishes principles for:
-
-* identification;
-* evaluation;
-* ownership;
-* mitigation;
-* monitoring;
-* escalation;
-* acceptance;
-* closure.
-
----
-
-## Defect and Quality Debt Revision
-
-The framework distinguishes defects from quality debt.
-
-Defects represent observed deficiencies.
-
-Quality debt represents known quality compromises or deficiencies whose remediation has been deferred or accumulated.
-
-Both require controlled lifecycle management.
-
----
-
-## Quality Automation Revision
-
-Version 1.0.0 establishes the architecture for deterministic quality automation.
-
-Initial integration direction includes:
+The historical publication tag:
 
 ```text
+v4.6.0-quality-framework
+```
+
+SHALL remain immutable.
+
+Post-publication changes SHALL NOT:
+
+* move the historical tag;
+* delete and recreate the historical tag to reference a newer commit;
+* reinterpret the tag as the current repository state;
+* silently rewrite historical publication evidence.
+
+Corrections after publication SHALL instead be represented by ordinary repository commits and, where required, a future governed release.
+
+---
+
+# Post-Publication Normalization
+
+Following historical publication, the Quality Framework documentation may receive normalization changes that improve consistency without redefining the semantic identity of version `1.0.0`.
+
+Examples include:
+
+* canonical inventory synchronization;
+* metadata normalization;
+* validation evidence correction;
+* formatting normalization;
+* control-document synchronization;
+* terminology corrections;
+* stale-state removal;
+* reference corrections;
+* historical-state clarification.
+
+Such changes do not automatically require modification of the historical publication tag.
+
+---
+
+# Post-Publication Revalidation
+
+A post-publication revalidation is being performed against the current repository state.
+
+The purpose of this revalidation is to confirm that the current Quality Framework documentation remains consistent with:
+
+* the physical repository inventory;
+* the canonical `00 → 25` structure;
+* the seven control documents;
+* current repository quality gates;
+* framework boundaries;
+* governance expectations;
+* current validation evidence.
+
+The revalidation does not rewrite historical publication history.
+
+---
+
+# Revalidation Scope
+
+The post-publication revalidation includes:
+
+```text
+YAML Contract
+Canonical Inventory
+Filesystem Inventory
+Numbering Integrity
+Control Document Integrity
+Empty File Detection
+Reference Integrity
+Semantic Consistency
+Framework Boundary Review
+Governance Consistency
+Placeholder Review
+Documentation Review
 Ruff
 MyPy
 Pytest
+Repository Diff Validation
+Repository State Validation
 ```
 
-The framework adopts the principle:
+Only checks supported by actual evidence SHALL be marked as passed.
+
+---
+
+# Current Structural Evidence
+
+The current canonical inventory is:
 
 ```text
-Local Quality Logic
-        =
-CI Quality Logic
+Numbered Documents: 26
+Control Documents:  7
+Canonical Files:    33
+Canonical Range:    00 → 25
 ```
 
-where reasonably possible.
-
----
-
-## Quality Observability Revision
-
-Quality Observability was introduced to make quality state and quality-system behavior visible.
-
-Observability may include:
-
-* assessment outcomes;
-* findings;
-* gate results;
-* execution failures;
-* quality trends;
-* recurring deficiencies;
-* execution duration;
-* historical quality state.
-
----
-
-## Quality Gate Revision
-
-Quality Gates were established as governed engineering decision mechanisms.
-
-The framework adopts progressive enforcement:
+The authoritative machine-readable structure is maintained in:
 
 ```text
-Observation
-    ↓
-Non-Blocking
-    ↓
-Blocking
-```
-
-This reduces the risk of introducing unreliable controls directly into blocking workflows.
-
----
-
-## Quality Compliance Revision
-
-Quality Compliance was defined around explicit requirements, rules, evidence, findings, and results.
-
-The framework requires that missing mandatory evidence must not silently become compliance.
-
----
-
-## Quality Exception Revision
-
-Governed Quality Exceptions were introduced for temporary deviations from authoritative quality expectations.
-
-Exceptions require explicit information such as:
-
-* scope;
-* reason;
-* target;
-* affected requirement;
-* owner;
-* approving authority;
-* risk;
-* expiration;
-* traceability.
-
----
-
-## Continuous Improvement Revision
-
-Continuous Improvement was established as a first-class quality capability.
-
-Recurring quality problems should be capable of producing systemic engineering improvements.
-
-Conceptually:
-
-```text
-Evidence
-   ↓
-Finding
-   ↓
-Analysis
-   ↓
-Root Cause
-   ↓
-Improvement
-   ↓
-Validation
-   ↓
-Updated Control
-```
-
----
-
-## Governance Revision
-
-Quality Governance now explicitly covers:
-
-* authority;
-* ownership;
-* policy management;
-* rule governance;
-* profile governance;
-* gate governance;
-* exception governance;
-* escalation;
-* framework evolution.
-
-This prevents quality controls from becoming unowned or silently authoritative.
-
----
-
-## Framework Lifecycle Revision
-
-A governed lifecycle for the Quality Framework itself was established.
-
-The framework may progress through states involving:
-
-```text
-Definition
-   ↓
-Validation
-   ↓
-Adoption
-   ↓
-Operation
-   ↓
-Evolution
-   ↓
-Deprecation
-   ↓
-Retirement
-```
-
-Versioning and migration requirements apply when framework evolution affects authoritative semantics.
-
----
-
-## Framework Boundary Revision
-
-Version 1.0.0 clarifies the Quality Framework's relationship with neighboring FamilyOS frameworks.
-
-Primary relationships include:
-
-* `EPIC-ENG-001` — Engineering Foundation;
-* `EPIC-TST-001` — Testing Framework;
-* `EPIC-DOC-001` — Documentation Framework;
-* `EPIC-BLD-001` — Build Framework;
-* `EPIC-REL-001` — Release Framework;
-* `EPIC-PLUGIN-002` — Plugin Compliance Framework.
-
-The Quality Framework consumes authoritative evidence and results from specialized frameworks rather than duplicating their responsibilities.
-
----
-
-## Implementation Strategy Revision
-
-A progressive implementation strategy was established.
-
-The general direction is:
-
-```text
-Normative Documentation
-        ↓
-Core Quality Models
-        ↓
-Quality Evidence
-        ↓
-Tool Adapters
-        ↓
-Quality Assessment
-        ↓
-Quality Profiles
-        ↓
-CLI Integration
-        ↓
-CI Integration
-        ↓
-Quality Gates
-        ↓
-Risk / Debt / Compliance
-        ↓
-Observability
-        ↓
-Governance Automation
-        ↓
-Continuous Improvement
-        ↓
-Quality Intelligence
-```
-
-The detailed implementation progression is maintained in:
-
-`25-Implementation-Checklist.md`
-
----
-
-## AI Boundary Revision
-
-The framework establishes a conservative boundary for future AI-assisted quality capabilities.
-
-AI may assist with:
-
-* summarization;
-* explanation;
-* investigation;
-* pattern recognition;
-* historical analysis;
-* recommendation.
-
-AI does not replace deterministic controls or governed engineering authority.
-
----
-
-# Structural Corrections During Version 1.0.0
-
-Several inconsistencies were identified while establishing the canonical framework.
-
-These included:
-
-* obsolete generic engineering documents;
-* mismatched filenames and internal responsibilities;
-* shifted lifecycle, roadmap, and reference documents;
-* duplicate document number `23`;
-* concatenated Summary content;
-* duplicate implementation checklist responsibilities;
-* accidental replacement of `00-EPIC.md`.
-
-The structural migration resolved these inconsistencies.
-
-Canonical examples include:
-
-```text
-05-Quality-Domains.md
-06-Quality-Rule-Model.md
-07-Quality-Profiles.md
-19-Framework-Lifecycle.md
-20-Roadmap.md
-21-References.md
-23-Summary.md
-25-Implementation-Checklist.md
-```
-
-The resulting numbered structure contains exactly:
-
-```text
-26 documents
-00 → 25
-```
-
----
-
-# Control Artifact Revision
-
-Version 1.0.0 also synchronizes the EPIC control layer.
-
-Canonical control artifacts are:
-
-```text
-EPIC-QLT-001.md
 EPIC.yaml
-README.md
-MANIFEST.md
-CHANGELOG.md
-VALIDATION.md
-Revision-History.md
 ```
 
-The complete canonical EPIC therefore consists of:
+The authoritative human-readable inventory is maintained in:
+
+```text
+MANIFEST.md
+```
+
+---
+
+# Current Repository Quality Evidence
+
+During the current post-publication revalidation, repository quality gates were executed against the current repository state.
+
+The recorded execution produced:
+
+```text
+Ruff:
+All checks passed!
+
+MyPy:
+Success: no issues found in 527 source files
+
+Pytest:
+1243 passed
+
+git diff --check:
+PASS
+```
+
+These results represent actual execution evidence from the current revalidation sequence.
+
+They SHALL NOT be interpreted as evidence for unrelated repository revisions.
+
+---
+
+# Current Quality Gate State
+
+| Quality Gate              | Current Evidence        |
+| ------------------------- | ----------------------- |
+| Ruff                      | PASS                    |
+| MyPy                      | PASS — 527 source files |
+| Pytest                    | PASS — 1243 tests       |
+| Repository Diff Check     | PASS                    |
+| YAML Parse                | PASS                    |
+| Canonical Inventory       | PASS                    |
+| Filesystem Contract       | PASS                    |
+| Numbering Integrity       | PASS                    |
+| Control Document Presence | PASS                    |
+
+Additional documentation and control-document synchronization work may still be required before the post-publication revalidation is formally closed.
+
+---
+
+# EPIC.yaml Normalization
+
+During post-publication revalidation, `EPIC.yaml` was normalized to represent the current canonical Quality Framework contract.
+
+The normalized contract defines:
+
+```text
+id: EPIC-QLT-001
+version: 1.0.0
+status: completed
+
+numbered_documents: 26
+canonical_document_range: 00-25
+control_documents: 7
+canonical_files: 33
+```
+
+The metadata also preserves the historical publication relationship:
+
+```text
+historical_tag: v4.6.0-quality-framework
+publication_status: published
+historical_tag_immutable: true
+```
+
+---
+
+# MANIFEST.md Normalization
+
+`MANIFEST.md` was synchronized with the canonical Quality Framework structure.
+
+The manifest now records:
 
 ```text
 26 numbered documents
-+
 7 control documents
-=
 33 canonical files
 ```
 
----
-
-# Validation State
-
-Structural validation has confirmed:
+Its EPIC state is:
 
 ```text
-Canonical numbered count: 26
-Sequential range:          00 → 25
-Duplicate numbers:         none
-Empty canonical files:     none
+Status: Completed
+Version: 1.0.0
 ```
 
-Additional validation remains required for:
-
-* semantic consistency;
-* cross-document consistency;
-* framework boundaries;
-* reference integrity;
-* governance consistency;
-* YAML parsing;
-* repository quality checks;
-* final release readiness.
-
-The authoritative current validation state is maintained in:
-
-`VALIDATION.md`
+The manifest remains the authoritative human-readable inventory contract for the EPIC.
 
 ---
 
-# Release State
+# EPIC-QLT-001.md Normalization
 
-Version `1.0.0` remains:
+`EPIC-QLT-001.md` was synchronized with the completed framework state.
+
+The document records:
+
+* version `1.0.0`;
+* status `Completed`;
+* 26 numbered documents;
+* seven control documents;
+* 33 canonical files;
+* historical publication under `v4.6.0-quality-framework`;
+* historical tag immutability;
+* the distinction between historical publication and current post-publication revalidation.
+
+---
+
+# Validation Evidence Policy
+
+Validation evidence SHALL be revision-aware.
+
+A quality gate result applies to the repository state against which it was executed.
+
+For example:
 
 ```text
-DRAFT
+Repository Revision A
+        ↓
+Ruff PASS
+MyPy PASS
+Pytest PASS
 ```
 
-This revision SHALL NOT be represented as formally released until the required validation and release-readiness criteria have been satisfied.
+does not automatically prove:
+
+```text
+Repository Revision B
+        ↓
+Ruff PASS
+MyPy PASS
+Pytest PASS
+```
+
+when revision B contains relevant changes.
+
+Required validation SHALL be rerun when repository changes invalidate previous evidence.
 
 ---
 
-# Publication Record
+# Validation State Semantics
 
-| Version | Status | Description                                                                                          |
-| ------- | ------ | ---------------------------------------------------------------------------------------------------- |
-| 1.0.0   | Draft  | Initial complete normative Quality Framework architecture and canonical documentation restructuring. |
+The following state semantics apply.
 
-No final release publication is recorded yet.
+## PASS
+
+A required validation has been executed successfully and acceptable evidence exists.
+
+## FAIL
+
+A required validation has been executed and did not satisfy its acceptance criteria.
+
+## PENDING
+
+The validation has not yet been executed, completed, or formally evaluated.
+
+## NOT APPLICABLE
+
+The validation does not apply to the evaluated target and that determination is justified.
+
+No validation state SHALL be promoted from `PENDING` to `PASS` without supporting evidence.
 
 ---
 
-# Future Revision Expectations
+# Quality Framework Boundary Preservation
 
-Future revisions may introduce:
+Revision activity SHALL preserve the Quality Framework's ownership boundaries.
 
-* executable Quality Framework domain models;
-* structured evidence schemas;
+The Quality Framework coordinates quality semantics but does not replace:
+
+* Testing Framework responsibilities;
+* Documentation Framework responsibilities;
+* Build Framework responsibilities;
+* Release Framework responsibilities;
+* Plugin Compliance Framework responsibilities;
+* specialized engineering tools.
+
+Future revisions SHALL preserve these boundaries unless an explicit architectural decision changes them.
+
+---
+
+# Compatibility Expectations
+
+Compatible framework revisions should preserve:
+
+* canonical quality terminology;
+* Quality Domain semantics;
+* Quality Rule semantics;
+* Quality Evidence traceability;
+* Quality Assessment explainability;
+* Quality Gate governance;
+* explicit framework boundaries.
+
+Breaking changes require explicit migration guidance.
+
+---
+
+# Governance of Revisions
+
+Material revisions should identify:
+
+* reason for change;
+* affected documents;
+* semantic impact;
+* compatibility impact;
+* validation requirements;
+* migration requirements where applicable;
+* release implications.
+
+Revision governance SHALL distinguish between:
+
+```text
+Documentation Correction
+Framework Clarification
+Compatible Framework Evolution
+Breaking Framework Evolution
+Historical Publication
+Post-Publication Revalidation
+```
+
+---
+
+# Revision Classification
+
+Quality Framework changes may be classified as follows.
+
+## Editorial
+
+Examples:
+
+* spelling correction;
+* formatting correction;
+* grammar correction;
+* non-semantic wording improvement.
+
+Expected version impact:
+
+```text
+Usually none
+```
+
+---
+
+## Documentation Normalization
+
+Examples:
+
+* control-document synchronization;
+* canonical inventory correction;
+* metadata normalization;
+* stale-state removal.
+
+Expected version impact:
+
+```text
+Usually none
+```
+
+provided framework semantics remain unchanged.
+
+---
+
+## Compatible Semantic Change
+
+Examples:
+
+* new optional quality capability;
+* compatible rule metadata;
+* additional assessment semantics;
+* compatible governance extension.
+
+Expected version impact:
+
+```text
+MINOR
+```
+
+---
+
+## Breaking Semantic Change
+
+Examples:
+
+* incompatible Quality Rule semantics;
+* incompatible evidence contract;
+* incompatible gate decision semantics;
+* removal of required framework capability.
+
+Expected version impact:
+
+```text
+MAJOR
+```
+
+---
+
+# Historical Record
+
+The revision history SHALL preserve previous publication information even when later documentation improves the representation of that history.
+
+Historical records SHOULD NOT be rewritten merely to make previous states appear identical to the current canonical state.
+
+Where historical and current structures differ, the distinction should be recorded explicitly.
+
+---
+
+# Release Relationship
+
+Framework revision and release governance interact as follows:
+
+```text
+Framework Change
+        ↓
+Revision Classification
+        ↓
+Validation
+        ↓
+Compatibility Assessment
+        ↓
+Release Readiness
+        ↓
+Publication Decision
+```
+
+The Release Framework remains authoritative for repository-wide release governance.
+
+---
+
+# Current Publication Relationship
+
+The current relationship is:
+
+```text
+EPIC-QLT-001
+Quality Framework
+Version 1.0.0
+Status: Completed
+        ↓
+Historical Publication
+        ↓
+v4.6.0-quality-framework
+        ↓
+Immutable Historical State
+```
+
+Current post-publication normalization exists after that historical publication and SHALL NOT change the historical tag.
+
+---
+
+# Current Revalidation Relationship
+
+The current repository activity is represented separately:
+
+```text
+Historical Publication
+v4.6.0-quality-framework
+        ↓
+Later Repository Evolution
+        ↓
+Quality Framework Control-Document Normalization
+        ↓
+Post-Publication Revalidation
+        ↓
+Current Validation Evidence
+```
+
+This preserves both historical integrity and current documentation accuracy.
+
+---
+
+# Revalidation Completion Requirements
+
+The current post-publication revalidation may be considered complete when:
+
+* `EPIC.yaml` is synchronized;
+* `MANIFEST.md` is synchronized;
+* `README.md` is synchronized;
+* `CHANGELOG.md` is synchronized;
+* `VALIDATION.md` is synchronized;
+* `Revision-History.md` is synchronized;
+* `EPIC-QLT-001.md` is synchronized;
+* canonical inventory validation passes;
+* reference validation passes;
+* semantic consistency review passes;
+* framework boundary review passes;
+* governance review passes;
+* required repository quality gates pass;
+* final validation evidence is recorded.
+
+---
+
+# Future Revisions
+
+Future Quality Framework revisions may introduce:
+
+* executable Quality Rule models;
+* machine-readable Quality Profiles;
+* standardized evidence schemas;
+* quality orchestration;
 * tool adapters;
 * Quality Assessment services;
-* Quality Profile resolution;
-* CLI quality commands;
-* CI integration;
-* architecture validation;
-* automated quality gates;
-* quality risk services;
-* defect and quality debt tracking;
-* compliance and exception services;
+* automated Quality Gates;
+* Quality Risk services;
+* defect services;
+* quality debt services;
+* compliance services;
+* exception governance services;
 * quality observability;
 * historical metrics;
-* governance automation;
+* cross-repository quality analysis;
 * advanced quality intelligence.
 
-Such additions SHALL preserve compatibility or explicitly document migration requirements.
+Such revisions SHALL remain compatible with the framework's core principles unless explicitly released as breaking changes.
 
 ---
 
-# Revision Traceability
+# AI Evolution
 
-Significant future revisions should remain traceable through:
+Future revisions may introduce AI-assisted capabilities for:
 
-```text
-Source Change
-     ↓
-Version Control
-     ↓
-CHANGELOG.md
-     ↓
-Revision-History.md
-     ↓
-VALIDATION.md
-     ↓
-Release Decision
-```
+* explanation;
+* summarization;
+* investigation;
+* historical analysis;
+* recurring-pattern detection;
+* recommendation;
+* quality intelligence.
 
-This provides historical visibility into both what changed and whether the resulting framework revision was validated.
+AI SHALL remain advisory unless a future governed revision explicitly establishes authoritative semantics.
+
+Deterministic verification and explicit governance remain authoritative for:
+
+* compliance;
+* quality gates;
+* exceptions;
+* risk acceptance;
+* release decisions.
 
 ---
 
-# Current Revision
+# Revision Summary
+
+The current Quality Framework revision state is:
 
 ```text
-EPIC:       EPIC-QLT-001
-Framework:  Quality Framework
-Version:    1.0.0
-Status:     Draft
-Owner:      FamilyOS Engineering
+EPIC:                    EPIC-QLT-001
+Framework:               Quality Framework
+Framework Version:       1.0.0
+EPIC Status:             Completed
 
-Structural State: Established
-Validation State: In Progress
-Release State:    Not Released
+Numbered Documents:      26
+Control Documents:       7
+Canonical Files:         33
+Canonical Range:         00 → 25
+
+Historical Publication:  Published
+Historical Tag:          v4.6.0-quality-framework
+Historical Tag Policy:   Immutable
+
+Current Activity:        Post-publication revalidation
 ```
 
-Version 1.0.0 represents the initial comprehensive Quality Framework baseline.
+---
 
-Its final publication remains dependent on successful completion of the validation and release process.
+# Current Validation Evidence Summary
+
+Current executed repository evidence includes:
+
+```text
+YAML Parse:              PASS
+Canonical Inventory:     PASS
+Filesystem Contract:     PASS
+Numbering Integrity:     PASS
+Control Documents:       PASS
+
+Ruff:                    PASS
+MyPy:                    PASS — 527 source files
+Pytest:                  PASS — 1243 tests
+Repository Diff Check:   PASS
+```
+
+These results are associated with the current revalidation work and SHALL remain revision-aware.
+
+---
+
+# Final Revision Statement
+
+EPIC-QLT-001 — Quality Framework version `1.0.0` establishes the canonical FamilyOS quality engineering foundation.
+
+Its current canonical documentation structure consists of:
+
+```text
+26 numbered documents
+7 control documents
+33 canonical files
+```
+
+Version `1.0.0` was historically published under:
+
+```text
+v4.6.0-quality-framework
+```
+
+That historical publication tag is immutable.
+
+Current post-publication normalization and revalidation improve the accuracy, consistency, and evidence quality of the Quality Framework control-document layer without rewriting the historical publication state.
+
+Future revisions SHALL preserve traceability, explicit governance, validation integrity, framework boundaries, and historical publication integrity.

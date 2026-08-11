@@ -7,7 +7,7 @@
 | Identifier | EPIC-QLT-001         |
 | Title      | Quality Framework    |
 | Version    | 1.0.0                |
-| Status     | Draft                |
+| Status     | Completed            |
 | Category   | Engineering          |
 | Domain     | Engineering Platform |
 | Owner      | FamilyOS Engineering |
@@ -62,7 +62,7 @@ The purpose of EPIC-QLT-001 is to establish the common quality layer connecting 
 
 The framework provides foundations for:
 
-```text id="d5jfmf"
+```text
 Quality Expectations
         ↓
 Quality Rules
@@ -120,23 +120,19 @@ The Quality Framework covers:
 * quality principles;
 * quality architecture;
 * quality domains;
-* quality requirements;
 * quality rules;
 * quality profiles;
-* quality targets;
 * quality metrics;
 * quality evidence;
-* quality findings;
-* quality assessments;
 * quality risks;
 * defects;
 * quality debt;
 * quality reviews;
+* quality assessments;
 * quality automation;
 * quality observability;
 * quality gates;
 * quality compliance;
-* quality exceptions;
 * continuous improvement;
 * quality governance;
 * framework lifecycle;
@@ -146,107 +142,270 @@ The Quality Framework covers:
 
 ---
 
-# Out of Scope
+# Non-Goals
 
-EPIC-QLT-001 does not directly define:
+EPIC-QLT-001 does not replace specialized FamilyOS engineering frameworks.
 
-* business-domain functionality;
-* individual plugin business rules;
-* detailed testing semantics owned by the Testing Framework;
+In particular, the Quality Framework does not own:
+
+* testing architecture owned by the Testing Framework;
 * documentation standards owned by the Documentation Framework;
-* plugin compliance rules owned by the Plugin Compliance Framework;
+* build architecture owned by the Build Framework;
 * release governance owned by the Release Framework;
+* plugin compliance rules owned by the Plugin Compliance Framework;
 * replacement implementations for Ruff, MyPy, Pytest, or equivalent specialized tools;
 * mandatory centralized quality infrastructure;
 * AI as an authoritative quality decision mechanism.
 
----
-
-# Core Principles
-
-The framework is founded on the following principles:
-
-* quality is continuous;
-* quality is evidence-based;
-* quality is explainable;
-* quality is measurable;
-* quality is governed;
-* quality is risk-aware;
-* quality is automatable;
-* quality is everyone's responsibility;
-* prevention is preferred over late detection;
-* deterministic controls precede intelligent assistance;
-* local and CI quality logic should remain consistent;
-* enforcement should be progressive;
-* exceptions must be explicit;
-* quality should continuously improve.
+The Quality Framework consumes evidence from specialized engineering capabilities and establishes common semantics for interpreting that evidence.
 
 ---
 
-# Core Quality Model
+# Quality Model
 
-The framework introduces a common conceptual model around:
+FamilyOS quality is modeled as a relationship between expectations, verification, evidence, findings, assessment, governance, and improvement.
 
-```text id="y7qccs"
-QualityRequirement
-QualityRule
-QualityProfile
-QualityTarget
-QualityFinding
-QualityEvidence
-QualityAssessment
-QualityMetric
-QualityRisk
-QualityDefect
-QualityDebt
-QualityGate
-QualityException
+```text
+Quality Expectations
+        ↓
+Quality Rules
+        ↓
+Quality Profiles
+        ↓
+Verification
+        ↓
+Quality Evidence
+        ↓
+Quality Findings
+        ↓
+Quality Assessment
+        ↓
+Quality Gates
+        ↓
+Governed Decisions
+        ↓
+Continuous Improvement
 ```
 
-These concepts provide common semantics without forcing specialized engineering tools to share identical internal implementations.
+The framework SHALL preserve traceability across this flow.
+
+A quality decision should be explainable in terms of:
+
+* what expectation applied;
+* what rule represented that expectation;
+* what verification was executed;
+* what evidence was produced;
+* what findings resulted;
+* what assessment was derived;
+* what gate or governance decision followed.
+
+---
+
+# Quality Principles
+
+The Quality Framework is governed by the following principles.
+
+## Quality Is Designed
+
+Quality is an engineering property that must be considered throughout the lifecycle.
+
+It SHALL NOT be treated exclusively as a final verification step.
+
+## Quality Is Evidence-Based
+
+Quality conclusions should be supported by identifiable evidence.
+
+Evidence should be reproducible and traceable where practical.
+
+## Quality Is Explainable
+
+A quality result should communicate why the result exists.
+
+Opaque scores alone are insufficient for authoritative engineering decisions.
+
+## Quality Is Contextual
+
+Different targets may require different quality expectations.
+
+The framework therefore supports profiles and applicability rules rather than assuming one universal threshold.
+
+## Quality Is Progressive
+
+Quality enforcement may increase as an artifact moves toward integration, publication, or release.
+
+## Quality Is Governed
+
+Exceptions, waivers, risk acceptance, and gate decisions require explicit authority and traceability.
+
+## Quality Is Continuous
+
+Quality does not stop after release.
+
+Operational evidence, defects, incidents, trends, and recurring problems should feed continuous improvement.
+
+---
+
+# Quality Architecture
+
+The Quality Framework coordinates specialized engineering evidence without replacing the systems that produce it.
+
+```text
+Engineering Standards
+        +
+Architecture
+        +
+Source Code
+        +
+Testing
+        +
+Documentation
+        +
+Dependencies
+        +
+Build
+        +
+Release
+        +
+Plugins
+        +
+Compliance
+        ↓
+Verification Sources
+        ↓
+Quality Evidence
+        ↓
+Quality Findings
+        ↓
+Quality Assessment
+        ↓
+Quality Gates
+        ↓
+Governance
+        ↓
+Engineering Decisions
+```
+
+The architecture separates:
+
+* evidence production;
+* evidence normalization;
+* quality interpretation;
+* quality assessment;
+* gate evaluation;
+* governance authority.
+
+This separation prevents the Quality Framework from becoming an implementation duplicate of specialized engineering systems.
 
 ---
 
 # Quality Domains
 
-Initial Quality Domains include:
+Quality expectations are organized into domains.
 
-* architecture;
-* source code;
-* static analysis;
-* typing;
-* testing;
-* documentation;
-* dependencies;
-* build;
-* release;
-* security;
-* plugins;
-* compliance;
-* governance.
+Representative domains include:
 
-Quality Domains organize rules, evidence, metrics, findings, assessments, risks, and governance.
+```text
+Architecture
+Source
+Testing
+Documentation
+Dependencies
+Build
+Release
+Security
+Plugins
+Compliance
+Operations
+Maintainability
+Reliability
+```
+
+Domains provide organizational semantics.
+
+They do not imply that the Quality Framework owns the underlying specialized engineering implementation.
+
+---
+
+# Quality Rules
+
+A Quality Rule represents an explicit quality expectation that can be evaluated.
+
+A rule should define, where applicable:
+
+* identity;
+* description;
+* domain;
+* severity;
+* applicability;
+* evaluation semantics;
+* evidence requirements;
+* failure meaning;
+* ownership;
+* lifecycle state;
+* governance requirements.
+
+Rules SHOULD be deterministic where authoritative decisions depend on them.
+
+---
+
+# Quality Profiles
+
+Quality Profiles define reusable collections of expectations appropriate to particular targets or contexts.
+
+Profiles may vary according to:
+
+* repository type;
+* artifact type;
+* component criticality;
+* plugin classification;
+* lifecycle stage;
+* release channel;
+* risk level.
+
+Profiles prevent quality enforcement from becoming an uncontrolled collection of global rules.
+
+---
+
+# Quality Metrics
+
+Metrics provide measurable signals about quality state and evolution.
+
+Metrics may describe:
+
+* verification success;
+* failure frequency;
+* defect trends;
+* quality debt;
+* risk exposure;
+* evidence freshness;
+* gate outcomes;
+* exception usage;
+* recurring findings;
+* remediation latency.
+
+Metrics SHALL support engineering understanding rather than encourage arbitrary optimization.
+
+A metric is not automatically a quality decision.
 
 ---
 
 # Quality Evidence
 
-Quality Evidence provides the foundation for authoritative quality decisions.
+Quality Evidence records the observable result of verification activity.
 
 Evidence should be:
 
-* structured;
-* reproducible;
-* traceable;
-* revision-aware;
-* machine-readable;
-* attributable.
-
-Evidence may originate from specialized tools and frameworks.
+* identifiable;
+* reproducible where practical;
+* attributable to a target;
+* attributable to a repository revision where applicable;
+* timestamped where useful;
+* associated with the verification mechanism;
+* suitable for traceability.
 
 Examples include:
 
-```text id="fwn4k1"
+```text
 Ruff
 MyPy
 Pytest
@@ -257,33 +416,54 @@ Build Validation
 Manual Review
 ```
 
+Evidence does not independently define governance authority.
+
+---
+
+# Quality Findings
+
+A Quality Finding represents a relevant observation derived from evidence.
+
+A finding may represent:
+
+* failure;
+* warning;
+* risk;
+* deviation;
+* missing evidence;
+* policy violation;
+* quality debt;
+* required review.
+
+Findings should preserve enough context to explain their origin and impact.
+
 ---
 
 # Quality Assessments
 
-Quality Assessments interpret applicable expectations, evidence, findings, and risk to establish the quality state of an engineering target.
+A Quality Assessment aggregates applicable rules, evidence, findings, and risks into an interpretable quality state.
 
-Assessments must remain explainable.
+Assessments should answer questions such as:
 
-An assessment should make it possible to determine:
+* What was evaluated?
+* Which expectations applied?
+* What passed?
+* What failed?
+* What evidence supports the result?
+* What risks remain?
+* What action is required?
 
-* what was evaluated;
-* which requirements applied;
-* which rules executed;
-* which evidence was collected;
-* which findings occurred;
-* which risks remain;
-* why the resulting quality state was produced.
+Assessments SHALL NOT conceal significant failures behind aggregate scores.
 
 ---
 
 # Quality Gates
 
-Quality Gates provide controlled engineering progression decisions.
+Quality Gates determine whether a target may progress through an engineering lifecycle transition.
 
-Potential gate contexts include:
+Representative gates include:
 
-* merge readiness;
+* development readiness;
 * integration readiness;
 * build readiness;
 * release readiness;
@@ -291,63 +471,140 @@ Potential gate contexts include:
 
 The framework uses progressive enforcement:
 
-```text id="9qvx06"
-Observation
+```text
+Development
     ↓
-Non-Blocking
+Integration
     ↓
-Blocking
+Build
+    ↓
+Release Candidate
+    ↓
+Release
 ```
 
-A control should demonstrate sufficient reliability before becoming authoritative and blocking.
+Gate strictness may increase as progression risk increases.
 
 ---
 
 # Quality Risk
 
-The framework treats Quality Risk as a first-class engineering concept.
+Quality Risk represents uncertainty that may negatively affect correctness, reliability, maintainability, security, compliance, operability, or sustainability.
 
-Quality Risk supports concerns that cannot always be expressed as deterministic pass/fail rules.
-
-The lifecycle includes:
+Risk management includes:
 
 * identification;
-* evaluation;
+* classification;
 * ownership;
+* evaluation;
 * mitigation;
+* acceptance;
 * monitoring;
 * escalation;
-* authorized acceptance;
 * closure.
+
+Risk acceptance SHALL be explicit and governed.
 
 ---
 
 # Defects and Quality Debt
 
-The framework distinguishes:
+Defects represent known failures or deviations requiring resolution or explicit governance.
 
-## Quality Defect
+Quality debt represents intentionally deferred or accumulated quality work that may increase future engineering cost or risk.
 
-An observed quality deficiency requiring investigation or correction.
+Both should support:
 
-## Quality Debt
+* ownership;
+* severity or priority;
+* traceability;
+* lifecycle state;
+* remediation expectations;
+* governance.
 
-A known quality deficiency or compromise whose remediation has been intentionally deferred or accumulated.
+Quality debt SHALL NOT be used as an unbounded mechanism for bypassing quality requirements.
 
-Both require explicit ownership and lifecycle management.
+---
+
+# Quality Reviews and Assessments
+
+Human review remains an important part of quality engineering.
+
+Review may be required for:
+
+* architecture;
+* documentation;
+* governance;
+* security-sensitive changes;
+* risk acceptance;
+* exceptions;
+* complex semantic decisions.
+
+Automated evidence and human review should complement one another.
+
+---
+
+# Quality Automation
+
+Quality automation should be:
+
+* deterministic;
+* reproducible;
+* observable;
+* explainable;
+* composable;
+* suitable for CI execution.
+
+The Quality Framework may orchestrate specialized tools but SHALL NOT unnecessarily reimplement them.
+
+```text
+Quality Orchestration
+        ↓
+Specialized Validators
+        ↓
+Normalized Evidence
+        ↓
+Assessment
+        ↓
+Gate Decision
+```
+
+---
+
+# Quality Observability
+
+Quality state should be observable over time.
+
+Observability may expose:
+
+* current assessments;
+* recent failures;
+* recurring findings;
+* quality trends;
+* risk state;
+* gate history;
+* exception history;
+* evidence freshness;
+* remediation progress.
+
+Observability supports diagnosis and improvement.
+
+It does not replace governance.
 
 ---
 
 # Quality Compliance
 
-Quality Compliance determines whether applicable quality requirements have been satisfied.
+Quality Compliance determines whether applicable governed requirements have been satisfied.
 
-The expected traceability chain is:
+Compliance evaluation should preserve traceability between:
 
-```text id="82f4um"
+```text
 Requirement
     ↓
 Rule
+    ↓
+Verification
     ↓
 Evidence
     ↓
@@ -356,83 +613,43 @@ Finding
 Compliance Result
 ```
 
-Missing mandatory evidence must not silently produce compliance.
+Compliance results should be explicit and explainable.
 
 ---
 
 # Quality Exceptions
 
-Quality Exceptions allow temporary governed deviation from authoritative quality expectations.
+Exceptions may be necessary when a requirement cannot reasonably be satisfied immediately.
 
-Exceptions require explicit:
+Exceptions SHALL be governed.
 
-* scope;
-* reason;
+An exception should define:
+
 * affected requirement;
-* target;
+* justification;
 * owner;
 * approving authority;
 * risk;
-* expiration;
+* compensating controls where applicable;
+* expiration or review condition;
 * traceability.
 
-An exception is a governance mechanism, not a mechanism for hiding failures.
-
----
-
-# Quality Automation
-
-The Quality Framework coordinates deterministic verification without replacing specialized tools.
-
-Initial integration direction includes:
-
-```text id="19wx5i"
-Ruff
-MyPy
-Pytest
-```
-
-A central automation principle is:
-
-```text id="u48d6w"
-Local Quality Logic
-        =
-CI Quality Logic
-```
-
-whenever reasonably possible.
-
----
-
-# Quality Observability
-
-Quality Observability makes both quality state and quality-system behavior visible.
-
-Relevant signals may include:
-
-* assessment results;
-* findings;
-* gate outcomes;
-* execution errors;
-* duration;
-* recurring problems;
-* historical trends;
-* quality regressions.
+Exceptions SHALL NOT silently disable authoritative quality controls.
 
 ---
 
 # Continuous Improvement
 
-The framework establishes a feedback loop from observed quality problems to systemic engineering improvement.
+Quality evidence should feed systemic improvement.
 
-```text id="y6e1p9"
+```text
 Evidence
    ↓
-Finding
+Findings
    ↓
-Analysis
+Patterns
    ↓
-Root Cause
+Root Causes
    ↓
 Improvement
    ↓
@@ -441,44 +658,48 @@ Validation
 Updated Engineering Control
 ```
 
-Improvements may affect:
+Improvement may affect:
 
+* engineering standards;
 * architecture;
 * tests;
 * documentation;
-* quality rules;
-* profiles;
+* tooling;
 * automation;
 * governance;
-* engineering workflows.
+* quality rules;
+* quality profiles.
+
+The goal is not merely to repair individual failures but to reduce recurrence.
 
 ---
 
-# Governance
+# Quality Governance
 
-Quality Governance establishes authority over:
+Quality Governance defines authority and responsibility for quality decisions.
 
-* quality policy;
-* Quality Rules;
-* Quality Profiles;
-* Quality Gates;
-* Quality Exceptions;
-* severity models;
-* framework evolution;
-* lifecycle transitions;
-* escalation.
+Governance should establish:
 
-Authoritative quality controls must remain owned and traceable.
+* ownership;
+* decision authority;
+* escalation;
+* exception approval;
+* risk acceptance;
+* policy evolution;
+* rule lifecycle;
+* profile lifecycle;
+* gate governance;
+* auditability.
+
+Quality authority SHALL remain explicit.
 
 ---
 
 # Framework Lifecycle
 
-The Quality Framework is itself governed throughout its lifecycle.
+The Quality Framework itself has a governed lifecycle.
 
-Conceptually:
-
-```text id="k0y8ch"
+```text
 Definition
    ↓
 Validation
@@ -489,64 +710,54 @@ Operation
    ↓
 Evolution
    ↓
+Migration
+   ↓
 Deprecation
    ↓
 Retirement
 ```
 
-Framework evolution must preserve compatibility where possible and explicitly govern incompatible changes.
+Framework evolution should preserve compatibility where reasonably possible.
+
+Breaking semantic changes require explicit migration and governance.
 
 ---
 
-# Dependencies
+# Framework Relationships
 
-## Required Foundations
+EPIC-QLT-001 operates within the broader FamilyOS engineering framework ecosystem.
 
-EPIC-QLT-001 depends directly on:
+It depends directly on:
 
 * `EPIC-ENG-001` — Engineering Foundation;
-* `EPIC-TST-001` — Testing Framework;
-* `EPIC-DOC-001` — Documentation Framework.
+* `EPIC-DOC-001` — Documentation Framework;
+* `EPIC-TST-001` — Testing Framework.
 
-## Integration Relationships
-
-The framework integrates with:
+It integrates with:
 
 * `EPIC-BLD-001` — Build Framework;
 * `EPIC-REL-001` — Release Framework;
 * `EPIC-PLUGIN-002` — Plugin Compliance Framework.
 
+These relationships establish explicit ownership boundaries.
+
 ---
 
 # Framework Boundaries
 
-The Quality Framework coordinates quality across specialized frameworks without absorbing their responsibilities.
+The Quality Framework coordinates but does not absorb specialized engineering frameworks.
 
-```text id="0eof2h"
-Testing Framework ────────────┐
-Documentation Framework ──────┤
-Build Framework ──────────────┤
-Plugin Compliance Framework ──┤
-                              ▼
-                      Quality Framework
-                              │
-                              ▼
-                    Quality Assessment
-                              │
-                              ▼
-                    Quality Gates
-                              │
-                              ▼
-                    Engineering Decisions
-```
+Testing architecture remains owned by the Testing Framework.
 
-Testing semantics remain owned by the Testing Framework.
+Documentation architecture remains owned by the Documentation Framework.
 
-Documentation requirements remain owned by the Documentation Framework.
+Build execution remains owned by the Build Framework.
 
 Plugin compliance remains owned by the Plugin Compliance Framework.
 
 Release authority remains owned by the Release Framework.
+
+The Quality Framework provides common quality semantics across these capabilities.
 
 ---
 
@@ -554,7 +765,7 @@ Release authority remains owned by the Release Framework.
 
 EPIC-QLT-001 contains exactly **26 numbered documents**:
 
-```text id="4d06un"
+```text
 00-EPIC.md
 01-Context.md
 02-Vision.md
@@ -583,15 +794,9 @@ EPIC-QLT-001 contains exactly **26 numbered documents**:
 25-Implementation-Checklist.md
 ```
 
-The authoritative structural inventory is maintained in `MANIFEST.md`.
+The numbered documentation is complemented by seven control documents:
 
----
-
-# Control Documents
-
-The numbered documentation is complemented by:
-
-```text id="xgy5ob"
+```text
 EPIC-QLT-001.md
 EPIC.yaml
 README.md
@@ -601,9 +806,9 @@ VALIDATION.md
 Revision-History.md
 ```
 
-The complete canonical EPIC therefore consists of:
+Together, the canonical EPIC structure contains:
 
-```text id="fpwkxt"
+```text
 26 numbered documents
 +
 7 control documents
@@ -611,113 +816,286 @@ The complete canonical EPIC therefore consists of:
 33 canonical files
 ```
 
+The authoritative structural inventory is maintained in `MANIFEST.md`.
+
+---
+
+# Expected Outcomes
+
+After implementation and progressive adoption of the Quality Framework, FamilyOS should provide:
+
+* standardized engineering quality semantics;
+* explicit quality expectations;
+* deterministic quality verification;
+* structured Quality Evidence;
+* explainable Quality Assessments;
+* governed Quality Gates;
+* measurable engineering quality;
+* controlled quality risks;
+* systematic defect management;
+* explicit quality debt management;
+* observable quality state;
+* predictable engineering progression;
+* improved maintainability;
+* improved software reliability;
+* consistent engineering practices;
+* continuous quality improvement.
+
+---
+
+# Deliverables
+
+EPIC-QLT-001 delivers the normative foundation for:
+
+* Quality Principles;
+* Quality Architecture;
+* Quality Domains;
+* Quality Rule Model;
+* Quality Profiles;
+* Quality Metrics;
+* Quality Evidence;
+* Quality Risk Management;
+* Defect and Quality Debt Management;
+* Quality Reviews and Assessments;
+* Quality Automation;
+* Quality Observability;
+* Quality Gates;
+* Quality Compliance;
+* Continuous Improvement;
+* Quality Governance;
+* Framework Lifecycle;
+* Quality Framework Roadmap;
+* Framework Validation;
+* Release Governance;
+* Implementation Planning.
+
+The EPIC also maintains the canonical control artifacts required for framework governance and traceability.
+
+---
+
+# Success Criteria
+
+The Quality Framework is structurally complete when:
+
+* exactly 26 numbered documents exist;
+* the canonical sequence is `00` through `25`;
+* every numbered document has a unique number;
+* no required canonical document is empty;
+* filenames correspond to their canonical responsibilities;
+* all seven control documents exist;
+* `EPIC.yaml` represents the canonical structure;
+* `MANIFEST.md` matches the repository inventory.
+
+The framework is validation-complete when:
+
+* terminology is internally consistent;
+* cross-document relationships are coherent;
+* framework boundaries are respected;
+* references are valid;
+* governance responsibilities are consistent;
+* YAML metadata parses successfully;
+* applicable engineering validation succeeds.
+
+The framework is release-ready only when the requirements defined by:
+
+* `22-Validation.md`;
+* `24-Release.md`;
+* `VALIDATION.md`;
+
+have been satisfied.
+
+---
+
+# Dependencies
+
+EPIC-QLT-001 depends directly on:
+
+* `EPIC-ENG-001` — Engineering Foundation;
+* `EPIC-DOC-001` — Documentation Framework;
+* `EPIC-TST-001` — Testing Framework.
+
+The framework integrates with:
+
+* `EPIC-BLD-001` — Build Framework;
+* `EPIC-REL-001` — Release Framework;
+* `EPIC-PLUGIN-002` — Plugin Compliance Framework.
+
+The Quality Framework coordinates quality across these engineering capabilities without replacing their specialized responsibilities.
+
 ---
 
 # Implementation Strategy
 
-Implementation should proceed progressively.
+The Quality Framework should be implemented progressively.
 
-The initial implementation should focus on:
+The expected progression is:
 
-1. core quality models;
-2. structured Quality Evidence;
-3. deterministic tool adapters;
-4. Quality Assessment;
-5. Quality Profiles;
-6. CLI integration;
-7. CI integration.
+```text
+Normative Framework
+        ↓
+Core Quality Models
+        ↓
+Quality Evidence
+        ↓
+Deterministic Tool Adapters
+        ↓
+Quality Assessment
+        ↓
+Quality Profiles
+        ↓
+CLI Integration
+        ↓
+CI Integration
+        ↓
+Architecture Validation
+        ↓
+Quality Gates
+        ↓
+Risk / Debt / Compliance
+        ↓
+Quality Observability
+        ↓
+Quality Metrics
+        ↓
+Continuous Improvement
+        ↓
+Governance Automation
+        ↓
+Quality Intelligence
+```
 
-Later phases may introduce:
-
-* architecture validation;
-* Quality Gates;
-* Quality Risk services;
-* defect and quality debt tracking;
-* compliance and exceptions;
-* observability;
-* metrics;
-* governance automation;
-* historical quality analysis;
-* advanced quality intelligence.
-
-The detailed progression is defined in:
+The detailed implementation sequence is defined in:
 
 `25-Implementation-Checklist.md`
 
 ---
 
-# Initial Tool Integrations
+# Validation Baseline
 
-The initial deterministic integration scope is:
+The canonical framework structure contains:
 
-```text id="a0ib41"
-Ruff
-MyPy
-Pytest
+```text
+Numbered documents: 26
+Control documents:   7
+Canonical files:     33
+Numbering:           00 → 25
+Duplicate numbers:   none
+Empty required files: none
 ```
 
-These tools remain independently authoritative for their specialized execution semantics.
+Historical publication evidence is associated with the immutable release:
 
-The Quality Framework consumes their results as normalized Quality Evidence.
+```text
+v4.6.0-quality-framework
+```
+
+The historical tag resolves to the repository state that completed EPIC-QLT-001 version `1.0.0`.
+
+A post-publication revalidation is being performed against the current repository state.
+
+Only evidence produced by actual execution SHALL be recorded as current validation evidence.
+
+Detailed historical and current validation evidence is maintained in `VALIDATION.md`.
+
+---
+
+# Future Evolution
+
+The Quality Framework is designed for progressive evolution.
+
+Future capabilities may include:
+
+* executable Quality Framework domain models;
+* machine-readable Quality Rules;
+* Quality Profile resolution;
+* standardized evidence schemas;
+* tool adapters;
+* Quality Assessment services;
+* CLI quality commands;
+* CI quality orchestration;
+* architecture validation;
+* automated Quality Gates;
+* Quality Risk services;
+* defect tracking;
+* quality debt tracking;
+* compliance services;
+* governed exception services;
+* historical quality metrics;
+* Quality Observability services;
+* governance automation;
+* cross-repository quality analysis;
+* automated regression analysis;
+* advanced quality intelligence.
+
+Future capabilities must preserve the framework's deterministic, explainable, evidence-based, and governed foundations.
 
 ---
 
 # AI Boundary
 
-AI-assisted quality capabilities may eventually support:
+Future AI-assisted capabilities may support:
 
-* explanation;
-* summarization;
+* quality explanation;
+* assessment summarization;
 * investigation;
-* recurring-pattern identification;
+* recurring-pattern detection;
 * historical analysis;
-* recommendation.
+* recommendation;
+* quality intelligence.
 
-AI SHALL NOT silently become authoritative for quality compliance, gates, exceptions, or release decisions.
+AI does not replace deterministic verification or governed engineering authority.
 
-Deterministic evidence and explicit governance remain the foundation.
+AI-generated analysis must not silently become authoritative for:
+
+* compliance;
+* Quality Gates;
+* exceptions;
+* risk acceptance;
+* release decisions.
+
+Deterministic evidence and explicit governance remain authoritative.
 
 ---
 
 # Risks
 
-Primary framework risks include:
+The Quality Framework must actively avoid several failure modes.
 
-## Over-Centralization
+## Metric Gaming
 
-The Quality Framework could incorrectly absorb responsibilities belonging to specialized frameworks.
+Risk:
 
-Mitigation:
-
-Maintain explicit framework boundaries.
-
-## Excessive Enforcement
-
-Introducing blocking gates too early could reduce engineering velocity without improving quality.
+Engineering behavior optimizes visible metrics rather than actual quality.
 
 Mitigation:
 
-Use progressive enforcement.
+Metrics SHALL remain contextual and SHALL NOT independently define quality.
 
-## Metric Misuse
+## Excessive Centralization
 
-Metrics may become targets rather than useful engineering signals.
+Risk:
 
-Mitigation:
-
-Require context and governance around metric interpretation.
-
-## Tool Coupling
-
-Quality architecture could become tightly coupled to individual tools.
+The Quality Framework absorbs responsibilities owned by specialized frameworks.
 
 Mitigation:
 
-Normalize tool outputs through common quality abstractions.
+Framework boundaries SHALL remain explicit.
 
-## Exception Abuse
+## Opaque Quality Scores
 
-Exceptions could become permanent bypass mechanisms.
+Risk:
+
+Aggregate scores hide significant failures or risk.
+
+Mitigation:
+
+Authoritative decisions SHALL remain traceable to evidence and findings.
+
+## Permanent Exceptions
+
+Risk:
+
+Temporary exceptions become uncontrolled long-term bypasses.
 
 Mitigation:
 
@@ -725,15 +1103,17 @@ Require ownership, approval, expiration, and traceability.
 
 ## Premature Intelligence
 
-AI or predictive analysis could be introduced before deterministic foundations are reliable.
+Risk:
+
+AI-generated interpretation becomes authoritative before deterministic foundations exist.
 
 Mitigation:
 
-Establish deterministic quality infrastructure first.
+AI SHALL remain advisory unless future governance explicitly establishes a safe and auditable authority model.
 
 ---
 
-# Acceptance Criteria
+# Completion Criteria
 
 EPIC-QLT-001 is structurally complete when:
 
@@ -741,32 +1121,36 @@ EPIC-QLT-001 is structurally complete when:
 * the sequence is `00 → 25`;
 * each number occurs exactly once;
 * no required canonical document is empty;
-* canonical filenames match their responsibilities;
-* all required control documents exist;
+* all seven control documents exist;
 * `EPIC.yaml` and `MANIFEST.md` match the repository structure.
 
-The framework is validation-complete when:
+EPIC-QLT-001 is validation-complete when:
 
 * terminology is consistent;
 * cross-document semantics are coherent;
-* framework boundaries are respected;
+* framework boundaries are explicit;
 * references are valid;
 * governance responsibilities are consistent;
-* required engineering checks pass;
-* repository integrity is confirmed.
+* YAML metadata parses successfully;
+* applicable repository quality gates pass;
+* actual validation evidence is recorded.
 
-The framework is release-ready only when the requirements defined by `22-Validation.md`, `24-Release.md`, and `VALIDATION.md` are satisfied.
+EPIC-QLT-001 is release-ready when the requirements defined by `22-Validation.md`, `24-Release.md`, and `VALIDATION.md` are satisfied.
+
+Version `1.0.0` historically satisfied the applicable publication requirements and was published under the immutable historical tag `v4.6.0-quality-framework`.
 
 ---
 
-# Success Criteria
+# Decision Model
 
-The Quality Framework succeeds when FamilyOS can progressively answer, with traceable evidence:
+Quality decisions should be explainable through a consistent sequence of questions:
 
-```text id="x1hrmf"
-What quality expectations apply?
+```text
+What target is being evaluated?
 
-Were those expectations evaluated?
+What expectations apply?
+
+What verification was performed?
 
 What evidence was produced?
 
@@ -787,42 +1171,42 @@ What should improve next?
 
 # Current State
 
-```text id="5wsfxu"
-EPIC:              EPIC-QLT-001
-Framework:         Quality Framework
-Version:           1.0.0
-Status:            Draft
-Owner:             FamilyOS Engineering
+```text
+EPIC:               EPIC-QLT-001
+Framework:          Quality Framework
+Version:            1.0.0
+Status:             Completed
+Owner:              FamilyOS Engineering
 
 Numbered Documents: 26
-Control Documents:   7
-Canonical Files:     33
+Control Documents:  7
+Canonical Files:    33
 
-Structural State:   Established
-Validation State:   In Progress
-Release State:      Not Released
+Structural State:   Complete
+Historical State:   Published
+Historical Tag:     v4.6.0-quality-framework
+Revalidation State: Validated
 ```
 
 ---
 
 # Validation
 
-Structural validation of the canonical `00 → 25` sequence has been completed.
+The canonical `00 → 25` document structure has been established and structurally validated.
 
-The remaining validation work includes:
+Version `1.0.0` was historically validated and published under:
 
-* final control-document synchronization;
-* semantic consistency;
-* cross-document consistency;
-* framework-boundary validation;
-* internal-reference validation;
-* YAML parsing;
-* Ruff;
-* MyPy;
-* Pytest;
-* repository-integrity verification.
+```text
+v4.6.0-quality-framework
+```
 
-Actual validation evidence is maintained in:
+The historical tag is immutable and represents the repository state associated with the original Quality Framework publication.
+
+A post-publication revalidation is currently being performed to synchronize the control-document layer and record validation evidence against the current repository state.
+
+Current validation results SHALL be recorded only when supported by actual execution evidence.
+
+The authoritative validation record is:
 
 `VALIDATION.md`
 
@@ -830,11 +1214,19 @@ Actual validation evidence is maintained in:
 
 # Release
 
-Version `1.0.0` remains in **Draft** state.
+Version `1.0.0` is **Completed** and historically **Published**.
 
-No final release is declared by this document.
+Historical publication:
 
-Release requires successful completion of the applicable validation and governance requirements.
+```text
+v4.6.0-quality-framework
+```
+
+The historical tag SHALL remain immutable.
+
+The current post-publication documentation normalization does not move, rewrite, replace, or repurpose the historical tag.
+
+Any future Quality Framework release SHALL follow the applicable validation, governance, versioning, and release-readiness requirements.
 
 ---
 
@@ -842,7 +1234,7 @@ Release requires successful completion of the applicable validation and governan
 
 EPIC-QLT-001 establishes the foundation for a FamilyOS engineering environment where quality evolves from isolated checks into a coherent system:
 
-```text id="h8v6e6"
+```text
 Standards
    +
 Testing
@@ -866,4 +1258,28 @@ Engineering Confidence
 Continuous Improvement
 ```
 
-The framework provides the normative foundation required to build that capability progressively and safely.
+The framework provides the normative foundation required to make FamilyOS quality measurable, explainable, automatable, governable, and sustainable throughout the platform lifecycle.
+
+---
+
+# Final Statement
+
+EPIC-QLT-001 — Quality Framework version `1.0.0` establishes the canonical FamilyOS quality engineering foundation.
+
+Its canonical documentation structure consists of:
+
+```text
+26 numbered documents
+7 control documents
+33 canonical files
+```
+
+The framework is completed and historically published under:
+
+```text
+v4.6.0-quality-framework
+```
+
+The historical publication remains immutable.
+
+Post-publication revalidation may update current validation evidence and synchronize control documentation without altering the identity or historical integrity of the published Quality Framework baseline.
