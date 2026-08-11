@@ -66,7 +66,7 @@ The implementation MUST remain compatible with:
 ## Normative references
 
 - ADR-0007 — Official Plugins Architecture
-- RFC-0014 — Official Documents Plugin
+- RFC-0014 — Documents Plugin
 - FamilyOS Platform v1.0 architecture
 - Plugin SDK v2
 - FamilyOS Specifications and Reference documentation
