@@ -1,0 +1,49 @@
+id: EPIC-SEC-001
+title: Security Plugin Implementation
+type: official-plugin-implementation
+domain: security
+version: 1.0.0
+status: completed
+master_document:
+  path: ../EPIC-SEC-001-security-plugin-implementation.md
+  historical_status: planned
+  current_repository_status: completed
+structure:
+  numbered_documents: 0
+  control_documents: 6
+  canonical_files: 6
+  external_master_documents: 1
+baseline:
+  implementation_status: completed
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
+historical_release:
+  implementation_tag: v3.1.0-security-plugin-implementation
+  implementation_commit: dd713048360e77cb89fda5c05603cc14b3b886ca
+  release_status: published
+  tag_immutable: true
+  master_present_at_release: true
+historical_evolution:
+  initial_epic_tag: v3.0.0-security-plugin-implementation
+  later_reference_normalization_commit: e4ea9e239c9672c07808aa81432d555f9e84724c
+  reference_change:
+    from: ADR-0008
+    to: ADR-0013
+deliverables:
+- EPIC.yaml
+- README.md
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- Revision-History.md
+closure:
+  documentation_complete: true
+  control_documents_aligned: true
+  validation_passed: true
+  historical_release_verified: true
+  final_commit_created: false
+  historical_tag_preserved: true
+  remote_publication_verified: true
+  working_tree_clean: false
+  epic_closed: false
