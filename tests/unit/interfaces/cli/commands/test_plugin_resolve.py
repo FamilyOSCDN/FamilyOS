@@ -1,6 +1,10 @@
+"""Tests for the plugin resolution command."""
+
 from __future__ import annotations
 
 from unittest.mock import Mock, patch
+
+import pytest
 
 from familyos_cli.interfaces.cli.commands.plugin_resolve import (
     parse_plugin_dependency,
@@ -24,6 +28,7 @@ def test_should_parse_dependency_without_constraint() -> None:
         "familyos.documentation",
     )
 
+    assert dependency.plugin_id == "familyos.documentation"
     assert dependency.name == "familyos.documentation"
     assert dependency.constraint_set is None
 
@@ -33,9 +38,22 @@ def test_should_parse_dependency_with_constraint_set() -> None:
         "familyos.calendar>=1.0.0,<2.0.0",
     )
 
+    assert dependency.plugin_id == "familyos.calendar"
     assert dependency.name == "familyos.calendar"
     assert dependency.constraint_set is not None
     assert str(dependency.constraint_set) == ">=1.0.0,<2.0.0"
+
+
+def test_should_reject_short_plugin_identifier() -> None:
+    """CLI dependencies must use canonical Plugin Identifiers."""
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        parse_plugin_dependency(
+            "documentation",
+        )
 
 
 @patch(
@@ -84,6 +102,7 @@ def test_should_resolve_plugins_through_pipeline(
     assert repository.repository_type == "remote"
 
     assert len(dependencies) == 1
+    assert dependencies[0].plugin_id == "familyos.documentation"
     assert dependencies[0].name == "familyos.documentation"
     assert str(dependencies[0].constraint_set) == ">=1.0.0"
 

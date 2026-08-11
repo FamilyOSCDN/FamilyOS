@@ -14,24 +14,25 @@ from familyos_cli.plugins.ecosystem.resolution.version_constraint import (
 
 
 def test_dependency_without_constraint_identifier() -> None:
-    """A dependency without constraints should expose only its name."""
+    """A dependency without constraints should expose its canonical ID."""
 
     dependency = PluginDependency(
-        name="notification",
+        plugin_id="familyos.notification",
     )
 
-    assert dependency.name == "notification"
+    assert dependency.plugin_id == "familyos.notification"
+    assert dependency.name == "familyos.notification"
     assert dependency.constraint_set is None
     assert dependency.constraint is None
     assert dependency.minimum_version == ""
-    assert dependency.identifier() == "notification"
+    assert dependency.identifier() == "familyos.notification"
 
 
 def test_dependency_supports_legacy_minimum_version() -> None:
     """The legacy minimum-version API should remain compatible."""
 
     dependency = PluginDependency(
-        name="notification",
+        plugin_id="familyos.notification",
         minimum_version="1.0.0",
     )
 
@@ -42,14 +43,14 @@ def test_dependency_supports_legacy_minimum_version() -> None:
         ">=1.0.0",
     )
     assert dependency.minimum_version == "1.0.0"
-    assert dependency.identifier() == "notification>=1.0.0"
+    assert dependency.identifier() == "familyos.notification>=1.0.0"
 
 
 def test_dependency_supports_typed_constraint() -> None:
     """A dependency should accept a typed atomic constraint."""
 
     dependency = PluginDependency(
-        name="notification",
+        plugin_id="familyos.notification",
         constraint=VersionConstraint.parse(
             "==2.0.0",
         ),
@@ -62,14 +63,14 @@ def test_dependency_supports_typed_constraint() -> None:
         "==2.0.0",
     )
     assert dependency.minimum_version == ""
-    assert dependency.identifier() == "notification==2.0.0"
+    assert dependency.identifier() == "familyos.notification==2.0.0"
 
 
 def test_dependency_supports_constraint_set() -> None:
     """A dependency should accept multiple typed constraints."""
 
     dependency = PluginDependency(
-        name="notification",
+        plugin_id="familyos.notification",
         constraint_set=ConstraintSet.parse(
             ">=1.2.0,<2.0.0",
         ),
@@ -80,7 +81,7 @@ def test_dependency_supports_constraint_set() -> None:
     )
     assert dependency.constraint is None
     assert dependency.minimum_version == ""
-    assert dependency.identifier() == "notification>=1.2.0,<2.0.0"
+    assert dependency.identifier() == "familyos.notification>=1.2.0,<2.0.0"
 
 
 @pytest.mark.parametrize(
@@ -184,13 +185,13 @@ def test_plugin_dependency_rejects_invalid_explicit_plugin_id() -> None:
         )
 
 
-def test_plugin_dependency_preserves_legacy_name_identity() -> None:
-    """Legacy name construction should remain compatible."""
+def test_plugin_dependency_rejects_invalid_legacy_name_identity() -> None:
+    """Legacy name construction must still use canonical Plugin IDs."""
 
-    dependency = PluginDependency(
-        name="notification",
-    )
-
-    assert dependency.plugin_id == "notification"
-    assert dependency.name == "notification"
-    assert dependency.identifier() == "notification"
+    with pytest.raises(
+        ValueError,
+        match="Invalid Plugin Identifier",
+    ):
+        PluginDependency(
+            name="notification",
+        )

@@ -42,19 +42,7 @@ class PluginDependency:
         constraint: VersionConstraint | None = None,
         constraint_set: ConstraintSet | None = None,
     ) -> None:
-        """Initialize a plugin dependency.
-
-        Args:
-            name: Legacy alias for the required Plugin Identifier.
-            minimum_version: Legacy minimum version requirement.
-            plugin_id: Canonical required Plugin Identifier.
-            constraint: Legacy typed atomic constraint.
-            constraint_set: Typed collection of version constraints.
-
-        Raises:
-            ValueError: If identifier inputs disagree or multiple
-                constraint inputs are provided.
-        """
+        """Initialize a plugin dependency."""
 
         explicit_plugin_id = plugin_id is not None
 
@@ -66,20 +54,10 @@ class PluginDependency:
                 "Plugin identifier is required.",
             )
 
-        if (
-            name is not None
-            and explicit_plugin_id
-            and name != plugin_id
-        ):
+        if name is not None and explicit_plugin_id and name != plugin_id:
             raise ValueError(
-                "name and plugin_id must reference "
-                "the same Plugin Identifier.",
+                "name and plugin_id must reference the same Plugin Identifier.",
             )
-
-        if explicit_plugin_id:
-            plugin_id = PluginId(
-                plugin_id,
-            ).value
 
         provided_inputs = sum(
             (
@@ -91,9 +69,12 @@ class PluginDependency:
 
         if provided_inputs > 1:
             raise ValueError(
-                "Specify only one of minimum_version, "
-                "constraint or constraint_set.",
+                "Specify only one of minimum_version, constraint or constraint_set.",
             )
+
+        plugin_id = PluginId(
+            plugin_id,
+        ).value
 
         resolved_constraint_set = constraint_set
 
@@ -104,9 +85,7 @@ class PluginDependency:
 
         if constraint is not None:
             resolved_constraint_set = ConstraintSet(
-                constraints=(
-                    constraint,
-                ),
+                constraints=(constraint,),
             )
 
         object.__setattr__(
