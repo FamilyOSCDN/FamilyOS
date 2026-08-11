@@ -8,8 +8,7 @@ deciders:
 consulted: []
 informed: []
 related:
-  - ADR-0001
-  - Generation-Architecture
+    - Generation-Architecture
 ---
 
 # Context
