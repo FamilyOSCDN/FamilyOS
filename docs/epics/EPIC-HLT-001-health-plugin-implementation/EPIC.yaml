@@ -1,0 +1,64 @@
+id: EPIC-HLT-001
+title: Health Plugin Implementation
+version: 1.0.0
+status: completed
+category: engineering-epic
+domain: health
+record_type: retrospective-governance
+summary: Retrospective governance record for the completed official FamilyOS Health
+  Plugin implementation.
+historical_baselines:
+  rfc:
+    tag: v2.3.0-health-plugin
+    commit: 0af94aada99946e1fd715c2964fae23b853757ca
+    description: Health Plugin RFC completed
+  implementation:
+    tag: v3.2.0-health-plugin-implementation
+    commit: 661f4176f6b14cbad4f888007ecc2afcc9648c75
+    description: Health Plugin implementation completed
+  epic_present_at_implementation_release: false
+source:
+  rfc: RFC-0011
+  plugin_path: src/familyos_cli/plugins/builtin/health
+  test_path: tests/unit/plugins/builtin/health
+structure:
+  numbered_documents: 0
+  canonical_document_range: none
+  control_documents: 7
+  canonical_files: 7
+  external_master_documents: 0
+deliverables:
+- EPIC-HLT-001.md
+- EPIC.yaml
+- README.md
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- Revision-History.md
+baseline:
+  implementation_status: completed
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
+validation:
+  historical_tags_required: true
+  historical_commits_required: true
+  no_empty_required_files: true
+  filesystem_contract_required: true
+  yaml_contract_required: true
+  quality_gates:
+  - ruff
+  - mypy
+  - pytest
+  - git_diff_check
+closure:
+  documentation_complete: true
+  control_documents_aligned: true
+  validation_passed: true
+  historical_rfc_verified: true
+  historical_release_verified: true
+  final_commit_created: false
+  historical_tags_preserved: true
+  remote_publication_verified: true
+  working_tree_clean: false
+  epic_closed: false
