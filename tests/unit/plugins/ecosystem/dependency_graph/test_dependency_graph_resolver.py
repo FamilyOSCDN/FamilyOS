@@ -26,6 +26,8 @@ from familyos_cli.plugins.ecosystem.resolution.resolution_diagnostic_severity im
 
 
 def test_resolve_returns_cyclic_result_when_cycle_is_detected() -> None:
+    """A detected cycle produces a global cycle diagnostic."""
+
     graph = Mock(
         spec=PluginDependencyGraph,
     )
@@ -50,13 +52,16 @@ def test_resolve_returns_cyclic_result_when_cycle_is_detected() -> None:
     assert result.cycle_detected is True
     assert result.succeeded is False
     assert result.ordered_nodes == ()
-    assert len(
-        result.diagnostics,
-    ) == 1
+    assert (
+        len(
+            result.diagnostics,
+        )
+        == 1
+    )
 
     diagnostic = result.diagnostics[0]
 
-    assert diagnostic.plugin == ""
+    assert diagnostic.plugin is None
     assert diagnostic.message == "Dependency cycle detected."
     assert diagnostic.code is ResolutionDiagnosticCode.CYCLE_DETECTED
     assert diagnostic.severity is ResolutionDiagnosticSeverity.ERROR
@@ -68,6 +73,8 @@ def test_resolve_returns_cyclic_result_when_cycle_is_detected() -> None:
 
 
 def test_resolve_returns_topologically_ordered_nodes() -> None:
+    """An acyclic graph produces topologically ordered nodes."""
+
     graph = Mock(
         spec=PluginDependencyGraph,
     )
@@ -115,6 +122,8 @@ def test_resolve_returns_topologically_ordered_nodes() -> None:
 
 
 def test_resolver_creates_default_algorithms() -> None:
+    """The resolver creates default graph algorithms."""
+
     resolver = DependencyGraphResolver()
 
     assert isinstance(

@@ -7,6 +7,7 @@ from familyos_cli.plugins.ecosystem.diagnostics import (
 from familyos_cli.plugins.ecosystem.package import PluginPackage
 from familyos_cli.plugins.ecosystem.resolution import (
     ResolutionDiagnostic,
+    ResolutionDiagnosticCode,
     ResolutionPlan,
 )
 
@@ -186,6 +187,26 @@ def test_adapter_ignores_unknown_resolution_diagnostic() -> None:
             ResolutionDiagnostic(
                 plugin="familyos.security",
                 message="Unexpected resolver information.",
+            ),
+        ],
+    )
+
+    conflicts = ResolutionConflictAdapter().adapt(
+        plan,
+    )
+
+    assert conflicts == ()
+
+
+def test_adapter_ignores_global_resolution_diagnostic() -> None:
+    """Global diagnostics without a plugin are not plugin conflicts."""
+
+    plan = ResolutionPlan(
+        diagnostics=[
+            ResolutionDiagnostic(
+                plugin=None,
+                message="Dependency cycle detected.",
+                code=ResolutionDiagnosticCode.CYCLE_DETECTED,
             ),
         ],
     )

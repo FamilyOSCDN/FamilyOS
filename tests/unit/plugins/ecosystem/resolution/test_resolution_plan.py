@@ -21,7 +21,7 @@ def test_resolution_plan_creation() -> None:
     )
 
     diagnostic = ResolutionDiagnostic(
-        plugin="calendar",
+        plugin="familyos.calendar",
         message="Missing dependency.",
     )
 

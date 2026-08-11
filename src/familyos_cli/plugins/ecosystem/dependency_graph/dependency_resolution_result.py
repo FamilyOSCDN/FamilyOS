@@ -36,10 +36,7 @@ class DependencyResolutionResult:
     ) -> bool:
         """Return whether dependency graph resolution succeeded."""
 
-        return not any(
-            diagnostic.is_error
-            for diagnostic in self.diagnostics
-        )
+        return not any(diagnostic.is_error for diagnostic in self.diagnostics)
 
     @classmethod
     def resolved(
@@ -62,8 +59,8 @@ class DependencyResolutionResult:
         """Create a result representing a dependency cycle."""
 
         diagnostic = ResolutionDiagnostic(
-            plugin="",
             message="Dependency cycle detected.",
+            plugin=None,
             code=ResolutionDiagnosticCode.CYCLE_DETECTED,
             severity=ResolutionDiagnosticSeverity.ERROR,
         )
@@ -71,7 +68,5 @@ class DependencyResolutionResult:
         return cls(
             ordered_nodes=(),
             cycle_detected=True,
-            diagnostics=(
-                diagnostic,
-            ),
+            diagnostics=(diagnostic,),
         )

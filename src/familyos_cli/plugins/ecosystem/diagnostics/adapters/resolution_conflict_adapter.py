@@ -11,15 +11,9 @@ from familyos_cli.plugins.ecosystem.resolution import (
     ResolutionPlan,
 )
 
-_MISSING_DEPENDENCY_MESSAGE = (
-    "Required plugin dependency is not available."
-)
-_NO_VALID_VERSION_MESSAGE = (
-    "No package with a valid semantic version is available."
-)
-_NO_COMPATIBLE_VERSION_PREFIX = (
-    "No available plugin version satisfies constraint set "
-)
+_MISSING_DEPENDENCY_MESSAGE = "Required plugin dependency is not available."
+_NO_VALID_VERSION_MESSAGE = "No package with a valid semantic version is available."
+_NO_COMPATIBLE_VERSION_PREFIX = "No available plugin version satisfies constraint set "
 _INVALID_VERSION_FRAGMENT = "is invalid."
 
 
@@ -55,35 +49,36 @@ class ResolutionConflictAdapter:
     ) -> PluginConflict | None:
         """Adapt one known resolver diagnostic."""
 
+        if diagnostic.plugin is None:
+            return None
+
+        plugin = diagnostic.plugin
         message = diagnostic.message
 
         if message == _MISSING_DEPENDENCY_MESSAGE:
             return PluginConflict(
-                plugin=diagnostic.plugin,
+                plugin=plugin,
                 reason=ConflictReason.PACKAGE_NOT_FOUND,
             )
 
         if _INVALID_VERSION_FRAGMENT in message:
             return PluginConflict(
-                plugin=diagnostic.plugin,
+                plugin=plugin,
                 reason=ConflictReason.INVALID_VERSION,
                 available_versions=self._skipped_versions_for(
-                    plugin=diagnostic.plugin,
+                    plugin=plugin,
                     plan=plan,
                 ),
             )
 
-        if (
-            message == _NO_VALID_VERSION_MESSAGE
-            or message.startswith(
-                _NO_COMPATIBLE_VERSION_PREFIX,
-            )
+        if message == _NO_VALID_VERSION_MESSAGE or message.startswith(
+            _NO_COMPATIBLE_VERSION_PREFIX,
         ):
             return PluginConflict(
-                plugin=diagnostic.plugin,
+                plugin=plugin,
                 reason=ConflictReason.NO_COMPATIBLE_VERSION,
                 available_versions=self._skipped_versions_for(
-                    plugin=diagnostic.plugin,
+                    plugin=plugin,
                     plan=plan,
                 ),
             )
