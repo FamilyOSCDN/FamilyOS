@@ -1,0 +1,64 @@
+id: EPIC-FIN-001
+title: Finance Plugin Implementation
+version: 1.0.0
+status: completed
+category: engineering-epic
+domain: finance
+record_type: retrospective-governance
+summary: Retrospective governance record for the completed official FamilyOS Finance
+  Plugin implementation.
+historical_baselines:
+  rfc:
+    tag: v2.4.0-finance-plugin
+    commit: f4957ffbbcbde034db7e98ffe540852af48d240b
+    description: Finance Plugin RFC completed
+  implementation:
+    tag: v3.3.0-finance-plugin-implementation
+    commit: 96e3ff906e629876e2be5790ca73c3096bab8fc5
+    description: Finance Plugin implementation completed
+  epic_present_at_implementation_release: false
+source:
+  rfc: RFC-0012
+  plugin_path: src/familyos_cli/plugins/builtin/finance
+  test_path: tests/unit/plugins/builtin/finance
+structure:
+  numbered_documents: 0
+  canonical_document_range: none
+  control_documents: 7
+  canonical_files: 7
+  external_master_documents: 0
+deliverables:
+- EPIC-FIN-001.md
+- EPIC.yaml
+- README.md
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- Revision-History.md
+baseline:
+  implementation_status: completed
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
+validation:
+  historical_tags_required: true
+  historical_commits_required: true
+  no_empty_required_files: true
+  filesystem_contract_required: true
+  yaml_contract_required: true
+  quality_gates:
+  - ruff
+  - mypy
+  - pytest
+  - git_diff_check
+closure:
+  documentation_complete: true
+  control_documents_aligned: true
+  validation_passed: true
+  historical_rfc_verified: true
+  historical_release_verified: true
+  final_commit_created: false
+  historical_tags_preserved: true
+  remote_publication_verified: true
+  working_tree_clean: false
+  epic_closed: false
