@@ -1,0 +1,174 @@
+id: EPIC-COM-001
+title: Communication Plugin
+type: official-plugin
+domain: communication
+version: 0.1.0
+status: completed
+summary: Define and govern the official FamilyOS Communication Plugin, including its architecture,
+  domain model, capabilities, implementation plan, testing strategy, security requirements,
+  compatibility model, operations, governance, metrics, roadmap, and future evolution.
+objectives:
+- establish the canonical Communication Plugin domain
+- define communication-specific domain models
+- define official plugin capabilities
+- preserve security and privacy requirements
+- integrate with the FamilyOS official plugin architecture
+- define implementation and testing expectations
+- establish compatibility and versioning expectations
+- define operational and governance requirements
+- preserve documentation and release traceability
+deliverables:
+- 01-Introduction.md
+- 02-Vision.md
+- 03-Scope.md
+- 04-Architecture.md
+- 05-Domain-Model.md
+- 06-Capabilities.md
+- 07-Implementation-Plan.md
+- 08-Testing-Strategy.md
+- 09-Security.md
+- 10-Compatibility.md
+- 11-Roadmap.md
+- 12-Dependencies.md
+- 13-Risks.md
+- 14-Operations.md
+- 15-Governance.md
+- 16-Metrics.md
+- 17-Future-Evolution.md
+- 18-References.md
+- EPIC-COM-001.md
+- EPIC.yaml
+- README.md
+- MANIFEST.md
+- CHANGELOG.md
+- VALIDATION.md
+- Revision-History.md
+structure:
+  numbered_documents: 18
+  canonical_document_range: 01-18
+  control_documents: 7
+  canonical_files: 25
+historical_structure:
+  numbered_documents: 18
+  canonical_document_range: 01-18
+  control_documents: 3
+  canonical_files: 21
+  documentation_model: compact-plugin-epic
+baseline:
+  framework_version: 0.1.0
+  documentation_status: completed
+  repository_validation_status: validated
+  final_validation_status: validated
+repository:
+  path: docs/epics/EPIC-COM-001-communication-plugin
+  canonical_document_range: 01-18
+  numbered_documents: 18
+  control_documents: 7
+  canonical_files: 25
+  authoritative_remote: origin
+  release_branch: feature/foundation-engineering-docs
+historical_release:
+  documentation_tag: v3.6.0-communication-plugin-documentation
+  documentation_commit: 19e7da670634da1da1843893898aa68bd12bf0a2
+  documentation_tag_verified_local: true
+  documentation_tag_verified_remote: true
+  documentation_tag_immutable: true
+  documentation_release_date: '2026-08-06'
+  documentation_release_status: published
+related_releases:
+  rfc_release:
+    tag: v2.7.0-communication-plugin
+    commit: 462ef160c94602cac0c0bbaa3f5b9b0c78653bfd
+    purpose: Communication Plugin RFC completion
+  implementation_release:
+    tag: v4.0.0-communication-plugin
+    commit: 4421e12421fafe24db30d13ea7ae881eec185159
+    purpose: Official Communication Plugin implementation completion
+historical_evidence:
+  documentation_release:
+    tag: v3.6.0-communication-plugin-documentation
+    commit: 19e7da670634da1da1843893898aa68bd12bf0a2
+    message: RFC-0015 and EPIC-COM-001 Communication Plugin documentation completed
+  historical_files: 21
+  historical_numbered_documents: 18
+  historical_control_documents: 3
+  changes_after_documentation_release:
+    commit: e4ea9e239c9672c07808aa81432d555f9e84724c
+    tag: v4.2.0-adr-governance-consolidation
+    affected_files:
+    - EPIC-COM-001.md
+    - README.md
+    change_scope: architecture-reference-normalization
+plugin:
+  plugin_id: familyos.communication
+  category: official
+  lifecycle: stable
+  architecture_authority: ADR-0007
+  specification_authority: RFC-0015
+capability_domains:
+- communication-domain-model
+- message-management
+- channel-management
+- recipient-management
+- template-management
+- delivery-management
+- scheduling
+- archival
+- retrieval
+engineering:
+  architecture: clean-architecture
+  domain_modeling: domain-driven-design
+  security_model: security-by-design
+  official_plugin_model: true
+  plugin_sdk_required: true
+governance:
+  version_control_required: true
+  documentation_required: true
+  testing_required: true
+  security_validation_required: true
+  compatibility_validation_required: true
+  release_validation_required: true
+  change_traceability_required: true
+validation:
+  yaml_parse_required: true
+  yaml_contract_required: true
+  filesystem_contract_required: true
+  numbering_integrity_required: true
+  control_document_integrity_required: true
+  empty_file_check_required: true
+  placeholder_validation_required: true
+  reference_validation_required: true
+  semantic_consistency_validation_required: true
+  historical_tag_validation_required: true
+  historical_remote_tag_validation_required: true
+  ruff_required: true
+  mypy_required: true
+  pytest_required: true
+  diff_check_required: true
+quality_gates:
+  ruff: required
+  mypy: required
+  pytest: required
+  diff_check: required
+acceptance:
+  canonical_document_range: 01-18
+  expected_numbered_documents: 18
+  expected_control_documents: 7
+  expected_canonical_files: 25
+  duplicate_number_groups_expected: 0
+  empty_canonical_files_expected: 0
+  historical_documentation_tag_required: true
+  yaml_filesystem_alignment_required: true
+  control_document_alignment_required: true
+  repository_quality_gates_required: true
+  clean_final_repository_required: true
+closure:
+  documentation_complete: true
+  control_documents_aligned: true
+  validation_passed: true
+  historical_release_verified: true
+  final_commit_created: false
+  historical_tag_preserved: true
+  remote_publication_verified: true
+  working_tree_clean: false
+  epic_closed: false
