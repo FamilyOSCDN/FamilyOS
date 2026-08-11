@@ -1232,7 +1232,7 @@ Final Revalidation:      Validated
 
 Historical publication evidence has been identified.
 
-Current repository revalidation evidence is not yet complete.
+Current repository revalidation evidence is complete and records a validated repository state.
 
 The authoritative current execution evidence belongs in:
 
@@ -1240,7 +1240,7 @@ The authoritative current execution evidence belongs in:
 VALIDATION.md
 ```
 
-Until current evidence is complete, this revision history SHALL NOT claim final current repository validation.
+Current evidence supports final repository validation while preserving the immutable historical publication record.
 
 ---
 

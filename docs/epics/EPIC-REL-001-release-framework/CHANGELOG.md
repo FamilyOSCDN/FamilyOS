@@ -20,7 +20,7 @@ The changelog preserves the historical development of the framework and provides
 
 ## Changed
 
-* Final control-document alignment remains pending.
+* Final control-document alignment completed and validated.
 * Framework lifecycle status is `completed`; historical publication and remote verification have been completed.
 
 ---
