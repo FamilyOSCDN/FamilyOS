@@ -7,7 +7,7 @@
 | Identifier | EPIC-PLUGIN-001 |
 | Title | Official Plugin Implementation |
 | Version | 1.0.0 |
-| Status | Planned |
+| Status | Completed |
 | Owner | FamilyOS Team |
 | Category | Engineering |
 
@@ -31,6 +31,8 @@ FamilyOS plugins.
 | MANIFEST.md | Epic content manifest |
 | CHANGELOG.md | Evolution history |
 | VALIDATION.md | Validation report |
+| README.md | Repository entry point and navigation |
+| Revision-History.md | Documentary revision history |
 
 ---
 
@@ -96,3 +98,24 @@ All modifications must preserve:
 - architectural consistency;
 - compatibility with Plugin SDK v2.
 
+
+---
+
+# Canonical Structure
+
+```text
+Numbered Documents: 0
+Control Documents:  7
+Canonical Files:    7
+```
+
+# Historical Baseline
+
+The canonical repository baseline for this EPIC directory is:
+
+- Tag: `v4.4.0-official-plugin-governance`
+- Commit: `d30a44f55bbac97413adc8652636ea79c96ec99f`
+- Historical files: 5
+
+`v2.9.0-official-plugin-implementation` is a related implementation milestone,
+but the canonical EPIC-PLUGIN-001 directory did not exist at that tag.

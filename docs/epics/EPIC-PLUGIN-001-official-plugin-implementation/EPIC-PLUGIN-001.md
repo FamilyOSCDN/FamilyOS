@@ -8,7 +8,7 @@
 | Title      | Official Plugin Implementation |
 | Category   | Engineering Epic               |
 | Version    | 1.0.0                          |
-| Status     | Planned                        |
+| Status     | Completed                        |
 | Date       | 2026-08-05                     |
 
 ---
@@ -112,7 +112,7 @@ Following Security Plugin completion:
 * Documents Plugin;
 * Communication Plugin.
 
-Each plugin SHALL follow the ADR-0008 implementation model.
+Each plugin SHALL follow the ADR-0013 implementation model.
 
 ---
 
@@ -175,7 +175,7 @@ Every implementation SHALL pass:
 This epic is complete when:
 
 * all official plugins are implemented;
-* all plugins follow ADR-0008;
+* all plugins follow ADR-0013;
 * all plugins expose capabilities;
 * all plugins provide contributions;
 * all plugins have automated validation;

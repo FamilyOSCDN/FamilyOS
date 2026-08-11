@@ -1,4 +1,3 @@
-cat > docs/epics/EPIC-PLUGIN-001-official-plugin-implementation/CHANGELOG.md <<'EOF'
 # Changelog
 
 All notable changes to EPIC-PLUGIN-001 are documented in this file.
@@ -32,4 +31,19 @@ This release establishes the baseline documentation contract for official plugin
 
 All future official plugins SHALL follow the architecture, quality, validation, and documentation requirements defined by this EPIC.
 
-EOF
+---
+
+## [Unreleased] — Repository Normalization
+
+### Changed
+
+- Normalized EPIC status to reflect completed official plugin implementation governance.
+- Corrected implementation-strategy references from ADR-0008 to ADR-0013.
+- Expanded the control-document set from five to seven canonical files.
+- Added README.md and Revision-History.md.
+- Established v4.4.0-official-plugin-governance as the historical baseline of this EPIC directory.
+- Classified v2.9.0-official-plugin-implementation as a related implementation milestone rather than the documentary baseline.
+
+### Validation
+
+Repository revalidation is pending.
