@@ -117,6 +117,53 @@ def test_cli_plugin_resolve_should_render_missing_dependency_diagnostic(
     assert "Traceback" not in result.output
 
 
+def test_cli_plugin_resolve_should_render_version_conflict_diagnostic(
+    tmp_path: Path,
+) -> None:
+    """CLI should fail cleanly when no plugin version is compatible."""
+
+    write_plugin_manifest(
+        tmp_path / "communication",
+        plugin_id="familyos.communication",
+        name="FamilyOS Communication Plugin",
+        version="1.0.0",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "plugin",
+            "resolve",
+            "familyos.communication>=2.0.0",
+            "--repository-name",
+            "E2E Repository",
+            "--repository-url",
+            str(tmp_path),
+            "--repository-type",
+            "local",
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 1, result.output
+
+    assert "ERROR: Plugin version conflict" in result.output
+
+    assert (
+        "Plugin requirements cannot be satisfied together."
+        in result.output
+    )
+
+    assert "Suggestions:" in result.output
+
+    assert (
+        "Choose compatible plugin versions."
+        in result.output
+    )
+
+    assert "Traceback" not in result.output
+
+
 def test_cli_plugin_resolve_should_report_noncanonical_plugin_identifier(
     tmp_path: Path,
 ) -> None:
