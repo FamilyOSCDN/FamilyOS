@@ -2,18 +2,19 @@
 
 ## Status
 
-Architecture Review
+Accepted
 
 ## Context
 
-FamilyOS CLI provides a plugin ecosystem with discovery, dependency
-resolution, conflict detection, cycle detection, diagnostic explanation,
-formatting, and presentation components.
+FamilyOS CLI provides a plugin ecosystem with discovery, dependency resolution,
+conflict detection, cycle detection, diagnostic explanation, formatting, and
+presentation components.
 
-The diagnostic subsystem currently contains the foundations required to
-transform plugin resolution failures into human-readable information.
+RFC-0007 defines how structured plugin resolution failures are transformed into
+readable and actionable CLI diagnostics without introducing terminal framework
+concerns into the ecosystem diagnostic model.
 
-The implemented flow includes:
+The accepted diagnostic flow is:
 
 ```text
 PluginResolutionDiagnostic
@@ -31,101 +32,198 @@ TerminalFormatter
 DiagnosticCliRenderer
         |
         v
-Terminal-compatible text
-The subsystem also contains:
+CLI output boundary
+        |
+        v
+Typer terminal output
+```
 
-diagnostic severity and kind models;
-diagnostic reports and builders;
-conflict and dependency-cycle models;
-diagnostic adapters;
-explanation rules;
-text and JSON explanation formatters;
-resolution suggestions;
-a suggestion generator;
-a diagnostic pipeline.
+The diagnostic subsystem also contains:
 
-The following components have already been implemented and validated:
+- diagnostic severity and kind models;
+- diagnostic reports and builders;
+- conflict and dependency-cycle models;
+- diagnostic adapters;
+- explanation rules;
+- text and JSON explanation formatters;
+- resolution suggestions;
+- a suggestion generator;
+- a diagnostic pipeline.
 
-AD.1 — Diagnostic CLI Renderer
-AD.2 — Resolution Suggestion Model
-AD.3 — Suggestion Generator
-AD.4 — Terminal Formatter
-Problem
+---
 
-The diagnostic subsystem is not yet integrated into the Typer command layer.
+## Problem
 
-A previous design introduced a DiagnosticPresentationService between the
-renderer and the terminal formatter. That design created an import cycle:
+Plugin resolution diagnostics must cross from framework-independent ecosystem
+logic into a Typer-based command-line interface.
 
-presentation
-    |
-    v
-rendering
-    |
-    v
-presentation
+That boundary must provide useful terminal output without allowing Typer,
+terminal styling, process exit behavior, or other interface concerns to leak
+into diagnostic models or application behavior.
 
-The service also duplicated responsibilities already owned by
-DiagnosticCliRenderer.
+An earlier design proposed a `DiagnosticPresentationService` between the
+renderer and formatter.
 
-The architecture must therefore be reviewed before any CLI integration is
-implemented.
+That design was rejected because it duplicated existing responsibilities and
+created an undesirable presentation dependency cycle.
 
-Decision summary
+---
 
-The target architecture does not include a diagnostic presentation service.
+## Decision
 
-DiagnosticCliRenderer is the presentation adapter for terminal-oriented
-diagnostic explanations.
+The accepted architecture does not contain a
+`DiagnosticPresentationService`.
 
-TerminalFormatter owns terminal text construction.
+`DiagnosticCliRenderer` is the CLI-oriented presentation adapter for diagnostic
+explanations.
 
-Output remains the only existing general-purpose CLI helper directly coupled
-to Typer.
+`TerminalFormatter` owns deterministic terminal text construction.
 
-Application services must not depend on Typer, Output, or terminal rendering.
+`Output` remains the CLI output boundary directly coupled to Typer.
 
 The CLI command layer coordinates application services and presentation
 adapters.
 
-Goals
+Application and ecosystem diagnostic components do not depend on Typer,
+`Output`, or CLI process-exit behavior.
 
-RFC-0007 must provide:
+---
 
-readable plugin resolution failures;
-actionable resolution suggestions;
-deterministic terminal formatting;
-integration with the existing Typer CLI;
-consistent CLI exit behavior;
-testable boundaries between application logic and presentation;
-future support for alternative renderers without changing domain models.
-Non-goals
+## Dependency Direction
+
+The accepted formatter and renderer dependency direction is:
+
+```text
+ResolutionExplanation
+        |
+        v
+TerminalFormatter
+        |
+        v
+DiagnosticCliRenderer
+```
+
+The complete interface flow is:
+
+```text
+Plugin resolution pipeline
+        |
+        v
+Structured diagnostics
+        |
+        v
+Diagnostic explanation
+        |
+        v
+Diagnostic rendering
+        |
+        v
+CLI output boundary
+        |
+        v
+Typer
+```
+
+Dependencies do not point back from ecosystem diagnostics toward the CLI.
+
+---
+
+## Goals
+
+RFC-0007 provides:
+
+- readable plugin resolution failures;
+- actionable resolution suggestions;
+- deterministic terminal formatting;
+- integration with the existing Typer CLI;
+- consistent CLI exit behavior;
+- testable boundaries between application logic and presentation;
+- optional terminal styling;
+- support for environments without color;
+- future support for alternative renderers without changing diagnostic models.
+
+---
+
+## Non-goals
 
 RFC-0007 does not implement:
 
-plugin marketplace access;
-remote registry communication;
-plugin installation workflows;
-package download progress;
-interactive conflict resolution;
-automatic dependency repair;
-terminal user interfaces;
-web or REST presentation;
-plugin trust or sandboxing policies.
-Architectural principles
+- plugin marketplace access;
+- remote registry communication;
+- plugin installation workflows;
+- package download progress;
+- interactive conflict resolution;
+- automatic dependency repair;
+- terminal user interfaces;
+- web or REST presentation;
+- plugin trust or sandboxing policies.
+
+---
+
+## Architectural Principles
 
 The RFC follows these principles:
 
-architecture before implementation;
-dependencies point toward stable abstractions;
-Typer remains confined to the CLI interface layer;
-domain diagnostics contain no terminal concepts;
-formatters do not execute application operations;
-renderers do not resolve plugin dependencies;
-commands remain thin coordinators;
-no abstraction is introduced without a distinct responsibility;
-public API additions are deliberate and tested.
-Current RFC phase
+- architecture before implementation;
+- dependencies point toward stable abstractions;
+- Typer remains confined to the CLI interface layer;
+- domain and ecosystem diagnostics contain no terminal framework concepts;
+- formatters do not execute application operations;
+- renderers do not resolve plugin dependencies;
+- commands remain thin coordinators;
+- exit codes remain an interface policy;
+- styling remains optional;
+- plain-text output remains deterministic;
+- no abstraction is introduced without a distinct responsibility;
+- public API additions are deliberate and tested.
+
+---
+
+## Completed Decisions
+
+The following architecture decisions are complete:
+
+- AD.1 — Diagnostic CLI Renderer
+- AD.2 — Resolution Suggestion Model
+- AD.3 — Suggestion Generator
+- AD.4 — Terminal Formatter
+- AD.4R — Remove rejected `DiagnosticPresentationService` design
+- AD.5 — CLI Diagnostic Output Boundary
+- AD.6 — Plugin Resolution Command Integration
+- AD.7 — Exit Policy and Failure Aggregation
+- AD.8 — ANSI and Rich Terminal Styling
+- AD.9 — End-to-End Resolution UX
+- AD.10 — Public API and RFC Closure
+
+---
+
+## Validation
+
+Final repository validation confirms:
+
+```text
+Ruff:   PASS
+MyPy:   PASS — 527 source files
+Pytest: PASS — 1253 tests
+
+Typer in ecosystem diagnostics:
+NONE
+
+ecosystem diagnostics -> CLI dependency:
+NONE
+
+DiagnosticPresentationService:
+NONE
+
+Repository diff validation:
+PASS
+```
+
+---
+
+## Final RFC Phase
+
+```text
 Architecture Review
         |
         v
@@ -135,4 +233,18 @@ Design Challenge
 Architecture Validation
         |
         v
-Remaining Sprint Implementation
+Implementation
+        |
+        v
+End-to-End Validation
+        |
+        v
+Repository Validation
+        |
+        v
+Accepted
+```
+
+RFC-0007 has completed this lifecycle.
+
+**Status: Accepted**
