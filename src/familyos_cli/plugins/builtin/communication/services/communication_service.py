@@ -13,46 +13,110 @@ from familyos_cli.plugins.builtin.communication.models import (
 class CommunicationService:
     """Application service for communication messages."""
 
-    @staticmethod
+    _ALLOWED_TRANSITIONS: dict[
+        DeliveryStatus,
+        frozenset[DeliveryStatus],
+    ] = {
+        DeliveryStatus.PENDING: frozenset(
+            {
+                DeliveryStatus.SENT,
+                DeliveryStatus.FAILED,
+            },
+        ),
+        DeliveryStatus.SENT: frozenset(
+            {
+                DeliveryStatus.DELIVERED,
+                DeliveryStatus.FAILED,
+            },
+        ),
+        DeliveryStatus.DELIVERED: frozenset(
+            {
+                DeliveryStatus.READ,
+            },
+        ),
+        DeliveryStatus.READ: frozenset(),
+        DeliveryStatus.FAILED: frozenset(),
+    }
+
+    @classmethod
     def mark_as_sent(
+        cls,
         message: Message,
     ) -> Message:
-        """Mark a message as sent."""
+        """Mark a pending message as sent."""
 
-        return replace(
+        return cls._transition(
             message,
-            status=DeliveryStatus.SENT,
+            DeliveryStatus.SENT,
         )
 
-    @staticmethod
+    @classmethod
     def mark_as_delivered(
+        cls,
         message: Message,
     ) -> Message:
-        """Mark a message as delivered."""
+        """Mark a sent message as delivered."""
 
-        return replace(
+        return cls._transition(
             message,
-            status=DeliveryStatus.DELIVERED,
+            DeliveryStatus.DELIVERED,
         )
 
-    @staticmethod
+    @classmethod
     def mark_as_read(
+        cls,
         message: Message,
     ) -> Message:
-        """Mark a message as read."""
+        """Mark a delivered message as read."""
 
-        return replace(
+        return cls._transition(
             message,
-            status=DeliveryStatus.READ,
+            DeliveryStatus.READ,
         )
 
-    @staticmethod
+    @classmethod
     def mark_as_failed(
+        cls,
         message: Message,
     ) -> Message:
-        """Mark a message as failed."""
+        """Mark a pending or sent message as failed."""
+
+        return cls._transition(
+            message,
+            DeliveryStatus.FAILED,
+        )
+
+    @classmethod
+    def can_transition(
+        cls,
+        message: Message,
+        target_status: DeliveryStatus,
+    ) -> bool:
+        """Return whether a delivery status transition is allowed."""
+
+        return target_status in cls._ALLOWED_TRANSITIONS[
+            message.status
+        ]
+
+    @classmethod
+    def _transition(
+        cls,
+        message: Message,
+        target_status: DeliveryStatus,
+    ) -> Message:
+        """Apply a valid delivery status transition."""
+
+        if not cls.can_transition(
+            message,
+            target_status,
+        ):
+            raise ValueError(
+                "Invalid delivery status transition: "
+                f"{message.status.value} -> "
+                f"{target_status.value}.",
+            )
 
         return replace(
             message,
-            status=DeliveryStatus.FAILED,
+            status=target_status,
         )
