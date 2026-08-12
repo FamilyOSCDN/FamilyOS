@@ -45,11 +45,11 @@ The Documents Plugin covers:
 
 | Field       | Value                    |
 | ----------- | ------------------------ |
-| Plugin ID   | documents                |
+| Plugin ID   | familyos.documents       |
 | Plugin Name | Documents Plugin         |
 | Version     | 1.0.0                    |
 | Type        | Official Built-in Plugin |
-| Status      | Planned                  |
+| Status      | Approved                 |
 
 ---
 

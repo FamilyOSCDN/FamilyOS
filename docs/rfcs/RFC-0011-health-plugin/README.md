@@ -40,11 +40,11 @@ The Health Plugin covers:
 
 | Field | Value |
 |---|---|
-| Plugin ID | health |
+| Plugin ID | familyos.health |
 | Plugin Name | Health Plugin |
 | Version | 1.0.0 |
 | Type | Official Built-in Plugin |
-| Status | Planned |
+| Status | Approved |
 
 ---
 

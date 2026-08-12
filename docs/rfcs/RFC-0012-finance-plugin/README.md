@@ -41,11 +41,11 @@ The Finance Plugin covers:
 
 | Field       | Value                    |
 | ----------- | ------------------------ |
-| Plugin ID   | finance                  |
+| Plugin ID   | familyos.finance         |
 | Plugin Name | Finance Plugin           |
 | Version     | 1.0.0                    |
 | Type        | Official Built-in Plugin |
-| Status      | Planned                  |
+| Status      | Approved                 |
 
 ---
 
