@@ -53,6 +53,9 @@ from familyos_cli.application.use_cases.create_project import (
 from familyos_cli.application.use_cases.get_domain_specification import (
     GetDomainSpecificationUseCase,
 )
+from familyos_cli.application.use_cases.resolve_plugins import (
+    ResolvePluginsUseCase,
+)
 from familyos_cli.bootstrap.runtime_factory import RuntimeFactory
 from familyos_cli.domain.generation.default_generation_preset_registry import (
     DefaultGenerationPresetRegistry,
@@ -150,6 +153,15 @@ class ApplicationContainer:
         """Return plugin resolution pipeline."""
 
         return self._plugin_resolution_pipeline
+
+    def resolve_plugins_use_case(
+        self,
+    ) -> ResolvePluginsUseCase:
+        """Create plugin resolution use case."""
+
+        return ResolvePluginsUseCase(
+            pipeline=self._plugin_resolution_pipeline,
+        )
 
     def plugin_verifier(
         self,

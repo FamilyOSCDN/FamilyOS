@@ -4,12 +4,9 @@ from __future__ import annotations
 
 from unittest.mock import Mock, patch
 
-import pytest
-
 from familyos_cli.interfaces.cli.commands.plugin_resolve import (
     EXIT_FAILURE,
     EXIT_SUCCESS,
-    parse_plugin_dependency,
     plugin_resolve,
 )
 from familyos_cli.plugins.ecosystem.diagnostics import (
@@ -25,69 +22,20 @@ from familyos_cli.plugins.ecosystem.resolution import (
 )
 
 
-def test_should_parse_dependency_without_constraint() -> None:
-    """CLI should parse a canonical Plugin Identifier."""
-
-    dependency = parse_plugin_dependency(
-        "familyos.documentation",
-    )
-
-    assert dependency.plugin_id == "familyos.documentation"
-    assert dependency.name == "familyos.documentation"
-    assert dependency.constraint_set is None
-
-
-def test_should_parse_dependency_with_constraint_set() -> None:
-    """CLI should preserve version constraints."""
-
-    dependency = parse_plugin_dependency(
-        "familyos.calendar>=1.0.0,<2.0.0",
-    )
-
-    assert dependency.plugin_id == "familyos.calendar"
-    assert dependency.name == "familyos.calendar"
-    assert dependency.constraint_set is not None
-    assert str(dependency.constraint_set) == ">=1.0.0,<2.0.0"
-
-
-def test_should_reject_short_plugin_identifier() -> None:
-    """CLI dependencies must use canonical Plugin Identifiers."""
-
-    with pytest.raises(
-        ValueError,
-        match="Invalid Plugin Identifier",
-    ):
-        parse_plugin_dependency(
-            "documentation",
-        )
-
-
-def test_should_reject_unknown_short_plugin_identifier() -> None:
-    """Unknown short identifiers must not bypass canonical validation."""
-
-    with pytest.raises(
-        ValueError,
-        match="Invalid Plugin Identifier",
-    ):
-        parse_plugin_dependency(
-            "notification",
-        )
-
-
 @patch(
     "familyos_cli.interfaces.cli.commands.plugin_resolve.CommandContext",
 )
 @patch(
     "familyos_cli.interfaces.cli.commands.plugin_resolve.Output.success",
 )
-def test_should_resolve_plugins_through_pipeline(
+def test_should_delegate_resolution_to_application_use_case(
     mock_success: Mock,
     mock_context_type: Mock,
 ) -> None:
-    """CLI should send canonical dependencies to the pipeline."""
+    """CLI should delegate plugin resolution to the application layer."""
 
-    pipeline = Mock()
-    pipeline.resolve.return_value = ResolutionPlan(
+    resolve_plugins = Mock()
+    resolve_plugins.execute.return_value = ResolutionPlan(
         ordered_packages=[
             PluginPackage(
                 plugin_id="familyos.documentation",
@@ -98,7 +46,7 @@ def test_should_resolve_plugins_through_pipeline(
     )
 
     context = Mock()
-    context.plugin_resolution_pipeline = pipeline
+    context.resolve_plugins = resolve_plugins
     mock_context_type.return_value = context
 
     result = plugin_resolve(
@@ -112,21 +60,14 @@ def test_should_resolve_plugins_through_pipeline(
 
     assert result == EXIT_SUCCESS
 
-    pipeline.resolve.assert_called_once()
-
-    call = pipeline.resolve.call_args
-
-    repository = call.kwargs["repository"]
-    dependencies = call.kwargs["dependencies"]
-
-    assert repository.name == "official"
-    assert repository.url == "https://plugins.familyos.dev"
-    assert repository.repository_type == "remote"
-
-    assert len(dependencies) == 1
-    assert dependencies[0].plugin_id == "familyos.documentation"
-    assert dependencies[0].name == "familyos.documentation"
-    assert str(dependencies[0].constraint_set) == ">=1.0.0"
+    resolve_plugins.execute.assert_called_once_with(
+        dependencies=[
+            "familyos.documentation>=1.0.0",
+        ],
+        repository_name="official",
+        repository_url="https://plugins.familyos.dev",
+        repository_type="remote",
+    )
 
     mock_success.assert_called_once_with(
         (
@@ -158,7 +99,7 @@ def test_should_build_explain_render_and_display_diagnostics(
     mock_renderer_type: Mock,
     mock_output_diagnostic: Mock,
 ) -> None:
-    """CLI should render resolution diagnostics."""
+    """CLI should render application resolution diagnostics."""
 
     resolution_plan = ResolutionPlan(
         diagnostics=[
@@ -171,11 +112,11 @@ def test_should_build_explain_render_and_display_diagnostics(
         ],
     )
 
-    resolution_pipeline = Mock()
-    resolution_pipeline.resolve.return_value = resolution_plan
+    resolve_plugins = Mock()
+    resolve_plugins.execute.return_value = resolution_plan
 
     context = Mock()
-    context.plugin_resolution_pipeline = resolution_pipeline
+    context.resolve_plugins = resolve_plugins
     mock_context_type.return_value = context
 
     diagnostic = PluginResolutionDiagnostic(
@@ -216,6 +157,15 @@ def test_should_build_explain_render_and_display_diagnostics(
 
     assert result == EXIT_FAILURE
 
+    resolve_plugins.execute.assert_called_once_with(
+        dependencies=[
+            "familyos.missing",
+        ],
+        repository_name="official",
+        repository_url="https://plugins.familyos.dev",
+        repository_type="remote",
+    )
+
     diagnostic_pipeline.build.assert_called_once_with(
         resolution_plan,
     )
@@ -240,15 +190,24 @@ def test_should_build_explain_render_and_display_diagnostics(
 @patch(
     "familyos_cli.interfaces.cli.commands.plugin_resolve.Output.error",
 )
-def test_should_report_invalid_dependency_expression(
+def test_should_report_application_input_error(
     mock_error: Mock,
     mock_context_type: Mock,
 ) -> None:
-    """CLI should report malformed dependency expressions."""
+    """CLI should report application boundary validation failures."""
+
+    resolve_plugins = Mock()
+    resolve_plugins.execute.side_effect = ValueError(
+        "Invalid Plugin Identifier: documentation",
+    )
+
+    context = Mock()
+    context.resolve_plugins = resolve_plugins
+    mock_context_type.return_value = context
 
     result = plugin_resolve(
         dependencies=[
-            "familyos.documentation-invalid-constraint?",
+            "documentation",
         ],
         repository_name="official",
         repository_url="https://plugins.familyos.dev",
@@ -257,5 +216,6 @@ def test_should_report_invalid_dependency_expression(
 
     assert result == EXIT_FAILURE
 
-    mock_context_type.assert_not_called()
-    mock_error.assert_called_once()
+    mock_error.assert_called_once_with(
+        "Invalid Plugin Identifier: documentation",
+    )

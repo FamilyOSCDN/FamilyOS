@@ -25,12 +25,12 @@ from familyos_cli.application.use_cases.create_domain import (
 from familyos_cli.application.use_cases.create_project import (
     CreateProjectUseCase,
 )
+from familyos_cli.application.use_cases.resolve_plugins import (
+    ResolvePluginsUseCase,
+)
 from familyos_cli.bootstrap import (
     ApplicationContainer,
     ApplicationFactory,
-)
-from familyos_cli.plugins.ecosystem.pipeline import (
-    PluginResolutionPipeline,
 )
 
 
@@ -106,9 +106,9 @@ class CommandContext:
         return self._container.recipe_catalog_service()
 
     @cached_property
-    def plugin_resolution_pipeline(
+    def resolve_plugins(
         self,
-    ) -> PluginResolutionPipeline:
-        """Provide plugin resolution pipeline."""
+    ) -> ResolvePluginsUseCase:
+        """Provide plugin resolution use case."""
 
-        return self._container.plugin_resolution_pipeline()
+        return self._container.resolve_plugins_use_case()
