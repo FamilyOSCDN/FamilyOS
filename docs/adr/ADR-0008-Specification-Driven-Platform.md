@@ -453,13 +453,13 @@ This ADR depends on:
 
 This ADR is related to:
 
-- RFC-000Y — Plugin SDK v2
-- RFC-000Z — Plugin Discovery & Distribution
-- RFC-000AA — Plugin Versioning & Compatibility
-- RFC-000AB — Plugin Dependency Graph
-- RFC-000AC — Plugin Resolution Diagnostics
-- RFC-000AD — Plugin Resolution User Experience
-- RFC-000AG — Plugin Generated Artifacts
+- RFC-0002 — Plugin SDK v2
+- RFC-0003 — Plugin Discovery & Distribution
+- RFC-0004 — Plugin Versioning & Compatibility
+- RFC-0005 — Plugin Dependency Graph
+- RFC-0006 — Plugin Resolution Diagnostics
+- RFC-0007 — Plugin Resolution User Experience
+- RFC-0008 — Plugin Generated Artifacts
 
 ---
 

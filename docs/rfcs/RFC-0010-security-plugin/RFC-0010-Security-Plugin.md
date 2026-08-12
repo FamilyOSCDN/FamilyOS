@@ -155,10 +155,10 @@ compliance capabilities;
 security analytics.
 14. Normative References
 ADR-0007 — Official Plugins Architecture
-RFC-000Z — Plugin Discovery & Distribution
-RFC-000AA — Plugin Versioning & Compatibility
-RFC-000AB — Plugin Dependency Graph
-RFC-000AG — Plugin Generated Artifacts
+RFC-0003 — Plugin Discovery & Distribution
+RFC-0004 — Plugin Versioning & Compatibility
+RFC-0005 — Plugin Dependency Graph
+RFC-0008 — Plugin Generated Artifacts
 
 Revision History
 Version	Date	Description
