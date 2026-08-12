@@ -107,7 +107,7 @@ docs/
 └── adr/
     ├── ADR-0001-title.md
     ├── ADR-0002-title.md
-    └── ADR-0007-official-plugins-architecture.md
+    └── ADR-0007-official-plugin-architecture.md
 ```
 
 Rules:
@@ -306,7 +306,7 @@ Examples:
 Correct:
 
 ```text
-ADR-0007-official-plugins-architecture.md
+ADR-0007-official-plugin-architecture.md
 ```
 
 Incorrect:
