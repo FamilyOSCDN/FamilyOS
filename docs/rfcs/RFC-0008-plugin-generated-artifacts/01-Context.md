@@ -1,5 +1,9 @@
 # RFC-0008 — Plugin Generated Artifacts
 
+## Status
+
+Accepted
+
 ## Context
 
 FamilyOS provides two major extension systems:
