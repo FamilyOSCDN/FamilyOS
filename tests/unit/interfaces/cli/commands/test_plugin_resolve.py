@@ -7,6 +7,8 @@ from unittest.mock import Mock, patch
 import pytest
 
 from familyos_cli.interfaces.cli.commands.plugin_resolve import (
+    EXIT_FAILURE,
+    EXIT_SUCCESS,
     parse_plugin_dependency,
     plugin_resolve,
 )
@@ -99,7 +101,7 @@ def test_should_resolve_plugins_through_pipeline(
     context.plugin_resolution_pipeline = pipeline
     mock_context_type.return_value = context
 
-    plugin_resolve(
+    result = plugin_resolve(
         dependencies=[
             "familyos.documentation>=1.0.0",
         ],
@@ -107,6 +109,8 @@ def test_should_resolve_plugins_through_pipeline(
         repository_url="https://plugins.familyos.dev",
         repository_type="remote",
     )
+
+    assert result == EXIT_SUCCESS
 
     pipeline.resolve.assert_called_once()
 
@@ -125,7 +129,10 @@ def test_should_resolve_plugins_through_pipeline(
     assert str(dependencies[0].constraint_set) == ">=1.0.0"
 
     mock_success.assert_called_once_with(
-        ("Plugin resolution completed successfully: 1 package(s) selected."),
+        (
+            "Plugin resolution completed successfully: "
+            "1 package(s) selected."
+        ),
     )
 
 
@@ -157,7 +164,9 @@ def test_should_build_explain_render_and_display_diagnostics(
         diagnostics=[
             ResolutionDiagnostic(
                 plugin="familyos.missing",
-                message=("Required plugin dependency is not available."),
+                message=(
+                    "Required plugin dependency is not available."
+                ),
             ),
         ],
     )
@@ -172,7 +181,9 @@ def test_should_build_explain_render_and_display_diagnostics(
     diagnostic = PluginResolutionDiagnostic(
         kind=DiagnosticKind.MISSING_DEPENDENCY,
         severity=DiagnosticSeverity.ERROR,
-        message=("Required plugin dependency is not available."),
+        message=(
+            "Required plugin dependency is not available."
+        ),
         plugin="familyos.missing",
     )
 
@@ -194,7 +205,7 @@ def test_should_build_explain_render_and_display_diagnostics(
     renderer.render.return_value = "Rendered missing dependency."
     mock_renderer_type.return_value = renderer
 
-    plugin_resolve(
+    result = plugin_resolve(
         dependencies=[
             "familyos.missing",
         ],
@@ -202,6 +213,8 @@ def test_should_build_explain_render_and_display_diagnostics(
         repository_url="https://plugins.familyos.dev",
         repository_type="remote",
     )
+
+    assert result == EXIT_FAILURE
 
     diagnostic_pipeline.build.assert_called_once_with(
         resolution_plan,
@@ -217,6 +230,7 @@ def test_should_build_explain_render_and_display_diagnostics(
 
     mock_output_diagnostic.assert_called_once_with(
         "Rendered missing dependency.",
+        styled=True,
     )
 
 
@@ -232,7 +246,7 @@ def test_should_report_invalid_dependency_expression(
 ) -> None:
     """CLI should report malformed dependency expressions."""
 
-    plugin_resolve(
+    result = plugin_resolve(
         dependencies=[
             "familyos.documentation-invalid-constraint?",
         ],
@@ -240,6 +254,8 @@ def test_should_report_invalid_dependency_expression(
         repository_url="https://plugins.familyos.dev",
         repository_type="remote",
     )
+
+    assert result == EXIT_FAILURE
 
     mock_context_type.assert_not_called()
     mock_error.assert_called_once()

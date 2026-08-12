@@ -149,6 +149,7 @@ def plugin_resolve(
         for rendered_diagnostic in rendered_diagnostics:
             Output.diagnostic(
                 rendered_diagnostic,
+                styled=True,
             )
 
         return EXIT_FAILURE

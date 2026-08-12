@@ -44,10 +44,43 @@ class Output:
         )
 
     @staticmethod
-    def diagnostic(message: str) -> None:
-        """Display an already rendered diagnostic on stderr."""
+    def diagnostic(
+        message: str,
+        *,
+        styled: bool = False,
+    ) -> None:
+        """Display an already rendered diagnostic on stderr.
 
-        typer.echo(
-            message,
+        Args:
+            message: Pre-rendered multiline diagnostic.
+            styled: Whether to apply optional terminal styling to the
+                diagnostic heading.
+
+        Plain-text output remains the default so callers and tests can
+        preserve deterministic rendered diagnostics independently from
+        terminal capabilities.
+        """
+
+        if not styled:
+            typer.echo(
+                message,
+                err=True,
+            )
+            return
+
+        heading, separator, remainder = message.partition(
+            "\n",
+        )
+
+        typer.secho(
+            heading,
+            fg=typer.colors.RED,
+            bold=True,
             err=True,
         )
+
+        if separator:
+            typer.echo(
+                remainder,
+                err=True,
+            )
