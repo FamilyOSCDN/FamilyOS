@@ -7,6 +7,7 @@ from typing import Annotated
 import typer
 
 from familyos_cli.interfaces.cli.commands.plugin_resolve import (
+    EXIT_SUCCESS,
     plugin_resolve,
 )
 
@@ -26,7 +27,7 @@ def resolve(
             ...,
             help=(
                 "Plugin dependencies, for example "
-                "'documentation>=1.0.0'."
+                "'familyos.documentation>=1.0.0'."
             ),
         ),
     ],
@@ -54,9 +55,14 @@ def resolve(
 ) -> None:
     """Resolve plugin dependencies."""
 
-    plugin_resolve(
+    exit_code = plugin_resolve(
         dependencies=dependencies,
         repository_name=repository_name,
         repository_url=repository_url,
         repository_type=repository_type,
     )
+
+    if exit_code != EXIT_SUCCESS:
+        raise typer.Exit(
+            code=exit_code,
+        )

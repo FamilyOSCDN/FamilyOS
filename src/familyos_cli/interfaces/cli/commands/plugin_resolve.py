@@ -22,6 +22,9 @@ _DEPENDENCY_PATTERN = re.compile(
     r"^(?P<plugin_id>[A-Za-z0-9][A-Za-z0-9._-]*)(?P<constraint>.*)$",
 )
 
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1
+
 
 def parse_plugin_dependency(
     value: str,
@@ -87,8 +90,13 @@ def plugin_resolve(
     repository_name: str,
     repository_url: str,
     repository_type: str,
-) -> None:
-    """Resolve plugin dependencies from a repository."""
+) -> int:
+    """Resolve plugin dependencies from a repository.
+
+    Returns:
+        Zero when resolution succeeds and one when an expected
+        input or resolution failure is presented to the user.
+    """
 
     try:
         parsed_dependencies = [
@@ -101,7 +109,8 @@ def plugin_resolve(
         Output.error(
             str(error),
         )
-        return
+
+        return EXIT_FAILURE
 
     repository = PluginRepository(
         name=repository_name,
@@ -124,20 +133,25 @@ def plugin_resolve(
         explainer = ResolutionExplainer()
         renderer = DiagnosticCliRenderer()
 
+        rendered_diagnostics: list[str] = []
+
         for diagnostic in diagnostic_report.diagnostics:
             explanation = explainer.explain(
                 diagnostic,
             )
 
-            rendered_diagnostic = renderer.render(
-                explanation,
+            rendered_diagnostics.append(
+                renderer.render(
+                    explanation,
+                ),
             )
 
+        for rendered_diagnostic in rendered_diagnostics:
             Output.diagnostic(
                 rendered_diagnostic,
             )
 
-        return
+        return EXIT_FAILURE
 
     Output.success(
         (
@@ -145,3 +159,5 @@ def plugin_resolve(
             f"{len(plan.ordered_packages)} package(s) selected."
         ),
     )
+
+    return EXIT_SUCCESS
