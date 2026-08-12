@@ -45,11 +45,11 @@ The Communication Plugin covers:
 
 | Field       | Value                    |
 | ----------- | ------------------------ |
-| Plugin ID   | communication            |
+| Plugin ID   | familyos.communication   |
 | Plugin Name | Communication Plugin     |
 | Version     | 1.0.0                    |
 | Type        | Official Built-in Plugin |
-| Status      | Planned                  |
+| Status      | Approved                 |
 
 ---
 

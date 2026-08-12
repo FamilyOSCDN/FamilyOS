@@ -6,11 +6,11 @@
 |---|---|
 | Identifier | RFC-0015 |
 | Title | Official Communication Plugin |
-| Version | 0.1.0 |
-| Status | Draft |
+| Version | 1.0.0 |
+| Status | Approved |
 | EPIC | EPIC-015 |
 | Domain | Communication |
-| Plugin ID | `communication` |
+| Plugin ID | `familyos.communication` |
 | Architecture dependency | ADR-0007 |
 | Platform target | FamilyOS Platform v1.0 |
 
