@@ -888,7 +888,7 @@ ADR-NNNN-Title-In-Pascal-Kebab-Case.md
 Example:
 
 ```text
-ADR-0007-Official-Plugin-Architecture.md
+ADR-0007-official-plugin-architecture.md
 ```
 
 The identifier portion SHALL comply with SPEC-0002.
@@ -1474,7 +1474,7 @@ Identifier:
 ADR-0007
 
 Filename:
-ADR-0007-Official-Plugin-Architecture.md
+ADR-0007-official-plugin-architecture.md
 ```
 
 ---

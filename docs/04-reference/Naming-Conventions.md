@@ -1245,7 +1245,7 @@ ADR-NNNN-Descriptive-Title.md
 Example:
 
 ```text
-ADR-0007-Official-Plugin-Architecture.md
+ADR-0007-official-plugin-architecture.md
 ```
 
 The ADR identifier MUST remain stable even if the title changes.
