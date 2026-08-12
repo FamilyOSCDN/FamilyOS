@@ -10,10 +10,21 @@ from familyos_cli.plugins.builtin.communication.models import (
     Message,
     Participant,
 )
+from familyos_cli.plugins.builtin.communication.repositories import (
+    CommunicationRepository,
+)
 
 
 class ConversationService:
     """Application service for conversations."""
+
+    def __init__(
+        self,
+        repository: CommunicationRepository | None = None,
+    ) -> None:
+        """Initialize the service with an optional repository."""
+
+        self._repository = repository
 
     @staticmethod
     def create(
@@ -80,3 +91,62 @@ class ConversationService:
                 if participant.identifier != participant_id
             ),
         )
+
+    def save(
+        self,
+        conversation: Conversation,
+    ) -> None:
+        """Persist a conversation."""
+
+        self._require_repository().save(
+            conversation,
+        )
+
+    def get(
+        self,
+        identifier: str,
+    ) -> Conversation | None:
+        """Return a persisted conversation."""
+
+        return self._require_repository().get(
+            identifier,
+        )
+
+    def list(
+        self,
+    ) -> tuple[Conversation, ...]:
+        """Return all persisted conversations."""
+
+        return self._require_repository().list()
+
+    def delete(
+        self,
+        identifier: str,
+    ) -> None:
+        """Delete a persisted conversation."""
+
+        self._require_repository().delete(
+            identifier,
+        )
+
+    def exists(
+        self,
+        identifier: str,
+    ) -> bool:
+        """Return whether a persisted conversation exists."""
+
+        return self._require_repository().exists(
+            identifier,
+        )
+
+    def _require_repository(
+        self,
+    ) -> CommunicationRepository:
+        """Return the configured repository."""
+
+        if self._repository is None:
+            raise RuntimeError(
+                "Conversation repository is not configured.",
+            )
+
+        return self._repository
