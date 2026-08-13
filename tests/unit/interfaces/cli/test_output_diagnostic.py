@@ -1,6 +1,6 @@
 """Tests for diagnostic CLI output."""
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from _pytest.capture import CaptureFixture
 
@@ -65,8 +65,8 @@ def test_diagnostic_does_not_add_generic_error_prefix(
 @patch("typer.echo")
 @patch("typer.secho")
 def test_styled_diagnostic_styles_only_heading(
-    mock_secho,
-    mock_echo,
+    mock_secho: Mock,
+    mock_echo: Mock,
 ) -> None:
     """Styled diagnostics should keep body text separate from styling."""
 
@@ -103,8 +103,8 @@ def test_styled_diagnostic_styles_only_heading(
 @patch("typer.echo")
 @patch("typer.secho")
 def test_styled_single_line_diagnostic_does_not_emit_empty_body(
-    mock_secho,
-    mock_echo,
+    mock_secho: Mock,
+    mock_echo: Mock,
 ) -> None:
     """Single-line styled diagnostics should not emit an extra body."""
 

@@ -1,12 +1,12 @@
 """Tests for CLI output."""
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from familyos_cli.interfaces.cli.output import Output
 
 
 @patch("typer.secho")
-def test_success(mock_secho) -> None:
+def test_success(mock_secho: Mock) -> None:
     """Success messages should be displayed."""
 
     Output.success("Done")
@@ -18,7 +18,7 @@ def test_success(mock_secho) -> None:
 
 
 @patch("typer.secho")
-def test_error(mock_secho) -> None:
+def test_error(mock_secho: Mock) -> None:
     """Error messages should be displayed."""
 
     Output.error("Failed")
@@ -31,7 +31,7 @@ def test_error(mock_secho) -> None:
 
 
 @patch("typer.secho")
-def test_warning(mock_secho) -> None:
+def test_warning(mock_secho: Mock) -> None:
     """Warning messages should be displayed."""
 
     Output.warning("Careful")
@@ -43,7 +43,7 @@ def test_warning(mock_secho) -> None:
 
 
 @patch("typer.secho")
-def test_info(mock_secho) -> None:
+def test_info(mock_secho: Mock) -> None:
     """Information messages should be displayed."""
 
     Output.info("Hello")

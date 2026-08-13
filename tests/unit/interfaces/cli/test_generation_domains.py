@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from familyos_cli.interfaces.cli.commands import (
     generation_domains as generation_domains_module,
 )
@@ -49,7 +51,7 @@ class FakeCommandContext:
 
 
 def test_generation_domains_displays_available_domains(
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Display domain contributions and their artifacts."""
 

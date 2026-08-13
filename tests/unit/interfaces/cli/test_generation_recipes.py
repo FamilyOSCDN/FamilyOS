@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 import familyos_cli.interfaces.cli.commands.generation_recipes as generation_recipes_module
 from familyos_cli.domain.generation.artifact_definition import (
     ArtifactDefinition,
@@ -72,7 +74,7 @@ class FakeCommandContext:
 
 
 def test_generation_recipes_displays_available_recipes(
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Display all available recipe names."""
 
