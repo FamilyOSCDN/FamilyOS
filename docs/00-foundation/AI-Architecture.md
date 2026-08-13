@@ -1,4 +1,3 @@
-cat <<'EOF' > docs/00-foundation/AI-Architecture.md
 # AI Architecture
 
 ## Status
@@ -404,8 +403,5 @@ governance should follow the FamilyOS RFC and ADR processes.
 
 ## Specifications
 
-- AI Specification
-- Knowledge Specification
-- Data Specification
-- Security Specification
+- `SPEC-0013-Security-Profile-Contract.md`
 
