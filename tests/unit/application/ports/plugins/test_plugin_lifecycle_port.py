@@ -1,6 +1,6 @@
 """Tests for plugin lifecycle port."""
 
-import pytest
+import inspect
 
 from familyos_cli.application.ports.plugins import (
     PluginLifecyclePort,
@@ -10,5 +10,4 @@ from familyos_cli.application.ports.plugins import (
 def test_plugin_lifecycle_port_is_abstract() -> None:
     """Lifecycle port should be abstract."""
 
-    with pytest.raises(TypeError):
-        PluginLifecyclePort()
+    assert inspect.isabstract(PluginLifecyclePort)

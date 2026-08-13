@@ -1,6 +1,6 @@
 """Tests for plugin installer port."""
 
-import pytest
+import inspect
 
 from familyos_cli.application.ports.plugins import (
     PluginInstallerPort,
@@ -10,5 +10,4 @@ from familyos_cli.application.ports.plugins import (
 def test_plugin_installer_port_is_abstract() -> None:
     """Installer port should be abstract."""
 
-    with pytest.raises(TypeError):
-        PluginInstallerPort()
+    assert inspect.isabstract(PluginInstallerPort)

@@ -32,6 +32,9 @@ from familyos_cli.domain.generation.domain_generation_planner import (
 from familyos_cli.domain.generation.generation_preset import (
     GenerationPreset,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 from familyos_cli.domain.generation.generation_request import (
     GenerationRequest,
 )
@@ -70,7 +73,7 @@ class SpyGenerationRequestFactory(
         self,
         domain_name: str,
         recipe_name: str | None = None,
-        preset: GenerationPreset | None = None,
+        preset: GenerationPresetId | GenerationPreset | None = None,
     ) -> GenerationRequest:
         self.request = super().create(
             domain_name=domain_name,
