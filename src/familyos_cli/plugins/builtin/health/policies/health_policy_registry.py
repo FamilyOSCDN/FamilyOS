@@ -23,7 +23,14 @@ class HealthPolicyRegistry:
     ) -> None:
         """Register a health policy."""
 
-        self._policies[policy.id] = policy
+        if policy.id in self._policies:
+            raise ValueError(
+                f"Health policy '{policy.id}' already registered.",
+            )
+
+        self._policies[
+            policy.id
+        ] = policy
 
     def get(
         self,

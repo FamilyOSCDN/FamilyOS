@@ -1,5 +1,7 @@
 """Tests for HealthRuleRegistry."""
 
+import pytest
+
 from familyos_cli.plugins.builtin.health.rules.health_rule import (
     HealthRule,
 )
@@ -67,7 +69,7 @@ def test_registry_lists_registered_rules() -> None:
     )
 
 
-def test_registry_replaces_rule_with_same_identifier() -> None:
+def test_registry_rejects_duplicate_rule() -> None:
     registry = HealthRuleRegistry()
 
     first = create_rule()
@@ -83,10 +85,15 @@ def test_registry_replaces_rule_with_same_identifier() -> None:
     registry.register(
         first,
     )
-    registry.register(
-        second,
-    )
+
+    with pytest.raises(
+        ValueError,
+        match="already registered",
+    ):
+        registry.register(
+            second,
+        )
 
     assert registry.get(
         "health.rule.basic",
-    ) == second
+    ) == first

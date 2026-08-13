@@ -23,7 +23,14 @@ class HealthRuleRegistry:
     ) -> None:
         """Register a health rule."""
 
-        self._rules[rule.id] = rule
+        if rule.id in self._rules:
+            raise ValueError(
+                f"Health rule '{rule.id}' already registered.",
+            )
+
+        self._rules[
+            rule.id
+        ] = rule
 
     def get(
         self,
