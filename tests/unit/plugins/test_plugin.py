@@ -1,7 +1,9 @@
 """Tests for the base plugin contract."""
 
+from familyos_cli.application.generation.generation_context import (
+    GenerationContext,
+)
 from familyos_cli.plugins.plugin import Plugin
-from familyos_cli.plugins.plugin_context import PluginContext
 
 
 class DummyPlugin(Plugin):
@@ -13,13 +15,20 @@ def test_plugin_has_default_hooks() -> None:
 
     plugin = DummyPlugin()
 
-    context = PluginContext(
-        project_name="demo",
-        output_directory="/tmp/demo",
+    context = GenerationContext(
+        variables={
+            "project_name": "demo",
+            "output_directory": "/tmp/demo",
+        },
     )
 
-    plugin.before_generate(context)
-    plugin.after_generate(context)
+    plugin.before_generate(
+        context,
+    )
+
+    plugin.after_generate(
+        context,
+    )
 
 
 def test_plugin_has_no_capabilities_by_default() -> None:
