@@ -422,23 +422,25 @@ Make dependency state sufficiently explicit and reproducible.
 
 ### Checklist
 
-* [ ] Inventory runtime dependencies.
-* [ ] Inventory build dependencies.
-* [ ] Inventory development dependencies.
-* [ ] Inventory validation dependencies.
+* [x] Inventory runtime dependencies.
+* [x] Inventory build dependencies.
+* [x] Inventory development dependencies.
+* [x] Inventory validation dependencies.
 * [ ] Remove undeclared build dependencies.
-* [ ] Confirm canonical dependency declaration source.
-* [ ] Define version-constraint strategy.
-* [ ] Evaluate dependency lock strategy.
+* [x] Confirm canonical dependency declaration source.
+* [x] Define version-constraint strategy.
+* [x] Evaluate dependency lock strategy.
 * [ ] Ensure CI installs from canonical definitions.
-* [ ] Validate dependency-resolution failures clearly.
-* [ ] Validate runtime compatibility.
+* [x] Validate dependency-resolution failures clearly.
+* [x] Validate runtime compatibility.
 * [ ] Review unused dependencies.
 * [ ] Review duplicated dependency functionality.
-* [ ] Define dependency update workflow.
+* [x] Define dependency update workflow.
 * [ ] Define security review integration.
 * [ ] Capture dependency state in release-candidate evidence when appropriate.
-* [ ] Add dependency-resolution tests where practical.
+* [x] Add dependency-resolution tests where practical.
+
+Implementation evidence: commit `113148e` establishes and validates the Python 3.13 development/CI dependency version-resolution baseline. This does not complete CI integration or the broader Build Framework implementation.
 
 ---
 
@@ -1223,15 +1225,15 @@ Move from repeatable procedure toward reconstructable Build Context.
 
 * [ ] Establish canonical source identity.
 * [ ] Establish deterministic configuration resolution.
-* [ ] Establish controlled dependency state.
+* [x] Establish controlled dependency state.
 * [ ] Establish critical toolchain version identity.
-* [ ] Establish reconstructable environment setup.
+* [x] Establish reconstructable environment setup.
 * [ ] Remove time-dependent artifact content where unnecessary.
 * [ ] Remove random artifact content where unnecessary.
 * [ ] Normalize input ordering where relevant.
 * [ ] Reduce uncontrolled network dependency.
 * [ ] Compare repeated builds.
-* [ ] Document known reproducibility limitations.
+* [x] Document known reproducibility limitations.
 
 ---
 
@@ -1673,7 +1675,7 @@ The first Build Framework implementation is complete when:
 
 * [ ] one canonical build path exists;
 * [ ] a clean supported environment can execute it;
-* [ ] dependencies are reconstructed from canonical definitions;
+* [x] dependencies are reconstructed from canonical definitions;
 * [ ] required source validation succeeds;
 * [ ] required tests succeed;
 * [ ] artifacts are generated predictably;

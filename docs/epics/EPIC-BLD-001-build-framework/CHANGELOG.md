@@ -46,10 +46,49 @@ Repository Validation:   Validated
 Final Validation:        Validated
 Historical Publication:  Published
 Historical Tag:          v4.7.0-build-framework
-Implementation:          Planned
+Implementation:          In Progress
+Implemented Slice:       Dependency Reproducibility Baseline
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
+
+---
+
+# Post-Framework Implementation — Dependency Reproducibility Baseline
+
+Commit `113148e` established the first incremental technical implementation slice under the completed Build Framework documentation baseline.
+
+Technical files in the implementation commit:
+
+* `pyproject.toml`;
+* `requirements.txt`;
+* `scripts/compile_dependencies.py`;
+* `scripts/check_dependency_lock.py`;
+* `tests/unit/scripts/test_dependency_lock.py`.
+
+The slice established canonical dependency declarations, a generated and exactly pinned Python 3.13 development/CI lock, governed pip-tools 7.6.1 resolution, canonical dependency-input digest validation, read-only freshness checking, and fresh-environment bootstrap validation.
+
+Validation evidence:
+
+```text
+Focused Dependency Tests:  PASS — 18 tests
+Dependency Freshness:       PASS
+Fresh Python 3.13 Bootstrap: PASS
+pip check:                  PASS
+Ruff:                       PASS
+MyPy:                       PASS — 1141 source files
+Pytest:                     PASS — 1525 tests
+git diff --check:           PASS
+```
+
+Closure state:
+
+```text
+Dependency Reproducibility Baseline: CLOSED
+Build Framework Technical Implementation: IN PROGRESS
+```
+
+CI, artifact integrity and hashes, SBOM generation, provenance, vulnerability scanning, and broader reproducible-build capability remain future work. This entry does not create a new Build Framework release and does not change framework version `1.0.0` or the historical tag `v4.7.0-build-framework`.
 
 ---
 

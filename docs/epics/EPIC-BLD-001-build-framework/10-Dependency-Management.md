@@ -498,6 +498,62 @@ A lock-file update is a dependency change.
 
 ---
 
+# Current Python Dependency Reproducibility Baseline
+
+FamilyOS implements dependency version-resolution reproducibility for the Python 3.13 development and CI profile.
+
+The implemented ownership model is:
+
+```text
+pyproject.toml
+    ↓ canonical, hand-edited direct dependency declarations
+pip-tools 7.6.1
+    ↓ governed resolution
+requirements.txt
+    ↓ generated, committed, never manually edited
+Reconstructable Python 3.13 Development/CI Environment
+```
+
+`pyproject.toml` is the sole hand-edited authority for direct runtime, build, and development dependencies. `requirements.txt` records exactly pinned runtime, development, transitive, and required static build dependencies.
+
+The generated lock contains a `Dependency-Input-SHA256` value derived from normalized canonical dependency declarations. This digest detects declaration drift; it is not a hash of downloaded package artifacts and does not establish package integrity.
+
+Intentional lock regeneration uses:
+
+```text
+python scripts/compile_dependencies.py
+```
+
+Read-only freshness validation uses:
+
+```text
+python scripts/check_dependency_lock.py
+```
+
+The supported bootstrap contract is:
+
+```text
+python -m pip install -r requirements.txt
+python -m pip install --no-deps --no-build-isolation -e .
+python -m pip check
+```
+
+An intentional dependency update follows this sequence:
+
+```text
+Edit pyproject.toml
+        ↓
+Regenerate requirements.txt
+        ↓
+Review the resolved lock diff
+        ↓
+Run freshness and regression validation
+```
+
+The current baseline closes version-resolution reproducibility only. It does not provide artifact hashes, SBOM generation, provenance or attestations, vulnerability scanning, a platform matrix, multiple Python-version locks, artifact-equivalence or repeated-build guarantees, or CI execution.
+
+---
+
 # Dependency Resolution
 
 Dependency resolution transforms declarations into an effective dependency graph.

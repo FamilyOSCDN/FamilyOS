@@ -1072,3 +1072,36 @@ Therefore:
 **Current Revalidation:** Validated
 **Repository Validation:** Validated
 **Final Validation Result:** PASS
+
+---
+
+# Dependency Reproducibility Baseline Validation
+
+This section records revision-scoped implementation evidence separately from the historical Build Framework documentation revalidation above.
+
+```text
+Technical Revision: 113148e0db204ec48e140543f2b5dd9ab7273c87
+Profile:            Python 3.13 development/CI
+Resolver:           pip-tools 7.6.1
+```
+
+Executed evidence for this technical revision:
+
+* focused dependency tests: PASS — 18 tests;
+* dependency freshness check in the locked environment: PASS;
+* fresh Python 3.13 environment bootstrap: PASS;
+* editable installation using `--no-deps --no-build-isolation`: PASS;
+* `pip check` in the repository environment: PASS;
+* `pip check` in the fresh environment: PASS;
+* Ruff: PASS;
+* MyPy: PASS — 1141 source files;
+* full Pytest: PASS — 1525 tests;
+* `git diff --check`: PASS.
+
+Validated conclusion:
+
+```text
+Dependency version-resolution reproducibility: VALIDATED
+```
+
+This result does not establish complete Build Framework implementation, CI validation, artifact reproducibility, artifact integrity, or software supply-chain assurance.

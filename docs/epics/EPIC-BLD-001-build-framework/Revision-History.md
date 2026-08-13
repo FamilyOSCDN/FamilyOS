@@ -36,7 +36,7 @@ The revision history distinguishes between:
 | Historical Publication Tag   | `v4.7.0-build-framework`  |
 | Historical Publication State | Published                 |
 | Historical Tag Policy        | Immutable                 |
-| Current Activity             | Post-Release Revalidation |
+| Current Activity             | Incremental implementation after completed post-release revalidation |
 
 ---
 
@@ -1107,6 +1107,28 @@ Future Build Framework revisions may introduce:
 * policy-driven build gates.
 
 Such revisions SHALL remain compatible with the framework's foundational trust model unless explicitly released as breaking changes.
+
+---
+
+# Dependency Reproducibility Baseline Implementation — 2026-08-13
+
+Commit `113148e` is the first incremental technical implementation slice under the completed Build Framework documentation baseline.
+
+It established:
+
+* `pyproject.toml` as the canonical hand-edited source of direct dependency declarations;
+* generated and committed resolved dependency state in `requirements.txt`;
+* the Python 3.13 development/CI lock profile;
+* pip-tools 7.6.1 as the governed resolver;
+* a canonical dependency-input SHA-256 covering normalized dependency declarations;
+* intentional lock regeneration through `scripts/compile_dependencies.py`;
+* read-only declaration and resolved-lock freshness verification through `scripts/check_dependency_lock.py`;
+* focused dependency-lock tests;
+* successful fresh-environment bootstrap and dependency consistency validation.
+
+This implementation closes dependency version-resolution reproducibility only. It does not complete CI integration, artifact reproducibility, dependency artifact integrity, provenance, SBOM generation, vulnerability scanning, or the broader Build Framework implementation.
+
+The framework remains version `1.0.0`, and the immutable historical publication tag `v4.7.0-build-framework` remains unchanged. Historical post-release revalidation records remain authoritative for the revisions they evaluated.
 
 ---
 
