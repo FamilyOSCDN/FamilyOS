@@ -812,8 +812,31 @@ EPIC status:
 baseline
 ```
 
-Operational implementation validation remains future work and is not
-implied by this documentation baseline.
+The historical documentation baseline did not itself imply operational implementation. Subsequent repository implementation and evidence are recorded below.
+
+---
+
+# Post-Baseline Implementation — Canonical CI Integration
+
+Commit `1519670` implemented the initial Plugin Compliance runtime, including core models, registries, engine, initial rules, reporting, CLI integration, and official-plugin validation. Commit `d95a97b` added Ruff and MyPy compliance evidence.
+
+Commit `504bd19` integrated those same local compliance semantics into the EPIC-BLD-001 Canonical CI Validation Baseline. The Build-owned adapter dynamically discovers builtin plugins, selects profile `official` explicitly, invokes `CheckPluginComplianceUseCase`, and projects deterministic per-plugin and rule outcomes into `ci-validation.json`.
+
+The first real workflow execution identified a missing Health documentation template. Commit `c2ed8de` corrected that defect. GitHub Actions run `31749853569` then completed successfully and uploaded structured evidence reporting:
+
+```text
+Canonical CI Validation:       PASSED
+Builtin Plugin Compliance:     PASSED
+Compliance Profile:            official
+Discovered Builtin Plugins:    7
+Compliant Builtin Plugins:     7
+Operational Exit Criteria:     12/12 SATISFIED
+Phase 10 — CI Integration:     COMPLETE
+```
+
+This operational milestone does not implement Merge, Build, Release, or Certification Gates; exceptions or suppressions; third-party hardening; or continuous compliance. Framework version `1.0.0` and historical publication records remain unchanged.
+
+---
 
 # Migration
 

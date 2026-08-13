@@ -92,6 +92,35 @@ CI, artifact integrity and hashes, SBOM generation, provenance, vulnerability sc
 
 ---
 
+# Post-Framework Implementation — Canonical CI Validation Baseline
+
+Commit `504bd19` established the second incremental technical implementation slice after the Dependency Reproducibility Baseline.
+
+It added:
+
+* a provider-neutral canonical CI validation runner;
+* mandatory dependency-freshness, dependency-consistency, Ruff, MyPy, Pytest, and builtin Plugin Compliance gates;
+* deterministic structured `ci-validation.json` evidence;
+* the local `familyos validation ci` entry point;
+* a thin GitHub Actions workflow with Python 3.13 and locked dependency bootstrap;
+* read-only repository permission and commit-SHA-pinned official actions;
+* failure-preserving evidence upload behavior;
+* focused unit, integration, and end-to-end tests.
+
+The first real CI execution identified a missing Health documentation template. Commit `c2ed8de` corrected that defect. Remote run `31749853569` then completed successfully and uploaded a canonical artifact reporting all six gates `PASSED`, the explicit `official` compliance profile, and all seven discovered builtin plugins `COMPLIANT`.
+
+Current implementation state:
+
+```text
+Dependency Reproducibility Baseline: CLOSED
+Canonical CI Validation Baseline:    VALIDATED
+Build Framework Implementation:      IN PROGRESS
+```
+
+Build execution, candidate artifacts, artifact validation, artifact integrity, full Build Evidence, release automation, and deployment remain future work. Framework version `1.0.0` and historical tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Historical Publication
 
 ## Version 1.0.0

@@ -1105,3 +1105,57 @@ Dependency version-resolution reproducibility: VALIDATED
 ```
 
 This result does not establish complete Build Framework implementation, CI validation, artifact reproducibility, artifact integrity, or software supply-chain assurance.
+
+---
+
+# Canonical CI Validation Baseline
+
+This section records the second incremental technical implementation slice under the completed Build Framework documentation baseline.
+
+```text
+Implementation Revision: 504bd19
+Corrective Revision:     c2ed8de
+Workflow:                Canonical CI Validation
+Remote Run:              31749853569
+Remote Revision:         c2ed8de48822919fa69b670911ecd01a909b0732
+Remote Conclusion:       SUCCESS
+```
+
+Commit `504bd19` introduced the provider-neutral canonical runner, deterministic validation result, local CLI entry point, builtin Plugin Compliance adapter, tests, and thin GitHub Actions workflow. The first real workflow execution exposed a missing Health documentation template; commit `c2ed8de` corrected that repository defect before the successful evidence run.
+
+The successful remote workflow:
+
+* checked out a known revision;
+* provisioned Python 3.13;
+* installed the committed locked dependency state;
+* installed FamilyOS without dependency re-resolution;
+* invoked the single canonical `familyos validation ci` entry point;
+* uploaded structured `ci-validation.json` evidence;
+* operated with repository permission `contents: read`;
+* used official GitHub Actions dependencies pinned by commit SHA.
+
+The downloaded canonical artifact records:
+
+```text
+Overall:                       PASSED
+dependency-freshness:          PASSED
+dependency-consistency:        PASSED
+ruff:                          PASSED
+mypy:                          PASSED
+pytest:                        PASSED
+builtin-plugin-compliance:     PASSED
+Plugin Compliance Profile:     official
+Discovered Builtin Plugins:    7
+Compliant Builtin Plugins:     7
+```
+
+The workflow preserves mandatory validation failure as workflow failure while still attempting to upload structured evidence.
+
+Validated conclusion:
+
+```text
+Canonical CI Validation Baseline: VALIDATED
+Build Framework Technical Implementation: IN PROGRESS
+```
+
+This evidence does not establish a canonical build command, candidate artifacts, artifact validation, artifact integrity, full Build Evidence, release automation, or deployment capability.

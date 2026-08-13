@@ -1132,6 +1132,29 @@ The framework remains version `1.0.0`, and the immutable historical publication 
 
 ---
 
+# Canonical CI Validation Baseline Implementation — 2026-08-14
+
+Commit `504bd19` introduced the second incremental technical implementation slice under the completed Build Framework documentation baseline, following Dependency Reproducibility.
+
+The slice established:
+
+* one provider-neutral canonical CI validation entry point;
+* deterministic sequential execution of six mandatory validation gates;
+* structured, deterministic `ci-validation.json` evidence;
+* dynamic evaluation of all builtin plugins through the existing Plugin Compliance engine and explicit `official` profile;
+* a thin GitHub Actions adapter using Python 3.13 and the locked dependency state;
+* read-only repository permission;
+* official GitHub Actions dependencies pinned by commit SHA;
+* structured evidence upload with mandatory failure preservation.
+
+The first real workflow execution exposed a missing Health documentation template. Commit `c2ed8de` corrected that defect. GitHub Actions run `31749853569` at revision `c2ed8de48822919fa69b670911ecd01a909b0732` then completed successfully and uploaded canonical evidence reporting overall `PASSED`, all six gates `PASSED`, and all seven discovered builtin plugins `COMPLIANT` under profile `official`.
+
+This revision validates the Canonical CI Validation Baseline only. The broader Build Framework technical implementation remains in progress; build execution, candidate artifacts, artifact validation, artifact integrity, full Build Evidence, release automation, and deployment remain unimplemented.
+
+Framework version `1.0.0`, historical publication metadata, and `v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

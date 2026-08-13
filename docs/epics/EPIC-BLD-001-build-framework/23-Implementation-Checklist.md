@@ -892,21 +892,25 @@ Use CI as an independent executor of canonical build semantics.
 
 ### Checklist
 
-* [ ] Check out known source revision.
-* [ ] Provision explicit runtime.
-* [ ] Install canonical dependency state.
-* [ ] Validate toolchain.
-* [ ] Run Ruff.
-* [ ] Run MyPy.
-* [ ] Run Pytest.
+* [x] Check out known source revision.
+* [x] Provision explicit runtime.
+* [x] Install canonical dependency state.
+* [x] Validate toolchain.
+* [x] Run Ruff.
+* [x] Run MyPy.
+* [x] Run Pytest.
 * [ ] Run canonical build command.
 * [ ] Collect explicit candidate artifacts.
 * [ ] Run artifact validation.
 * [ ] Generate artifact integrity data.
 * [ ] Collect Build Evidence.
-* [ ] Upload CI artifacts where useful.
-* [ ] Ensure mandatory failure produces failed workflow.
+* [x] Upload CI artifacts where useful.
+* [x] Ensure mandatory failure produces failed workflow.
 * [ ] Document how to reproduce CI locally.
+
+Implementation evidence: commit `504bd19` introduced the provider-neutral Canonical CI Validation Baseline and its thin GitHub Actions adapter. Commit `c2ed8de` corrected the missing Health documentation template found by the first real execution. GitHub Actions run `31749853569` then completed successfully under Python 3.13, uploaded `ci-validation.json`, and recorded all six mandatory gates as `PASSED`.
+
+This evidence does not complete the canonical build command, candidate-artifact collection, artifact validation, artifact integrity, or full Build Evidence capabilities.
 
 ---
 
@@ -942,14 +946,14 @@ Apply least privilege to automation.
 
 ### Checklist
 
-* [ ] Review default workflow permissions.
-* [ ] Use read-only repository permissions where sufficient.
+* [x] Review default workflow permissions.
+* [x] Use read-only repository permissions where sufficient.
 * [ ] Separate build credentials from release credentials.
 * [ ] Prevent release credentials in pull-request builds.
 * [ ] Limit secret scope.
 * [ ] Prevent secrets from reaching untrusted execution contexts.
-* [ ] Review third-party CI actions or integrations.
-* [ ] Pin critical external automation dependencies where governance requires it.
+* [x] Review third-party CI actions or integrations.
+* [x] Pin critical external automation dependencies where governance requires it.
 * [ ] Document CI security assumptions.
 
 ---
