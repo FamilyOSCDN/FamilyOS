@@ -1,5 +1,7 @@
 """Tests for SpecificationValidator."""
 
+from typing import Any
+
 import pytest
 
 from familyos_cli.infrastructure.generation.specification_validator import (
@@ -8,7 +10,7 @@ from familyos_cli.infrastructure.generation.specification_validator import (
 from familyos_cli.shared.exceptions import ValidationError
 
 
-def valid_specification() -> dict:
+def valid_specification() -> dict[str, Any]:
     """Return a valid project specification."""
 
     return {
