@@ -23,6 +23,11 @@ class BudgetRegistry:
     ) -> None:
         """Add a budget."""
 
+        if self.get(budget.id) is not None:
+            raise ValueError(
+                f"Budget '{budget.id}' already exists.",
+            )
+
         self._budgets.append(
             budget,
         )

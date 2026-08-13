@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+import pytest
+
 from familyos_cli.plugins.builtin.finance.assets.asset import (
     Asset,
 )
@@ -57,3 +59,25 @@ def test_asset_registry_returns_none_for_unknown_id() -> None:
     assert registry.get(
         "unknown",
     ) is None
+
+
+def test_asset_registry_rejects_duplicate_id() -> None:
+    registry = AssetRegistry()
+
+    asset = create_asset()
+
+    registry.add(
+        asset,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Asset 'asset-001' already exists",
+    ):
+        registry.add(
+            create_asset(),
+        )
+
+    assert registry.list() == [
+        asset,
+    ]

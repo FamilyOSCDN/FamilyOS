@@ -23,6 +23,11 @@ class LiabilityRegistry:
     ) -> None:
         """Add a liability."""
 
+        if self.get(liability.id) is not None:
+            raise ValueError(
+                f"Liability '{liability.id}' already exists.",
+            )
+
         self._liabilities.append(
             liability,
         )

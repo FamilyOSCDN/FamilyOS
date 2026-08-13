@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+import pytest
+
 from familyos_cli.plugins.builtin.finance.budgets.budget import (
     Budget,
 )
@@ -58,3 +60,25 @@ def test_budget_registry_returns_none_for_unknown_id() -> None:
     assert registry.get(
         "unknown",
     ) is None
+
+
+def test_budget_registry_rejects_duplicate_id() -> None:
+    registry = BudgetRegistry()
+
+    budget = create_budget()
+
+    registry.add(
+        budget,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Budget 'budget-001' already exists",
+    ):
+        registry.add(
+            create_budget(),
+        )
+
+    assert registry.list() == [
+        budget,
+    ]

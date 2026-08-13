@@ -1,3 +1,5 @@
+import pytest
+
 from familyos_cli.plugins.builtin.finance.accounts.account import (
     Account,
 )
@@ -54,3 +56,25 @@ def test_account_registry_returns_none_for_unknown_id() -> None:
     assert registry.get(
         "unknown",
     ) is None
+
+
+def test_account_registry_rejects_duplicate_id() -> None:
+    registry = AccountRegistry()
+
+    account = create_account()
+
+    registry.add(
+        account,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Account 'account-001' already exists",
+    ):
+        registry.add(
+            create_account(),
+        )
+
+    assert registry.list() == [
+        account,
+    ]

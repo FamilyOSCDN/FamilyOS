@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+import pytest
+
 from familyos_cli.plugins.builtin.finance.liabilities.liability import (
     Liability,
 )
@@ -57,3 +59,25 @@ def test_liability_registry_returns_none_for_unknown_id() -> None:
     assert registry.get(
         "unknown",
     ) is None
+
+
+def test_liability_registry_rejects_duplicate_id() -> None:
+    registry = LiabilityRegistry()
+
+    liability = create_liability()
+
+    registry.add(
+        liability,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Liability 'liability-001' already exists",
+    ):
+        registry.add(
+            create_liability(),
+        )
+
+    assert registry.list() == [
+        liability,
+    ]

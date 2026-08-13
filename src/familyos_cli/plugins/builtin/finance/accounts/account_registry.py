@@ -23,6 +23,11 @@ class AccountRegistry:
     ) -> None:
         """Add an account."""
 
+        if self.get(account.id) is not None:
+            raise ValueError(
+                f"Account '{account.id}' already exists.",
+            )
+
         self._accounts.append(
             account,
         )

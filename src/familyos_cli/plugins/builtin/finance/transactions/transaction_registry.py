@@ -23,6 +23,11 @@ class TransactionRegistry:
     ) -> None:
         """Add a transaction."""
 
+        if self.get(transaction.id) is not None:
+            raise ValueError(
+                f"Transaction '{transaction.id}' already exists.",
+            )
+
         self._transactions.append(
             transaction,
         )

@@ -23,6 +23,11 @@ class AssetRegistry:
     ) -> None:
         """Add an asset."""
 
+        if self.get(asset.id) is not None:
+            raise ValueError(
+                f"Asset '{asset.id}' already exists.",
+            )
+
         self._assets.append(
             asset,
         )

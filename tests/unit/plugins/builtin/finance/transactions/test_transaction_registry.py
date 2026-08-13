@@ -1,6 +1,8 @@
 from datetime import date
 from decimal import Decimal
 
+import pytest
+
 from familyos_cli.plugins.builtin.finance.transactions.transaction import (
     Transaction,
 )
@@ -59,3 +61,25 @@ def test_transaction_registry_returns_none_for_unknown_id() -> None:
     assert registry.get(
         "unknown",
     ) is None
+
+
+def test_transaction_registry_rejects_duplicate_id() -> None:
+    registry = TransactionRegistry()
+
+    transaction = create_transaction()
+
+    registry.add(
+        transaction,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Transaction 'transaction-001' already exists",
+    ):
+        registry.add(
+            create_transaction(),
+        )
+
+    assert registry.list() == [
+        transaction,
+    ]
