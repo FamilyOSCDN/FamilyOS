@@ -34,111 +34,165 @@ Official Plugins
 Domain Intelligence
     ↓
 FamilyOS Ecosystem
-Phase 1 — Foundation
+```
 
-Status: Completed
+---
 
-Objective:
+# Phase 1 — Foundation
+
+**Status:** Completed
+
+## Objective
 
 Establish the engineering foundation required for sustainable platform
 development.
 
-Completed EPICs:
+## Completed EPICs
 
-EPIC	Description	Status
-EPIC-ENG-001	Engineering Foundation	Completed
-EPIC-TST-001	Testing Framework	Completed
-EPIC-QLT-001	Quality Framework	Completed
-EPIC-BLD-001	Build Framework	Completed
-EPIC-REL-001	Release Framework	Completed
-Phase 2 — Platform Expansion
+| EPIC | Description | Status |
+|---|---|---|
+| EPIC-ENG-001 | Engineering Foundation | Completed |
+| EPIC-TST-001 | Testing Framework | Completed |
+| EPIC-QLT-001 | Quality Framework | Completed |
+| EPIC-BLD-001 | Build Framework | Completed |
+| EPIC-REL-001 | Release Framework | Completed |
 
-Status: Completed / Active
+---
 
-Objective:
+# Phase 2 — Platform Expansion
+
+**Status:** Completed
+
+## Objective
 
 Strengthen the FamilyOS technical platform.
 
-Areas:
+## Areas
 
-architecture;
-plugins;
-generation;
-runtime;
-developer experience.
+- architecture;
+- plugins;
+- generation;
+- runtime;
+- developer experience.
 
-Major EPICs:
+## Major EPICs
 
-EPIC	Description	Status
-EPIC-PLT-001	Platform Architecture	Completed
-EPIC-PLG-001	Plugin Ecosystem	Completed
-EPIC-GEN-001	Generation Framework	Completed
-Phase 3 — Official Plugins
+| EPIC | Description | Status |
+|---|---|---|
+| EPIC-PLT-001 | Platform Architecture | Completed |
+| EPIC-PLG-001 | Plugin Ecosystem | Completed |
+| EPIC-GEN-001 | Generation Framework | Completed |
 
-Status: Active
+---
 
-Objective:
+# Phase 3 — Official Plugins
+
+**Status:** Completed
+
+## Objective
 
 Create official FamilyOS domain capabilities.
 
-Priority order:
+## Official Plugin EPICs
 
-EPIC	Domain	Status
-EPIC-SEC-001	Security	Planned
-EPIC-HLT-001	Health	Planned
-EPIC-FIN-001	Finance	Planned
-EPIC-EDU-001	Education	In Progress
-EPIC-DOC-001	Documents	In Progress
-EPIC-COM-001	Communication	In Progress
-Phase 4 — Domain Intelligence
+| EPIC | Domain | Status |
+|---|---|---|
+| EPIC-SPL-001 | Security | Completed |
+| EPIC-HLT-001 | Health | Completed |
+| EPIC-FIN-001 | Finance | Completed |
+| EPIC-EDU-001 | Education | Completed |
+| EPIC-DPL-001 | Documents | Completed |
+| EPIC-COM-001 | Communication | Completed |
 
-Status: Future
+The official plugin phase established and validated the initial FamilyOS
+domain plugin portfolio.
 
-Objective:
+The completed portfolio includes:
+
+- Security;
+- Health;
+- Finance;
+- Education;
+- Documents;
+- Communication.
+
+The phase also includes shared runtime and ecosystem validation demonstrating
+that the official plugins can coexist within the FamilyOS plugin runtime
+without identity, capability, or contribution collisions.
+
+---
+
+# Phase 4 — Domain Intelligence
+
+**Status:** Future
+
+## Objective
 
 Transform FamilyOS into an intelligent family operating platform.
 
-Potential domains:
+## Potential Domains
 
-family intelligence;
-personal organization;
-knowledge management;
-decision support;
-automation.
-Phase 5 — FamilyOS Ecosystem
+- family intelligence;
+- personal organization;
+- knowledge management;
+- decision support;
+- automation.
 
-Status: Future
+Future Domain Intelligence work SHALL build on the validated platform,
+plugin ecosystem, and official plugin baseline established by the preceding
+phases.
 
-Objective:
+---
+
+# Phase 5 — FamilyOS Ecosystem
+
+**Status:** Future
+
+## Objective
 
 Build a complete ecosystem around FamilyOS.
 
-Areas:
+## Areas
 
-community plugins;
-integrations;
-external services;
-ecosystem marketplace;
-partner extensions.
-Strategic Principles
+- community plugins;
+- integrations;
+- external services;
+- ecosystem marketplace;
+- partner extensions.
+
+---
+
+# Strategic Principles
 
 FamilyOS evolution SHALL prioritize:
 
-architecture before implementation;
-documentation before complexity;
-security by design;
-test-driven evolution;
-long-term maintainability.
-Roadmap Governance
+- architecture before implementation;
+- documentation before complexity;
+- security by design;
+- test-driven evolution;
+- long-term maintainability.
+
+---
+
+# Roadmap Governance
 
 Roadmap changes SHALL follow:
 
-architectural review;
-specification updates;
-documented decisions;
-release planning.
+- architectural review;
+- specification updates;
+- documented decisions;
+- release planning.
+
+Canonical EPIC status SHALL be derived from the corresponding `EPIC.yaml`
+control document.
+
+Roadmap summaries SHALL be updated when canonical EPIC closure state changes.
+
+---
+
 # Revision History
 
 | Version | Date | Description |
 |---|---|---|
 | 1.0.0 | 2026-08-04 | Initial publication |
+| 1.1.0 | 2026-08-13 | Reconciled platform and official plugin phase completion with canonical EPIC closure state |
