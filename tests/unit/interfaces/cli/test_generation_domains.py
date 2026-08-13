@@ -5,6 +5,7 @@ from __future__ import annotations
 from familyos_cli.interfaces.cli.commands import (
     generation_domains as generation_domains_module,
 )
+from familyos_cli.interfaces.cli.output import Output
 from familyos_cli.plugins.contributions.domain_generation_contribution import (
     DomainGenerationContribution,
 )
@@ -61,7 +62,7 @@ def test_generation_domains_displays_available_domains(
     )
 
     monkeypatch.setattr(
-        generation_domains_module.Output,
+        Output,
         "info",
         messages.append,
     )

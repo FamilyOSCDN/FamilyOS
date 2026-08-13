@@ -93,6 +93,11 @@ def test_aggregate_documentation_recipe_builds_artifacts() -> None:
         "aggregate/diagrams/lifecycle.puml.j2",
     ]
 
-    assert artifacts[0].context["aggregate"].name == (
-        "PersonAggregate"
+    aggregate = artifacts[0].context["aggregate"]
+
+    assert isinstance(
+        aggregate,
+        AggregateDescriptor,
     )
+
+    assert aggregate.name == "PersonAggregate"

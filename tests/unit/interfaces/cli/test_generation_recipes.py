@@ -9,6 +9,7 @@ from familyos_cli.domain.generation.artifact_definition import (
 from familyos_cli.domain.models.domain_specification import (
     DomainSpecification,
 )
+from familyos_cli.interfaces.cli.output import Output
 
 
 class FakeGenerationRecipe:
@@ -84,7 +85,7 @@ def test_generation_recipes_displays_available_recipes(
     )
 
     monkeypatch.setattr(
-        generation_recipes_module.Output,
+        Output,
         "info",
         messages.append,
     )

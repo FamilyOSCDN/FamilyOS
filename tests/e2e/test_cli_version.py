@@ -2,7 +2,7 @@
 
 from typer.testing import CliRunner
 
-from familyos_cli.main import app
+from familyos_cli.interfaces.cli.app import app
 
 runner = CliRunner()
 

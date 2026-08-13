@@ -87,6 +87,11 @@ def test_entity_documentation_recipe_builds_artifacts() -> None:
         "entity/diagrams/relationships.puml.j2",
     ]
 
-    assert artifacts[0].context["entity"].name == (
-        "Person"
+    entity = artifacts[0].context["entity"]
+
+    assert isinstance(
+        entity,
+        EntityDescriptor,
     )
+
+    assert entity.name == "Person"
