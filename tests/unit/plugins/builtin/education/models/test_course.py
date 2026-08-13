@@ -1,4 +1,4 @@
-from pytest import raises
+import pytest
 
 from familyos_cli.plugins.builtin.education.models.course import (
     Course,
@@ -14,40 +14,65 @@ def test_course_creation() -> None:
     )
 
     assert course.id == "course-001"
-
     assert course.title == "Mathematics"
-
     assert course.category == "science"
 
 
-def test_course_rejects_empty_id() -> None:
-    with raises(
+@pytest.mark.parametrize(
+    "course_id",
+    (
+        "",
+        "   ",
+    ),
+)
+def test_course_rejects_empty_id(
+    course_id: str,
+) -> None:
+    with pytest.raises(
         ValueError,
         match="Course id cannot be empty.",
     ):
         Course(
-            id="",
+            id=course_id,
             title="Math",
             description="Basic",
             category="science",
         )
 
 
-def test_course_rejects_empty_title() -> None:
-    with raises(
+@pytest.mark.parametrize(
+    "title",
+    (
+        "",
+        "   ",
+    ),
+)
+def test_course_rejects_empty_title(
+    title: str,
+) -> None:
+    with pytest.raises(
         ValueError,
         match="Course title cannot be empty.",
     ):
         Course(
             id="course-001",
-            title="",
+            title=title,
             description="Basic",
             category="science",
         )
 
 
-def test_course_rejects_empty_category() -> None:
-    with raises(
+@pytest.mark.parametrize(
+    "category",
+    (
+        "",
+        "   ",
+    ),
+)
+def test_course_rejects_empty_category(
+    category: str,
+) -> None:
+    with pytest.raises(
         ValueError,
         match="Course category cannot be empty.",
     ):
@@ -55,5 +80,5 @@ def test_course_rejects_empty_category() -> None:
             id="course-001",
             title="Math",
             description="Basic",
-            category="",
+            category=category,
         )

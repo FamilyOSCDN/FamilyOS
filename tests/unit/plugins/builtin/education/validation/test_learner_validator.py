@@ -1,3 +1,5 @@
+"""Tests for LearnerValidator."""
+
 from familyos_cli.plugins.builtin.education.models.learner import (
     Learner,
 )
@@ -7,6 +9,8 @@ from familyos_cli.plugins.builtin.education.validation.learner_validator import 
 
 
 def test_learner_validator_accepts_valid_learner() -> None:
+    """Valid learner domain objects should pass validation."""
+
     learner = Learner(
         id="learner-001",
         name="Alice",
@@ -20,15 +24,17 @@ def test_learner_validator_accepts_valid_learner() -> None:
     ) is True
 
 
-def test_learner_validator_rejects_invalid_business_state() -> None:
+def test_learner_validator_accepts_different_education_level() -> None:
+    """Valid education level values should pass validation."""
+
     learner = Learner(
         id="learner-001",
-        name="   ",
-        education_level="primary",
+        name="Alice",
+        education_level="secondary",
     )
 
     validator = LearnerValidator()
 
     assert validator.validate(
         learner,
-    ) is False
+    ) is True

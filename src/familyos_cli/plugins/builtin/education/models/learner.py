@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import (
-    dataclass,
-)
+from dataclasses import dataclass
 
 
 @dataclass(
@@ -25,17 +23,17 @@ class Learner:
     ) -> None:
         """Validate learner state."""
 
-        if not self.id:
+        if not self.id.strip():
             raise ValueError(
                 "Learner id cannot be empty.",
             )
 
-        if not self.name:
+        if not self.name.strip():
             raise ValueError(
                 "Learner name cannot be empty.",
             )
 
-        if not self.education_level:
+        if not self.education_level.strip():
             raise ValueError(
                 "Learner education level cannot be empty.",
             )

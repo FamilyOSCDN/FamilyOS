@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import (
-    dataclass,
-)
+from dataclasses import dataclass
 
 
 @dataclass(
@@ -27,22 +25,22 @@ class EducationalRecord:
     ) -> None:
         """Validate educational record state."""
 
-        if not self.id:
+        if not self.id.strip():
             raise ValueError(
                 "EducationalRecord id cannot be empty.",
             )
 
-        if not self.learner_id:
+        if not self.learner_id.strip():
             raise ValueError(
                 "EducationalRecord learner id cannot be empty.",
             )
 
-        if not self.course_id:
+        if not self.course_id.strip():
             raise ValueError(
                 "EducationalRecord course id cannot be empty.",
             )
 
-        if not self.result:
+        if not self.result.strip():
             raise ValueError(
                 "EducationalRecord result cannot be empty.",
             )

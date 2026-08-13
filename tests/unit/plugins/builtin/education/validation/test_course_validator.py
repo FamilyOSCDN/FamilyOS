@@ -1,3 +1,5 @@
+"""Tests for CourseValidator."""
+
 from familyos_cli.plugins.builtin.education.models.course import (
     Course,
 )
@@ -7,6 +9,8 @@ from familyos_cli.plugins.builtin.education.validation.course_validator import (
 
 
 def test_course_validator_accepts_valid_course() -> None:
+    """Valid course domain objects should pass validation."""
+
     course = Course(
         id="course-001",
         title="Mathematics",
@@ -21,11 +25,13 @@ def test_course_validator_accepts_valid_course() -> None:
     ) is True
 
 
-def test_course_validator_rejects_invalid_business_state() -> None:
+def test_course_validator_accepts_course_without_description() -> None:
+    """Optional course descriptions should not affect validation."""
+
     course = Course(
         id="course-001",
-        title="   ",
-        description="Basic mathematics",
+        title="Mathematics",
+        description="",
         category="science",
     )
 
@@ -33,4 +39,4 @@ def test_course_validator_rejects_invalid_business_state() -> None:
 
     assert validator.validate(
         course,
-    ) is False
+    ) is True
