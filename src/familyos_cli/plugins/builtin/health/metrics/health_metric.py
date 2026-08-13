@@ -33,32 +33,32 @@ class HealthMetric:
     ) -> None:
         """Validate health metric."""
 
-        if not self.id:
+        if not self.id.strip():
             raise ValueError(
                 "Health metric id cannot be empty.",
             )
 
-        if not self.record_id:
+        if not self.record_id.strip():
             raise ValueError(
                 "Health metric record id cannot be empty.",
             )
 
-        if not self.metric_type:
+        if not self.metric_type.strip():
             raise ValueError(
                 "Health metric type cannot be empty.",
             )
 
-        if not self.value:
+        if not self.value.strip():
             raise ValueError(
                 "Health metric value cannot be empty.",
             )
 
-        if not self.unit:
+        if not self.unit.strip():
             raise ValueError(
                 "Health metric unit cannot be empty.",
             )
 
-        if not self.recorded_at:
+        if not self.recorded_at.strip():
             raise ValueError(
                 "Health metric date cannot be empty.",
             )

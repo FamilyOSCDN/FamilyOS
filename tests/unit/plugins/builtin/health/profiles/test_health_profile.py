@@ -1,3 +1,5 @@
+"""Tests for HealthProfile."""
+
 import pytest
 
 from familyos_cli.plugins.builtin.health.profiles.health_profile import (
@@ -28,23 +30,41 @@ def test_health_profile_supports_metadata() -> None:
     assert profile.metadata["source"] == "family"
 
 
-def test_health_profile_requires_id() -> None:
+@pytest.mark.parametrize(
+    "invalid_id",
+    [
+        "",
+        "   ",
+    ],
+)
+def test_health_profile_rejects_empty_id(
+    invalid_id: str,
+) -> None:
     with pytest.raises(
         ValueError,
         match="Health profile id cannot be empty.",
     ):
         HealthProfile(
-            id="",
+            id=invalid_id,
             person_id="person-001",
         )
 
 
-def test_health_profile_requires_person_id() -> None:
+@pytest.mark.parametrize(
+    "invalid_person_id",
+    [
+        "",
+        "   ",
+    ],
+)
+def test_health_profile_rejects_empty_person_id(
+    invalid_person_id: str,
+) -> None:
     with pytest.raises(
         ValueError,
         match="Health profile person id cannot be empty.",
     ):
         HealthProfile(
             id="health-001",
-            person_id="",
+            person_id=invalid_person_id,
         )

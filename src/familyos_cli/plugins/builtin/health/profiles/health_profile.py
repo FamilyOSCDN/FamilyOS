@@ -27,12 +27,12 @@ class HealthProfile:
     ) -> None:
         """Validate health profile."""
 
-        if not self.id:
+        if not self.id.strip():
             raise ValueError(
                 "Health profile id cannot be empty.",
             )
 
-        if not self.person_id:
+        if not self.person_id.strip():
             raise ValueError(
                 "Health profile person id cannot be empty.",
             )
