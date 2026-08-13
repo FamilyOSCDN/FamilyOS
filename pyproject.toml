@@ -71,6 +71,7 @@ line-ending = "auto"
 python_version = "3.13"
 strict = true
 mypy_path = "src"
+explicit_package_bases = true
 
 warn_unused_configs = true
 warn_redundant_casts = true
