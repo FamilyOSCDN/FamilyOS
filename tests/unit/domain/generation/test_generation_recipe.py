@@ -7,6 +7,9 @@ from familyos_cli.domain.generation.artifact_kind import (
 from familyos_cli.domain.generation.generation_recipe import (
     GenerationRecipe,
 )
+from familyos_cli.domain.models.domain_specification import (
+    DomainSpecification,
+)
 
 
 class FakeRecipe:
@@ -18,7 +21,10 @@ class FakeRecipe:
 
     def build_artifacts(
         self,
+        specification: DomainSpecification,
     ) -> list[ArtifactDefinition]:
+        _ = specification
+
         return [
             ArtifactDefinition(
                 kind=ArtifactKind.ENTITY,
@@ -32,9 +38,15 @@ class FakeRecipe:
 def test_generation_recipe_contract() -> None:
     recipe: GenerationRecipe = FakeRecipe()
 
+    specification = DomainSpecification(
+        name="Person",
+    )
+
     assert recipe.name == "test_recipe"
 
-    artifacts = recipe.build_artifacts()
+    artifacts = recipe.build_artifacts(
+        specification,
+    )
 
     assert len(artifacts) == 1
 
