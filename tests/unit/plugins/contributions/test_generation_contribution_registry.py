@@ -5,6 +5,9 @@ import pytest
 from familyos_cli.domain.generation.generation_preset import (
     GenerationPreset,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 from familyos_cli.plugins.contributions.generation_contribution import (
     GenerationContribution,
 )
@@ -19,11 +22,15 @@ from familyos_cli.plugins.contributions.plugin_contribution_id import (
 def test_registry_registers_generation_contribution() -> None:
     registry = GenerationContributionRegistry()
 
+    preset = GenerationPresetId(
+        GenerationPreset.COMPLETE.value,
+    )
+
     contribution = GenerationContribution(
         id=PluginContributionId(
             "familyos.test.generation.complete",
         ),
-        preset=GenerationPreset.COMPLETE,
+        preset=preset,
         description="Complete package.",
         recipes=(
             "full_domain_documentation",
@@ -35,7 +42,7 @@ def test_registry_registers_generation_contribution() -> None:
     )
 
     assert registry.get(
-        GenerationPreset.COMPLETE,
+        preset,
     ) == contribution
 
 
@@ -46,7 +53,9 @@ def test_registry_lists_registered_contributions() -> None:
         id=PluginContributionId(
             "familyos.test.generation.minimal",
         ),
-        preset=GenerationPreset.MINIMAL,
+        preset=GenerationPresetId(
+            GenerationPreset.MINIMAL.value,
+        ),
         description="Minimal package.",
         recipes=(
             "domain_documentation",
@@ -69,7 +78,9 @@ def test_registry_rejects_duplicate_preset() -> None:
         id=PluginContributionId(
             "familyos.test.generation.standard",
         ),
-        preset=GenerationPreset.STANDARD,
+        preset=GenerationPresetId(
+            GenerationPreset.STANDARD.value,
+        ),
         description="Standard package.",
         recipes=(
             "domain_documentation",

@@ -7,6 +7,9 @@ from familyos_cli.domain.generation.generation_catalog import (
 from familyos_cli.domain.generation.generation_preset import (
     GenerationPreset,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 from familyos_cli.plugins.contributions.generation_contribution import (
     GenerationContribution,
 )
@@ -20,11 +23,15 @@ def test_plugin_generation_contribution_is_added_to_catalog() -> None:
 
     contributor = PluginGenerationCatalogContributor()
 
+    preset = GenerationPresetId(
+        GenerationPreset.COMPLETE.value,
+    )
+
     contribution = GenerationContribution(
         id=PluginContributionId(
             "familyos.test.generation.complete",
         ),
-        preset=GenerationPreset.COMPLETE,
+        preset=preset,
         description="Security documentation package.",
         recipes=(
             "security_documentation",
@@ -39,7 +46,7 @@ def test_plugin_generation_contribution_is_added_to_catalog() -> None:
     )
 
     entry = catalog.get(
-        GenerationPreset.COMPLETE,
+        preset,
     )
 
     assert entry.description == (
@@ -64,7 +71,9 @@ def test_multiple_plugin_generation_contributions_are_added() -> None:
                 id=PluginContributionId(
                     "familyos.test.generation.minimal",
                 ),
-                preset=GenerationPreset.MINIMAL,
+                preset=GenerationPresetId(
+                    GenerationPreset.MINIMAL.value,
+                ),
                 description="Minimal package.",
                 recipes=(
                     "minimal_documentation",
@@ -74,7 +83,9 @@ def test_multiple_plugin_generation_contributions_are_added() -> None:
                 id=PluginContributionId(
                     "familyos.test.generation.standard",
                 ),
-                preset=GenerationPreset.STANDARD,
+                preset=GenerationPresetId(
+                    GenerationPreset.STANDARD.value,
+                ),
                 description="Standard package.",
                 recipes=(
                     "standard_documentation",

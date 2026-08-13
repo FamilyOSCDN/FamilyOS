@@ -9,13 +9,20 @@ from familyos_cli.domain.generation.generation_catalog_entry import (
 from familyos_cli.domain.generation.generation_preset import (
     GenerationPreset,
 )
+from familyos_cli.domain.generation.generation_preset_id import (
+    GenerationPresetId,
+)
 
 
 def test_generation_catalog_registers_and_returns_entry() -> None:
     catalog = GenerationCatalog()
 
+    preset = GenerationPresetId(
+        GenerationPreset.COMPLETE.value,
+    )
+
     entry = GenerationCatalogEntry(
-        preset=GenerationPreset.COMPLETE,
+        preset=preset,
         description="Complete domain documentation package.",
         recipes=(
             "full_domain_documentation",
@@ -27,7 +34,7 @@ def test_generation_catalog_registers_and_returns_entry() -> None:
     )
 
     result = catalog.get(
-        GenerationPreset.COMPLETE,
+        preset,
     )
 
     assert result == entry
@@ -38,7 +45,9 @@ def test_generation_catalog_lists_entries() -> None:
 
     catalog.register(
         GenerationCatalogEntry(
-            preset=GenerationPreset.MINIMAL,
+            preset=GenerationPresetId(
+                GenerationPreset.MINIMAL.value,
+            ),
             description="Minimal documentation package.",
             recipes=(
                 "domain_documentation",
@@ -48,7 +57,9 @@ def test_generation_catalog_lists_entries() -> None:
 
     catalog.register(
         GenerationCatalogEntry(
-            preset=GenerationPreset.STANDARD,
+            preset=GenerationPresetId(
+                GenerationPreset.STANDARD.value,
+            ),
             description="Standard domain documentation package.",
             recipes=(
                 "domain_documentation",
@@ -66,7 +77,9 @@ def test_generation_catalog_rejects_duplicate_preset() -> None:
     catalog = GenerationCatalog()
 
     entry = GenerationCatalogEntry(
-        preset=GenerationPreset.MINIMAL,
+        preset=GenerationPresetId(
+            GenerationPreset.MINIMAL.value,
+        ),
         description="Minimal documentation package.",
         recipes=(
             "domain_documentation",
