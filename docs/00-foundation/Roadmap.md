@@ -4,9 +4,11 @@
 
 The FamilyOS Roadmap defines the long-term evolution path of the platform.
 
-The roadmap is organized around architectural maturity, official plugin expansion, ecosystem growth, and continuous improvement.
+The roadmap is organized around architectural maturity, official plugin
+expansion, ecosystem growth, and continuous improvement.
 
-FamilyOS evolves through documented milestones where architecture, implementation, testing, and documentation progress together.
+FamilyOS evolves through documented milestones where architecture,
+implementation, testing, and documentation progress together.
 
 ## Roadmap Principles
 
@@ -14,7 +16,7 @@ FamilyOS evolves through documented milestones where architecture, implementatio
 |---|---|
 | Architecture First | Major capabilities are designed before implementation |
 | Incremental Evolution | The platform grows through controlled milestones |
-| Documentation Driven | Decisions are captured through ADR, RFC, and SPEC documents |
+| Documentation Driven | Decisions are captured through ADR, RFC, SPEC, and EPIC documents |
 | Quality Focused | Each milestone requires validation |
 | Ecosystem Ready | Extensions are built through stable plugin mechanisms |
 
@@ -22,22 +24,17 @@ FamilyOS evolves through documented milestones where architecture, implementatio
 
 ```text
 Foundation
-
-    |
-
+    ↓
 Platform Stability
-
-    |
-
+    ↓
 Official Plugins
-
-    |
-
+    ↓
+Domain Intelligence
+    ↓
 Ecosystem Expansion
-
-    |
-
+    ↓
 Long-Term Evolution
+```
 
 ## Completed Milestones
 
@@ -51,22 +48,27 @@ FamilyOS has achieved several major milestones.
 | Plugin Ecosystem Foundation | Completed |
 | Plugin SDK v2 | Completed |
 | Official Plugin Architecture | Completed |
+| Initial Official Plugin Portfolio | Completed |
+| Multi-Plugin Runtime Validation | Completed |
+| Platform Validation Baseline | Completed |
 
 ## Current Phase
 
-The current evolution phase focuses on expanding official domain plugins.
+The initial FamilyOS platform, plugin ecosystem, and official plugin portfolio
+have completed their current validation cycle.
 
-The main objectives are:
+The platform is now positioned to transition toward **Domain Intelligence**.
 
-- Deliver official family-oriented capabilities
-- Establish stable domain architectures
-- Provide reusable generation workflows
-- Improve documentation coverage
-- Strengthen validation practices
+The next evolution stage may focus on capabilities that combine validated
+domain plugins with higher-level family intelligence, decision support,
+knowledge management, and controlled automation.
+
+Future work SHALL preserve the architectural and validation guarantees
+established by the completed foundation and official plugin phases.
 
 ## Official Plugin Roadmap
 
-Official plugins are developed following a controlled sequence.
+Official plugins were developed through a controlled sequence.
 
 | Plugin | Purpose | Status |
 |---|---|---|
@@ -74,32 +76,68 @@ Official plugins are developed following a controlled sequence.
 | Health Plugin | Health domain capabilities | Completed |
 | Finance Plugin | Financial management capabilities | Completed |
 | Education Plugin | Learning and education capabilities | Completed |
-| Documents Plugin | Document management capabilities | In Progress |
-| Communication Plugin | Communication capabilities | Planned |
+| Documents Plugin | Document management capabilities | Completed |
+| Communication Plugin | Communication capabilities | Completed |
 
+The official plugin baseline is therefore complete for the current roadmap
+phase.
+
+The six official plugins have also been validated together within the shared
+FamilyOS runtime to confirm:
+
+- canonical plugin identity preservation;
+- concurrent runtime activation;
+- capability isolation;
+- contribution isolation;
+- selective plugin deactivation;
+- runtime cleanup without affecting remaining active plugins.
+
+## Platform Validation State
+
+The current platform baseline has completed repository-level validation.
+
+The validated baseline includes:
+
+- static code-quality validation;
+- static type validation;
+- unit testing;
+- integration testing;
+- end-to-end testing;
+- official plugin production hardening;
+- multi-plugin ecosystem runtime validation;
+- application and infrastructure boundary validation.
+
+This roadmap does not replace detailed validation evidence maintained by the
+relevant EPIC, testing, quality, and release documentation.
 
 ## Future Directions
 
 Future FamilyOS evolution will focus on:
 
-- Additional official domain plugins
-- Advanced family intelligence capabilities
-- External ecosystem integrations
-- Improved automation workflows
-- Long-term digital heritage management
+- advanced family intelligence capabilities;
+- personal and family knowledge management;
+- decision-support capabilities;
+- controlled automation workflows;
+- additional official domain capabilities where justified;
+- community plugin support;
+- external ecosystem integrations;
+- improved automation workflows;
+- long-term digital heritage management.
 
-Future capabilities should preserve the core architectural principles of FamilyOS.
+Future capabilities SHALL preserve the core architectural principles of
+FamilyOS.
 
 ## Roadmap Governance
 
 The roadmap is maintained through:
 
-- Architecture Decision Records (ADR)
-- Request for Comments (RFC)
-- Specifications (SPEC)
-- Release documentation
+- Architecture Decision Records (ADR);
+- Requests for Comments (RFC);
+- Specifications (SPEC);
+- EPIC control documents;
+- release documentation.
 
-Each roadmap milestone should define:
+Each roadmap milestone SHOULD define:
 
 | Element | Description |
 |---|---|
@@ -109,10 +147,22 @@ Each roadmap milestone should define:
 | Documentation | Required updates |
 | Release | Delivery milestone |
 
+Canonical implementation and closure status SHALL be derived from the
+authoritative repository control documents rather than roadmap summaries.
+
 ## References
 
 - FamilyOS Architecture Vision
 - Framework Lifecycle
 - Release Strategy
-- ADR-0007 — Official Plugins Architecture
+- ADR-0007 — Official Plugin Architecture
 - Official Plugin RFCs
+- EPIC Roadmap
+- EPIC Index
+
+## Revision History
+
+| Version | Date | Description |
+|---|---|---|
+| 1.0.0 | 2026-08-04 | Initial publication |
+| 1.1.0 | 2026-08-13 | Reconciled official plugin completion and platform validation state |
