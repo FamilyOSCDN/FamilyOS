@@ -20,6 +20,9 @@ from familyos_cli.plugins.ecosystem.compliance.rules.identity_rules import (
 from familyos_cli.plugins.ecosystem.compliance.rules.metadata_rules import (
     METADATA_RULES,
 )
+from familyos_cli.plugins.ecosystem.compliance.rules.quality_rules import (
+    QUALITY_RULES,
+)
 from familyos_cli.plugins.ecosystem.compliance.rules.structure_rules import (
     STRUCTURE_RULES,
 )
@@ -31,4 +34,5 @@ DEFAULT_COMPLIANCE_RULES: tuple[ComplianceRule, ...] = (
     *ARCHITECTURE_RULES,
     *CAPABILITY_RULES,
     *DEPENDENCY_RULES,
+    *QUALITY_RULES,
 )

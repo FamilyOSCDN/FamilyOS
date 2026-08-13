@@ -14,3 +14,4 @@ def test_compliance_domain_values() -> None:
     assert ComplianceDomain.ARCHITECTURE.value == "architecture"
     assert ComplianceDomain.CAPABILITIES.value == "capabilities"
     assert ComplianceDomain.DEPENDENCIES.value == "dependencies"
+    assert ComplianceDomain.QUALITY.value == "quality"

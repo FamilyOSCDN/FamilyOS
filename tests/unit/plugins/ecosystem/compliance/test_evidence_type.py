@@ -14,3 +14,4 @@ def test_evidence_type_values() -> None:
     assert EvidenceType.ARCHITECTURE.value == "architecture"
     assert EvidenceType.CAPABILITY.value == "capability"
     assert EvidenceType.DEPENDENCY.value == "dependency"
+    assert EvidenceType.QUALITY.value == "quality"

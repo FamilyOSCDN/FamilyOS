@@ -81,6 +81,37 @@ def test_official_security_plugin_is_fully_compliant() -> None:
         assert outcome is RuleOutcome.PASS, (rule_id, outcome)
 
 
+def test_all_discovered_builtin_plugins_are_fully_compliant() -> None:
+    """Every discovered builtin plugin passes the full official profile.
+
+    This exercises the expanded rule set, including the PLUGIN-QLT-001
+    (Ruff) and PLUGIN-QLT-002 (MyPy) quality rules, against every
+    architecturally different builtin plugin currently discovered, not a
+    hard-coded subset.
+    """
+
+    engine = _build_engine(_BUILTIN_PLUGINS_ROOT)
+    descriptors = PluginLoader().discover(_BUILTIN_PLUGINS_ROOT)
+
+    assert len(descriptors) == 7
+
+    for descriptor in descriptors:
+        result = engine.evaluate(ComplianceRequest(plugin_descriptor=descriptor))
+
+        assert result.status is ComplianceStatus.COMPLIANT, (
+            descriptor.id,
+            result.findings,
+        )
+
+        outcomes_by_rule = {
+            evaluation.rule_id: evaluation.outcome
+            for evaluation in result.rule_evaluations
+        }
+
+        assert outcomes_by_rule["PLUGIN-QLT-001"] is RuleOutcome.PASS, descriptor.id
+        assert outcomes_by_rule["PLUGIN-QLT-002"] is RuleOutcome.PASS, descriptor.id
+
+
 def test_deliberately_broken_plugin_is_non_compliant(tmp_path: Path) -> None:
     """A plugin violating several rules at once is reported NON_COMPLIANT."""
 

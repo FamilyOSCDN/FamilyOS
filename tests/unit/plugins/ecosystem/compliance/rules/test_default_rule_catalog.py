@@ -8,10 +8,10 @@ from tests.unit.plugins.ecosystem.compliance.rules.rule_catalog_assertions impor
 )
 
 
-def test_default_rule_catalog_has_sixteen_rules() -> None:
+def test_default_rule_catalog_has_eighteen_rules() -> None:
     """The default catalog matches the planned initial slice size."""
 
-    assert len(DEFAULT_COMPLIANCE_RULES) == 16
+    assert len(DEFAULT_COMPLIANCE_RULES) == 18
 
 
 def test_default_rule_catalog_is_consistent() -> None:

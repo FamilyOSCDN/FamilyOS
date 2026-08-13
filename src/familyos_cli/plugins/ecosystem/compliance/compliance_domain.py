@@ -10,7 +10,7 @@ class ComplianceDomain(StrEnum):
 
     This slice covers a subset of the full domain baseline defined in
     docs/epics/EPIC-PLUGIN-002.../05-Compliance-Domains.md. Security,
-    testing, quality, documentation, compatibility, lifecycle, governance,
+    testing, documentation, compatibility, lifecycle, governance,
     contributions, and configuration domains are deferred.
     """
 
@@ -20,3 +20,4 @@ class ComplianceDomain(StrEnum):
     ARCHITECTURE = "architecture"
     CAPABILITIES = "capabilities"
     DEPENDENCIES = "dependencies"
+    QUALITY = "quality"

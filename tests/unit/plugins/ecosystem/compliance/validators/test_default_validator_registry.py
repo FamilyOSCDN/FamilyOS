@@ -8,12 +8,12 @@ from familyos_cli.plugins.ecosystem.compliance.validators.default_validator_regi
 )
 
 
-def test_registry_has_sixteen_validators() -> None:
+def test_registry_has_eighteen_validators() -> None:
     """The default registry registers one validator per rule."""
 
     registry = build_default_validator_registry()
 
-    assert len(registry.list()) == 16
+    assert len(registry.list()) == 18
 
 
 def test_registry_covers_every_rule_validator_id() -> None:

@@ -83,6 +83,18 @@ from familyos_cli.plugins.ecosystem.compliance.validators.metadata_version_forma
 from familyos_cli.plugins.ecosystem.compliance.validators.metadata_version_format_validator import (
     MetadataVersionFormatValidator,
 )
+from familyos_cli.plugins.ecosystem.compliance.validators.quality_mypy_validator import (
+    VALIDATOR_ID as QUALITY_MYPY_ID,
+)
+from familyos_cli.plugins.ecosystem.compliance.validators.quality_mypy_validator import (
+    QualityMypyValidator,
+)
+from familyos_cli.plugins.ecosystem.compliance.validators.quality_ruff_validator import (
+    VALIDATOR_ID as QUALITY_RUFF_ID,
+)
+from familyos_cli.plugins.ecosystem.compliance.validators.quality_ruff_validator import (
+    QualityRuffValidator,
+)
 from familyos_cli.plugins.ecosystem.compliance.validators.structure_contribution_paths_validator import (
     VALIDATOR_ID as STRUCTURE_CONTRIBUTION_PATHS_ID,
 )
@@ -156,5 +168,8 @@ def build_default_validator_registry() -> ValidatorRegistry:
         DEPENDENCY_NO_SELF_DEPENDENCY_ID,
         DependencyNoSelfDependencyValidator(),
     )
+
+    registry.register(QUALITY_RUFF_ID, QualityRuffValidator())
+    registry.register(QUALITY_MYPY_ID, QualityMypyValidator())
 
     return registry

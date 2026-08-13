@@ -14,3 +14,4 @@ class EvidenceType(StrEnum):
     ARCHITECTURE = "architecture"
     CAPABILITY = "capability"
     DEPENDENCY = "dependency"
+    QUALITY = "quality"
