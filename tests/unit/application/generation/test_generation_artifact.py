@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+from pathlib import Path
+
+import pytest
+
 from familyos_cli.application.generation.generation_artifact import (
     GenerationArtifact,
 )
@@ -9,9 +14,18 @@ from familyos_cli.application.generation.generation_context import (
 from familyos_cli.application.generation.generation_options import (
     GenerationOptions,
 )
+from familyos_cli.domain.models.project import Project
 
 
 def test_generation_artifact_creation() -> None:
+    project = Project(
+        name="family-project",
+    )
+
+    destination = Path(
+        "models/person.py",
+    )
+
     artifact = GenerationArtifact(
         template="entity.py.jinja",
         destination="models/person.py",
@@ -19,8 +33,8 @@ def test_generation_artifact_creation() -> None:
             variables={
                 "name": "Person",
             },
-            project="family-project",
-            destination="models/person.py",
+            project=project,
+            destination=destination,
         ),
         options=GenerationOptions(
             overwrite=True,
@@ -36,9 +50,9 @@ def test_generation_artifact_creation() -> None:
         "name": "Person",
     }
 
-    assert artifact.context.project == "family-project"
+    assert artifact.context.project == project
 
-    assert artifact.context.destination == "models/person.py"
+    assert artifact.context.destination == destination
 
     assert artifact.options.overwrite is True
 
@@ -89,11 +103,10 @@ def test_generation_artifact_is_immutable() -> None:
         destination="models/person.py",
     )
 
-    try:
-        artifact.template = "service.py.jinja"
-    except AttributeError:
-        assert True
-    else:
-        raise AssertionError(
-            "Expected code path was not reached.",
+    with pytest.raises(
+        FrozenInstanceError,
+    ):
+        artifact.__setattr__(
+            "template",
+            "service.py.jinja",
         )
