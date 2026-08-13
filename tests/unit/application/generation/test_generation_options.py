@@ -1,8 +1,25 @@
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+from typing import Any
+
+import pytest
+
 from familyos_cli.application.generation.generation_options import (
     GenerationOptions,
 )
+
+
+def _set_attribute(
+    instance: object,
+    name: str,
+    value: Any,
+) -> None:
+    setattr(
+        instance,
+        name,
+        value,
+    )
 
 
 def test_generation_options_defaults() -> None:
@@ -31,11 +48,11 @@ def test_generation_options_custom_values() -> None:
 def test_generation_options_is_immutable() -> None:
     options = GenerationOptions()
 
-    try:
-        options.encoding = "ascii"
-    except AttributeError:
-        assert True
-    else:
-        raise AssertionError(
-            "Expected code path was not reached.",
+    with pytest.raises(
+        FrozenInstanceError,
+    ):
+        _set_attribute(
+            options,
+            "encoding",
+            "ascii",
         )

@@ -1,11 +1,28 @@
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+from typing import Any
+
+import pytest
+
 from familyos_cli.application.generation.generation_artifact import (
     GenerationArtifact,
 )
 from familyos_cli.application.generation.generation_specification import (
     GenerationSpecification,
 )
+
+
+def _set_attribute(
+    instance: object,
+    name: str,
+    value: Any,
+) -> None:
+    setattr(
+        instance,
+        name,
+        value,
+    )
 
 
 def test_generation_specification_creation() -> None:
@@ -53,11 +70,11 @@ def test_generation_specification_defaults() -> None:
 def test_generation_specification_is_immutable() -> None:
     specification = GenerationSpecification()
 
-    try:
-        specification.artifacts = []
-    except AttributeError:
-        assert True
-    else:
-        raise AssertionError(
-            "Expected code path was not reached.",
+    with pytest.raises(
+        FrozenInstanceError,
+    ):
+        _set_attribute(
+            specification,
+            "artifacts",
+            [],
         )

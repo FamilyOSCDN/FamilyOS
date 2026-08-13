@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
 from pathlib import Path
+from typing import Any
+
+import pytest
 
 from familyos_cli.application.generation.generation_context import (
     GenerationContext,
@@ -8,6 +12,18 @@ from familyos_cli.application.generation.generation_context import (
 from familyos_cli.domain.models.project import (
     Project,
 )
+
+
+def _set_attribute(
+    instance: object,
+    name: str,
+    value: Any,
+) -> None:
+    setattr(
+        instance,
+        name,
+        value,
+    )
 
 
 def test_generation_context_creation() -> None:
@@ -49,13 +65,13 @@ def test_generation_context_defaults() -> None:
 def test_generation_context_is_immutable() -> None:
     context = GenerationContext()
 
-    try:
-        context.project = Project(
-            name="new-project",
-        )
-    except AttributeError:
-        assert True
-    else:
-        raise AssertionError(
-            "Expected code path was not reached.",
+    with pytest.raises(
+        FrozenInstanceError,
+    ):
+        _set_attribute(
+            context,
+            "project",
+            Project(
+                name="new-project",
+            ),
         )

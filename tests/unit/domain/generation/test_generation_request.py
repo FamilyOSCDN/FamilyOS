@@ -1,9 +1,26 @@
+from dataclasses import FrozenInstanceError
+from typing import Any
+
+import pytest
+
 from familyos_cli.domain.generation.generation_profile import (
     GenerationProfile,
 )
 from familyos_cli.domain.generation.generation_request import (
     GenerationRequest,
 )
+
+
+def _set_attribute(
+    instance: object,
+    name: str,
+    value: Any,
+) -> None:
+    setattr(
+        instance,
+        name,
+        value,
+    )
 
 
 def test_generation_request_creation() -> None:
@@ -41,11 +58,11 @@ def test_generation_request_is_immutable() -> None:
         recipe_name="domain_documentation",
     )
 
-    try:
-        request.domain_name = "Family"
-    except AttributeError:
-        pass
-    else:
-        raise AssertionError(
-            "Expected AttributeError.",
+    with pytest.raises(
+        FrozenInstanceError,
+    ):
+        _set_attribute(
+            request,
+            "domain_name",
+            "Family",
         )

@@ -1,3 +1,8 @@
+from dataclasses import FrozenInstanceError
+from typing import Any
+
+import pytest
+
 from familyos_cli.domain.models.aggregate_descriptor import (
     AggregateDescriptor,
 )
@@ -13,6 +18,18 @@ from familyos_cli.domain.models.repository_descriptor import (
 from familyos_cli.domain.models.service_descriptor import (
     ServiceDescriptor,
 )
+
+
+def _set_attribute(
+    instance: object,
+    name: str,
+    value: Any,
+) -> None:
+    setattr(
+        instance,
+        name,
+        value,
+    )
 
 
 def test_domain_specification_creation() -> None:
@@ -69,9 +86,11 @@ def test_domain_specification_is_immutable() -> None:
         services=[],
     )
 
-    try:
-        specification.name = "Family"
-    except AttributeError:
-        assert True
-    else:
-        raise AssertionError("Expected code path was not reached.")
+    with pytest.raises(
+        FrozenInstanceError,
+    ):
+        _set_attribute(
+            specification,
+            "name",
+            "Family",
+        )
