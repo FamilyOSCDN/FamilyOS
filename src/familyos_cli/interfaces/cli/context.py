@@ -31,6 +31,7 @@ from familyos_cli.application.use_cases.create_project import (
 from familyos_cli.application.use_cases.resolve_plugins import (
     ResolvePluginsUseCase,
 )
+from familyos_cli.application.validation import RunCiValidationUseCase
 from familyos_cli.bootstrap import (
     ApplicationContainer,
     ApplicationFactory,
@@ -123,3 +124,9 @@ class CommandContext:
         """Provide plugin compliance checking use case."""
 
         return self._container.check_plugin_compliance_use_case()
+
+    @cached_property
+    def run_ci_validation(self) -> RunCiValidationUseCase:
+        """Provide the canonical CI validation use case."""
+
+        return self._container.run_ci_validation_use_case()

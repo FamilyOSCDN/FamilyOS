@@ -8,6 +8,7 @@ from familyos_cli.interfaces.cli.commands.generation import (
 )
 from familyos_cli.interfaces.cli.commands.init import init
 from familyos_cli.interfaces.cli.commands.plugin import plugin_app
+from familyos_cli.interfaces.cli.commands.validation import validation_app
 from familyos_cli.interfaces.cli.commands.version import version
 
 app = typer.Typer(
@@ -30,6 +31,11 @@ app.add_typer(
 app.add_typer(
     plugin_app,
     name="plugin",
+)
+
+app.add_typer(
+    validation_app,
+    name="validation",
 )
 
 app.command()(version)

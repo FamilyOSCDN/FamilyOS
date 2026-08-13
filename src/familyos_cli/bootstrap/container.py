@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from familyos_cli.application.generation.application_recipe_registry_factory import (
@@ -58,6 +59,13 @@ from familyos_cli.application.use_cases.get_domain_specification import (
 )
 from familyos_cli.application.use_cases.resolve_plugins import (
     ResolvePluginsUseCase,
+)
+from familyos_cli.application.validation import RunCiValidationUseCase
+from familyos_cli.application.validation.builtin_plugin_compliance_gate import (
+    BuiltinPluginComplianceGate,
+)
+from familyos_cli.application.validation.subprocess_gate import (
+    SubprocessValidationGate,
 )
 from familyos_cli.bootstrap.runtime_factory import RuntimeFactory
 from familyos_cli.domain.generation.default_generation_preset_registry import (
@@ -215,6 +223,48 @@ class ApplicationContainer:
             profile_registry=self._compliance_profile_registry,
             plugin_loader=PluginLoader(),
             plugins_root=self._builtin_plugins_root,
+        )
+
+    def run_ci_validation_use_case(self) -> RunCiValidationUseCase:
+        """Create the provider-neutral canonical CI validation use case."""
+
+        project_root = Path(__file__).resolve().parents[3]
+        python = sys.executable
+        compliance_use_case = self.check_plugin_compliance_use_case()
+
+        return RunCiValidationUseCase(
+            gates=(
+                SubprocessValidationGate(
+                    gate_id="dependency-freshness",
+                    command=(python, "scripts/check_dependency_lock.py"),
+                    cwd=project_root,
+                ),
+                SubprocessValidationGate(
+                    gate_id="dependency-consistency",
+                    command=(python, "-m", "pip", "check"),
+                    cwd=project_root,
+                ),
+                SubprocessValidationGate(
+                    gate_id="ruff",
+                    command=(python, "-m", "ruff", "check", "src", "tests", "scripts"),
+                    cwd=project_root,
+                ),
+                SubprocessValidationGate(
+                    gate_id="mypy",
+                    command=(python, "-m", "mypy", "src", "tests"),
+                    cwd=project_root,
+                ),
+                SubprocessValidationGate(
+                    gate_id="pytest",
+                    command=(python, "-m", "pytest", "-q"),
+                    cwd=project_root,
+                ),
+                BuiltinPluginComplianceGate(
+                    use_case=compliance_use_case,
+                    plugin_loader=PluginLoader(),
+                    plugins_root=self._builtin_plugins_root,
+                ),
+            ),
         )
 
     def plugin_verifier(
