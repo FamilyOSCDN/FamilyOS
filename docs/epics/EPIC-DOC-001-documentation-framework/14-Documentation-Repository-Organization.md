@@ -181,7 +181,7 @@ Rules:
 Specifications are stored under:
 
 ```text
-docs/specs/
+docs/06-specifications/
 ```
 
 Structure:

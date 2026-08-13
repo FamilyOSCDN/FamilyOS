@@ -314,7 +314,7 @@ Related documentation:
 * `docs/03-engineering/`
 * `docs/04-reference/`
 * `docs/adr/`
-* `docs/rfc/`
+* `docs/rfcs/`
 
 ---
 
