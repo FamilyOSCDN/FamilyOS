@@ -28,5 +28,6 @@ def test_create_plugin() -> None:
     )
 
     assert plugin is not None
+    assert plugin.metadata is not None
     assert plugin.metadata.name == "Sample Plugin"
     assert plugin.metadata.version == "1.0.0"

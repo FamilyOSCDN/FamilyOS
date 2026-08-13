@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from familyos_cli.plugins.models import PluginDescriptor
 from familyos_cli.plugins.plugin_loader import PluginLoader
 
 
@@ -33,6 +34,11 @@ enabled: true
 
     plugin = loader.load(
         plugin_dir,
+    )
+
+    assert isinstance(
+        plugin,
+        PluginDescriptor,
     )
 
     assert plugin.id == "familyos.ddd"
