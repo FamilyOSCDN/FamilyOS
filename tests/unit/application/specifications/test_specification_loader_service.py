@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import Mock
 
 from familyos_cli.application.specifications import (
@@ -35,8 +36,12 @@ def test_load_and_register_specification() -> None:
         service,
     )
 
-    result = loader_service.load(
+    path = Path(
         "person.yaml",
+    )
+
+    result = loader_service.load(
+        path,
     )
 
     assert result == specification
