@@ -28,14 +28,9 @@ from familyos_cli.domain.models.service_descriptor import (
 from familyos_cli.domain.models.value_object_descriptor import (
     ValueObjectDescriptor,
 )
-from familyos_cli.infrastructure.specifications.domain_specification_loader import (
-    DomainSpecificationLoader,
-)
 
 
-class YamlDomainSpecificationLoader(
-    DomainSpecificationLoader,
-):
+class YamlDomainSpecificationLoader:
     """Load domain specifications from YAML."""
 
     def load(
