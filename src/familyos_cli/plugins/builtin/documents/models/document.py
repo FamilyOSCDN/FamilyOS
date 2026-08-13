@@ -22,6 +22,26 @@ class Document:
     owner: str
     version: DocumentVersion
 
+    def __post_init__(
+        self,
+    ) -> None:
+        """Validate document invariants."""
+
+        if not self.identifier.strip():
+            raise ValueError(
+                "Document identifier must not be empty.",
+            )
+
+        if not self.title.strip():
+            raise ValueError(
+                "Document title must not be empty.",
+            )
+
+        if not self.owner.strip():
+            raise ValueError(
+                "Document owner must not be empty.",
+            )
+
     def is_private(self) -> bool:
         """Return whether document belongs to a private owner."""
 
