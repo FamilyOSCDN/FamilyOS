@@ -22,7 +22,7 @@ def test_list_should_return_empty_when_directory_does_not_exist() -> None:
     "familyos_cli.plugins.plugin_manager.PluginLoader",
 )
 def test_list_should_use_plugin_loader(
-    mock_loader_class,
+    mock_loader_class: Mock,
     tmp_path: Path,
 ) -> None:
     """Plugin manager should delegate loading."""
@@ -111,7 +111,7 @@ def test_manager_stores_only_canonical_plugin_id() -> None:
     "familyos_cli.plugins.plugin_manager.PluginLoader",
 )
 def test_manager_activate_accepts_legacy_plugin_id_alias(
-    mock_loader_class,
+    mock_loader_class: Mock,
 ) -> None:
     """Activation should resolve legacy identifiers canonically."""
 
@@ -171,7 +171,7 @@ def test_manager_deactivate_accepts_legacy_plugin_id_alias() -> None:
     "familyos_cli.plugins.plugin_manager.PluginLoader",
 )
 def test_manager_deactivates_the_active_plugin_instance(
-    mock_loader_class,
+    mock_loader_class: Mock,
 ) -> None:
     """Manager should deactivate the instance previously activated."""
 

@@ -3,8 +3,14 @@
 from familyos_cli.application.generation.plugin_generation_recipe_contributor import (
     PluginGenerationRecipeContributor,
 )
+from familyos_cli.domain.generation.artifact_definition import (
+    ArtifactDefinition,
+)
 from familyos_cli.domain.generation.generation_recipe_registry import (
     GenerationRecipeRegistry,
+)
+from familyos_cli.domain.models.domain_specification import (
+    DomainSpecification,
 )
 from familyos_cli.plugins.contributions.generation_recipe_contribution import (
     GenerationRecipeContribution,
@@ -27,9 +33,11 @@ class FakeRecipe:
 
     def build_artifacts(
         self,
-        specification,
-    ):
+        specification: DomainSpecification,
+    ) -> list[ArtifactDefinition]:
         """Build fake artifacts."""
+
+        _ = specification
 
         return []
 

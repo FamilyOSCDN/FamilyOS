@@ -15,8 +15,8 @@ from familyos_cli.specifications.specification_registry import (
     "familyos_cli.specifications.specification_registry.ArtifactRegistry",
 )
 def test_get_should_load_specification(
-    mock_artifact_registry_class,
-    mock_loader_class,
+    mock_artifact_registry_class: Mock,
+    mock_loader_class: Mock,
 ) -> None:
     """Getting a specification should load the correct YAML."""
 

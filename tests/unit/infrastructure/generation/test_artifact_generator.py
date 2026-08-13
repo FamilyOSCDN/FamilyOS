@@ -18,9 +18,9 @@ from familyos_cli.infrastructure.generation.artifact_generator import (
     "familyos_cli.infrastructure.generation.artifact_generator.SpecificationLoader",
 )
 def test_generate_should_load_specification_and_generate(
-    mock_loader_class,
-    mock_engine_class,
-    mock_registry_class,
+    mock_loader_class: Mock,
+    mock_engine_class: Mock,
+    mock_registry_class: Mock,
 ) -> None:
     """Generating an artifact should load its specification."""
 
