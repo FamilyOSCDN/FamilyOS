@@ -1,3 +1,5 @@
+import pytest
+
 from familyos_cli.plugins.builtin.security.profiles.security_profile import (
     SecurityProfile,
 )
@@ -67,7 +69,7 @@ def test_registry_lists_registered_profiles() -> None:
     )
 
 
-def test_registry_replaces_profile_with_same_identifier() -> None:
+def test_registry_rejects_duplicate_profile() -> None:
     registry = SecurityProfileRegistry()
 
     first = create_profile()
@@ -83,10 +85,15 @@ def test_registry_replaces_profile_with_same_identifier() -> None:
     registry.register(
         first,
     )
-    registry.register(
-        second,
-    )
+
+    with pytest.raises(
+        ValueError,
+        match="already registered",
+    ):
+        registry.register(
+            second,
+        )
 
     assert registry.get(
         "security.profile.basic",
-    ) == second
+    ) == first

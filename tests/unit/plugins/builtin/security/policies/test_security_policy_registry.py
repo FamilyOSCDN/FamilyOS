@@ -1,3 +1,5 @@
+import pytest
+
 from familyos_cli.plugins.builtin.security.policies.security_policy import (
     SecurityPolicy,
 )
@@ -66,7 +68,7 @@ def test_registry_lists_registered_policies() -> None:
     )
 
 
-def test_registry_replaces_policy_with_same_identifier() -> None:
+def test_registry_rejects_duplicate_policy() -> None:
     registry = SecurityPolicyRegistry()
 
     first = create_policy()
@@ -81,10 +83,15 @@ def test_registry_replaces_policy_with_same_identifier() -> None:
     registry.register(
         first,
     )
-    registry.register(
-        second,
-    )
+
+    with pytest.raises(
+        ValueError,
+        match="already registered",
+    ):
+        registry.register(
+            second,
+        )
 
     assert registry.get(
         "security.policy.basic",
-    ) == second
+    ) == first

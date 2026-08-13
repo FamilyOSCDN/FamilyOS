@@ -23,7 +23,14 @@ class SecurityRuleRegistry:
     ) -> None:
         """Register a security rule."""
 
-        self._rules[rule.id] = rule
+        if rule.id in self._rules:
+            raise ValueError(
+                f"Security rule '{rule.id}' already registered.",
+            )
+
+        self._rules[
+            rule.id
+        ] = rule
 
     def get(
         self,

@@ -23,7 +23,14 @@ class SecurityPolicyRegistry:
     ) -> None:
         """Register a security policy."""
 
-        self._policies[policy.id] = policy
+        if policy.id in self._policies:
+            raise ValueError(
+                f"Security policy '{policy.id}' already registered.",
+            )
+
+        self._policies[
+            policy.id
+        ] = policy
 
     def get(
         self,

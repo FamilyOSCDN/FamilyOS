@@ -23,7 +23,14 @@ class SecurityProfileRegistry:
     ) -> None:
         """Register a security profile."""
 
-        self._profiles[profile.id] = profile
+        if profile.id in self._profiles:
+            raise ValueError(
+                f"Security profile '{profile.id}' already registered.",
+            )
+
+        self._profiles[
+            profile.id
+        ] = profile
 
     def get(
         self,
