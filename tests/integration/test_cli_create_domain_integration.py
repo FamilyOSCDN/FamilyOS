@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from familyos_cli.interfaces.cli.app import app
@@ -11,7 +12,7 @@ runner = CliRunner()
 
 def test_cli_should_create_domain_from_yaml_specification(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """CLI should load a domain specification and generate its files."""
 
@@ -109,7 +110,7 @@ services:
 
 def test_cli_should_create_domain_context_documentation(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """CLI should generate domain context documentation."""
 
@@ -222,7 +223,7 @@ services:
 
 def test_cli_should_create_repository_documentation(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """CLI should generate repository documentation."""
 
@@ -323,7 +324,7 @@ repositories:
 
 def test_cli_should_create_service_documentation(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """CLI should generate service documentation."""
 
@@ -423,7 +424,7 @@ services:
 
 def test_cli_should_create_domain_using_complete_preset(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """CLI should generate a domain using complete preset."""
 

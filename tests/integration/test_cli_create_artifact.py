@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from familyos_cli.application.use_cases.create_artifact import (
     CreateArtifactUseCase,
 )
@@ -9,7 +11,7 @@ from familyos_cli.application.use_cases.create_artifact import (
 
 def test_should_create_artifact(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(tmp_path)
 

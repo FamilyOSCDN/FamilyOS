@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from familyos_cli.interfaces.cli.app import app
@@ -11,7 +12,7 @@ runner = CliRunner()
 
 def test_cli_init_should_create_project(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(tmp_path)
 

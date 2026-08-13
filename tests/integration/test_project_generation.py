@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from familyos_cli.application.use_cases.create_project import (
     CreateProjectUseCase,
 )
@@ -9,7 +11,7 @@ from familyos_cli.application.use_cases.create_project import (
 
 def test_create_project(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Generate a complete project."""
 
