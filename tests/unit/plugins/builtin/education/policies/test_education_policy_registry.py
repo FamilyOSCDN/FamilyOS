@@ -1,5 +1,7 @@
 """Tests for EducationPolicyRegistry."""
 
+import pytest
+
 from familyos_cli.plugins.builtin.education.policies.education_policy import (
     EducationPolicy,
 )
@@ -21,6 +23,8 @@ def create_policy(
 
 
 def test_registry_registers_policy() -> None:
+    """Registered policies should be retrievable."""
+
     registry = EducationPolicyRegistry()
 
     policy = create_policy()
@@ -35,6 +39,8 @@ def test_registry_registers_policy() -> None:
 
 
 def test_registry_returns_none_for_unknown_policy() -> None:
+    """Unknown policy identifiers should return none."""
+
     registry = EducationPolicyRegistry()
 
     assert registry.get(
@@ -43,6 +49,8 @@ def test_registry_returns_none_for_unknown_policy() -> None:
 
 
 def test_registry_lists_policies() -> None:
+    """Policies should be listed in registration order."""
+
     registry = EducationPolicyRegistry()
 
     first = create_policy(
@@ -52,10 +60,51 @@ def test_registry_lists_policies() -> None:
         "education.policy.second",
     )
 
-    registry.register(first)
-    registry.register(second)
+    registry.register(
+        first,
+    )
+    registry.register(
+        second,
+    )
 
     assert registry.list() == (
         first,
         second,
+    )
+
+
+def test_registry_rejects_duplicate_policy_id() -> None:
+    """Duplicate policy identifiers should be rejected."""
+
+    registry = EducationPolicyRegistry()
+
+    first = create_policy()
+    duplicate = EducationPolicy(
+        id=first.id,
+        name="Replacement Policy",
+        level="critical",
+    )
+
+    registry.register(
+        first,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Education policy "
+            "'education.policy.basic' "
+            "is already registered."
+        ),
+    ):
+        registry.register(
+            duplicate,
+        )
+
+    assert registry.get(
+        first.id,
+    ) == first
+
+    assert registry.list() == (
+        first,
     )

@@ -10,16 +10,31 @@ from familyos_cli.plugins.builtin.education.policies.education_policy import (
 class EducationPolicyRegistry:
     """Store education policies."""
 
-    def __init__(self) -> None:
-        self._policies: dict[str, EducationPolicy] = {}
+    def __init__(
+        self,
+    ) -> None:
+        """Initialize an empty policy registry."""
+
+        self._policies: dict[
+            str,
+            EducationPolicy,
+        ] = {}
 
     def register(
         self,
         policy: EducationPolicy,
     ) -> None:
-        """Register a policy."""
+        """Register a policy with a unique identifier."""
 
-        self._policies[policy.id] = policy
+        if policy.id in self._policies:
+            raise ValueError(
+                f"Education policy '{policy.id}' "
+                "is already registered.",
+            )
+
+        self._policies[
+            policy.id
+        ] = policy
 
     def get(
         self,

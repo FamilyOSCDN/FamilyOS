@@ -10,16 +10,31 @@ from familyos_cli.plugins.builtin.education.profiles.education_profile import (
 class EducationProfileRegistry:
     """Store education profiles."""
 
-    def __init__(self) -> None:
-        self._profiles: dict[str, EducationProfile] = {}
+    def __init__(
+        self,
+    ) -> None:
+        """Initialize an empty profile registry."""
+
+        self._profiles: dict[
+            str,
+            EducationProfile,
+        ] = {}
 
     def register(
         self,
         profile: EducationProfile,
     ) -> None:
-        """Register a profile."""
+        """Register a profile with a unique identifier."""
 
-        self._profiles[profile.id] = profile
+        if profile.id in self._profiles:
+            raise ValueError(
+                f"Education profile '{profile.id}' "
+                "is already registered.",
+            )
+
+        self._profiles[
+            profile.id
+        ] = profile
 
     def get(
         self,

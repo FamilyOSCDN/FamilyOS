@@ -10,16 +10,31 @@ from familyos_cli.plugins.builtin.education.rules.education_rule import (
 class EducationRuleRegistry:
     """Store education rules."""
 
-    def __init__(self) -> None:
-        self._rules: dict[str, EducationRule] = {}
+    def __init__(
+        self,
+    ) -> None:
+        """Initialize an empty rule registry."""
+
+        self._rules: dict[
+            str,
+            EducationRule,
+        ] = {}
 
     def register(
         self,
         rule: EducationRule,
     ) -> None:
-        """Register a rule."""
+        """Register a rule with a unique identifier."""
 
-        self._rules[rule.id] = rule
+        if rule.id in self._rules:
+            raise ValueError(
+                f"Education rule '{rule.id}' "
+                "is already registered.",
+            )
+
+        self._rules[
+            rule.id
+        ] = rule
 
     def get(
         self,
