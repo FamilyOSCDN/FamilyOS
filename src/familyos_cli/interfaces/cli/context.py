@@ -16,6 +16,9 @@ from familyos_cli.application.generation.recipe_catalog_service import (
 from familyos_cli.application.specifications.domain_specification_loader_service import (
     DomainSpecificationLoaderService,
 )
+from familyos_cli.application.use_cases.check_plugin_compliance import (
+    CheckPluginComplianceUseCase,
+)
 from familyos_cli.application.use_cases.create_artifact import (
     CreateArtifactUseCase,
 )
@@ -112,3 +115,11 @@ class CommandContext:
         """Provide plugin resolution use case."""
 
         return self._container.resolve_plugins_use_case()
+
+    @cached_property
+    def check_plugin_compliance(
+        self,
+    ) -> CheckPluginComplianceUseCase:
+        """Provide plugin compliance checking use case."""
+
+        return self._container.check_plugin_compliance_use_case()

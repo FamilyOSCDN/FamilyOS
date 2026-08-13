@@ -41,6 +41,9 @@ from familyos_cli.application.specifications import (
     DomainSpecificationLoaderService,
     SpecificationService,
 )
+from familyos_cli.application.use_cases.check_plugin_compliance import (
+    CheckPluginComplianceUseCase,
+)
 from familyos_cli.application.use_cases.create_artifact import (
     CreateArtifactUseCase,
 )
@@ -75,6 +78,22 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 from familyos_cli.infrastructure.specifications import (
     YamlDomainSpecificationLoader,
 )
+from familyos_cli.plugins.ecosystem.compliance.compliance_engine import (
+    ComplianceEngine,
+)
+from familyos_cli.plugins.ecosystem.compliance.profiles.default_profile_registry import (
+    build_default_profile_registry,
+)
+from familyos_cli.plugins.ecosystem.compliance.rule_registry import RuleRegistry
+from familyos_cli.plugins.ecosystem.compliance.rules.default_rule_catalog import (
+    DEFAULT_COMPLIANCE_RULES,
+)
+from familyos_cli.plugins.ecosystem.compliance.validation_context_builder import (
+    ValidationContextBuilder,
+)
+from familyos_cli.plugins.ecosystem.compliance.validators.default_validator_registry import (
+    build_default_validator_registry,
+)
 from familyos_cli.plugins.ecosystem.discovery import (
     PluginDiscovery,
 )
@@ -93,6 +112,7 @@ from familyos_cli.plugins.ecosystem.resolution import (
 from familyos_cli.plugins.ecosystem.verification import (
     PluginVerifier,
 )
+from familyos_cli.plugins.plugin_loader import PluginLoader
 from familyos_cli.plugins.runtime.plugin_runtime import (
     PluginRuntime,
 )
@@ -124,6 +144,28 @@ class ApplicationContainer:
 
         self._specification_service = SpecificationService(
             self._domain_specification_registry,
+        )
+
+        self._builtin_plugins_root = (
+            Path(__file__).resolve().parent.parent / "plugins" / "builtin"
+        )
+
+        self._compliance_rule_registry = RuleRegistry()
+        for rule in DEFAULT_COMPLIANCE_RULES:
+            self._compliance_rule_registry.register(rule)
+
+        self._compliance_profile_registry = build_default_profile_registry()
+        self._compliance_validator_registry = build_default_validator_registry()
+
+        self._compliance_context_builder = ValidationContextBuilder(
+            discovery_root=self._builtin_plugins_root,
+        )
+
+        self._compliance_engine = ComplianceEngine(
+            rule_registry=self._compliance_rule_registry,
+            profile_registry=self._compliance_profile_registry,
+            validator_registry=self._compliance_validator_registry,
+            context_builder=self._compliance_context_builder,
         )
 
     def plugin_runtime(
@@ -161,6 +203,18 @@ class ApplicationContainer:
 
         return ResolvePluginsUseCase(
             pipeline=self._plugin_resolution_pipeline,
+        )
+
+    def check_plugin_compliance_use_case(
+        self,
+    ) -> CheckPluginComplianceUseCase:
+        """Create plugin compliance checking use case."""
+
+        return CheckPluginComplianceUseCase(
+            engine=self._compliance_engine,
+            profile_registry=self._compliance_profile_registry,
+            plugin_loader=PluginLoader(),
+            plugins_root=self._builtin_plugins_root,
         )
 
     def plugin_verifier(

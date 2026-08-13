@@ -1,0 +1,1 @@
+"""Default compliance profile registry."""

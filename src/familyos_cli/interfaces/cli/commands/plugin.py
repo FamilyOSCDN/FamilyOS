@@ -6,6 +6,9 @@ from typing import Annotated
 
 import typer
 
+from familyos_cli.interfaces.cli.commands.plugin_compliance import (
+    compliance_app,
+)
 from familyos_cli.interfaces.cli.commands.plugin_resolve import (
     EXIT_SUCCESS,
     plugin_resolve,
@@ -14,6 +17,11 @@ from familyos_cli.interfaces.cli.commands.plugin_resolve import (
 plugin_app = typer.Typer(
     help="Plugin ecosystem commands.",
     no_args_is_help=True,
+)
+
+plugin_app.add_typer(
+    compliance_app,
+    name="compliance",
 )
 
 
