@@ -136,20 +136,31 @@ The implementation should eliminate dependence on undocumented command sequences
 
 ### Checklist
 
-* [ ] Identify the current canonical Python package build mechanism.
-* [ ] Define one official FamilyOS build entry point.
+* [x] Identify the current canonical Python package build mechanism.
+* [x] Define one official FamilyOS build entry point.
 * [ ] Ensure the entry point works from the documented repository context.
-* [ ] Ensure the build entry point is callable locally.
+* [x] Ensure the build entry point is callable locally.
 * [ ] Ensure the same build entry point can be invoked by CI.
-* [ ] Document supported build arguments.
-* [ ] Define default build behavior.
+* [x] Document supported build arguments.
+* [x] Define default build behavior.
 * [ ] Define explicit profile selection.
 * [ ] Define explicit build target selection if multiple targets exist.
-* [ ] Define canonical build exit-code behavior.
-* [ ] Ensure required-stage failure produces non-zero process status.
-* [ ] Prevent the canonical build command from publishing releases.
-* [ ] Add usage documentation.
-* [ ] Add tests for build-interface behavior where practical.
+* [x] Define canonical build exit-code behavior.
+* [x] Ensure required-stage failure produces non-zero process status.
+* [x] Prevent the canonical build command from publishing releases.
+* [x] Add usage documentation.
+* [x] Add tests for build-interface behavior where practical.
+
+Implementation evidence: `familyos build` delegates through the CLI context,
+application container, package-build use case, packaging port, and
+subprocess-backed Python frontend adapter. The adapter invokes
+`sys.executable -m build --outdir <output-dir>` without shell interpretation.
+Focused tests cover command registration, delegation, explicit output,
+success/failure exits, normalized execution failures, and the absence of a
+publication command. An isolated integration test copies the actual packaging
+inputs into a temporary project and proves that the production adapter builds
+one wheel and one source distribution without touching checkout egg-info.
+GitHub Actions does not invoke `familyos build` yet.
 
 ---
 
@@ -509,18 +520,24 @@ Implement predictable and observable transformation from validated context to ca
 * [ ] Define staging behavior.
 * [ ] Define generation stages where needed.
 * [ ] Define package assembly.
-* [ ] Define packaging execution.
-* [ ] Define output collection.
+* [x] Define packaging execution.
+* [x] Define output collection.
 * [ ] Define execution finalization.
-* [ ] Propagate mandatory stage failures.
-* [ ] Prevent ignored subprocess failures.
+* [x] Propagate mandatory stage failures.
+* [x] Prevent ignored subprocess failures.
 * [ ] Ensure execution does not unexpectedly mutate authoritative source.
 * [ ] Define partial-output handling.
 * [ ] Define failure cleanup.
 * [ ] Define cancellation semantics if required.
 * [ ] Define retry policy for transient failures only.
 * [ ] Add execution-stage logging.
-* [ ] Add execution-stage tests.
+* [x] Add execution-stage tests.
+
+Implementation evidence: the first canonical package-build slice implements
+one controlled packaging invocation and returns only sorted wheel and
+source-distribution paths as process-level outputs. Non-zero frontend results
+and launch errors cannot become successful build results. This does not assign
+artifact identity, validation, integrity, trust, or Build Evidence semantics.
 
 ---
 
@@ -853,7 +870,7 @@ Keep canonical build behavior practical for developers.
 
 * [x] Document local environment setup.
 * [x] Document dependency installation.
-* [ ] Document canonical build command.
+* [x] Document canonical build command.
 * [x] Document canonical validation command.
 * [ ] Document artifact location.
 * [ ] Document cleanup.
@@ -870,9 +887,9 @@ semantic alignment, and remediation for common bootstrap and validation
 failures. The provider-neutral command is the same entry point invoked by
 `.github/workflows/ci.yml`.
 
-Level 26 remains incomplete. A canonical build command, candidate-artifact
-location, artifact-related cleanup contract, and proof that build execution has
-no CI-only steps depend on future canonical build and artifact implementation.
+Level 26 remains incomplete. A canonical candidate-artifact location,
+artifact-related cleanup contract, and proof that build execution has no
+CI-only steps depend on future build integration and artifact implementation.
 
 ---
 

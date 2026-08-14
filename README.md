@@ -5,9 +5,9 @@ the FamilyOS repository. The project currently supports a controlled Python
 development environment and one provider-neutral validation command shared by
 local development and GitHub Actions.
 
-The canonical package-build and candidate-artifact workflow is not implemented
-yet. The commands below set up and validate the source repository; they do not
-produce a release or trusted build artifact.
+The repository provides a canonical package-build command. Package outputs are
+process-level build results only: producing them does not validate them, make
+them trusted, or publish a release.
 
 ## Prerequisites
 
@@ -108,6 +108,43 @@ the same locked bootstrap and invokes the same provider-neutral
 Pytest, dependency, or Plugin Compliance semantics. A validation failure that
 occurs in CI can therefore normally be reproduced locally with this command.
 
+## Canonical package build
+
+Build the FamilyOS wheel and source distribution with the repository-owned
+interface:
+
+```bash
+familyos build
+```
+
+The command delegates packaging to the standard Python build frontend and the
+backend declared by `pyproject.toml`. Its default operational output directory
+is `dist/`. A different explicit directory may be supplied when isolation is
+needed:
+
+```bash
+familyos build --output-dir /tmp/familyos-package-build
+```
+
+`dist/` is generated package-build output and is not currently ignored by
+Git. Do not commit it. After inspecting the outputs, remove `dist/` when it is
+no longer needed.
+
+A successful command reports the wheel and source-distribution paths produced
+by packaging. A packaging or execution failure returns a non-zero status and a
+concise diagnostic. The command never publishes its outputs.
+
+This first build slice does not establish canonical artifact discovery,
+artifact validation, artifact identity, integrity, Build Evidence, or release
+handoff. CI does not invoke `familyos build` yet.
+
+Setuptools metadata generation during a real build currently rewrites tracked
+files under `src/familyos_cli.egg-info/`. This is a known pre-existing
+repository-hygiene limitation; egg-info is not part of the canonical package
+output. Its removal and ignore policy are deliberately deferred to a separate
+repository-hygiene slice. Inspect `git status` after local builds. The current
+build command does not claim source-tree immutability.
+
 ## Common failures
 
 ### Unsupported Python version
@@ -166,15 +203,17 @@ anywhere under the repository root (for example `src/.pytest_cache` and
 `src/.ruff_cache` in addition to their repository-root counterparts) and
 prunes `.git`. Review the paths before removal and never use cleanup
 commands against the repository root or authoritative source directories.
-No canonical cleanup contract exists yet for build outputs because
-canonical build and artifact generation have not been implemented.
+No canonical cleanup contract exists yet for candidate artifacts or other
+future build outputs.
 
 ## Current build boundary
 
-FamilyOS does not yet expose a canonical package-build command, candidate
-artifact location, artifact-validation pipeline, or build-output cleanup
+FamilyOS exposes canonical package-build execution, but does not yet expose a
+candidate-artifact contract, artifact-validation pipeline, artifact identity,
+integrity, Build Evidence, release handoff, or canonical build-output cleanup
 command. Those capabilities remain future EPIC-BLD-001 implementation work.
-Do not infer them from setuptools internals or ad hoc packaging commands.
+Do not infer trust or release semantics from setuptools output or a successful
+build command.
 
 The normative Build Framework is under
 `docs/epics/EPIC-BLD-001-build-framework/`. Repository engineering standards

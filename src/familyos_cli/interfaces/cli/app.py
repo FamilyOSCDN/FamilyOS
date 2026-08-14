@@ -2,6 +2,7 @@
 
 import typer
 
+from familyos_cli.interfaces.cli.commands.build import build
 from familyos_cli.interfaces.cli.commands.create import create_app
 from familyos_cli.interfaces.cli.commands.generation import (
     generation_app,
@@ -40,3 +41,4 @@ app.add_typer(
 
 app.command()(version)
 app.command()(init)
+app.command()(build)

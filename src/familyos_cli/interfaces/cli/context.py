@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import cached_property
 
+from familyos_cli.application.build import RunPackageBuildUseCase
 from familyos_cli.application.generation.domain_generation_catalog_service import (
     DomainGenerationCatalogService,
 )
@@ -130,3 +131,9 @@ class CommandContext:
         """Provide the canonical CI validation use case."""
 
         return self._container.run_ci_validation_use_case()
+
+    @cached_property
+    def run_package_build(self) -> RunPackageBuildUseCase:
+        """Provide the canonical package-build use case."""
+
+        return self._container.run_package_build_use_case()

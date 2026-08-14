@@ -49,6 +49,7 @@ Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
 Latest Reconciliation:   Local Developer Workflow
+Latest Technical Slice:  Canonical Package Build
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
@@ -138,6 +139,30 @@ contract, or proof of CI-independent build execution exists yet.
 This documentation-only slice does not modify dependency state, validation
 semantics, CI behavior, production code, tests, framework version `1.0.0`, or
 historical tag `v4.7.0-build-framework`.
+
+---
+
+# Post-Framework Implementation — Canonical Package Build
+
+The first Canonical Package Build slice introduces `familyos build` as the
+repository-owned public package-build contract. The command follows the
+existing CLI, context, container, application-use-case, port, and
+infrastructure-adapter boundaries while delegating package construction to
+`sys.executable -m build` and the backend declared by `pyproject.toml`.
+
+The slice provides explicit output-directory handling, process-level wheel and
+source-distribution reporting, normalized failure propagation, non-zero CLI
+failure status, focused tests, and a real package build isolated in a temporary
+copy of the current packaging inputs. It contains no publication behavior.
+
+Direct setuptools builds against the checkout may rewrite the pre-existing
+tracked `src/familyos_cli.egg-info/` metadata. Its hygiene correction is
+deferred, and the build does not yet claim source-tree immutability.
+
+Artifact discovery maturity, artifact validation, identity, integrity, Build
+ID, Build Evidence, CI build invocation, release handoff, and publication
+remain future work. The framework remains version `1.0.0`, and historical tag
+`v4.7.0-build-framework` remains unchanged.
 
 ---
 

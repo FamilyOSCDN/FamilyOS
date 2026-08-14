@@ -1182,6 +1182,38 @@ version, publication metadata, or historical tag changes in this revision.
 
 ---
 
+# Canonical Package Build First Technical Slice — 2026-08-14
+
+This implementation revision introduces `familyos build` as the public
+FamilyOS package-build entry point.
+
+The command is wired through the established Typer interface, `CommandContext`,
+application container, package-build use case, packaging port, and
+subprocess-backed infrastructure adapter. The adapter invokes the standard
+Python build frontend with `sys.executable`, delegates backend selection to
+`pyproject.toml`, uses an application-supplied output directory, and returns
+only process-level wheel and source-distribution paths.
+
+Focused tests cover application delegation, command construction, explicit
+output handling, failure normalization, CLI registration, success and failure
+status, absence of publication commands, and the deliberately limited result
+model. A real integration test copies current packaging inputs into a temporary
+project, builds one wheel and one source distribution through the production
+adapter, and verifies checkout egg-info remains unchanged.
+
+Setuptools builds executed directly against the checkout may rewrite the
+pre-existing tracked `src/familyos_cli.egg-info/` metadata. Removal and ignore
+policy are deferred to a separate repository-hygiene slice, and source-tree
+immutability remains unclaimed.
+
+This slice does not establish Artifact Discovery completion, validation,
+identity, integrity, Build ID, Build Evidence, CI build invocation, release
+handoff, or publication. The Build Framework technical implementation remains
+in progress, and framework version `1.0.0` plus historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

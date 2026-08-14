@@ -1203,6 +1203,62 @@ Level 26 Local Developer Workflow:        PARTIAL
 Build Framework Technical Implementation: IN PROGRESS
 ```
 
-Level 26 remains partial because its build-command, artifact-location,
-artifact-related cleanup, and CI-independent build requirements cannot be
-validated before canonical build and artifact implementation exists.
+Level 26 remains partial because its artifact-location, artifact-related
+cleanup, and CI-independent build requirements cannot be validated before
+canonical artifact and CI build integration exists.
+
+---
+
+# Canonical Package Build — First Technical Slice
+
+This revision establishes the first executable FamilyOS package-build path:
+
+```text
+familyos build
+    -> CommandContext
+    -> ApplicationContainer
+    -> RunPackageBuildUseCase
+    -> PackageBuilderPort
+    -> PythonPackageBuilder
+    -> sys.executable -m build --outdir <output-dir>
+```
+
+The implementation provides:
+
+* a provider-neutral public command;
+* an application-owned explicit output directory;
+* a replaceable packaging port;
+* a subprocess adapter with no shell interpretation;
+* normalized success, failure, and execution-error results;
+* non-zero CLI status for failed or erroneous packaging;
+* sorted wheel and source-distribution paths as process-level outputs;
+* no publication behavior;
+* focused application, infrastructure, and CLI tests;
+* one real isolated integration build using copied current packaging inputs.
+
+Validation scope:
+
+```text
+Canonical package-build interface: IMPLEMENTED
+Packaging mechanism:              IMPLEMENTED
+Focused and integration tests:     PASS
+Isolated wheel and sdist build:    PASS
+Artifact validation/trust:         NOT IMPLEMENTED
+CI build invocation:               NOT IMPLEMENTED
+Build Framework implementation:    IN PROGRESS
+```
+
+The real integration test builds through the production adapter in a temporary
+project containing the current `pyproject.toml`, `README.md`, `LICENSE`, and
+`src/familyos_cli` tree. It produces one wheel and one source distribution and
+asserts that checkout `src/familyos_cli.egg-info` remains byte-identical.
+
+Direct package construction against the checkout is known to let setuptools
+rewrite tracked `src/familyos_cli.egg-info/*`. That pre-existing repository
+hygiene limitation is deferred to a separate slice; the directory is not a
+canonical package output, and this slice does not claim source-tree
+immutability.
+
+This evidence does not claim Artifact Discovery completion, canonical artifact
+identity, validation, integrity, Build ID, Build Evidence, release handoff, or
+publication. CI build invocation also remains unimplemented.

@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from familyos_cli.application.build import RunPackageBuildUseCase
 from familyos_cli.application.generation.application_recipe_registry_factory import (
     ApplicationRecipeRegistryFactory,
 )
@@ -80,6 +81,7 @@ from familyos_cli.domain.generation.generation_preset_resolver import (
 from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
 )
+from familyos_cli.infrastructure.build import PythonPackageBuilder
 from familyos_cli.infrastructure.generation.generation_engine import (
     GenerationEngine,
 )
@@ -265,6 +267,14 @@ class ApplicationContainer:
                     plugins_root=self._builtin_plugins_root,
                 ),
             ),
+        )
+
+    def run_package_build_use_case(self) -> RunPackageBuildUseCase:
+        """Create the provider-neutral canonical package-build use case."""
+
+        return RunPackageBuildUseCase(
+            builder=PythonPackageBuilder(),
+            project_root=Path(__file__).resolve().parents[3],
         )
 
     def plugin_verifier(
