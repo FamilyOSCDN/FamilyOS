@@ -1703,3 +1703,90 @@ Identity, Build ID, Artifact Integrity, digest, Build Evidence, provenance,
 trust, signing, release readiness, publication, promotion, or deployment
 semantics are established. Framework version `1.0.0` and immutable historical
 tag `v4.7.0-build-framework` remain unchanged.
+
+## Python Source Distribution Rebuildability — 2026-08-14
+
+### Canonical construction contract
+
+FamilyOS production infrastructure directly invokes the pypa/build frontend as:
+
+```text
+python -m build --outdir <output>
+```
+
+No `--wheel` or `--sdist` distribution flag is supplied. The documented
+pypa/build default first emits the source distribution, extracts that exact
+archive into temporary state, and builds the wheel from it using a separate
+isolated backend environment. FamilyOS does not reimplement this two-step
+frontend behavior and does not rebuild a discovered source distribution again.
+
+Because repository build infrastructure directly invokes `python -m build`,
+`build>=1.5` is now an explicit `[project.optional-dependencies].dev`
+declaration. Canonical dependency compilation retained the existing resolved
+`build==1.5.0` version and updated only its direct-authority annotation and
+dependency-input digest.
+
+### Load-bearing negative control
+
+The real integration negative control creates two isolated temporary copies of
+the FamilyOS package. Both add a test-only `setup.py` construction guard that
+requires `src/familyos_cli/__init__.py`, while `MANIFEST.in` excludes that file
+from the source distribution. Explicit direct wheel construction from checkout
+succeeds and the wheel contains the guarded file. Production
+`PythonPackageBuilder` then emits the source distribution but fails non-zero
+during pypa/build's wheel-from-sdist step because the guarded file is absent.
+No wheel is emitted. This behavior proves that canonical execution depends on
+the generated source distribution and does not silently substitute checkout
+source.
+
+The omitted module also remains a static `INVALID` finding when that emitted
+negative-control archive is passed to the production static validator. The
+functional regression does not weaken or bypass the existing package-content
+contract.
+
+### Positive and validation evidence
+
+The real canonical FamilyOS build produced and discovered exactly one source
+distribution and exactly one wheel. Both passed existing static package
+validation. The behavioral negative control protects the fact that this wheel
+is produced through the source-distribution path. The existing opt-in command
+also installed and smoke-tested the derived wheel successfully.
+
+Executed local evidence:
+
+```text
+Changed-file Ruff:                                      PASS — 2 Python files
+Changed-file MyPy:                                      PASS — 2 Python files
+Dependency lock compilation:                            PASS
+Dependency freshness/consistency:                       PASS
+Load-bearing sdist negative control:                    PASS — 1 test
+Targeted functional/relevant package-build suite:       PASS — 106 tests
+Full Pytest:                                            PASS — 1561 tests
+Canonical repository validation:                       PASS — all six gates
+Real `familyos build --output-dir dist`:                PASS — static `VALID`
+Real build with `--functional-validation`:              PASS — functional `VALID`
+```
+
+The targeted count is produced by this exact command:
+
+```bash
+python -m pytest -q \
+  tests/unit/application/build/test_package_functional_validation.py \
+  tests/unit/infrastructure/build/test_python_wheel_functional_validator.py \
+  tests/unit/application/build/test_run_package_build.py \
+  tests/unit/application/build/test_discover_package_artifacts.py \
+  tests/unit/application/build/test_validate_python_package_artifacts.py \
+  tests/unit/infrastructure/build/test_python_package_builder.py \
+  tests/integration/build/test_python_package_build.py \
+  tests/e2e/test_cli_package_build.py
+```
+
+This closes the final Level 16 item with source-distribution rebuildability
+semantics. It does not prove byte-for-byte reproducibility. pypa/build may still
+resolve isolated backend dependencies through available caches or the network;
+controlling that resolution more strongly remains separate toolchain-
+determinism work. No remote execution claim, CI workflow change, Artifact
+Identity, Build ID, Artifact Integrity, digest, Build Evidence, provenance,
+trust, signing, release readiness, publication, promotion, or deployment
+semantics are introduced. Framework version `1.0.0` and immutable historical
+tag `v4.7.0-build-framework` remain unchanged.

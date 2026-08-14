@@ -49,7 +49,7 @@ Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
 Latest Reconciliation:   Remote Structural-Validation Evidence
-Latest Technical Slice:  Python Package Functional Validation
+Latest Technical Slice:  Python Source Distribution Rebuildability
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
@@ -319,6 +319,35 @@ functional `INVALID` findings and make an opted-in build fail. Real integration
 evidence includes both a successful FamilyOS wheel and a structurally valid
 negative-control wheel whose broken console entry point fails the CLI stage.
 Source-distribution functional build/install validation remains open. No CI,
+Artifact Identity, Build ID, Artifact Integrity, digest, Build Evidence,
+provenance, trust, signing, release, publication, promotion, or deployment
+capability is introduced. Framework version `1.0.0` and historical tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Python Source Distribution Rebuildability — 2026-08-14
+
+The canonical production adapter continues to invoke pypa/build without
+explicit distribution flags. That frontend behavior intentionally creates the
+source distribution first and builds the wheel from that exact emitted archive;
+no second rebuild, application stage, port, or CLI option is introduced.
+Because repository build infrastructure invokes this behavior through
+`python -m build`, `build>=1.5` is now explicit development dependency
+authority rather than a transitive pip-tools dependency. The canonical compiler
+regenerated `requirements.txt` without changing its resolved `build==1.5.0`
+version.
+
+A load-bearing integration negative control uses an isolated copied project,
+`MANIFEST.in`, and a test-only construction guard. Direct checkout wheel
+construction succeeds, while canonical execution emits the sdist and fails
+when the guarded source file is absent during the wheel-from-sdist step. This
+proves the frontend does not silently substitute checkout source. The real
+canonical build still produces one source distribution and its derived wheel;
+both pass static validation, and the existing opt-in wheel installation/import/
+CLI validation succeeds for the derived wheel.
+
+This closes the final Level 16 item with rebuildability semantics only. It does
+not claim byte-for-byte reproducibility. Isolated backend dependency resolution
+and network availability remain separate toolchain-determinism concerns. No CI,
 Artifact Identity, Build ID, Artifact Integrity, digest, Build Evidence,
 provenance, trust, signing, release, publication, promotion, or deployment
 capability is introduced. Framework version `1.0.0` and historical tag

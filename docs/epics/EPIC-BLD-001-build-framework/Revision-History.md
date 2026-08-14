@@ -1395,6 +1395,33 @@ Evidence, provenance, trust, signing, release, publication, promotion, or
 deployment semantics are introduced. Framework version `1.0.0` and immutable
 historical publication tag `v4.7.0-build-framework` remain unchanged.
 
+## Python Source Distribution Rebuildability — 2026-08-14
+
+This incremental technical revision makes the established canonical package-
+construction route explicit. Production continues to invoke pypa/build without
+distribution flags, causing the frontend to emit the source distribution and
+then build the wheel from that exact archive in isolated temporary build state.
+`build>=1.5` is now direct development dependency authority because FamilyOS
+repository build infrastructure invokes it; canonical dependency compilation
+keeps the resolved `build==1.5.0` lock version unchanged.
+
+A behavioral integration negative control copies the project into temporary
+authority, uses `MANIFEST.in` to omit `src/familyos_cli/__init__.py`, and adds a
+test-only construction guard requiring that file. Direct wheel construction
+from checkout succeeds. Canonical construction emits the source distribution
+and then fails during the wheel-from-sdist step, proving that checkout source is
+not substituted. The real positive path continues to discover and statically
+validate one source distribution and its derived wheel; opt-in installed-wheel
+functional validation also remains successful.
+
+This revision closes the final Level 16 requirement with source-distribution
+rebuildability semantics. It does not establish byte-for-byte reproducibility,
+and isolated backend dependency/network determinism remains separate work. No
+CI workflow, Artifact Identity, Build ID, Artifact Integrity, digest, Build
+Evidence, provenance, trust, signing, release, publication, promotion, or
+deployment semantics are introduced. Framework version `1.0.0` and immutable
+historical publication tag `v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

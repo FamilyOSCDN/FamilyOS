@@ -29,6 +29,8 @@ class PythonPackageBuilder(PackageBuilderPort):
         """Build wheel and sdist into the supplied directory."""
 
         previous_outputs = self._snapshot_outputs(output_dir)
+        # No distribution flags: pypa/build intentionally builds the wheel
+        # from the sdist produced by this invocation.
         command = (
             self.python_executable,
             "-m",

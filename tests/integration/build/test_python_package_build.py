@@ -26,6 +26,19 @@ from familyos_cli.infrastructure.build import (
 )
 
 
+def _copy_familyos_project(repository_root: Path, project_root: Path) -> Path:
+    package_root = project_root / "src" / "familyos_cli"
+    package_root.parent.mkdir(parents=True)
+    for filename in ("pyproject.toml", "README.md", "LICENSE", "requirements.txt"):
+        shutil.copy2(repository_root / filename, project_root)
+    shutil.copytree(
+        repository_root / "src" / "familyos_cli",
+        package_root,
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
+    )
+    return package_root
+
+
 def _tracked_snapshot(repository_root: Path) -> dict[str, bytes | None]:
     completed = subprocess.run(
         ("git", "ls-files", "-z"),
@@ -82,17 +95,7 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     tracked_before = _tracked_snapshot(repository_root)
 
     project_root = tmp_path / "familyos-project"
-    package_root = project_root / "src" / "familyos_cli"
-    package_root.parent.mkdir(parents=True)
-    shutil.copy2(repository_root / "pyproject.toml", project_root)
-    shutil.copy2(repository_root / "README.md", project_root)
-    shutil.copy2(repository_root / "LICENSE", project_root)
-    shutil.copy2(repository_root / "requirements.txt", project_root)
-    shutil.copytree(
-        repository_root / "src" / "familyos_cli",
-        package_root,
-        ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
-    )
+    package_root = _copy_familyos_project(repository_root, project_root)
     assert not (project_root / ".git").exists()
     assert not (project_root / "src" / "familyos_cli.egg-info").exists()
 
@@ -214,3 +217,75 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
         text=True,
     )
     assert ignored_egg_info.returncode == 0
+
+
+def test_canonical_build_depends_on_the_generated_sdist(tmp_path: Path) -> None:
+    repository_root = Path(__file__).resolve().parents[3]
+    direct_project = tmp_path / "direct-wheel-project"
+    canonical_project = tmp_path / "canonical-project"
+    for project_root in (direct_project, canonical_project):
+        _copy_familyos_project(repository_root, project_root)
+        (project_root / "MANIFEST.in").write_text(
+            "exclude src/familyos_cli/__init__.py\n",
+            encoding="utf-8",
+        )
+        (project_root / "setup.py").write_text(
+            "from pathlib import Path\n"
+            "from setuptools import setup\n"
+            "if not Path('src/familyos_cli/__init__.py').is_file():\n"
+            "    raise RuntimeError('sdist package marker is unavailable')\n"
+            "setup()\n",
+            encoding="utf-8",
+        )
+
+    direct_output = tmp_path / "direct-wheel-output"
+    direct_build = subprocess.run(
+        (
+            sys.executable,
+            "-m",
+            "build",
+            "--wheel",
+            "--outdir",
+            str(direct_output),
+        ),
+        cwd=direct_project,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    assert direct_build.returncode == 0, direct_build.stderr
+    direct_wheel = direct_output / "familyos_cli-0.1.0-py3-none-any.whl"
+    assert direct_wheel.is_file()
+    with zipfile.ZipFile(direct_wheel) as direct_wheel_archive:
+        assert "familyos_cli/__init__.py" in direct_wheel_archive.namelist()
+
+    canonical_output = tmp_path / "canonical-output"
+    canonical_result = PythonPackageBuilder(sys.executable).build(
+        project_root=canonical_project,
+        output_dir=canonical_output,
+    )
+
+    assert canonical_result.status is PackageBuildStatus.FAILED
+    assert canonical_result.exit_code is not None
+    assert canonical_result.exit_code != 0
+    assert canonical_result.diagnostic is not None
+    assert "sdist package marker is unavailable" in canonical_result.diagnostic
+    assert not (canonical_output / direct_wheel.name).exists()
+
+    sdist = canonical_output / "familyos_cli-0.1.0.tar.gz"
+    assert sdist.is_file()
+    with tarfile.open(sdist, mode="r:gz") as sdist_archive:
+        member_names = set(sdist_archive.getnames())
+    assert not any(
+        name.endswith("/src/familyos_cli/__init__.py") for name in member_names
+    )
+
+    static_result = ValidatePythonPackageArtifactsUseCase(canonical_project).execute(
+        (DiscoveredArtifact(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+    assert static_result.status is PackageStructuralValidationStatus.INVALID
+    assert static_result.diagnostic is not None
+    assert "missing expected Python module 'familyos_cli/__init__.py'" in (
+        static_result.diagnostic
+    )

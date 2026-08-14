@@ -642,7 +642,7 @@ Validate current FamilyOS Python artifacts directly.
 * [x] Install wheel in a clean environment.
 * [x] Perform basic import smoke test.
 * [x] Perform CLI smoke test where appropriate.
-* [ ] Validate source distribution can build or install correctly if required.
+* [x] Validate source distribution can build or install correctly if required.
 
 Implementation evidence: the canonical `familyos build` application flow now
 passes the exact successful Artifact Discovery candidates to an application-owned
@@ -684,11 +684,23 @@ deterministic `INVALID` results and fail the aggregate opt-in build. A real
 FamilyOS wheel passes; a structurally valid wheel with a broken console entry
 point is rejected as the integration negative control.
 
-Level 16 remains partial only because functional source-distribution
-build/install validation remains open. Static `VALID` and opt-in wheel
-functional `VALID` retain their narrow implemented meanings; neither
-establishes Artifact Identity, Artifact Integrity, trust, provenance, Build
-Evidence, or release readiness.
+Source-distribution rebuildability evidence: production infrastructure invokes
+the explicitly declared pypa/build frontend with no distribution flags. Its
+documented default first emits the source distribution, extracts that exact
+archive into temporary state, and builds the wheel from it in a separate
+isolated backend environment. A load-bearing integration negative control proves
+that a direct wheel can build from checkout while canonical execution fails when
+`MANIFEST.in` omits a source file required by a test-only construction guard;
+checkout source is therefore not silently substituted for the generated source
+distribution. The real canonical build produces exactly one source distribution
+and its derived wheel, both of which pass static validation, and the existing
+opt-in functional path installs and smokes that derived wheel.
+
+Level 16 is complete. Its source-distribution closure means rebuildability, not
+byte-for-byte reproducibility. Static `VALID` and opt-in wheel functional
+`VALID` retain their narrow implemented meanings; none establishes Artifact
+Identity, Artifact Integrity, trust, provenance, Build Evidence, or release
+readiness.
 
 ---
 

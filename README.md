@@ -120,10 +120,12 @@ interface:
 familyos build
 ```
 
-The command delegates packaging to the standard Python build frontend and the
-backend declared by `pyproject.toml`. Its default operational output directory
-is `dist/`. A different explicit directory may be supplied when isolation is
-needed:
+The command delegates packaging to the pypa/build frontend declared in the
+repository's development dependency extra and the backend declared by
+`pyproject.toml`. With no distribution flags, pypa/build first emits the source
+distribution and then builds the wheel from that exact archive. Its default
+operational output directory is `dist/`. A different explicit directory may be
+supplied when isolation is needed:
 
 ```bash
 familyos build --output-dir /tmp/familyos-package-build
@@ -174,19 +176,21 @@ candidate artifact
 ```
 
 Static `VALID` means only that a discovered candidate satisfies the implemented
-archive, metadata, and content contract. Functional `VALID`, when explicitly
-requested, additionally means that the wheel installed and its canonical import
-and console entry point executed in the clean temporary environment. It does
-not functionally validate the source distribution, verify `RECORD` hashes,
-establish provenance, or authorize release use.
+archive, metadata, and content contract. Successful canonical execution also
+proves that pypa/build rebuilt the wheel from the emitted source distribution.
+Functional `VALID`, when explicitly requested, additionally means that this
+derived wheel installed and its canonical import and console entry point
+executed in the clean temporary environment. These results do not prove byte-
+for-byte reproducibility, verify `RECORD` hashes, establish provenance, or
+authorize release use.
 
 A packaging, execution, discovery, static-validation, or requested functional-
 validation failure returns a non-zero status and a concise diagnostic.
 Diagnostics identify the candidate and failed contract or functional stage.
 The command never publishes its outputs.
 Temporary and intermediate output classification, Build ID association,
-Artifact Identity, Artifact Integrity, source-distribution functional
-validation, Build Evidence, and release handoff remain future work.
+Artifact Identity, Artifact Integrity, Build Evidence, and release handoff
+remain future work.
 
 ## CI package build
 
@@ -213,8 +217,8 @@ Structural validation itself was remotely verified by successful run
 source distribution. Candidates remain untrusted and non-integrity-verified;
 remote transport alone does not establish Artifact Integrity or release
 readiness. That historical run does not prove the newer clean-environment wheel
-installation/import/CLI capability; source-distribution build/install
-validation also remains future work.
+installation/import/CLI capability and is not used as the local source-
+distribution rebuildability regression evidence.
 
 To reproduce the full CI path locally:
 
@@ -304,13 +308,14 @@ future build outputs.
 FamilyOS exposes canonical package-build execution, explicit candidate
 discovery, and application-owned static Python package validation covering
 archive structure, emitted runtime/dependency metadata, and package-content
-inventory. The same build use case can explicitly add clean-environment wheel
-installation, installed import-path validation, and installed CLI smoke. It does
-not yet functionally validate the source distribution or expose Artifact
-Identity, Artifact Integrity, Build Evidence, release handoff, or a canonical
-build-output cleanup command. Those capabilities remain future EPIC-BLD-001
-implementation work. Do not infer integrity, trust, provenance, or release
-semantics from a successful build command.
+inventory. Canonical pypa/build execution builds the wheel from the emitted
+source distribution, establishing source-distribution rebuildability. The same
+build use case can explicitly add clean-environment wheel installation,
+installed import-path validation, and installed CLI smoke. It does not expose
+Artifact Identity, Artifact Integrity, Build Evidence, release handoff, or a
+canonical build-output cleanup command. Those capabilities remain future
+EPIC-BLD-001 implementation work. Do not infer byte reproducibility, integrity,
+trust, provenance, or release semantics from a successful build command.
 
 The normative Build Framework is under
 `docs/epics/EPIC-BLD-001-build-framework/`. Repository engineering standards
