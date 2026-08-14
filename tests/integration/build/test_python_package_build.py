@@ -9,6 +9,8 @@ import tarfile
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from familyos_cli.application.build import (
     ArtifactClass,
     DiscoveredArtifact,
@@ -25,6 +27,8 @@ from familyos_cli.infrastructure.build import (
     PythonWheelFunctionalValidator,
 )
 
+_CONSTRAINED_BACKEND_PACKAGING_VERSION = "24.2"
+
 
 def _copy_familyos_project(repository_root: Path, project_root: Path) -> Path:
     package_root = project_root / "src" / "familyos_cli"
@@ -37,6 +41,63 @@ def _copy_familyos_project(repository_root: Path, project_root: Path) -> Path:
         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
     )
     return package_root
+
+
+def _configure_backend_version_probe(project_root: Path) -> None:
+    pyproject_path = project_root / "pyproject.toml"
+    pyproject_content = pyproject_path.read_text(encoding="utf-8")
+    build_requirements = 'requires = [\n    "setuptools>=75",'
+    assert build_requirements in pyproject_content
+    pyproject_path.write_text(
+        pyproject_content.replace(
+            build_requirements,
+            'requires = [\n    "packaging>=24",\n    "setuptools>=75",',
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    requirements_path = project_root / "requirements.txt"
+    requirements_content = requirements_path.read_text(encoding="utf-8")
+    packaging_pins = tuple(
+        line
+        for line in requirements_content.splitlines()
+        if line.startswith("packaging==")
+    )
+    assert len(packaging_pins) == 1
+    requirements_path.write_text(
+        requirements_content.replace(
+            f"{packaging_pins[0]}\n",
+            f"packaging=={_CONSTRAINED_BACKEND_PACKAGING_VERSION}\n",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    (project_root / "setup.py").write_text(
+        "from importlib.metadata import version\n"
+        "from pathlib import Path\n"
+        "from setuptools import setup\n"
+        "Path('src/familyos_cli/py.typed').write_text(\n"
+        "    version('packaging'), encoding='utf-8'\n"
+        ")\n"
+        "setup()\n",
+        encoding="utf-8",
+    )
+
+
+def _backend_version_markers(output_dir: Path) -> tuple[str, str]:
+    sdist_path = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel_path = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    with tarfile.open(sdist_path, mode="r:gz") as sdist_archive:
+        marker = sdist_archive.extractfile(
+            "familyos_cli-0.1.0/src/familyos_cli/py.typed"
+        )
+        assert marker is not None
+        sdist_version = marker.read().decode()
+    with zipfile.ZipFile(wheel_path) as wheel_archive:
+        wheel_version = wheel_archive.read("familyos_cli/py.typed").decode()
+    return sdist_version, wheel_version
 
 
 def _tracked_snapshot(repository_root: Path) -> dict[str, bytes | None]:
@@ -90,7 +151,10 @@ def _write_broken_console_entry_point_wheel(source: Path, destination: Path) -> 
                 destination_archive.writestr(member, content)
 
 
-def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> None:
+def test_real_familyos_package_build_isolated_from_checkout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     repository_root = Path(__file__).resolve().parents[3]
     tracked_before = _tracked_snapshot(repository_root)
 
@@ -98,6 +162,9 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     package_root = _copy_familyos_project(repository_root, project_root)
     assert not (project_root / ".git").exists()
     assert not (project_root / "src" / "familyos_cli.egg-info").exists()
+    caller_cwd = tmp_path / "external-caller"
+    caller_cwd.mkdir()
+    monkeypatch.chdir(caller_cwd)
 
     output_dir = tmp_path / "package-output"
     functional_validator = PythonWheelFunctionalValidator(
@@ -289,3 +356,49 @@ def test_canonical_build_depends_on_the_generated_sdist(tmp_path: Path) -> None:
     assert "missing expected Python module 'familyos_cli/__init__.py'" in (
         static_result.diagnostic
     )
+
+
+def test_backend_dependency_constraints_apply_to_both_isolated_builds(
+    tmp_path: Path,
+) -> None:
+    repository_root = Path(__file__).resolve().parents[3]
+    unconstrained_project = tmp_path / "unconstrained-project"
+    constrained_project = tmp_path / "constrained-project"
+    for project_root in (unconstrained_project, constrained_project):
+        _copy_familyos_project(repository_root, project_root)
+        _configure_backend_version_probe(project_root)
+
+    unconstrained_output = tmp_path / "unconstrained-output"
+    unconstrained_build = subprocess.run(
+        (
+            sys.executable,
+            "-m",
+            "build",
+            "--outdir",
+            str(unconstrained_output),
+        ),
+        cwd=unconstrained_project,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    assert unconstrained_build.returncode == 0, unconstrained_build.stderr
+    unconstrained_sdist, unconstrained_wheel = _backend_version_markers(
+        unconstrained_output
+    )
+    assert unconstrained_sdist != _CONSTRAINED_BACKEND_PACKAGING_VERSION
+    assert unconstrained_wheel != _CONSTRAINED_BACKEND_PACKAGING_VERSION
+
+    constrained_output = tmp_path / "constrained-output"
+    constrained_result = PythonPackageBuilder(sys.executable).build(
+        project_root=constrained_project,
+        output_dir=constrained_output,
+    )
+    assert constrained_result.status is PackageBuildStatus.SUCCEEDED, (
+        constrained_result.diagnostic
+    )
+    constrained_sdist, constrained_wheel = _backend_version_markers(
+        constrained_output
+    )
+    assert constrained_sdist == _CONSTRAINED_BACKEND_PACKAGING_VERSION
+    assert constrained_wheel == _CONSTRAINED_BACKEND_PACKAGING_VERSION

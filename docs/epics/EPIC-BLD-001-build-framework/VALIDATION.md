@@ -1790,3 +1790,85 @@ Identity, Build ID, Artifact Integrity, digest, Build Evidence, provenance,
 trust, signing, release readiness, publication, promotion, or deployment
 semantics are introduced. Framework version `1.0.0` and immutable historical
 tag `v4.7.0-build-framework` remain unchanged.
+
+## Isolated Build-Backend Dependency Version Determinism — 2026-08-14
+
+### Canonical constraint contract
+
+The canonical production command is now equivalent to:
+
+```text
+python -m build \
+  --dependency-constraints-txt <absolute-project-root>/requirements.txt \
+  --outdir <output>
+```
+
+The constraint path is resolved from the authoritative project root before the
+subprocess is launched and is independent of the caller's current working
+directory. No `--wheel`, `--sdist`, or `--no-isolation` option is supplied.
+pypa/build therefore continues to create the source distribution in one
+isolated environment and the wheel from that exact emitted archive in a second
+isolated environment.
+
+`requirements.txt` is used only with pip constraint semantics. It restricts
+versions for dependencies actually requested by the backend; it neither
+requests installation of every locked package nor rejects a backend dependency
+solely because that package is absent from the file. Network access or a usable
+cache may still be required.
+
+### Two-environment falsification evidence
+
+The load-bearing integration regression creates isolated temporary project
+copies and adds `packaging>=24` as a test-only build-system requirement. A
+test-only setuptools probe writes the installed `packaging` version into the
+existing `familyos_cli/py.typed` resource during backend execution. The copied
+constraint authority deliberately pins `packaging==24.2`.
+
+An unconstrained control builds successfully but records a resolver-selected
+version other than `24.2` in both artifacts. The production builder records
+`24.2` in the emitted sdist resource and again in the derived wheel resource.
+Reading the artifacts directly proves that both isolated backend executions
+honored the constraint without depending on human-readable pypa/build logs.
+The existing construction-asymmetry regression separately continues to prove
+that checkout source is not substituted for the emitted sdist.
+
+### Executed evidence
+
+```text
+Changed-file Ruff:                                      PASS — 3 Python files
+Changed-file MyPy:                                      PASS — 3 Python files
+Behavioral two-environment constraint regression:      PASS — 1 test
+Build-through-sdist fallback regression:               PASS — 1 test
+Targeted functional/relevant package-build suite:      PASS — 108 tests
+Full Pytest:                                            PASS — 1561 tests
+Dependency freshness/consistency:                       PASS
+Canonical repository validation:                       PASS — all six gates
+Real `familyos build --output-dir dist`:                PASS — static `VALID`
+Real build with `--functional-validation`:              PASS — functional `VALID`
+```
+
+The targeted count is produced by this exact command:
+
+```bash
+python -m pytest -q \
+  tests/unit/application/build/test_package_functional_validation.py \
+  tests/unit/infrastructure/build/test_python_wheel_functional_validator.py \
+  tests/unit/application/build/test_run_package_build.py \
+  tests/unit/application/build/test_discover_package_artifacts.py \
+  tests/unit/application/build/test_validate_python_package_artifacts.py \
+  tests/unit/infrastructure/build/test_python_package_builder.py \
+  tests/integration/build/test_python_package_build.py \
+  tests/e2e/test_cli_package_build.py
+```
+
+This establishes version constraint enforcement for the current known isolated
+backend dependency closure represented by `requirements.txt`. It does not
+establish an allowlist, offline capability, network independence, full critical
+toolchain identity, repeated-build equality, or byte-for-byte reproducibility.
+Level 11 `Ensure CI installs from canonical definitions` and Level 40
+`Establish critical toolchain version identity` remain open. Level 16 remains
+complete. No remote execution claim, CI workflow change, Artifact Identity,
+Build ID, Artifact Integrity, digest, Build Manifest, Build Evidence,
+provenance, trust, signing, release readiness, publication, promotion, or
+deployment semantics are introduced. Framework version `1.0.0` and immutable
+historical tag `v4.7.0-build-framework` remain unchanged.

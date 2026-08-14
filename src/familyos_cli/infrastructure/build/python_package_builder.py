@@ -29,12 +29,15 @@ class PythonPackageBuilder(PackageBuilderPort):
         """Build wheel and sdist into the supplied directory."""
 
         previous_outputs = self._snapshot_outputs(output_dir)
+        dependency_constraints = (project_root / "requirements.txt").resolve()
         # No distribution flags: pypa/build intentionally builds the wheel
         # from the sdist produced by this invocation.
         command = (
             self.python_executable,
             "-m",
             "build",
+            "--dependency-constraints-txt",
+            str(dependency_constraints),
             "--outdir",
             str(output_dir),
         )

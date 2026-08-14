@@ -55,6 +55,8 @@ def test_success_invokes_standard_frontend_and_reports_package_outputs(
                 "/controlled/python",
                 "-m",
                 "build",
+                "--dependency-constraints-txt",
+                str((project_root / "requirements.txt").resolve()),
                 "--outdir",
                 str(output_dir),
             ),
@@ -66,6 +68,46 @@ def test_success_invokes_standard_frontend_and_reports_package_outputs(
     assert "publish" not in calls[0][0]
     assert "upload" not in calls[0][0]
     assert "twine" not in calls[0][0]
+    assert "--wheel" not in calls[0][0]
+    assert "--sdist" not in calls[0][0]
+
+
+def test_constraints_path_is_absolute_and_independent_of_caller_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project_root = tmp_path / "project"
+    project_root.mkdir()
+    caller_cwd = tmp_path / "caller"
+    caller_cwd.mkdir()
+    monkeypatch.chdir(caller_cwd)
+    calls: list[tuple[tuple[str, ...], Path]] = []
+
+    def succeed(
+        command: tuple[str, ...],
+        *,
+        cwd: Path,
+        **kwargs: object,
+    ) -> subprocess.CompletedProcess[str]:
+        calls.append((command, cwd))
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", succeed)
+
+    result = PythonPackageBuilder("/controlled/python").build(
+        project_root=project_root,
+        output_dir=tmp_path / "packages",
+    )
+
+    assert result.status is PackageBuildStatus.SUCCEEDED
+    assert len(calls) == 1
+    command, subprocess_cwd = calls[0]
+    constraint_index = command.index("--dependency-constraints-txt") + 1
+    constraint_path = Path(command[constraint_index])
+    assert constraint_path == (project_root / "requirements.txt").resolve()
+    assert constraint_path.is_absolute()
+    assert constraint_path.parent != caller_cwd
+    assert subprocess_cwd == project_root
 
 
 def test_success_does_not_report_unchanged_stale_package_outputs(

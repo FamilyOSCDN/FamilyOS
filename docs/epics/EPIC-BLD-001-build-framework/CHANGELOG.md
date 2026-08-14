@@ -49,7 +49,7 @@ Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
 Latest Reconciliation:   Remote Structural-Validation Evidence
-Latest Technical Slice:  Python Source Distribution Rebuildability
+Latest Technical Slice:  Isolated Build-Backend Dependency Version Determinism
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
@@ -352,6 +352,36 @@ Artifact Identity, Build ID, Artifact Integrity, digest, Build Evidence,
 provenance, trust, signing, release, publication, promotion, or deployment
 capability is introduced. Framework version `1.0.0` and historical tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Isolated Build-Backend Dependency Version Determinism — 2026-08-14
+
+The production package adapter now supplies pypa/build with the absolute
+repository `requirements.txt` path through
+`--dependency-constraints-txt`. pypa/build applies those constraints while
+installing requested dependencies into both the isolated sdist environment and
+the separate isolated environment used to build the wheel from that emitted
+sdist. No distribution flag or no-isolation option is added, so the existing
+build-through-sdist behavior and isolation boundary remain unchanged.
+
+An artifact-based integration regression uses temporary project copies and a
+test-only backend probe that records its installed `packaging` version in an
+existing package resource. An unconstrained control resolves outside the
+fixture pin, while the production path records the deliberately constrained
+version in both the emitted sdist and its derived wheel. The regression depends
+on package artifacts rather than frontend log formatting and fails if either
+isolated environment ignores the constraint authority.
+
+Constraints restrict versions only for dependencies actually requested by the
+backend; they do not install all locked packages and are not an allowlist.
+Dependencies absent from the file retain normal resolver semantics, and network
+or cache availability may still be required. This slice closes no checklist
+item: Level 11 CI installation governance and Level 40 critical toolchain
+version identity remain open, while Level 16 remains complete. It establishes
+neither offline capability nor byte-for-byte reproducibility and introduces no
+Artifact Identity, Build ID, Artifact Integrity, Build Manifest, Build Evidence,
+provenance, signing, release, publication, promotion, or deployment semantics.
+Framework version `1.0.0` and historical tag `v4.7.0-build-framework` remain
+unchanged.
 
 ---
 

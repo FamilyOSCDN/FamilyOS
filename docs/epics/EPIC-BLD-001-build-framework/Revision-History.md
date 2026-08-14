@@ -1422,6 +1422,34 @@ Evidence, provenance, trust, signing, release, publication, promotion, or
 deployment semantics are introduced. Framework version `1.0.0` and immutable
 historical publication tag `v4.7.0-build-framework` remain unchanged.
 
+## Isolated Build-Backend Dependency Version Determinism — 2026-08-14
+
+This incremental revision constrains the versions of dependencies requested by
+pypa/build's isolated PEP 517 environments. `PythonPackageBuilder` resolves the
+committed `requirements.txt` under its authoritative project root and forwards
+that absolute path with `--dependency-constraints-txt`. The frontend still runs
+with isolation enabled, emits the sdist first, and builds the wheel from that
+exact archive without an additional build stage or distribution flag.
+
+Behavioral integration evidence records a deliberately constrained backend
+dependency version inside both temporary artifacts. The sdist therefore proves
+the first isolated environment consumed the constraint, and the derived wheel
+proves the second isolated environment consumed it. An unconstrained control
+records a different resolver-selected version, preventing the test from
+passing if pypa/build ignores the production constraint argument. Existing
+checkout-versus-sdist fallback evidence remains successful.
+
+The complete lock is not installed into either environment: pip constraints
+affect only dependencies that are requested. The lock is not an allowlist, and
+dependencies absent from it may resolve normally. Network/cache dependence,
+offline capability, toolchain identity, and byte-for-byte reproducibility
+remain outside this revision. Level 11 and Level 40 remain open; Level 16 stays
+complete. No CI workflow, Artifact Identity, Build ID, Artifact Integrity,
+Build Manifest, Build Evidence, provenance, signing, release, publication,
+promotion, or deployment semantics are introduced. Framework version `1.0.0`
+and immutable historical publication tag `v4.7.0-build-framework` remain
+unchanged.
+
 ---
 
 # Current Revision State

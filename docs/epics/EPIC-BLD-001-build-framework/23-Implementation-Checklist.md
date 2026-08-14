@@ -453,6 +453,16 @@ Make dependency state sufficiently explicit and reproducible.
 
 Implementation evidence: commit `113148e` establishes and validates the Python 3.13 development/CI dependency version-resolution baseline. This does not complete CI integration or the broader Build Framework implementation.
 
+Incremental isolated-backend evidence: canonical pypa/build execution now
+receives the absolute committed `requirements.txt` path as dependency
+constraints for both its isolated sdist environment and its separate isolated
+wheel-from-sdist environment. Constraints restrict versions only for packages
+the backend requests; they do not install the complete lock or reject an
+otherwise resolvable dependency merely because it is absent. Build isolation
+and network/cache dependence remain. This evidence does not close `Ensure CI
+installs from canonical definitions`, and it does not establish the broader
+critical toolchain version identity required by Level 40.
+
 ---
 
 # Dependency Reproducibility Milestone

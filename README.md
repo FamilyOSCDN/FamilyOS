@@ -131,6 +131,15 @@ supplied when isolation is needed:
 familyos build --output-dir /tmp/familyos-package-build
 ```
 
+The adapter passes the absolute repository `requirements.txt` path to
+pypa/build as a dependency constraints file. The same constraints therefore
+govern versions requested in the isolated sdist environment and the separate
+isolated wheel-from-sdist environment. Constraints restrict requested package
+versions; they neither install every locked package nor act as an allowlist.
+A backend dependency absent from the file may still resolve normally, and
+network access or an available cache may still be required. Build isolation and
+the build-through-sdist sequence remain enabled.
+
 Wheel functional validation is deliberately opt-in because creating a fresh
 virtual environment and installing runtime dependencies is materially heavier
 than static archive inspection:
@@ -309,13 +318,15 @@ FamilyOS exposes canonical package-build execution, explicit candidate
 discovery, and application-owned static Python package validation covering
 archive structure, emitted runtime/dependency metadata, and package-content
 inventory. Canonical pypa/build execution builds the wheel from the emitted
-source distribution, establishing source-distribution rebuildability. The same
-build use case can explicitly add clean-environment wheel installation,
-installed import-path validation, and installed CLI smoke. It does not expose
-Artifact Identity, Artifact Integrity, Build Evidence, release handoff, or a
-canonical build-output cleanup command. Those capabilities remain future
-EPIC-BLD-001 implementation work. Do not infer byte reproducibility, integrity,
-trust, provenance, or release semantics from a successful build command.
+source distribution, establishing source-distribution rebuildability. Its two
+isolated backend environments constrain requested dependency versions through
+the committed dependency state. The same build use case can explicitly add
+clean-environment wheel installation, installed import-path validation, and
+installed CLI smoke. It does not expose Artifact Identity, Artifact Integrity,
+Build Evidence, release handoff, or a canonical build-output cleanup command.
+Those capabilities remain future EPIC-BLD-001 implementation work. Do not infer
+offline capability, byte reproducibility, integrity, trust, provenance, or
+release semantics from a successful build command.
 
 The normative Build Framework is under
 `docs/epics/EPIC-BLD-001-build-framework/`. Repository engineering standards
