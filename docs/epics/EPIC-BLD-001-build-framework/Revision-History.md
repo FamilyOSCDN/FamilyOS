@@ -1155,6 +1155,33 @@ Framework version `1.0.0`, historical publication metadata, and `v4.7.0-build-fr
 
 ---
 
+# Local Developer Workflow Reconciliation — 2026-08-14
+
+This documentation-only revision makes the implemented local dependency and
+validation workflow discoverable from the repository root.
+
+The root `README.md` records the Python 3.13 prerequisite, isolated environment
+setup, controlled `requirements.txt` bootstrap, editable installation without
+dependency re-resolution or build isolation, dependency consistency and
+freshness checks, intentional dependency regeneration, canonical
+`familyos validation ci` execution, optional JSON evidence, and common failure
+remediation.
+
+The revision also records that the GitHub Actions workflow invokes the same
+provider-neutral validation command used locally. Level 26 checklist items are
+closed only where existing implementation and documentation provide direct
+evidence.
+
+Level 26 remains partial. Canonical build execution, candidate-artifact
+location, artifact-related cleanup, and proof that build execution avoids
+CI-only steps remain deferred until the corresponding Build Framework
+capabilities are implemented.
+
+No production code, tests, dependencies, scripts, workflow behavior, framework
+version, publication metadata, or historical tag changes in this revision.
+
+---
+
 # Current Revision State
 
 ```text

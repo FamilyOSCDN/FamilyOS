@@ -1159,3 +1159,50 @@ Build Framework Technical Implementation: IN PROGRESS
 ```
 
 This evidence does not establish a canonical build command, candidate artifacts, artifact validation, artifact integrity, full Build Evidence, release automation, or deployment capability.
+
+---
+
+# Local Developer Workflow Reconciliation
+
+This documentation-only slice makes the already implemented Python 3.13
+development and canonical validation workflow discoverable from the repository
+root.
+
+Repository evidence reviewed:
+
+* `pyproject.toml` requires Python 3.13 and declares the direct dependency model;
+* generated `requirements.txt` provides the controlled development/CI state;
+* `scripts/check_dependency_lock.py` provides read-only freshness validation;
+* `scripts/compile_dependencies.py` provides intentional regeneration;
+* `familyos validation ci` provides the provider-neutral validation entry point;
+* `.github/workflows/ci.yml` installs the same controlled dependency state and
+  invokes that same canonical command;
+* existing dependency and CI validation tests establish the behavior of these
+  implementation surfaces.
+
+The root `README.md` now records:
+
+* Python 3.13 virtual-environment setup;
+* the controlled bootstrap using `requirements.txt` followed by editable
+  installation with `--no-deps --no-build-isolation`;
+* `pip check` and dependency freshness behavior;
+* intentional dependency regeneration;
+* canonical local validation and optional deterministic JSON evidence;
+* local/CI semantic alignment;
+* common bootstrap and validation failures with remediation;
+* safe cleanup of explicitly identified local environment and cache state;
+* the explicit absence of canonical build, candidate-artifact, artifact
+  validation, and build-output cleanup capabilities.
+
+Validation conclusion:
+
+```text
+Local dependency and validation workflow: DOCUMENTED
+Local/CI validation semantic alignment:   VALIDATED
+Level 26 Local Developer Workflow:        PARTIAL
+Build Framework Technical Implementation: IN PROGRESS
+```
+
+Level 26 remains partial because its build-command, artifact-location,
+artifact-related cleanup, and CI-independent build requirements cannot be
+validated before canonical build and artifact implementation exists.

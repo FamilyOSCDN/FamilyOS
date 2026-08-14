@@ -851,16 +851,28 @@ Keep canonical build behavior practical for developers.
 
 ### Checklist
 
-* [ ] Document local environment setup.
-* [ ] Document dependency installation.
+* [x] Document local environment setup.
+* [x] Document dependency installation.
 * [ ] Document canonical build command.
-* [ ] Document canonical validation command.
+* [x] Document canonical validation command.
 * [ ] Document artifact location.
 * [ ] Document cleanup.
-* [ ] Document common failures.
-* [ ] Ensure local validation approximates CI semantics.
-* [ ] Ensure developers can reproduce common CI failures locally.
+* [x] Document common failures.
+* [x] Ensure local validation approximates CI semantics.
+* [x] Ensure developers can reproduce common CI failures locally.
 * [ ] Avoid mandatory CI-only build steps.
+
+Implementation evidence: the root `README.md` documents the supported Python
+3.13 virtual environment, controlled `requirements.txt` bootstrap, read-only
+dependency freshness check, intentional dependency regeneration, canonical
+`familyos validation ci` command, deterministic JSON evidence, local/CI
+semantic alignment, and remediation for common bootstrap and validation
+failures. The provider-neutral command is the same entry point invoked by
+`.github/workflows/ci.yml`.
+
+Level 26 remains incomplete. A canonical build command, candidate-artifact
+location, artifact-related cleanup contract, and proof that build execution has
+no CI-only steps depend on future canonical build and artifact implementation.
 
 ---
 

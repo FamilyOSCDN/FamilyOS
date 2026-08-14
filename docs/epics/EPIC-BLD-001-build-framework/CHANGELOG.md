@@ -48,6 +48,7 @@ Historical Publication:  Published
 Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
+Latest Reconciliation:   Local Developer Workflow
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
@@ -118,6 +119,25 @@ Build Framework Implementation:      IN PROGRESS
 ```
 
 Build execution, candidate artifacts, artifact validation, artifact integrity, full Build Evidence, release automation, and deployment remain future work. Framework version `1.0.0` and historical tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Post-Framework Reconciliation — Local Developer Workflow
+
+The repository root now documents the implemented Python 3.13 local developer
+workflow. The guide establishes the discoverable controlled bootstrap,
+dependency freshness and regeneration commands, canonical local validation,
+optional deterministic JSON evidence, local/CI semantic equivalence, and
+common failure remediation.
+
+The reconciliation closes only the supported Level 26 documentation and
+validation-alignment checklist items. Level 26 remains partial: no canonical
+package-build command, candidate-artifact location, artifact-related cleanup
+contract, or proof of CI-independent build execution exists yet.
+
+This documentation-only slice does not modify dependency state, validation
+semantics, CI behavior, production code, tests, framework version `1.0.0`, or
+historical tag `v4.7.0-build-framework`.
 
 ---
 
