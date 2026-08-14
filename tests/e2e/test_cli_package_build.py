@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -16,8 +17,12 @@ from familyos_cli.application.build import (
     DiscoveredArtifact,
     PackageBuildResult,
     PackageBuildStatus,
+    PackageFunctionalValidationStatus,
     PackageStructuralValidationStatus,
     PythonPackageStructuralValidationResult,
+    PythonWheelFunctionalValidationResult,
+    WheelFunctionalValidationFinding,
+    WheelFunctionalValidationStage,
 )
 from familyos_cli.interfaces.cli.app import app
 from familyos_cli.interfaces.cli.commands import build as build_command
@@ -29,9 +34,16 @@ class _UseCase:
     def __init__(self, result: CanonicalPackageBuildResult) -> None:
         self.result = result
         self.output_dirs: list[Path] = []
+        self.functional_validation_requests: list[bool] = []
 
-    def execute(self, output_dir: Path) -> CanonicalPackageBuildResult:
+    def execute(
+        self,
+        output_dir: Path,
+        *,
+        validate_functionally: bool = False,
+    ) -> CanonicalPackageBuildResult:
         self.output_dirs.append(output_dir)
+        self.functional_validation_requests.append(validate_functionally)
         return self.result
 
 
@@ -118,6 +130,96 @@ def test_build_success_reports_outputs_and_returns_zero(
     assert "trusted" not in result.output.lower()
     assert "release-ready" not in result.output.lower()
     assert use_case.output_dirs == [output_dir]
+    assert use_case.functional_validation_requests == [False]
+
+
+def test_build_functional_validation_option_renders_success(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "packages"
+    aggregate = _successful_result(output_dir)
+    wheel = next(
+        candidate
+        for candidate in aggregate.candidates
+        if candidate.artifact_class is ArtifactClass.PYTHON_WHEEL
+    )
+    use_case = _install_context(
+        monkeypatch,
+        replace(
+            aggregate,
+            functional_validation=PythonWheelFunctionalValidationResult(
+                candidate=wheel,
+                status=PackageFunctionalValidationStatus.VALID,
+            ),
+        ),
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--functional-validation",
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    assert "Python Wheel Functional Validation: VALID" in result.output
+    assert use_case.functional_validation_requests == [True]
+
+
+def test_build_functional_validation_failure_returns_nonzero_and_diagnostic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "packages"
+    aggregate = _successful_result(output_dir)
+    wheel = next(
+        candidate
+        for candidate in aggregate.candidates
+        if candidate.artifact_class is ArtifactClass.PYTHON_WHEEL
+    )
+    functional_validation = PythonWheelFunctionalValidationResult(
+        candidate=wheel,
+        status=PackageFunctionalValidationStatus.INVALID,
+        findings=(
+            WheelFunctionalValidationFinding(
+                WheelFunctionalValidationStage.CLI_SMOKE,
+                "installed console entry point failed",
+            ),
+        ),
+    )
+    use_case = _install_context(
+        monkeypatch,
+        replace(
+            aggregate,
+            status=PackageBuildStatus.FAILED,
+            functional_validation=functional_validation,
+        ),
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--functional-validation",
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 1
+    assert "Canonical Package Build: FAILED" in result.output
+    assert "Python Wheel Functional Validation: INVALID" in result.output
+    assert "installed CLI smoke" in result.output
+    assert "installed console entry point failed" in result.output
+    assert use_case.functional_validation_requests == [True]
+    for term in ("trusted", "release-ready", "integrity-verified"):
+        assert term not in result.output.lower()
 
 
 def test_build_failure_returns_nonzero_and_diagnostic(
@@ -244,6 +346,7 @@ def test_build_defaults_to_conventional_dist_directory(
 
     assert result.exit_code == 0
     assert use_case.output_dirs == [Path("dist")]
+    assert use_case.functional_validation_requests == [False]
 
 
 def test_real_familyos_build_reports_valid_structural_packages(

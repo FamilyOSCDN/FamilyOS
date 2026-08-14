@@ -7,8 +7,10 @@ local development and GitHub Actions.
 
 The repository provides a canonical package-build command. A successful command
 includes static structural, metadata, and content-inventory validation of its
-discovered Python package candidates. Static validity does not establish
-artifact integrity, trust, provenance, release readiness, or publication.
+discovered Python package candidates. An explicit option additionally validates
+the wheel through clean-environment installation and installed import/CLI smoke
+checks. Neither result establishes artifact integrity, trust, provenance,
+release readiness, or publication.
 
 ## Prerequisites
 
@@ -127,6 +129,22 @@ needed:
 familyos build --output-dir /tmp/familyos-package-build
 ```
 
+Wheel functional validation is deliberately opt-in because creating a fresh
+virtual environment and installing runtime dependencies is materially heavier
+than static archive inspection:
+
+```bash
+familyos build --output-dir /tmp/familyos-package-build \
+  --functional-validation
+```
+
+The option runs only after successful Artifact Discovery and static package
+validation. It installs the exact discovered wheel into a fresh temporary venv,
+imports `familyos_cli.main` with the venv interpreter, verifies that the module
+resolved inside that venv rather than the checkout, and runs the installed
+`familyos --help` entry point. The temporary environment and its external
+working directory are removed deterministically.
+
 Root `dist/` and root `build/` are generated package-build outputs and are
 ignored by Git. They are not authoritative source and must not be committed.
 
@@ -148,23 +166,27 @@ The states remain deliberately distinct:
 
 ```text
 candidate artifact
-    != structurally valid artifact
+    != statically valid artifact
+    != functionally valid wheel
     != integrity-verified artifact
     != trusted artifact
     != release-ready artifact
 ```
 
-`VALID` means only that a discovered candidate satisfies the implemented static
-Python package validation contract. It does not verify `RECORD` hashes, install
-either package, run imports or the CLI, establish provenance, or authorize
-release use.
+Static `VALID` means only that a discovered candidate satisfies the implemented
+archive, metadata, and content contract. Functional `VALID`, when explicitly
+requested, additionally means that the wheel installed and its canonical import
+and console entry point executed in the clean temporary environment. It does
+not functionally validate the source distribution, verify `RECORD` hashes,
+establish provenance, or authorize release use.
 
-A packaging, execution, discovery, or structural-validation failure returns a
-non-zero status and a concise diagnostic. Structural diagnostics identify the
-candidate and failed contract. The command never publishes its outputs.
+A packaging, execution, discovery, static-validation, or requested functional-
+validation failure returns a non-zero status and a concise diagnostic.
+Diagnostics identify the candidate and failed contract or functional stage.
+The command never publishes its outputs.
 Temporary and intermediate output classification, Build ID association,
-Artifact Identity, Artifact Integrity, functional package validation, Build
-Evidence, and release handoff remain future work.
+Artifact Identity, Artifact Integrity, source-distribution functional
+validation, Build Evidence, and release handoff remain future work.
 
 ## CI package build
 
@@ -179,6 +201,10 @@ validation skips the candidate upload and fails the workflow. The workflow
 transport does not establish Artifact Integrity, trust, release readiness, or
 publication.
 
+CI continues to invoke the default static command and does not opt into wheel
+functional validation in this slice. Local functional capability evidence is
+therefore distinct from future remote CI execution evidence.
+
 This path was first remotely verified by successful GitHub Actions run
 `31792439104` for commit `63693e6`, before structural validation existed;
 those historical outputs remain unvalidated, untrusted package candidates.
@@ -186,9 +212,9 @@ Structural validation itself was remotely verified by successful run
 `31801029251` for commit `c49c655`, again containing exactly one wheel and one
 source distribution. Candidates remain untrusted and non-integrity-verified;
 remote transport alone does not establish Artifact Integrity or release
-readiness, and the remaining functional Level 16 checks (clean-environment
-installation, import/CLI smoke, source-distribution build/install validation)
-remain future work.
+readiness. That historical run does not prove the newer clean-environment wheel
+installation/import/CLI capability; source-distribution build/install
+validation also remains future work.
 
 To reproduce the full CI path locally:
 
@@ -198,6 +224,10 @@ python -m pip install --no-deps --no-build-isolation -e .
 familyos validation ci
 familyos build --output-dir dist
 ```
+
+To exercise the additional local wheel capability, run
+`familyos build --output-dir dist --functional-validation` separately. That
+command is not part of the current remote CI evidence.
 
 Generated `*.egg-info/` metadata is excluded from repository authority and
 configured as ignored state. Setuptools may regenerate it locally during
@@ -274,11 +304,13 @@ future build outputs.
 FamilyOS exposes canonical package-build execution, explicit candidate
 discovery, and application-owned static Python package validation covering
 archive structure, emitted runtime/dependency metadata, and package-content
-inventory. It does not yet expose functional installation/runtime validation,
-Artifact Identity, Artifact Integrity, Build Evidence, release handoff, or a
-canonical build-output cleanup command. Those capabilities remain future
-EPIC-BLD-001 implementation work. Do not infer integrity, trust, provenance, or
-release semantics from a successful build command.
+inventory. The same build use case can explicitly add clean-environment wheel
+installation, installed import-path validation, and installed CLI smoke. It does
+not yet functionally validate the source distribution or expose Artifact
+Identity, Artifact Integrity, Build Evidence, release handoff, or a canonical
+build-output cleanup command. Those capabilities remain future EPIC-BLD-001
+implementation work. Do not infer integrity, trust, provenance, or release
+semantics from a successful build command.
 
 The normative Build Framework is under
 `docs/epics/EPIC-BLD-001-build-framework/`. Repository engineering standards

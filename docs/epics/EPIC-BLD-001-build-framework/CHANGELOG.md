@@ -49,7 +49,7 @@ Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
 Latest Reconciliation:   Remote Structural-Validation Evidence
-Latest Technical Slice:  Python Package Content and Metadata Validation
+Latest Technical Slice:  Python Package Functional Validation
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
@@ -293,6 +293,35 @@ integrity, or establish Artifact Identity, Build ID, Build Evidence, trust,
 provenance, signing, release readiness, or publication. The existing CI
 workflow is unchanged; remote evidence for this increment requires a later
 committed run. Framework version `1.0.0` and historical tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Python Package Functional Validation — 2026-08-14
+
+The existing canonical build use case now supports explicit opt-in wheel
+functional validation after successful Artifact Discovery and static package
+validation. `familyos build --functional-validation` passes the exact already-
+validated discovered wheel through a minimal application port to a temporary-
+venv infrastructure adapter; ordinary `familyos build` and the CI workflow
+remain unchanged to preserve the fast static build path.
+
+The adapter creates a genuinely fresh venv without system site packages and
+installs the wheel with pip under the exact committed `requirements.txt`
+constraints. Pip follows only the wheel's runtime dependency metadata, so the
+development/build portions of the shared lock are constraints rather than an
+installation request. The smoke working directory is outside the checkout,
+`PYTHONPATH` is removed, the import uses isolated-mode venv Python, and the
+resolved `familyos_cli.main` path must belong to the temporary environment. The
+installed `familyos --help` console entry point is then executed. Temporary
+state is deterministically removed.
+
+Installation, installed import, and installed CLI failures are distinct
+functional `INVALID` findings and make an opted-in build fail. Real integration
+evidence includes both a successful FamilyOS wheel and a structurally valid
+negative-control wheel whose broken console entry point fails the CLI stage.
+Source-distribution functional build/install validation remains open. No CI,
+Artifact Identity, Build ID, Artifact Integrity, digest, Build Evidence,
+provenance, trust, signing, release, publication, promotion, or deployment
+capability is introduced. Framework version `1.0.0` and historical tag
 `v4.7.0-build-framework` remain unchanged.
 
 ---

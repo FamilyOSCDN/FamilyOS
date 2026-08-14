@@ -85,7 +85,10 @@ from familyos_cli.domain.generation.generation_preset_resolver import (
 from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
 )
-from familyos_cli.infrastructure.build import PythonPackageBuilder
+from familyos_cli.infrastructure.build import (
+    PythonPackageBuilder,
+    PythonWheelFunctionalValidator,
+)
 from familyos_cli.infrastructure.generation.generation_engine import (
     GenerationEngine,
 )
@@ -281,6 +284,10 @@ class ApplicationContainer:
             builder=PythonPackageBuilder(),
             discoverer=DiscoverPackageArtifactsUseCase(),
             validator=ValidatePythonPackageArtifactsUseCase(project_root),
+            functional_validator=PythonWheelFunctionalValidator(
+                project_root=project_root,
+                requirements_lock=project_root / "requirements.txt",
+            ),
             project_root=project_root,
         )
 

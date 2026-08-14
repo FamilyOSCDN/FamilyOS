@@ -639,9 +639,9 @@ Validate current FamilyOS Python artifacts directly.
 * [x] Validate required non-code resources.
 * [x] Detect unintended file inclusion.
 * [x] Detect missing required package content.
-* [ ] Install wheel in a clean environment.
-* [ ] Perform basic import smoke test.
-* [ ] Perform CLI smoke test where appropriate.
+* [x] Install wheel in a clean environment.
+* [x] Perform basic import smoke test.
+* [x] Perform CLI smoke test where appropriate.
 * [ ] Validate source distribution can build or install correctly if required.
 
 Implementation evidence: the canonical `familyos build` application flow now
@@ -671,11 +671,24 @@ while allowing its defined project and backend-generated metadata files. The
 real canonical build proves that both formats contain the declared `py.typed`,
 builtin plugin manifests, and templates.
 
-Level 16 remains partial. Clean installation, import/CLI smoke tests, and
-functional source-distribution build/install validation remain open. `VALID`
-means statically valid according to the implemented structure, metadata, and
-content contract only; it does not establish Artifact Identity, Artifact
-Integrity, trust, provenance, Build Evidence, or release readiness.
+Wheel functional-validation evidence: `familyos build --functional-validation`
+preserves the established execution/discovery/static-validation sequence and
+passes its exact already-valid wheel candidate to an infrastructure adapter
+through an application port. The adapter creates a fresh temporary venv without
+system site packages, installs only the wheel's runtime dependency closure under
+the committed `requirements.txt` constraints, imports `familyos_cli.main` with
+the venv Python in isolated mode, proves its resolved path belongs to the venv
+and not repository `src/`, and invokes the installed `familyos --help` entry
+point from an external working directory. Stage-specific failures are
+deterministic `INVALID` results and fail the aggregate opt-in build. A real
+FamilyOS wheel passes; a structurally valid wheel with a broken console entry
+point is rejected as the integration negative control.
+
+Level 16 remains partial only because functional source-distribution
+build/install validation remains open. Static `VALID` and opt-in wheel
+functional `VALID` retain their narrow implemented meanings; neither
+establishes Artifact Identity, Artifact Integrity, trust, provenance, Build
+Evidence, or release readiness.
 
 ---
 

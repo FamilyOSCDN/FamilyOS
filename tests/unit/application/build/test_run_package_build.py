@@ -13,12 +13,19 @@ from familyos_cli.application.build import (
     DiscoverPackageArtifactsUseCase,
     PackageBuildResult,
     PackageBuildStatus,
+    PackageFunctionalValidationStatus,
     PackageStructuralValidationStatus,
     PythonPackageStructuralValidationResult,
+    PythonWheelFunctionalValidationResult,
     RunPackageBuildUseCase,
     ValidatePythonPackageArtifactsUseCase,
+    WheelFunctionalValidationFinding,
+    WheelFunctionalValidationStage,
 )
-from familyos_cli.application.ports.build import PackageBuilderPort
+from familyos_cli.application.ports.build import (
+    PackageBuilderPort,
+    PythonWheelFunctionalValidatorPort,
+)
 
 
 class _PackageBuilder(PackageBuilderPort):
@@ -55,6 +62,32 @@ class _RecordingValidator(ValidatePythonPackageArtifactsUseCase):
         return self.result
 
 
+class _RecordingFunctionalValidator(PythonWheelFunctionalValidatorPort):
+    def __init__(
+        self,
+        status: PackageFunctionalValidationStatus = (
+            PackageFunctionalValidationStatus.VALID
+        ),
+        finding: WheelFunctionalValidationFinding | None = None,
+    ) -> None:
+        self.status = status
+        self.finding = finding
+        self.calls: list[DiscoveredArtifact] = []
+        self.result: PythonWheelFunctionalValidationResult | None = None
+
+    def validate(
+        self,
+        candidate: DiscoveredArtifact,
+    ) -> PythonWheelFunctionalValidationResult:
+        self.calls.append(candidate)
+        self.result = PythonWheelFunctionalValidationResult(
+            candidate=candidate,
+            status=self.status,
+            findings=(self.finding,) if self.finding is not None else (),
+        )
+        return self.result
+
+
 def test_use_case_delegates_explicit_paths_to_packaging_port(
     tmp_path: Path,
 ) -> None:
@@ -75,6 +108,7 @@ def test_use_case_delegates_explicit_paths_to_packaging_port(
         builder,
         DiscoverPackageArtifactsUseCase(),
         _RecordingValidator(),
+        _RecordingFunctionalValidator(),
         project_root,
     ).execute(output_dir)
 
@@ -103,6 +137,7 @@ def test_use_case_resolves_relative_output_from_project_root(
         builder,
         DiscoverPackageArtifactsUseCase(),
         _RecordingValidator(),
+        _RecordingFunctionalValidator(),
         project_root,
     ).execute(Path("dist"))
 
@@ -157,41 +192,46 @@ def test_execution_failure_skips_discovery(tmp_path: Path) -> None:
     builder = _PackageBuilder(execution)
     discoverer = _RecordingDiscoverer()
     validator = _RecordingValidator()
+    functional_validator = _RecordingFunctionalValidator()
 
     result = RunPackageBuildUseCase(
         builder,
         discoverer,
         validator,
+        functional_validator,
         tmp_path,
-    ).execute(Path("dist"))
+    ).execute(Path("dist"), validate_functionally=True)
 
     assert result.status is PackageBuildStatus.FAILED
     assert result.discovery is None
     assert result.diagnostic == "backend failed"
     assert not discoverer.called
     assert validator.calls == []
+    assert functional_validator.calls == []
 
 
 def test_discovery_failure_makes_aggregate_build_fail(tmp_path: Path) -> None:
     execution = PackageBuildResult(status=PackageBuildStatus.SUCCEEDED, outputs=())
 
     validator = _RecordingValidator()
+    functional_validator = _RecordingFunctionalValidator()
     result = RunPackageBuildUseCase(
         _PackageBuilder(execution),
         DiscoverPackageArtifactsUseCase(),
         validator,
+        functional_validator,
         tmp_path,
-    ).execute(Path("dist"))
+    ).execute(Path("dist"), validate_functionally=True)
 
     assert result.status is PackageBuildStatus.FAILED
     assert result.discovery is not None
     assert result.discovery.status is ArtifactDiscoveryStatus.FAILED
     assert result.diagnostic == (
-        "Artifact discovery failed: missing python-wheel; "
-        "missing source-distribution"
+        "Artifact discovery failed: missing python-wheel; missing source-distribution"
     )
     assert result.validation is None
     assert validator.calls == []
+    assert functional_validator.calls == []
 
 
 def test_validation_runs_only_after_successful_discovery(tmp_path: Path) -> None:
@@ -206,11 +246,13 @@ def test_validation_runs_only_after_successful_discovery(tmp_path: Path) -> None
         outputs=(sdist, wheel),
     )
     validator = _RecordingValidator()
+    functional_validator = _RecordingFunctionalValidator()
 
     result = RunPackageBuildUseCase(
         _PackageBuilder(execution),
         DiscoverPackageArtifactsUseCase(),
         validator,
+        functional_validator,
         tmp_path,
     ).execute(output_dir)
 
@@ -221,6 +263,8 @@ def test_validation_runs_only_after_successful_discovery(tmp_path: Path) -> None
         wheel,
         sdist,
     )
+    assert result.functional_validation is None
+    assert functional_validator.calls == []
 
 
 def test_validation_failure_makes_aggregate_build_fail(tmp_path: Path) -> None:
@@ -244,13 +288,15 @@ def test_validation_failure_makes_aggregate_build_fail(tmp_path: Path) -> None:
             ),
         ),
     )
+    functional_validator = _RecordingFunctionalValidator()
 
     result = RunPackageBuildUseCase(
         _PackageBuilder(execution),
         DiscoverPackageArtifactsUseCase(),
         _RecordingValidator(invalid),
+        functional_validator,
         tmp_path,
-    ).execute(output_dir)
+    ).execute(output_dir, validate_functionally=True)
 
     assert result.status is PackageBuildStatus.FAILED
     assert result.discovery is not None
@@ -258,3 +304,73 @@ def test_validation_failure_makes_aggregate_build_fail(tmp_path: Path) -> None:
     assert result.validation is invalid
     assert result.diagnostic is not None
     assert "wheel is corrupt" in result.diagnostic
+    assert result.functional_validation is None
+    assert functional_validator.calls == []
+
+
+def test_functional_validation_receives_exact_wheel_after_static_validation(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+    execution = PackageBuildResult(
+        status=PackageBuildStatus.SUCCEEDED,
+        outputs=(sdist, wheel),
+    )
+    functional_validator = _RecordingFunctionalValidator()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(execution),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        functional_validator,
+        tmp_path,
+    ).execute(output_dir, validate_functionally=True)
+
+    assert result.status is PackageBuildStatus.SUCCEEDED
+    assert result.functional_validation is functional_validator.result
+    assert functional_validator.calls == [
+        DiscoveredArtifact(wheel, ArtifactClass.PYTHON_WHEEL)
+    ]
+
+
+def test_functional_validation_failure_makes_aggregate_build_fail(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+    execution = PackageBuildResult(
+        status=PackageBuildStatus.SUCCEEDED,
+        outputs=(wheel, sdist),
+    )
+    functional_validator = _RecordingFunctionalValidator(
+        status=PackageFunctionalValidationStatus.INVALID,
+        finding=WheelFunctionalValidationFinding(
+            WheelFunctionalValidationStage.CLI_SMOKE,
+            "installed console entry point failed",
+        ),
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(execution),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        functional_validator,
+        tmp_path,
+    ).execute(output_dir, validate_functionally=True)
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.validation is not None
+    assert result.validation.successful
+    assert result.functional_validation is functional_validator.result
+    assert result.diagnostic is not None
+    assert "installed CLI smoke" in result.diagnostic
+    assert "installed console entry point failed" in result.diagnostic

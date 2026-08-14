@@ -11,13 +11,19 @@ from pathlib import Path
 
 from familyos_cli.application.build import (
     ArtifactClass,
+    DiscoveredArtifact,
     DiscoverPackageArtifactsUseCase,
     PackageBuildStatus,
+    PackageFunctionalValidationStatus,
     PackageStructuralValidationStatus,
     RunPackageBuildUseCase,
     ValidatePythonPackageArtifactsUseCase,
+    WheelFunctionalValidationStage,
 )
-from familyos_cli.infrastructure.build import PythonPackageBuilder
+from familyos_cli.infrastructure.build import (
+    PythonPackageBuilder,
+    PythonWheelFunctionalValidator,
+)
 
 
 def _tracked_snapshot(repository_root: Path) -> dict[str, bytes | None]:
@@ -39,6 +45,38 @@ def _tracked_snapshot(repository_root: Path) -> dict[str, bytes | None]:
     }
 
 
+def _write_broken_console_entry_point_wheel(source: Path, destination: Path) -> None:
+    entry_points_path: str | None = None
+    with zipfile.ZipFile(source, mode="r") as source_archive:
+        for name in source_archive.namelist():
+            if name.endswith(".dist-info/entry_points.txt"):
+                entry_points_path = name
+                break
+        assert entry_points_path is not None
+        with zipfile.ZipFile(destination, mode="w") as destination_archive:
+            for member in source_archive.infolist():
+                content = source_archive.read(member)
+                if member.filename == entry_points_path:
+                    content = (
+                        b"[console_scripts]\n"
+                        b"familyos = familyos_cli.missing_entry_point:app\n"
+                    )
+                elif member.filename.endswith(".dist-info/RECORD"):
+                    record_lines = content.decode().splitlines()
+                    content = (
+                        "\n".join(
+                            (
+                                f"{entry_points_path},,"
+                                if line.startswith(f"{entry_points_path},")
+                                else line
+                            )
+                            for line in record_lines
+                        )
+                        + "\n"
+                    ).encode()
+                destination_archive.writestr(member, content)
+
+
 def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> None:
     repository_root = Path(__file__).resolve().parents[3]
     tracked_before = _tracked_snapshot(repository_root)
@@ -49,6 +87,7 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     shutil.copy2(repository_root / "pyproject.toml", project_root)
     shutil.copy2(repository_root / "README.md", project_root)
     shutil.copy2(repository_root / "LICENSE", project_root)
+    shutil.copy2(repository_root / "requirements.txt", project_root)
     shutil.copytree(
         repository_root / "src" / "familyos_cli",
         package_root,
@@ -58,12 +97,18 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     assert not (project_root / "src" / "familyos_cli.egg-info").exists()
 
     output_dir = tmp_path / "package-output"
+    functional_validator = PythonWheelFunctionalValidator(
+        project_root=project_root,
+        requirements_lock=project_root / "requirements.txt",
+        python_executable=sys.executable,
+    )
     result = RunPackageBuildUseCase(
         builder=PythonPackageBuilder(sys.executable),
         discoverer=DiscoverPackageArtifactsUseCase(),
         validator=ValidatePythonPackageArtifactsUseCase(project_root),
+        functional_validator=functional_validator,
         project_root=project_root,
-    ).execute(output_dir)
+    ).execute(output_dir, validate_functionally=True)
 
     wheels = tuple(
         artifact
@@ -82,6 +127,20 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     assert result.validation is not None
     assert result.validation.status is PackageStructuralValidationStatus.VALID
     assert result.validation.diagnostic is None
+    assert result.functional_validation is not None
+    assert (
+        result.functional_validation.status is PackageFunctionalValidationStatus.VALID
+    )
+    assert result.functional_validation.diagnostic is None
+    assert result.functional_validation.environment_root is not None
+    assert result.functional_validation.imported_module_path is not None
+    assert result.functional_validation.imported_module_path.is_relative_to(
+        result.functional_validation.environment_root
+    )
+    assert not result.functional_validation.imported_module_path.is_relative_to(
+        project_root / "src"
+    )
+    assert not result.functional_validation.environment_root.exists()
     assert len(wheels) == 1
     assert len(sdists) == 1
     assert all(artifact.path.parent == output_dir for artifact in result.candidates)
@@ -112,6 +171,34 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     assert sdist_package_files == expected_package_files
     assert any(path.endswith("plugin.yaml") for path in expected_package_files)
     assert any(path.endswith(".j2") for path in expected_package_files)
+
+    broken_wheel_directory = tmp_path / "broken-wheel"
+    broken_wheel_directory.mkdir()
+    broken_wheel_path = broken_wheel_directory / wheel.path.name
+    _write_broken_console_entry_point_wheel(wheel.path, broken_wheel_path)
+    broken_candidate = DiscoveredArtifact(
+        broken_wheel_path,
+        ArtifactClass.PYTHON_WHEEL,
+    )
+    broken_structural_result = ValidatePythonPackageArtifactsUseCase(
+        project_root
+    ).execute((broken_candidate,))
+    assert broken_structural_result.status is PackageStructuralValidationStatus.VALID, (
+        broken_structural_result.diagnostic
+    )
+
+    broken_functional_result = functional_validator.validate(broken_candidate)
+
+    assert broken_functional_result.status is PackageFunctionalValidationStatus.INVALID
+    assert (
+        broken_functional_result.findings[0].stage
+        is WheelFunctionalValidationStage.CLI_SMOKE
+    )
+    assert broken_functional_result.diagnostic is not None
+    assert "installed CLI smoke" in broken_functional_result.diagnostic
+    assert "missing_entry_point" in broken_functional_result.diagnostic
+    assert broken_functional_result.environment_root is not None
+    assert not broken_functional_result.environment_root.exists()
     assert _tracked_snapshot(repository_root) == tracked_before
 
     ignored_egg_info = subprocess.run(

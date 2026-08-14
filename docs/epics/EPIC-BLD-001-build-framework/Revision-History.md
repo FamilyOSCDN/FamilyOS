@@ -1369,6 +1369,32 @@ release, or publication capability is introduced. Framework version `1.0.0`
 and immutable historical publication tag `v4.7.0-build-framework` remain
 unchanged.
 
+## Python Package Functional Validation — 2026-08-14
+
+This incremental technical revision adds an explicit functional-validation
+option to the existing package-build application sequence. It does not alter
+Build Execution, Artifact Discovery, or static package validation. Only after
+those stages succeed does the application pass the exact discovered wheel
+candidate through `PythonWheelFunctionalValidatorPort` to the temporary-venv
+infrastructure adapter.
+
+The fresh environment has no system site packages or editable checkout
+installation. Runtime dependencies are selected from wheel metadata and
+constrained by the committed dependency lock. Smoke execution removes inherited
+`PYTHONPATH`, uses a working directory outside the checkout, imports
+`familyos_cli.main` with isolated-mode venv Python, verifies the resolved module
+path is inside that venv and outside repository `src/`, and invokes the installed
+`familyos --help` entry point. The environment is removed deterministically.
+
+This revision closes only the three Level 16 wheel functional checks:
+clean-environment installation, import smoke, and CLI smoke. Functional source-
+distribution build/install validation remains open. The option is local
+capability evidence, not a new remote CI execution claim; the workflow is
+unchanged. No Artifact Identity, Build ID, Artifact Integrity, digest, Build
+Evidence, provenance, trust, signing, release, publication, promotion, or
+deployment semantics are introduced. Framework version `1.0.0` and immutable
+historical publication tag `v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

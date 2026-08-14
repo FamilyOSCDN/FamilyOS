@@ -1605,3 +1605,101 @@ promotion, or deployment. The CI workflow is unchanged; the existing canonical
 command will exercise this extension after commit, while remote evidence for
 the extension remains future work. Framework version `1.0.0` and immutable
 historical tag `v4.7.0-build-framework` remain unchanged.
+
+## Python Package Functional Validation — 2026-08-14
+
+### Invocation and architecture
+
+Wheel functional validation is explicit through:
+
+```bash
+familyos build --output-dir dist --functional-validation
+```
+
+The default build remains the fast static path, and CI is unchanged. The
+opt-in sequence is:
+
+```text
+Build Execution
+    -> Artifact Discovery
+    -> Structural / Metadata / Content Validation
+    -> Wheel Functional Validation
+```
+
+The application passes the exact discovered wheel only after static validation
+succeeds. `PythonWheelFunctionalValidatorPort` is the minimal inversion boundary
+for external venv, pip, Python, and console execution; the temporary-environment
+implementation remains in infrastructure and orchestration tests use a
+recording fake.
+
+### Clean-environment and dependency contract
+
+The infrastructure adapter creates a fresh temporary venv without
+`--system-site-packages`, never installs the checkout editably, and removes the
+temporary tree deterministically. All pip and smoke commands use an external
+working directory. The inherited `PYTHONPATH`, `PYTHONHOME`, user-base, active-
+venv, and launcher variables are removed; `PYTHONNOUSERSITE=1` is set.
+
+The repository has no committed runtime wheelhouse, so fully offline dependency
+installation is not currently available without adding new dependency
+infrastructure. The smallest controlled contract uses pip `--isolated`,
+`--require-virtualenv`, and `--only-binary=:all:` to install the exact local
+wheel. Its runtime dependency closure is selected from emitted wheel metadata
+and constrained to the exact pins in committed `requirements.txt`. The shared
+lock's development and build entries are not requested for installation. Pip
+may use its cache or retrieve those constrained wheels; it cannot choose
+unconstrained runtime versions.
+
+### Functional checks and failure semantics
+
+The import target is `familyos_cli.main`, matching the canonical
+`familyos = familyos_cli.main:app` project script. It is imported by the venv
+Python with `-I`; the probe returns the resolved module path, which must be
+inside the temporary venv and outside repository `src/`. CLI smoke invokes the
+installed venv executable exactly as `familyos --help` and requires canonical
+help output. No repository command or source distribution is executed; CLI
+smoke is side-effect free and not network dependent. Dependency wheel retrieval
+may use pip's public index when its cache is empty.
+
+Environment/installation, import, and CLI failures produce distinct,
+deterministic functional `INVALID` findings. Requested functional failure makes
+the aggregate build fail. Without the explicit option, functional validation is
+not executed. Structural failure always skips functional validation.
+
+The real negative control rewrites only the console entry point of an otherwise
+structurally valid FamilyOS wheel, then exercises the production adapter. Clean
+installation and `familyos_cli.main` import succeed, while the installed broken
+entry point is rejected at the CLI-smoke stage.
+
+Executed local evidence:
+
+```text
+Changed-file Ruff:                                      PASS
+Changed-file MyPy:                                      PASS
+Targeted functional/relevant package-build suite:       PASS — 105 tests
+Full Pytest:                                            PASS — 1561 tests
+Real clean-environment FamilyOS wheel validation:       PASS — functional `VALID`
+Real broken-entry-point negative control:               PASS — CLI-stage `INVALID`
+```
+
+The targeted count is produced by this exact command:
+
+```bash
+python -m pytest -q \
+  tests/unit/application/build/test_package_functional_validation.py \
+  tests/unit/infrastructure/build/test_python_wheel_functional_validator.py \
+  tests/unit/application/build/test_run_package_build.py \
+  tests/unit/application/build/test_discover_package_artifacts.py \
+  tests/unit/application/build/test_validate_python_package_artifacts.py \
+  tests/unit/infrastructure/build/test_python_package_builder.py \
+  tests/integration/build/test_python_package_build.py \
+  tests/e2e/test_cli_package_build.py
+```
+
+This slice closes clean-environment wheel installation, installed import smoke,
+and installed CLI smoke. Functional source-distribution build/install
+validation remains open. No remote execution claim is added, and no Artifact
+Identity, Build ID, Artifact Integrity, digest, Build Evidence, provenance,
+trust, signing, release readiness, publication, promotion, or deployment
+semantics are established. Framework version `1.0.0` and immutable historical
+tag `v4.7.0-build-framework` remain unchanged.

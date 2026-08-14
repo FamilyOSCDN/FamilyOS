@@ -3,5 +3,8 @@
 from familyos_cli.infrastructure.build.python_package_builder import (
     PythonPackageBuilder,
 )
+from familyos_cli.infrastructure.build.python_wheel_functional_validator import (
+    PythonWheelFunctionalValidator,
+)
 
-__all__ = ["PythonPackageBuilder"]
+__all__ = ["PythonPackageBuilder", "PythonWheelFunctionalValidator"]

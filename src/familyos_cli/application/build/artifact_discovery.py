@@ -13,6 +13,9 @@ from familyos_cli.application.build.package_build import (
 )
 
 if TYPE_CHECKING:
+    from familyos_cli.application.build.package_functional_validation import (
+        PythonWheelFunctionalValidationResult,
+    )
     from familyos_cli.application.build.package_validation import (
         PythonPackageStructuralValidationResult,
     )
@@ -83,12 +86,13 @@ class ArtifactDiscoveryResult:
 
 @dataclass(frozen=True, slots=True)
 class CanonicalPackageBuildResult:
-    """Aggregate execution, discovery, and structural validation result."""
+    """Aggregate execution, discovery, and requested validation results."""
 
     status: PackageBuildStatus
     execution: PackageBuildResult
     discovery: ArtifactDiscoveryResult | None = None
     validation: PythonPackageStructuralValidationResult | None = None
+    functional_validation: PythonWheelFunctionalValidationResult | None = None
 
     @property
     def successful(self) -> bool:
@@ -106,6 +110,8 @@ class CanonicalPackageBuildResult:
     def diagnostic(self) -> str | None:
         """Return the latest applicable canonical-stage diagnostic."""
 
+        if self.functional_validation and self.functional_validation.diagnostic:
+            return self.functional_validation.diagnostic
         if self.validation and self.validation.diagnostic:
             return self.validation.diagnostic
         if self.discovery and self.discovery.diagnostic:

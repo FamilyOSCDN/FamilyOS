@@ -16,6 +16,12 @@ from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
 )
+from familyos_cli.application.build.package_functional_validation import (
+    PackageFunctionalValidationStatus,
+    PythonWheelFunctionalValidationResult,
+    WheelFunctionalValidationFinding,
+    WheelFunctionalValidationStage,
+)
 from familyos_cli.application.build.package_validation import (
     CandidatePackageValidationResult,
     PackageStructuralValidationStatus,
@@ -38,8 +44,12 @@ __all__ = [
     "ExpectedArtifactDefinition",
     "PackageBuildResult",
     "PackageBuildStatus",
+    "PackageFunctionalValidationStatus",
     "PackageStructuralValidationStatus",
     "PythonPackageStructuralValidationResult",
+    "PythonWheelFunctionalValidationResult",
     "RunPackageBuildUseCase",
     "ValidatePythonPackageArtifactsUseCase",
+    "WheelFunctionalValidationFinding",
+    "WheelFunctionalValidationStage",
 ]
