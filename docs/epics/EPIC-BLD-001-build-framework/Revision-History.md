@@ -1243,6 +1243,31 @@ classification and Build ID association remain open. CI still does not invoke
 progress, and framework version `1.0.0` plus historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+## CI Package Build Integration — 2026-08-14
+
+Status: IMPLEMENTED LOCALLY / WORKFLOW WIRED — NOT YET REMOTELY VERIFIED.
+
+This revision wires the `Canonical CI Validation` workflow to invoke the
+existing canonical `familyos build --output-dir dist` command after
+successful validation, and to upload `dist/` as the
+`familyos-package-candidates` workflow artifact only when that build
+succeeds. No new Python packaging or artifact-discovery logic was added to
+YAML; the workflow relies entirely on `familyos build`'s own exit code and
+GitHub Actions' default per-step `success()` gating, so a failed mandatory
+validation or a failed build/discovery both prevent candidate publication
+without any reordering of, or weakening to, the existing validation-failure
+step.
+
+Local reproduction of the full path (`familyos validation ci` then
+`familyos build --output-dir dist`) was executed against this checkout and
+succeeded, matching the workflow's exact invocation. This revision does not
+include a real GitHub Actions run; "Run canonical build command" and
+"Collect explicit candidate artifacts" (Level 27) remain open pending that
+remote evidence. Artifact validation, identity, integrity, trust, Build
+Evidence, release, and publication remain open. The Build Framework technical
+implementation remains in progress, and framework version `1.0.0` plus
+historical publication tag `v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

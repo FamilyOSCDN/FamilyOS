@@ -41,3 +41,14 @@ jobs:
       - name: Preserve canonical validation result
         if: always() && steps.canonical_validation.outcome != 'success'
         run: exit 1
+
+      - name: Run canonical package build
+        id: canonical_package_build
+        run: familyos build --output-dir dist
+
+      - name: Upload package candidates
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: familyos-package-candidates
+          path: dist/
+          if-no-files-found: error

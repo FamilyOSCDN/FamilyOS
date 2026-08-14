@@ -188,6 +188,21 @@ trust, Build Evidence, CI build invocation, release, and publication remain
 open. Framework version `1.0.0` and historical tag
 `v4.7.0-build-framework` are unchanged.
 
+## CI Package Build Integration — 2026-08-14
+
+Status: IMPLEMENTED LOCALLY / WORKFLOW WIRED — NOT YET REMOTELY VERIFIED.
+
+The `Canonical CI Validation` workflow gained one new step invoking the
+existing canonical `familyos build --output-dir dist` command after
+successful validation, and one candidate-upload step publishing `dist/` as
+`familyos-package-candidates` only when that build succeeds. No packaging or
+discovery policy was added to YAML; a failed mandatory validation or a failed
+build/discovery both prevent candidate upload without weakening existing
+failure semantics. This slice has not yet been exercised by a real GitHub
+Actions run. Artifact validation, identity, integrity, trust, Build Evidence,
+release, and publication remain open. Framework version `1.0.0` and
+historical tag `v4.7.0-build-framework` are unchanged.
+
 ---
 
 # Historical Publication

@@ -1328,3 +1328,37 @@ output set. It does not establish artifact validation, identity, integrity,
 trust, Build ID, Build Evidence, release handoff, or publication. Level 14
 remains partial because temporary/intermediate output classification and Build
 ID association remain open. CI build invocation also remains unimplemented.
+
+## CI Package Build Integration — 2026-08-14
+
+Status: IMPLEMENTED LOCALLY / WORKFLOW WIRED — NOT YET REMOTELY VERIFIED.
+
+The `Canonical CI Validation` workflow now runs `familyos build --output-dir
+dist` immediately after successful validation, and uploads the resulting
+`dist/` directory as the `familyos-package-candidates` artifact using the
+same pinned `actions/upload-artifact` reference already used for validation
+evidence. No new Python packaging or discovery logic was introduced in YAML;
+the workflow invokes only the existing canonical `familyos build` command.
+
+Static and local review confirmed:
+
+* exactly one `familyos build` invocation; no `python -m build` in YAML;
+* no wheel/sdist filename filtering or count logic in YAML;
+* the package-build step carries no `continue-on-error`, so a non-zero
+  `familyos build` exit (execution or discovery failure) fails the job
+  directly;
+* the candidate-upload step carries no `if: always()`; GitHub Actions'
+  default per-step `success()` gating means it — and the build step before
+  it — automatically skip when the preceding mandatory validation-failure
+  step (`exit 1`) has run, so a failed validation cannot produce package
+  candidates, without any reordering of the existing validation steps;
+* `permissions: contents: read` is unchanged; no additional scope was added;
+* local reproduction (`familyos validation ci` then
+  `familyos build --output-dir dist`) was executed against this checkout and
+  succeeded, matching the workflow's exact invocation.
+
+This slice does not include a real GitHub Actions run. "Run canonical build
+command" and "Collect explicit candidate artifacts" (Level 27) remain open
+pending that remote evidence. This work does not establish artifact
+validation, identity, integrity, trust, Build ID, Build Evidence, release
+handoff, or publication. No Level 15+ item was changed.

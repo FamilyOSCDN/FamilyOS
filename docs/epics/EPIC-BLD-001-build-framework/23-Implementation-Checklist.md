@@ -891,12 +891,12 @@ Keep canonical build behavior practical for developers.
 * [x] Document dependency installation.
 * [x] Document canonical build command.
 * [x] Document canonical validation command.
-* [ ] Document artifact location.
+* [x] Document artifact location.
 * [ ] Document cleanup.
 * [x] Document common failures.
 * [x] Ensure local validation approximates CI semantics.
 * [x] Ensure developers can reproduce common CI failures locally.
-* [ ] Avoid mandatory CI-only build steps.
+* [x] Avoid mandatory CI-only build steps.
 
 Implementation evidence: the root `README.md` documents the supported Python
 3.13 virtual environment, controlled `requirements.txt` bootstrap, read-only
@@ -904,11 +904,15 @@ dependency freshness check, intentional dependency regeneration, canonical
 `familyos validation ci` command, deterministic JSON evidence, local/CI
 semantic alignment, and remediation for common bootstrap and validation
 failures. The provider-neutral command is the same entry point invoked by
-`.github/workflows/ci.yml`.
+`.github/workflows/ci.yml`. The `Canonical CI Validation` workflow's package
+build step invokes the identical `familyos build --output-dir dist` command a
+developer runs locally, with no CI-only build flag, script, or logic; the
+candidate output location (`dist/`, defaulting from the Level 14 discovery
+contract) is now explicit in both places.
 
-Level 26 remains incomplete. A canonical candidate-artifact location,
-artifact-related cleanup contract, and proof that build execution has no
-CI-only steps depend on future build integration and artifact implementation.
+Level 26 remains incomplete. An artifact-related cleanup contract depends on
+future artifact implementation (Level 13 partial-output/failure-cleanup
+semantics and Level 17 integrity work).
 
 ---
 
@@ -954,11 +958,23 @@ Use CI as an independent executor of canonical build semantics.
 * [ ] Collect Build Evidence.
 * [x] Upload CI artifacts where useful.
 * [x] Ensure mandatory failure produces failed workflow.
-* [ ] Document how to reproduce CI locally.
+* [x] Document how to reproduce CI locally.
 
 Implementation evidence: commit `504bd19` introduced the provider-neutral Canonical CI Validation Baseline and its thin GitHub Actions adapter. Commit `c2ed8de` corrected the missing Health documentation template found by the first real execution. GitHub Actions run `31749853569` then completed successfully under Python 3.13, uploaded `ci-validation.json`, and recorded all six mandatory gates as `PASSED`.
 
-This evidence does not complete the canonical build command, candidate-artifact collection, artifact validation, artifact integrity, or full Build Evidence capabilities.
+Package-build integration evidence (implemented locally / workflow wired, NOT
+yet remotely verified): the workflow now runs `familyos build --output-dir
+dist` after successful validation and uploads `dist/` as
+`familyos-package-candidates` only on build success, with no `if: always()`
+override and no wheel/sdist filename logic in YAML. Static review confirms
+exactly one `familyos build` invocation, no `python -m build`, and least-
+privilege permissions unchanged. `README.md` documents the identical local
+reproduction sequence. This wiring has not yet been exercised by a real
+GitHub Actions run, so "Run canonical build command" and "Collect explicit
+candidate artifacts" remain open pending that remote proof.
+
+This evidence does not complete artifact validation or artifact integrity,
+and does not establish full Build Evidence capabilities.
 
 ---
 

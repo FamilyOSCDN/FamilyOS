@@ -139,8 +139,31 @@ trusted, integrity-checked, releasable, or release-ready.
 A packaging, execution, or discovery failure returns a non-zero status and a
 concise diagnostic. The command never publishes its outputs. Temporary and
 intermediate output classification, Build ID association, artifact validation,
-identity, integrity, Build Evidence, and release handoff remain future work. CI
-does not invoke `familyos build` yet.
+identity, integrity, Build Evidence, and release handoff remain future work.
+
+## CI package build
+
+The `Canonical CI Validation` GitHub Actions workflow now also runs
+`familyos build --output-dir dist` after canonical validation succeeds, and
+uploads the resulting `dist/` directory as the `familyos-package-candidates`
+workflow artifact when the build succeeds. A failed mandatory validation skips
+the build step entirely; a failed build or discovery skips the candidate
+upload and fails the workflow. `familyos-package-candidates` is an
+unvalidated, untrusted, unpublished build-output transport only; the name
+does not imply release readiness.
+
+This workflow wiring is implemented and statically reviewed. It has not yet
+been confirmed by a real GitHub Actions run; treat remote build success and
+the uploaded candidate contents as unverified until that evidence exists.
+
+To reproduce the full CI path locally:
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install --no-deps --no-build-isolation -e .
+familyos validation ci
+familyos build --output-dir dist
+```
 
 Generated `*.egg-info/` metadata is excluded from repository authority and
 configured as ignored state. Setuptools may regenerate it locally during
