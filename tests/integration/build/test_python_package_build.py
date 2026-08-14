@@ -5,6 +5,8 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
+import tarfile
+import zipfile
 from pathlib import Path
 
 from familyos_cli.application.build import (
@@ -84,6 +86,32 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     assert len(sdists) == 1
     assert all(artifact.path.parent == output_dir for artifact in result.candidates)
     assert all(artifact.path.is_file() for artifact in result.candidates)
+    expected_package_files = {
+        path.relative_to(package_root.parent).as_posix()
+        for path in package_root.rglob("*")
+        if path.is_file()
+        and "__pycache__" not in path.parts
+        and path.suffix not in {".pyc", ".pyo"}
+    }
+    (wheel,) = wheels
+    with zipfile.ZipFile(wheel.path) as wheel_archive:
+        wheel_package_files = {
+            name
+            for name in wheel_archive.namelist()
+            if name.startswith("familyos_cli/") and not name.endswith("/")
+        }
+    assert wheel_package_files == expected_package_files
+
+    (sdist,) = sdists
+    with tarfile.open(sdist.path, mode="r:gz") as sdist_archive:
+        sdist_package_files = {
+            "/".join(member.name.split("/")[2:])
+            for member in sdist_archive.getmembers()
+            if member.isfile() and "/src/familyos_cli/" in member.name
+        }
+    assert sdist_package_files == expected_package_files
+    assert any(path.endswith("plugin.yaml") for path in expected_package_files)
+    assert any(path.endswith(".j2") for path in expected_package_files)
     assert _tracked_snapshot(repository_root) == tracked_before
 
     ignored_egg_info = subprocess.run(

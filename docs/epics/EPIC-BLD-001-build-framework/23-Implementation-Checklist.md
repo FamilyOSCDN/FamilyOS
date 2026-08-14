@@ -633,12 +633,12 @@ Validate current FamilyOS Python artifacts directly.
 * [x] Validate artifact filename.
 * [x] Validate archive structure.
 * [x] Validate package metadata.
-* [ ] Validate Python runtime requirement metadata.
-* [ ] Validate dependency metadata.
-* [ ] Validate expected package modules.
-* [ ] Validate required non-code resources.
-* [ ] Detect unintended file inclusion.
-* [ ] Detect missing required package content.
+* [x] Validate Python runtime requirement metadata.
+* [x] Validate dependency metadata.
+* [x] Validate expected package modules.
+* [x] Validate required non-code resources.
+* [x] Detect unintended file inclusion.
+* [x] Detect missing required package content.
 * [ ] Install wheel in a clean environment.
 * [ ] Perform basic import smoke test.
 * [ ] Perform CLI smoke test where appropriate.
@@ -657,11 +657,24 @@ with the authoritative repository `pyproject.toml`. Focused tests cover valid,
 corrupt, malformed, incoherent, missing-metadata, traversal-like, composition,
 integration, and CLI outcomes.
 
-Level 16 remains partial. Python runtime requirement and dependency metadata,
-the exact expected module/resource inventory, unintended or missing package
-content, clean installation, import/CLI smoke tests, and functional source-
-distribution build/install validation remain open. `VALID` in this slice means
-structurally valid only; it does not establish Artifact Identity, Artifact
+Content-and-metadata inventory evidence: the same application validator parses
+`Requires-Python` and every `Requires-Dist` field with the standards-compliant
+`packaging` library and compares their normalized values with the authoritative
+`pyproject.toml` project metadata. Its deterministic Python-module inventory
+comes from the configured setuptools package discovery and regular package
+source. Non-code resource intent comes independently from regular source files
+matching the exact `tool.setuptools.package-data` policy; source existence alone
+does not make a resource intended package content. Wheel and source-distribution
+package content must contain every expected module/resource and no unintended
+package content. The source distribution also rejects unrelated root content
+while allowing its defined project and backend-generated metadata files. The
+real canonical build proves that both formats contain the declared `py.typed`,
+builtin plugin manifests, and templates.
+
+Level 16 remains partial. Clean installation, import/CLI smoke tests, and
+functional source-distribution build/install validation remain open. `VALID`
+means statically valid according to the implemented structure, metadata, and
+content contract only; it does not establish Artifact Identity, Artifact
 Integrity, trust, provenance, Build Evidence, or release readiness.
 
 ---

@@ -49,7 +49,7 @@ Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
 Latest Reconciliation:   Remote Structural-Validation Evidence
-Latest Technical Slice:  Python Package Structural Validation
+Latest Technical Slice:  Python Package Content and Metadata Validation
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
@@ -264,6 +264,36 @@ source-distribution build/install validation) remain open. The previously
 recorded GitHub Actions Node.js 20 deprecation warning recurred in this run;
 that maintenance debt is unchanged and is not duplicated here. Framework
 version `1.0.0` and historical tag `v4.7.0-build-framework` are unchanged.
+
+## Python Package Content and Metadata Validation — 2026-08-14
+
+The existing application-owned Python package validator now parses emitted
+`Requires-Python` and `Requires-Dist` metadata using the standards-compliant
+`packaging` library and compares normalized values with the authoritative
+`pyproject.toml`. `packaging>=26.0` is consequently an explicit runtime
+dependency rather than a silently consumed transitive build/test dependency;
+the generated `requirements.txt` remains synchronized.
+
+The validator derives its deterministic expected Python-module inventory from
+configured setuptools package discovery and regular package source. Non-code
+resource intent is independent: only regular source files matched by the exact
+`tool.setuptools.package-data` policy are expected resources. Wheel and source-
+distribution candidates fail when expected content is missing or when
+unintended package content is present. This exposed and corrected packaging-
+authority defects: `py.typed`, builtin plugin YAML manifests, and Jinja
+templates are explicit setuptools package data and are present in both real
+candidates, while an undeclared source-tree resource remains unintended if
+injected into either candidate. Generated caches, bytecode, egg-info,
+editor/system files, tests, and unrelated source-distribution content are not
+accepted as package content merely because they appear in an archive.
+
+This remains static package validation. It does not install either candidate,
+build from the source distribution, execute imports or the CLI, verify
+integrity, or establish Artifact Identity, Build ID, Build Evidence, trust,
+provenance, signing, release readiness, or publication. The existing CI
+workflow is unchanged; remote evidence for this increment requires a later
+committed run. Framework version `1.0.0` and historical tag
+`v4.7.0-build-framework` remain unchanged.
 
 ---
 

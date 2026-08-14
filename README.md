@@ -6,9 +6,9 @@ development environment and one provider-neutral validation command shared by
 local development and GitHub Actions.
 
 The repository provides a canonical package-build command. A successful command
-now includes structural validation of its discovered Python package candidates.
-Structural validity does not establish artifact integrity, trust, provenance,
-release readiness, or publication.
+includes static structural, metadata, and content-inventory validation of its
+discovered Python package candidates. Static validity does not establish
+artifact integrity, trust, provenance, release readiness, or publication.
 
 ## Prerequisites
 
@@ -136,8 +136,13 @@ outputs as candidates and fails if either is missing, duplicated, or accompanied
 by another current output. After successful discovery, the application inspects
 and decompresses those exact ZIP and gzip-compressed tar candidates through
 bounded in-memory streams without filesystem extraction. It validates safe
-coherent archive structure, required standard package metadata, and package
-name/version consistency with `pyproject.toml`.
+coherent archive structure, required standard package metadata, package
+name/version/runtime/dependency metadata consistency with `pyproject.toml`, and
+an exact expected-versus-actual inventory. Python module authority comes from
+the configured setuptools package discovery and source tree; non-code resource
+intent comes independently from source files matching the configured setuptools
+package-data policy. Required content must be present in both formats, and
+unintended package or source-distribution content fails validation.
 
 The states remain deliberately distinct:
 
@@ -149,9 +154,9 @@ candidate artifact
     != release-ready artifact
 ```
 
-`VALID` means only that a discovered candidate satisfies the implemented Python
-package structural-validation contract. It does not verify `RECORD` hashes,
-install either package, run imports or the CLI, establish provenance, or authorize
+`VALID` means only that a discovered candidate satisfies the implemented static
+Python package validation contract. It does not verify `RECORD` hashes, install
+either package, run imports or the CLI, establish provenance, or authorize
 release use.
 
 A packaging, execution, discovery, or structural-validation failure returns a
@@ -267,12 +272,13 @@ future build outputs.
 ## Current build boundary
 
 FamilyOS exposes canonical package-build execution, explicit candidate
-discovery, and application-owned Python package structural validation. It does
-not yet expose functional installation/runtime validation, Artifact Identity,
-Artifact Integrity, Build Evidence, release handoff, or a canonical build-output
-cleanup command. Those capabilities remain future EPIC-BLD-001 implementation
-work. Do not infer integrity, trust, provenance, or release semantics from a
-successful build command.
+discovery, and application-owned static Python package validation covering
+archive structure, emitted runtime/dependency metadata, and package-content
+inventory. It does not yet expose functional installation/runtime validation,
+Artifact Identity, Artifact Integrity, Build Evidence, release handoff, or a
+canonical build-output cleanup command. Those capabilities remain future
+EPIC-BLD-001 implementation work. Do not infer integrity, trust, provenance, or
+release semantics from a successful build command.
 
 The normative Build Framework is under
 `docs/epics/EPIC-BLD-001-build-framework/`. Repository engineering standards

@@ -19,6 +19,12 @@ from email.policy import default
 from pathlib import Path, PurePosixPath
 from typing import BinaryIO, cast
 
+from packaging.markers import InvalidMarker, Marker
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.utils import canonicalize_name
+from packaging.version import InvalidVersion, Version
+
 from familyos_cli.application.build.artifact_discovery import (
     ArtifactClass,
     DiscoveredArtifact,
@@ -46,12 +52,64 @@ _RECORD_BYTES_LIMIT = 16_777_216  # 16 MiB
 _SUPPORTED_WHEEL_COMPRESSION = frozenset({zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED})
 _METADATA_VERSION_PATTERN = re.compile(r"^[0-9]+\.[0-9]+$")
 _WHEEL_TAG_COMPONENT_PATTERN = re.compile(r"^[A-Za-z0-9_.]+$")
+_IGNORED_SOURCE_DIRECTORY_NAMES = frozenset(
+    {"__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache"}
+)
+_IGNORED_SOURCE_FILE_NAMES = frozenset({".DS_Store", "Thumbs.db"})
+_IGNORED_SOURCE_FILE_SUFFIXES = frozenset({".pyc", ".pyo", ".swp", ".swo"})
+_GENERATED_SDIST_ROOT_FILES = frozenset({"PKG-INFO", "setup.cfg"})
+_GENERATED_EGG_INFO_FILES = frozenset(
+    {
+        "PKG-INFO",
+        "SOURCES.txt",
+        "dependency_links.txt",
+        "entry_points.txt",
+        "requires.txt",
+        "top_level.txt",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
 class _PackageNameVersion:
     name: str
     version: str
+
+
+@dataclass(frozen=True, slots=True)
+class _ProjectPackageMetadata:
+    identity: _PackageNameVersion
+    requires_python: str
+    requirements: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _CoreMetadataInspection:
+    identity: _PackageNameVersion | None
+    requires_python: str | None
+    requirements: tuple[str, ...]
+    requirements_valid: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _ExpectedPackageContent:
+    source_base: str
+    python_modules: frozenset[str]
+    resources: frozenset[str]
+    sdist_project_files: frozenset[str]
+    generated_egg_info_root: str
+
+    @property
+    def package_files(self) -> frozenset[str]:
+        """Return the complete expected installable package inventory."""
+
+        return self.python_modules | self.resources
+
+
+@dataclass(frozen=True, slots=True)
+class _ProjectPackageContract:
+    metadata: _ProjectPackageMetadata
+    content: _ExpectedPackageContent
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,7 +167,7 @@ class ValidatePythonPackageArtifactsUseCase:
     ) -> PythonPackageStructuralValidationResult:
         """Inspect wheel and sdist streams without filesystem extraction."""
 
-        expected, authority_diagnostic = self._load_project_identity()
+        expected, authority_diagnostic = self._load_project_contract()
         ordered_candidates = tuple(
             sorted(
                 candidates,
@@ -145,16 +203,19 @@ class ValidatePythonPackageArtifactsUseCase:
             candidate_results=candidate_results,
         )
 
-    def _load_project_identity(
+    def _load_project_contract(
         self,
-    ) -> tuple[_PackageNameVersion | None, str | None]:
+    ) -> tuple[_ProjectPackageContract | None, str | None]:
         pyproject_path = self._project_root / "pyproject.toml"
         try:
             pyproject_text = pyproject_path.read_text(encoding="utf-8")
         except (OSError, UnicodeError):
             return None, "authoritative pyproject.toml is unreadable"
         try:
-            return self._parse_pyproject_identity(pyproject_text), None
+            document = tomllib.loads(pyproject_text)
+            metadata = self._parse_project_metadata(document)
+            content = self._load_expected_package_content(document, metadata.identity)
+            return _ProjectPackageContract(metadata, content), None
         except tomllib.TOMLDecodeError:
             return None, "authoritative pyproject.toml is malformed"
         except ValueError as error:
@@ -163,7 +224,7 @@ class ValidatePythonPackageArtifactsUseCase:
     def _inspect_candidate(
         self,
         candidate: DiscoveredArtifact,
-        expected: _PackageNameVersion | None,
+        expected: _ProjectPackageContract | None,
         authority_diagnostic: str | None,
     ) -> _CandidateInspection:
         if authority_diagnostic is not None:
@@ -171,6 +232,12 @@ class ValidatePythonPackageArtifactsUseCase:
                 candidate=candidate,
                 identity=None,
                 diagnostics=(authority_diagnostic,),
+            )
+        if expected is None:
+            return _CandidateInspection(
+                candidate=candidate,
+                identity=None,
+                diagnostics=("authoritative package contract is unavailable",),
             )
         if not candidate.path.is_file() or candidate.path.is_symlink():
             return _CandidateInspection(
@@ -193,7 +260,7 @@ class ValidatePythonPackageArtifactsUseCase:
     def _inspect_wheel(
         self,
         candidate: DiscoveredArtifact,
-        expected: _PackageNameVersion | None,
+        expected: _ProjectPackageContract,
     ) -> _CandidateInspection:
         diagnostics: list[str] = []
         filename_identity = self._parse_wheel_filename(
@@ -229,11 +296,18 @@ class ValidatePythonPackageArtifactsUseCase:
                         members,
                         dist_info_root,
                         captured_members,
+                        expected.metadata,
                         diagnostics,
                     )
                     self._compare_dist_info_identity(
                         dist_info_root,
                         metadata_identity,
+                        diagnostics,
+                    )
+                    self._validate_wheel_content(
+                        members,
+                        dist_info_root,
+                        expected.content,
                         diagnostics,
                     )
         except (
@@ -254,13 +328,17 @@ class ValidatePythonPackageArtifactsUseCase:
             metadata_identity,
             diagnostics,
         )
-        self._compare_expected_identity(identity, expected, diagnostics)
+        self._compare_expected_identity(
+            identity,
+            expected.metadata.identity,
+            diagnostics,
+        )
         return _CandidateInspection(candidate, identity, tuple(diagnostics))
 
     def _inspect_sdist(
         self,
         candidate: DiscoveredArtifact,
-        expected: _PackageNameVersion | None,
+        expected: _ProjectPackageContract,
     ) -> _CandidateInspection:
         diagnostics: list[str] = []
         filename_identity = self._parse_sdist_filename(
@@ -283,6 +361,7 @@ class ValidatePythonPackageArtifactsUseCase:
                     metadata_identity, source_identity = self._validate_sdist_content(
                         stream_inspection,
                         package_root,
+                        expected,
                         diagnostics,
                     )
                     self._compare_sdist_root_identity(
@@ -310,7 +389,11 @@ class ValidatePythonPackageArtifactsUseCase:
             source_identity,
             diagnostics,
         )
-        self._compare_expected_identity(identity, expected, diagnostics)
+        self._compare_expected_identity(
+            identity,
+            expected.metadata.identity,
+            diagnostics,
+        )
         return _CandidateInspection(candidate, identity, tuple(diagnostics))
 
     def _validate_zip_members(
@@ -478,6 +561,7 @@ class ValidatePythonPackageArtifactsUseCase:
         members: list[zipfile.ZipInfo],
         dist_info_root: str,
         captured_members: dict[str, bytes],
+        expected: _ProjectPackageMetadata,
         diagnostics: list[str],
     ) -> _PackageNameVersion | None:
         names = {member.filename for member in members}
@@ -493,9 +577,16 @@ class ValidatePythonPackageArtifactsUseCase:
                 captured_members[metadata_path], "core METADATA", diagnostics
             )
             if metadata_text is not None:
-                identity = self._parse_core_metadata(
+                metadata = self._parse_core_metadata(
                     metadata_text,
                     "wheel METADATA",
+                    diagnostics,
+                )
+                identity = metadata.identity
+                self._compare_package_metadata(
+                    "wheel METADATA",
+                    metadata,
+                    expected,
                     diagnostics,
                 )
 
@@ -515,6 +606,27 @@ class ValidatePythonPackageArtifactsUseCase:
             if record_text is not None:
                 self._parse_record(record_text, required, diagnostics)
         return identity
+
+    def _validate_wheel_content(
+        self,
+        members: list[zipfile.ZipInfo],
+        dist_info_root: str,
+        expected: _ExpectedPackageContent,
+        diagnostics: list[str],
+    ) -> None:
+        actual = frozenset(
+            member.filename
+            for member in members
+            if not member.is_dir()
+            and not member.filename.startswith(f"{dist_info_root}/")
+        )
+        self._compare_package_content(
+            "wheel",
+            actual,
+            expected.python_modules,
+            expected.resources,
+            diagnostics,
+        )
 
     def _required_wheel_members(self, dist_info_root: str) -> dict[str, str]:
         return {
@@ -778,6 +890,7 @@ class ValidatePythonPackageArtifactsUseCase:
         self,
         stream_inspection: _SdistStreamInspection,
         package_root: str,
+        expected: _ProjectPackageContract,
         diagnostics: list[str],
     ) -> tuple[_PackageNameVersion | None, _PackageNameVersion | None]:
         pkg_info_path = f"{package_root}/PKG-INFO"
@@ -791,6 +904,13 @@ class ValidatePythonPackageArtifactsUseCase:
         if not stream_inspection.has_python_source:
             diagnostics.append("source archive contains no Python source modules")
 
+        self._validate_sdist_inventory(
+            stream_inspection.regular_member_names,
+            package_root,
+            expected.content,
+            diagnostics,
+        )
+
         metadata_identity: _PackageNameVersion | None = None
         if pkg_info_path in stream_inspection.captured_members:
             pkg_info_text = self._decode_member_text(
@@ -799,9 +919,16 @@ class ValidatePythonPackageArtifactsUseCase:
                 diagnostics,
             )
             if pkg_info_text is not None:
-                metadata_identity = self._parse_core_metadata(
+                metadata = self._parse_core_metadata(
                     pkg_info_text,
                     "source PKG-INFO",
+                    diagnostics,
+                )
+                metadata_identity = metadata.identity
+                self._compare_package_metadata(
+                    "source PKG-INFO",
+                    metadata,
+                    expected.metadata,
                     diagnostics,
                 )
 
@@ -814,10 +941,66 @@ class ValidatePythonPackageArtifactsUseCase:
             )
             if pyproject_text is not None:
                 try:
-                    source_identity = self._parse_pyproject_identity(pyproject_text)
+                    source_metadata = self._parse_project_metadata(
+                        tomllib.loads(pyproject_text)
+                    )
+                    source_identity = source_metadata.identity
+                    self._compare_project_metadata(
+                        "archived pyproject.toml",
+                        source_metadata,
+                        expected.metadata,
+                        diagnostics,
+                    )
                 except (tomllib.TOMLDecodeError, ValueError) as error:
                     diagnostics.append(f"archived pyproject.toml is malformed: {error}")
         return metadata_identity, source_identity
+
+    def _validate_sdist_inventory(
+        self,
+        member_names: frozenset[str],
+        package_root: str,
+        expected: _ExpectedPackageContent,
+        diagnostics: list[str],
+    ) -> None:
+        source_prefix = f"{package_root}/{expected.source_base}/"
+        egg_info_prefix = f"{source_prefix}{expected.generated_egg_info_root}/"
+        actual_package_files = frozenset(
+            name.removeprefix(source_prefix)
+            for name in member_names
+            if name.startswith(source_prefix) and not name.startswith(egg_info_prefix)
+        )
+        self._compare_package_content(
+            "source archive",
+            actual_package_files,
+            expected.python_modules,
+            expected.resources,
+            diagnostics,
+        )
+
+        allowed_project_files = {
+            f"{package_root}/{name}" for name in expected.sdist_project_files
+        }
+        allowed_generated_files = {
+            f"{package_root}/{name}" for name in _GENERATED_SDIST_ROOT_FILES
+        }
+        unexpected_project_files = sorted(
+            name
+            for name in member_names
+            if not name.startswith(source_prefix)
+            and name not in allowed_project_files
+            and name not in allowed_generated_files
+        )
+        unexpected_egg_info_files = sorted(
+            name
+            for name in member_names
+            if name.startswith(egg_info_prefix)
+            and name.removeprefix(egg_info_prefix) not in _GENERATED_EGG_INFO_FILES
+        )
+        for name in (*unexpected_project_files, *unexpected_egg_info_files):
+            diagnostics.append(
+                f"source archive contains unintended source-distribution content "
+                f"{name!r}"
+            )
 
     def _compare_sdist_root_identity(
         self,
@@ -843,10 +1026,10 @@ class ValidatePythonPackageArtifactsUseCase:
         text: str,
         label: str,
         diagnostics: list[str],
-    ) -> _PackageNameVersion | None:
+    ) -> _CoreMetadataInspection:
         message = self._parse_message(text, label, diagnostics)
         if message is None:
-            return None
+            return _CoreMetadataInspection(None, None, (), False)
         metadata_version = self._single_header(
             message,
             "Metadata-Version",
@@ -859,9 +1042,138 @@ class ValidatePythonPackageArtifactsUseCase:
             metadata_version
         ):
             diagnostics.append(f"{label} has malformed Metadata-Version")
-        if name is None or version is None:
+        identity = (
+            _PackageNameVersion(name, version)
+            if name is not None and version is not None
+            else None
+        )
+        if version is not None:
+            try:
+                Version(version)
+            except InvalidVersion:
+                diagnostics.append(f"{label} has malformed Version {version!r}")
+                identity = None
+
+        requires_python = self._parse_requires_python_header(
+            message,
+            label,
+            diagnostics,
+        )
+        requirements, requirements_valid = self._parse_requires_dist_headers(
+            message,
+            label,
+            diagnostics,
+        )
+        return _CoreMetadataInspection(
+            identity,
+            requires_python,
+            requirements,
+            requirements_valid,
+        )
+
+    def _parse_requires_python_header(
+        self,
+        message: Message,
+        label: str,
+        diagnostics: list[str],
+    ) -> str | None:
+        values = tuple(
+            str(value).strip() for value in message.get_all("Requires-Python", [])
+        )
+        if len(values) != 1 or not values[0]:
+            diagnostics.append(
+                f"{label} must contain exactly one Requires-Python field"
+            )
             return None
-        return _PackageNameVersion(name, version)
+        try:
+            return str(SpecifierSet(values[0]))
+        except InvalidSpecifier:
+            diagnostics.append(
+                f"{label} contains malformed Requires-Python {values[0]!r}"
+            )
+            return None
+
+    def _parse_requires_dist_headers(
+        self,
+        message: Message,
+        label: str,
+        diagnostics: list[str],
+    ) -> tuple[tuple[str, ...], bool]:
+        requirements: list[str] = []
+        valid = True
+        for value in (
+            str(item).strip() for item in message.get_all("Requires-Dist", [])
+        ):
+            try:
+                requirements.append(self._normalize_requirement(Requirement(value)))
+            except InvalidRequirement:
+                diagnostics.append(
+                    f"{label} contains malformed Requires-Dist {value!r}"
+                )
+                valid = False
+        return tuple(sorted(requirements)), valid
+
+    def _compare_package_metadata(
+        self,
+        label: str,
+        actual: _CoreMetadataInspection,
+        expected: _ProjectPackageMetadata,
+        diagnostics: list[str],
+    ) -> None:
+        if (
+            actual.requires_python is not None
+            and actual.requires_python != expected.requires_python
+        ):
+            diagnostics.append(
+                f"{label} Requires-Python does not match authoritative "
+                f"pyproject.toml ({actual.requires_python!r} != "
+                f"{expected.requires_python!r})"
+            )
+        if actual.requirements_valid:
+            self._compare_requirement_sets(
+                label,
+                actual.requirements,
+                expected.requirements,
+                diagnostics,
+            )
+
+    def _compare_project_metadata(
+        self,
+        label: str,
+        actual: _ProjectPackageMetadata,
+        expected: _ProjectPackageMetadata,
+        diagnostics: list[str],
+    ) -> None:
+        if actual.requires_python != expected.requires_python:
+            diagnostics.append(
+                f"{label} Requires-Python does not match authoritative "
+                f"pyproject.toml ({actual.requires_python!r} != "
+                f"{expected.requires_python!r})"
+            )
+        self._compare_requirement_sets(
+            label,
+            actual.requirements,
+            expected.requirements,
+            diagnostics,
+        )
+
+    def _compare_requirement_sets(
+        self,
+        label: str,
+        actual: tuple[str, ...],
+        expected: tuple[str, ...],
+        diagnostics: list[str],
+    ) -> None:
+        missing = Counter(expected) - Counter(actual)
+        unexpected = Counter(actual) - Counter(expected)
+        for requirement in sorted(missing.elements()):
+            diagnostics.append(
+                f"{label} is missing authoritative Requires-Dist {requirement!r}"
+            )
+        for requirement in sorted(unexpected.elements()):
+            diagnostics.append(
+                f"{label} contains unexpected Requires-Dist {requirement!r}"
+            )
 
     def _parse_message(
         self,
@@ -891,8 +1203,10 @@ class ValidatePythonPackageArtifactsUseCase:
             return None
         return values[0]
 
-    def _parse_pyproject_identity(self, text: str) -> _PackageNameVersion:
-        document = tomllib.loads(text)
+    def _parse_project_metadata(
+        self,
+        document: dict[str, object],
+    ) -> _ProjectPackageMetadata:
         project = document.get("project")
         if not isinstance(project, dict):
             raise ValueError("pyproject.toml does not contain a [project] table")
@@ -902,7 +1216,309 @@ class ValidatePythonPackageArtifactsUseCase:
             raise ValueError("pyproject.toml project.name is missing or invalid")
         if not isinstance(version, str) or not version.strip():
             raise ValueError("pyproject.toml project.version is missing or invalid")
-        return _PackageNameVersion(name.strip(), version.strip())
+        try:
+            Version(version.strip())
+        except InvalidVersion as error:
+            raise ValueError("pyproject.toml project.version is malformed") from error
+
+        requires_python = project.get("requires-python")
+        if not isinstance(requires_python, str) or not requires_python.strip():
+            raise ValueError(
+                "pyproject.toml project.requires-python is missing or invalid"
+            )
+        try:
+            normalized_requires_python = str(SpecifierSet(requires_python))
+        except InvalidSpecifier as error:
+            raise ValueError(
+                "pyproject.toml project.requires-python is malformed"
+            ) from error
+
+        requirements = self._parse_project_requirements(project)
+        return _ProjectPackageMetadata(
+            identity=_PackageNameVersion(name.strip(), version.strip()),
+            requires_python=normalized_requires_python,
+            requirements=requirements,
+        )
+
+    def _parse_project_requirements(
+        self,
+        project: dict[str, object],
+    ) -> tuple[str, ...]:
+        requirements: list[str] = []
+        dependencies = project.get("dependencies", [])
+        if not isinstance(dependencies, list) or not all(
+            isinstance(value, str) for value in dependencies
+        ):
+            raise ValueError("pyproject.toml project.dependencies is invalid")
+        for value in dependencies:
+            requirements.append(
+                self._parse_project_requirement(value, "project.dependencies")
+            )
+
+        optional_dependencies = project.get("optional-dependencies", {})
+        if not isinstance(optional_dependencies, dict):
+            raise ValueError("pyproject.toml project.optional-dependencies is invalid")
+        for extra, values in sorted(optional_dependencies.items()):
+            if (
+                not isinstance(extra, str)
+                or not isinstance(values, list)
+                or not all(isinstance(value, str) for value in values)
+            ):
+                raise ValueError(
+                    "pyproject.toml project.optional-dependencies is invalid"
+                )
+            for value in values:
+                try:
+                    requirement = Requirement(value)
+                    extra_marker = Marker(f'extra == "{canonicalize_name(extra)}"')
+                    marker = (
+                        Marker(f"({requirement.marker}) and ({extra_marker})")
+                        if requirement.marker is not None
+                        else extra_marker
+                    )
+                except (InvalidRequirement, InvalidMarker) as error:
+                    raise ValueError(
+                        "pyproject.toml optional dependency contains malformed "
+                        f"requirement {value!r}"
+                    ) from error
+                requirements.append(
+                    self._normalize_requirement(requirement, marker=marker)
+                )
+        return tuple(sorted(requirements))
+
+    def _parse_project_requirement(self, value: str, label: str) -> str:
+        try:
+            return self._normalize_requirement(Requirement(value))
+        except InvalidRequirement as error:
+            raise ValueError(
+                f"pyproject.toml {label} contains malformed requirement {value!r}"
+            ) from error
+
+    def _normalize_requirement(
+        self,
+        requirement: Requirement,
+        *,
+        marker: Marker | None = None,
+    ) -> str:
+        name = canonicalize_name(requirement.name)
+        extras = ""
+        if requirement.extras:
+            extras = (
+                "["
+                + ",".join(
+                    sorted(canonicalize_name(extra) for extra in requirement.extras)
+                )
+                + "]"
+            )
+        if requirement.url is not None:
+            normalized = f"{name}{extras} @ {requirement.url}"
+        else:
+            normalized = f"{name}{extras}{requirement.specifier}"
+        effective_marker = marker if marker is not None else requirement.marker
+        if effective_marker is not None:
+            normalized += f"; {effective_marker}"
+        return normalized
+
+    def _load_expected_package_content(
+        self,
+        document: dict[str, object],
+        identity: _PackageNameVersion,
+    ) -> _ExpectedPackageContent:
+        source_base = self._setuptools_source_base(document)
+        source_base_path = self._project_root / source_base
+        if not source_base_path.is_dir() or source_base_path.is_symlink():
+            raise ValueError(
+                "authoritative setuptools package source directory is unavailable"
+            )
+        package_roots = tuple(
+            sorted(
+                child
+                for child in source_base_path.iterdir()
+                if child.is_dir()
+                and not child.is_symlink()
+                and (child / "__init__.py").is_file()
+            )
+        )
+        if not package_roots:
+            raise ValueError(
+                "authoritative setuptools package source contains no packages"
+            )
+
+        package_source_files = frozenset(
+            path.relative_to(source_base_path).as_posix()
+            for package_root in package_roots
+            for path in package_root.rglob("*")
+            if self._is_authoritative_package_source_file(path, package_root)
+        )
+        python_modules = frozenset(
+            path for path in package_source_files if path.endswith(".py")
+        )
+        resources = self._load_expected_package_resources(
+            document,
+            source_base_path,
+            package_roots,
+        )
+        if not python_modules:
+            raise ValueError(
+                "authoritative setuptools package source contains no Python modules"
+            )
+
+        return _ExpectedPackageContent(
+            source_base=source_base,
+            python_modules=python_modules,
+            resources=resources,
+            sdist_project_files=self._expected_sdist_project_files(document),
+            generated_egg_info_root=(
+                canonicalize_name(identity.name).replace("-", "_") + ".egg-info"
+            ),
+        )
+
+    def _setuptools_source_base(self, document: dict[str, object]) -> str:
+        tool = document.get("tool")
+        setuptools = tool.get("setuptools") if isinstance(tool, dict) else None
+        package_dir = (
+            setuptools.get("package-dir") if isinstance(setuptools, dict) else None
+        )
+        source_base = package_dir.get("") if isinstance(package_dir, dict) else None
+        if not isinstance(source_base, str):
+            raise ValueError(
+                "pyproject.toml tool.setuptools.package-dir[''] is missing or invalid"
+            )
+        source_base = source_base.rstrip("/")
+        if self._archive_path_diagnostic(source_base) is not None:
+            raise ValueError(
+                "pyproject.toml tool.setuptools package source path is unsafe"
+            )
+
+        packages = setuptools.get("packages") if isinstance(setuptools, dict) else None
+        find = packages.get("find") if isinstance(packages, dict) else None
+        where = find.get("where") if isinstance(find, dict) else None
+        if not isinstance(where, list) or source_base not in where:
+            raise ValueError(
+                "pyproject.toml setuptools package discovery does not match "
+                "package-dir authority"
+            )
+        return source_base
+
+    def _is_authoritative_package_source_file(
+        self,
+        path: Path,
+        package_root: Path,
+    ) -> bool:
+        if not path.is_file() or path.is_symlink():
+            return False
+        relative_parts = path.relative_to(package_root).parts
+        if any(
+            part in _IGNORED_SOURCE_DIRECTORY_NAMES or part.endswith(".egg-info")
+            for part in relative_parts[:-1]
+        ):
+            return False
+        if path.name in _IGNORED_SOURCE_FILE_NAMES or path.name.endswith("~"):
+            return False
+        return path.suffix not in _IGNORED_SOURCE_FILE_SUFFIXES
+
+    def _load_expected_package_resources(
+        self,
+        document: dict[str, object],
+        source_base_path: Path,
+        package_roots: tuple[Path, ...],
+    ) -> frozenset[str]:
+        """Resolve intended non-code resources from setuptools package-data.
+
+        This intentionally supports the repository's current policy shape:
+        exact discovered package names mapped to relative ``pathlib`` glob
+        patterns. Source existence alone does not establish packaging intent.
+        """
+
+        tool = document.get("tool")
+        setuptools = tool.get("setuptools") if isinstance(tool, dict) else None
+        package_data = (
+            setuptools.get("package-data") if isinstance(setuptools, dict) else None
+        )
+        if package_data is None:
+            return frozenset()
+        if not isinstance(package_data, dict) or not all(
+            isinstance(name, str) for name in package_data
+        ):
+            raise ValueError("pyproject.toml tool.setuptools.package-data is invalid")
+
+        packages_by_name = {
+            ".".join(package_root.relative_to(source_base_path).parts): package_root
+            for package_root in package_roots
+        }
+        resources: set[str] = set()
+        for package_name in sorted(package_data):
+            patterns = package_data[package_name]
+            package_root = packages_by_name.get(package_name)
+            if package_root is None:
+                raise ValueError(
+                    "pyproject.toml tool.setuptools.package-data uses unsupported "
+                    f"package key {package_name!r}"
+                )
+            if not isinstance(patterns, list) or not all(
+                isinstance(pattern, str) and pattern for pattern in patterns
+            ):
+                raise ValueError(
+                    "pyproject.toml tool.setuptools.package-data patterns are invalid"
+                )
+            for pattern in patterns:
+                if self._archive_path_diagnostic(pattern) is not None:
+                    raise ValueError(
+                        "pyproject.toml tool.setuptools.package-data contains unsafe "
+                        f"pattern {pattern!r}"
+                    )
+                for path in package_root.glob(pattern):
+                    if (
+                        not self._is_authoritative_package_source_file(
+                            path, package_root
+                        )
+                        or path.suffix == ".py"
+                    ):
+                        continue
+                    resources.add(path.relative_to(source_base_path).as_posix())
+        return frozenset(resources)
+
+    def _expected_sdist_project_files(
+        self,
+        document: dict[str, object],
+    ) -> frozenset[str]:
+        expected = {"pyproject.toml"}
+        project = document.get("project")
+        if not isinstance(project, dict):
+            return frozenset(expected)
+        readme = project.get("readme")
+        if isinstance(readme, str):
+            expected.add(readme)
+        elif isinstance(readme, dict):
+            readme_file = readme.get("file")
+            if isinstance(readme_file, str):
+                expected.add(readme_file)
+        for pattern in ("LICEN[CS]E*", "COPYING*", "NOTICE*", "AUTHORS*"):
+            expected.update(
+                path.name
+                for path in self._project_root.glob(pattern)
+                if path.is_file() and not path.is_symlink()
+            )
+        return frozenset(expected)
+
+    def _compare_package_content(
+        self,
+        label: str,
+        actual: frozenset[str],
+        expected_python_modules: frozenset[str],
+        expected_resources: frozenset[str],
+        diagnostics: list[str],
+    ) -> None:
+        expected = expected_python_modules | expected_resources
+        for path in sorted(expected_python_modules - actual):
+            diagnostics.append(f"{label} is missing expected Python module {path!r}")
+        for path in sorted(expected_resources - actual):
+            diagnostics.append(f"{label} is missing required package resource {path!r}")
+        for path in sorted(actual - expected):
+            content_kind = (
+                "Python module" if path.endswith(".py") else "package resource"
+            )
+            diagnostics.append(f"{label} contains unintended {content_kind} {path!r}")
 
     def _parse_wheel_filename(
         self,
@@ -1021,14 +1637,14 @@ class ValidatePythonPackageArtifactsUseCase:
     ) -> bool:
         if left is None or right is None:
             return False
+        try:
+            versions_match = Version(left.version) == Version(right.version)
+        except InvalidVersion:
+            return False
         return (
-            self._normalize_distribution_name(left.name)
-            == self._normalize_distribution_name(right.name)
-            and left.version == right.version
+            canonicalize_name(left.name) == canonicalize_name(right.name)
+            and versions_match
         )
-
-    def _normalize_distribution_name(self, name: str) -> str:
-        return re.sub(r"[-_.]+", "-", name).lower()
 
     def _normalized_archive_member_name(self, name: str) -> str:
         return name[:-1] if name.endswith("/") else name

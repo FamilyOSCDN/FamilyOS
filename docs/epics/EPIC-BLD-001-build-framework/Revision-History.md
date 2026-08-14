@@ -1338,6 +1338,37 @@ duplicated here, and it does not affect the run's `success` conclusion.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+## Python Package Content and Metadata Validation — 2026-08-14
+
+This incremental technical revision extends the existing application-owned
+Python package validator without changing the canonical execution, discovery,
+and validation sequence. Emitted wheel `METADATA` and source-distribution
+`PKG-INFO` must contain standards-compliant `Requires-Python` and
+`Requires-Dist` fields matching normalized `pyproject.toml` authority. The
+archived source-distribution `pyproject.toml` must represent the same static
+metadata contract.
+
+Configured setuptools package discovery and regular package source define the
+Python-module inventory. Non-code resource intent is independently derived from
+regular source files matching the exact `tool.setuptools.package-data` policy;
+mere source-tree presence does not make a resource expected. Both candidates
+must contain the complete expected inventory and no unintended package content;
+the source distribution additionally rejects unrelated distribution-root
+content. The packaging configuration now explicitly includes `py.typed`,
+builtin plugin YAML manifests, and Jinja templates. This both corrects the
+missing-resource defect proven by the initial source-to-candidate comparison
+and prevents undeclared source resources from becoming circular authority.
+
+PEP 440/508 parsing uses the explicitly declared `packaging>=26.0` runtime
+dependency, and the generated dependency lock records that direct authority.
+This revision closes only the six remaining static Level 16 metadata/content
+items. Installation, import and CLI smoke, and functional source-distribution
+build/install validation remain open. No CI workflow, Artifact Identity,
+Artifact Integrity, Build ID, Build Evidence, trust, provenance, signing,
+release, or publication capability is introduced. Framework version `1.0.0`
+and immutable historical publication tag `v4.7.0-build-framework` remain
+unchanged.
+
 ---
 
 # Current Revision State

@@ -25,16 +25,54 @@ from familyos_cli.application.build import (
 PACKAGE_NAME = "familyos-cli"
 ARCHIVE_NAME = "familyos_cli"
 PACKAGE_VERSION = "0.1.0"
+REQUIRES_PYTHON = ">=3.13"
+REQUIRES_DIST = (
+    "typer>=0.16",
+    'pytest>=8.4; extra == "dev"',
+)
+
+
+def _project_toml(
+    *,
+    requires_python: str = REQUIRES_PYTHON,
+    dependencies: tuple[str, ...] = ("typer>=0.16",),
+    dev_dependencies: tuple[str, ...] = ("pytest>=8.4",),
+) -> str:
+    dependency_lines = ",\n".join(f'    "{value}"' for value in dependencies)
+    dev_dependency_lines = ",\n".join(f'    "{value}"' for value in dev_dependencies)
+    return (
+        "[project]\n"
+        f'name = "{PACKAGE_NAME}"\n'
+        f'version = "{PACKAGE_VERSION}"\n'
+        f'requires-python = "{requires_python}"\n'
+        "dependencies = [\n"
+        f"{dependency_lines}\n"
+        "]\n\n"
+        "[project.optional-dependencies]\n"
+        "dev = [\n"
+        f"{dev_dependency_lines}\n"
+        "]\n\n"
+        "[tool.setuptools]\n"
+        'package-dir = { "" = "src" }\n\n'
+        "[tool.setuptools.packages.find]\n"
+        'where = ["src"]\n\n'
+        "[tool.setuptools.package-data]\n"
+        f"{ARCHIVE_NAME} = [\n"
+        '    "py.typed",\n'
+        '    "plugins/builtin/*/plugin.yaml",\n'
+        '    "plugins/builtin/*/templates/**/*.j2",\n'
+        "]\n"
+    )
 
 
 @pytest.fixture
 def project_root(tmp_path: Path) -> Path:
     root = tmp_path / "project"
     root.mkdir()
-    (root / "pyproject.toml").write_text(
-        f'[project]\nname = "{PACKAGE_NAME}"\nversion = "{PACKAGE_VERSION}"\n',
-        encoding="utf-8",
-    )
+    (root / "pyproject.toml").write_text(_project_toml(), encoding="utf-8")
+    package_root = root / "src" / ARCHIVE_NAME
+    package_root.mkdir(parents=True)
+    (package_root / "__init__.py").write_text("", encoding="utf-8")
     return root
 
 
@@ -42,8 +80,14 @@ def _core_metadata(
     *,
     name: str = PACKAGE_NAME,
     version: str = PACKAGE_VERSION,
+    requires_python: str | None = REQUIRES_PYTHON,
+    requires_dist: tuple[str, ...] = REQUIRES_DIST,
 ) -> str:
-    return f"Metadata-Version: 2.4\nName: {name}\nVersion: {version}\n\n"
+    lines = ["Metadata-Version: 2.4", f"Name: {name}", f"Version: {version}"]
+    if requires_python is not None:
+        lines.append(f"Requires-Python: {requires_python}")
+    lines.extend(f"Requires-Dist: {requirement}" for requirement in requires_dist)
+    return "\n".join((*lines, "", ""))
 
 
 def _wheel_metadata() -> str:
@@ -104,6 +148,7 @@ def _write_sdist(
     path: Path,
     *,
     metadata: str | None = None,
+    pyproject: str | None = None,
     root: str = f"{ARCHIVE_NAME}-{PACKAGE_VERSION}",
     extra_members: tuple[tuple[str, str | bytes], ...] = (),
 ) -> None:
@@ -112,7 +157,7 @@ def _write_sdist(
         _add_tar_text(
             archive,
             f"{root}/pyproject.toml",
-            f'[project]\nname = "{PACKAGE_NAME}"\nversion = "{PACKAGE_VERSION}"\n',
+            pyproject or _project_toml(),
         )
         _add_tar_text(archive, f"{root}/src/{ARCHIVE_NAME}/__init__.py", "")
         for name, content in extra_members:
@@ -337,6 +382,232 @@ def test_incoherent_wheel_identity_is_invalid(project_root: Path) -> None:
     assert result.status is PackageStructuralValidationStatus.INVALID
     assert result.diagnostic is not None
     assert "name/version does not match" in result.diagnostic
+
+
+def test_pep440_equivalent_package_versions_are_coherent(project_root: Path) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(wheel, metadata=_core_metadata(version="0.1.0.0"))
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.VALID
+    assert result.diagnostic is None
+
+
+def test_wheel_rejects_malformed_requires_python(project_root: Path) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(wheel, metadata=_core_metadata(requires_python="not-a-specifier"))
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "malformed Requires-Python 'not-a-specifier'" in result.diagnostic
+
+
+def test_wheel_rejects_malformed_requires_dist(project_root: Path) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    malformed = "not a valid requirement ???"
+    _write_wheel(wheel, metadata=_core_metadata(requires_dist=(malformed,)))
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert f"malformed Requires-Dist {malformed!r}" in result.diagnostic
+
+
+def test_wheel_requires_python_must_match_project_authority(
+    project_root: Path,
+) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(wheel, metadata=_core_metadata(requires_python=">=3.12"))
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "Requires-Python does not match authoritative" in result.diagnostic
+
+
+def test_wheel_dependencies_must_match_project_authority(
+    project_root: Path,
+) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(
+        wheel,
+        metadata=_core_metadata(
+            requires_dist=("typer>=0.15", REQUIRES_DIST[1]),
+        ),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "missing authoritative Requires-Dist 'typer>=0.16'" in result.diagnostic
+    assert "unexpected Requires-Dist 'typer>=0.15'" in result.diagnostic
+
+
+def test_wheel_reports_missing_expected_python_module(project_root: Path) -> None:
+    expected_module = project_root / "src" / ARCHIVE_NAME / "expected.py"
+    expected_module.write_text("VALUE = 1\n", encoding="utf-8")
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(wheel)
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "missing expected Python module 'familyos_cli/expected.py'" in (
+        result.diagnostic
+    )
+
+
+def test_wheel_reports_missing_required_package_resource(project_root: Path) -> None:
+    expected_resource = (
+        project_root
+        / "src"
+        / ARCHIVE_NAME
+        / "plugins"
+        / "builtin"
+        / "security"
+        / "plugin.yaml"
+    )
+    expected_resource.parent.mkdir(parents=True)
+    expected_resource.write_text("id: test\n", encoding="utf-8")
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(wheel)
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert (
+        "missing required package resource "
+        "'familyos_cli/plugins/builtin/security/plugin.yaml'"
+    ) in result.diagnostic
+
+
+def test_wheel_rejects_unintended_python_module(project_root: Path) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(
+        wheel,
+        extra_members=((f"{ARCHIVE_NAME}/unexpected.py", "VALUE = 1\n"),),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "unintended Python module 'familyos_cli/unexpected.py'" in (
+        result.diagnostic
+    )
+
+
+def test_wheel_rejects_unintended_package_resource(project_root: Path) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(
+        wheel,
+        extra_members=((f"{ARCHIVE_NAME}/unexpected.txt", "unexpected"),),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "unintended package resource 'familyos_cli/unexpected.txt'" in (
+        result.diagnostic
+    )
+
+
+def test_wheel_rejects_source_present_resource_not_declared_as_package_data(
+    project_root: Path,
+) -> None:
+    relative_path = f"{ARCHIVE_NAME}/plugins/builtin/security/DEBUG_LEAKED_NOTES.env"
+    source_path = project_root / "src" / relative_path
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text("local-only configuration\n", encoding="utf-8")
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(
+        wheel,
+        extra_members=((relative_path, "local-only configuration\n"),),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert (
+        "wheel contains unintended package resource "
+        "'familyos_cli/plugins/builtin/security/DEBUG_LEAKED_NOTES.env'"
+    ) in result.diagnostic
+
+
+def test_generated_source_cache_and_system_files_are_not_package_authority(
+    project_root: Path,
+) -> None:
+    package_source = project_root / "src" / ARCHIVE_NAME
+    cache = package_source / "__pycache__"
+    cache.mkdir()
+    (cache / "cached.pyc").write_bytes(b"generated")
+    (package_source / ".DS_Store").write_bytes(b"generated")
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(wheel)
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.VALID
+    assert result.diagnostic is None
+
+
+@pytest.mark.parametrize(
+    "unintended_path",
+    [
+        f"{ARCHIVE_NAME}/__pycache__/cached.pyc",
+        f"{ARCHIVE_NAME}/.DS_Store",
+        f"{ARCHIVE_NAME}/tests/test_packaging.py",
+        f"{ARCHIVE_NAME}.egg-info/PKG-INFO",
+    ],
+)
+def test_wheel_rejects_generated_or_development_content(
+    project_root: Path,
+    unintended_path: str,
+) -> None:
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(wheel, extra_members=((unintended_path, "unintended"),))
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(wheel, ArtifactClass.PYTHON_WHEEL),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "unintended package resource" in result.diagnostic or (
+        "unintended Python module" in result.diagnostic
+    )
 
 
 def test_wheel_with_traversal_member_is_invalid_without_extraction(
@@ -613,6 +884,220 @@ def test_incoherent_sdist_metadata_is_invalid(project_root: Path) -> None:
     assert "name/version does not match" in result.diagnostic
 
 
+def test_sdist_rejects_malformed_requires_python(project_root: Path) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    _write_sdist(
+        sdist,
+        metadata=_core_metadata(requires_python="not-a-specifier"),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "malformed Requires-Python 'not-a-specifier'" in result.diagnostic
+
+
+def test_sdist_rejects_malformed_requires_dist(project_root: Path) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    malformed = "not a valid requirement ???"
+    _write_sdist(sdist, metadata=_core_metadata(requires_dist=(malformed,)))
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert f"malformed Requires-Dist {malformed!r}" in result.diagnostic
+
+
+def test_archived_project_metadata_must_match_repository_authority(
+    project_root: Path,
+) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    _write_sdist(sdist, pyproject=_project_toml(requires_python=">=3.12"))
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "archived pyproject.toml Requires-Python does not match" in (
+        result.diagnostic
+    )
+
+
+def test_sdist_dependencies_must_match_project_authority(
+    project_root: Path,
+) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    _write_sdist(
+        sdist,
+        metadata=_core_metadata(
+            requires_dist=("typer>=0.15", REQUIRES_DIST[1]),
+        ),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "missing authoritative Requires-Dist 'typer>=0.16'" in result.diagnostic
+    assert "unexpected Requires-Dist 'typer>=0.15'" in result.diagnostic
+
+
+def test_sdist_reports_missing_expected_python_module(project_root: Path) -> None:
+    expected_module = project_root / "src" / ARCHIVE_NAME / "expected.py"
+    expected_module.write_text("VALUE = 1\n", encoding="utf-8")
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    _write_sdist(sdist)
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "missing expected Python module 'familyos_cli/expected.py'" in (
+        result.diagnostic
+    )
+
+
+def test_sdist_reports_missing_required_package_resource(project_root: Path) -> None:
+    expected_resource = (
+        project_root
+        / "src"
+        / ARCHIVE_NAME
+        / "plugins"
+        / "builtin"
+        / "security"
+        / "plugin.yaml"
+    )
+    expected_resource.parent.mkdir(parents=True)
+    expected_resource.write_text("id: test\n", encoding="utf-8")
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    _write_sdist(sdist)
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert (
+        "missing required package resource "
+        "'familyos_cli/plugins/builtin/security/plugin.yaml'"
+    ) in result.diagnostic
+
+
+def test_sdist_rejects_unintended_python_module(project_root: Path) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    root = f"{ARCHIVE_NAME}-{PACKAGE_VERSION}"
+    _write_sdist(
+        sdist,
+        extra_members=((f"{root}/src/{ARCHIVE_NAME}/unexpected.py", "VALUE = 1\n"),),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "unintended Python module 'familyos_cli/unexpected.py'" in (
+        result.diagnostic
+    )
+
+
+def test_sdist_rejects_unintended_package_resource(project_root: Path) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    root = f"{ARCHIVE_NAME}-{PACKAGE_VERSION}"
+    _write_sdist(
+        sdist,
+        extra_members=((f"{root}/src/{ARCHIVE_NAME}/unexpected.txt", "data"),),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "unintended package resource 'familyos_cli/unexpected.txt'" in (
+        result.diagnostic
+    )
+
+
+def test_sdist_rejects_source_present_resource_not_declared_as_package_data(
+    project_root: Path,
+) -> None:
+    relative_path = f"{ARCHIVE_NAME}/plugins/builtin/security/DEBUG_LEAKED_NOTES.env"
+    source_path = project_root / "src" / relative_path
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text("local-only configuration\n", encoding="utf-8")
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    root = f"{ARCHIVE_NAME}-{PACKAGE_VERSION}"
+    _write_sdist(
+        sdist,
+        extra_members=((f"{root}/src/{relative_path}", "local configuration"),),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert (
+        "source archive contains unintended package resource "
+        "'familyos_cli/plugins/builtin/security/DEBUG_LEAKED_NOTES.env'"
+    ) in result.diagnostic
+
+
+def test_sdist_rejects_unintended_distribution_content(project_root: Path) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    root = f"{ARCHIVE_NAME}-{PACKAGE_VERSION}"
+    _write_sdist(
+        sdist,
+        extra_members=((f"{root}/internal-notes.txt", "development only"),),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "unintended source-distribution content" in result.diagnostic
+    assert "internal-notes.txt" in result.diagnostic
+
+
+def test_sdist_rejects_unintended_egg_info_content(project_root: Path) -> None:
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    root = f"{ARCHIVE_NAME}-{PACKAGE_VERSION}"
+    _write_sdist(
+        sdist,
+        extra_members=(
+            (f"{root}/src/{ARCHIVE_NAME}.egg-info/internal-notes.txt", "secret"),
+        ),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (_candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),)
+    )
+
+    assert result.status is PackageStructuralValidationStatus.INVALID
+    assert result.diagnostic is not None
+    assert "unintended source-distribution content" in result.diagnostic
+    assert "internal-notes.txt" in result.diagnostic
+
+
 def test_sdist_with_traversal_member_is_invalid_without_extraction(
     project_root: Path,
 ) -> None:
@@ -657,7 +1142,7 @@ def test_sdist_member_actual_byte_bound_stops_streaming(
     monkeypatch.setattr(
         validation_module,
         "_SDIST_MEMBER_ACTUAL_BYTES_LIMIT",
-        128,
+        512,
     )
 
     result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
@@ -708,6 +1193,77 @@ def test_sdist_member_count_bound_is_enforced_during_streaming(
     assert result.status is PackageStructuralValidationStatus.INVALID
     assert result.diagnostic is not None
     assert "2-member inspection limit" in result.diagnostic
+
+
+def test_wheel_and_sdist_match_authoritative_content_inventory(
+    project_root: Path,
+) -> None:
+    package_source = project_root / "src" / ARCHIVE_NAME
+    (package_source / "expected.py").write_text("VALUE = 1\n", encoding="utf-8")
+    resource_path = "plugins/builtin/security/plugin.yaml"
+    resource_source = package_source / resource_path
+    resource_source.parent.mkdir(parents=True)
+    resource_source.write_text("id: test\n", encoding="utf-8")
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    sdist = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}.tar.gz"
+    root = f"{ARCHIVE_NAME}-{PACKAGE_VERSION}"
+    _write_wheel(
+        wheel,
+        extra_members=(
+            (f"{ARCHIVE_NAME}/expected.py", "VALUE = 1\n"),
+            (f"{ARCHIVE_NAME}/{resource_path}", "id: test\n"),
+        ),
+    )
+    _write_sdist(
+        sdist,
+        extra_members=(
+            (f"{root}/src/{ARCHIVE_NAME}/expected.py", "VALUE = 1\n"),
+            (f"{root}/src/{ARCHIVE_NAME}/{resource_path}", "id: test\n"),
+        ),
+    )
+
+    result = ValidatePythonPackageArtifactsUseCase(project_root).execute(
+        (
+            _candidate(sdist, ArtifactClass.SOURCE_DISTRIBUTION),
+            _candidate(wheel, ArtifactClass.PYTHON_WHEEL),
+        )
+    )
+
+    assert result.status is PackageStructuralValidationStatus.VALID
+    assert result.diagnostic is None
+
+
+def test_content_inventory_diagnostics_are_deterministic(
+    project_root: Path,
+) -> None:
+    package_source = project_root / "src" / ARCHIVE_NAME
+    (package_source / "missing.py").write_text("", encoding="utf-8")
+    missing_resource = (
+        package_source / "plugins" / "builtin" / "security" / "plugin.yaml"
+    )
+    missing_resource.parent.mkdir(parents=True)
+    missing_resource.write_text("", encoding="utf-8")
+    wheel = project_root / f"{ARCHIVE_NAME}-{PACKAGE_VERSION}-py3-none-any.whl"
+    _write_wheel(
+        wheel,
+        extra_members=(
+            (f"{ARCHIVE_NAME}/unexpected.txt", ""),
+            (f"{ARCHIVE_NAME}/unexpected.py", ""),
+        ),
+    )
+    validator = ValidatePythonPackageArtifactsUseCase(project_root)
+
+    first = validator.execute((_candidate(wheel, ArtifactClass.PYTHON_WHEEL),))
+    second = validator.execute((_candidate(wheel, ArtifactClass.PYTHON_WHEEL),))
+
+    assert first == second
+    assert first.candidate_results[0].diagnostics == (
+        "wheel is missing expected Python module 'familyos_cli/missing.py'",
+        "wheel is missing required package resource "
+        "'familyos_cli/plugins/builtin/security/plugin.yaml'",
+        "wheel contains unintended Python module 'familyos_cli/unexpected.py'",
+        "wheel contains unintended package resource 'familyos_cli/unexpected.txt'",
+    )
 
 
 def test_diagnostics_are_candidate_specific_and_deterministic(
