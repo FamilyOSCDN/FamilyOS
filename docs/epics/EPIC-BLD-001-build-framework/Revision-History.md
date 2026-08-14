@@ -1199,12 +1199,20 @@ output handling, failure normalization, CLI registration, success and failure
 status, absence of publication commands, and the deliberately limited result
 model. A real integration test copies current packaging inputs into a temporary
 project, builds one wheel and one source distribution through the production
-adapter, and verifies checkout egg-info remains unchanged.
+adapter, and verifies all tracked checkout paths remain unchanged.
 
-Setuptools builds executed directly against the checkout may rewrite the
-pre-existing tracked `src/familyos_cli.egg-info/` metadata. Removal and ignore
-policy are deferred to a separate repository-hygiene slice, and source-tree
-immutability remains unclaimed.
+The packaging repository-hygiene reconciliation removes generated egg-info
+from Git authority and configures `*.egg-info/`, root `dist/`, and root `build/`
+as ignored generated state. After the change is committed, setuptools may
+recreate this local metadata without dirtying Git-tracked authority.
+`pyproject.toml` and generated `requirements.txt` retain their respective
+declaration and resolved-dependency authority.
+
+The Level 13 authoritative-source mutation checklist item remains open. The
+current uncommitted transition cannot prove that canonical packaging and
+dependency workflows leave the committed checkout clean because the baseline
+commit still tracks the six egg-info paths. That proof requires post-commit
+execution. Level 14 and later artifact semantics remain unchanged.
 
 This slice does not establish Artifact Discovery completion, validation,
 identity, integrity, Build ID, Build Evidence, CI build invocation, release

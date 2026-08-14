@@ -159,7 +159,7 @@ Focused tests cover command registration, delegation, explicit output,
 success/failure exits, normalized execution failures, and the absence of a
 publication command. An isolated integration test copies the actual packaging
 inputs into a temporary project and proves that the production adapter builds
-one wheel and one source distribution without touching checkout egg-info.
+one wheel and one source distribution without changing tracked checkout files.
 GitHub Actions does not invoke `familyos build` yet.
 
 ---
@@ -538,6 +538,13 @@ one controlled packaging invocation and returns only sorted wheel and
 source-distribution paths as process-level outputs. Non-zero frontend results
 and launch errors cannot become successful build results. This does not assign
 artifact identity, validation, integrity, trust, or Build Evidence semantics.
+The packaging-hygiene slice removes six generated egg-info files from Git
+authority and configures `*.egg-info/`, root `dist/`, and root `build/` as
+ignored generated state. Until those removals are committed, metadata
+generation can still rewrite paths tracked by the current commit. Post-commit
+execution must therefore prove that canonical packaging and dependency
+workflows leave tracked authoritative source unchanged before the
+source-mutation item can close.
 
 ---
 
@@ -888,8 +895,9 @@ failures. The provider-neutral command is the same entry point invoked by
 `.github/workflows/ci.yml`.
 
 Level 26 remains incomplete. A canonical candidate-artifact location,
-artifact-related cleanup contract, and proof that build execution has no
-CI-only steps depend on future build integration and artifact implementation.
+artifact-related cleanup contract, proof that build execution has no CI-only
+steps, and post-commit source-mutation verification depend on later validation
+or future build integration and artifact implementation.
 
 ---
 

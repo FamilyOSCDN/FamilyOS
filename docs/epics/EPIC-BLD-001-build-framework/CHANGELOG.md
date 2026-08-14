@@ -155,9 +155,16 @@ source-distribution reporting, normalized failure propagation, non-zero CLI
 failure status, focused tests, and a real package build isolated in a temporary
 copy of the current packaging inputs. It contains no publication behavior.
 
-Direct setuptools builds against the checkout may rewrite the pre-existing
-tracked `src/familyos_cli.egg-info/` metadata. Its hygiene correction is
-deferred, and the build does not yet claim source-tree immutability.
+This slice removes generated setuptools egg-info from Git authority.
+`*.egg-info/`, root `dist/`, and root `build/` outputs are configured as ignored
+generated state, leaving `pyproject.toml` as the package metadata authority and
+`requirements.txt` as the controlled resolved dependency state. Once committed,
+regenerated egg-info should no longer dirty Git-tracked authority.
+
+The Level 13 source-mutation item remains open. Because the egg-info deletions
+are not yet represented in Git history, post-commit execution is still required
+to prove that canonical packaging and dependency workflows leave the committed
+checkout clean. Artifact Discovery and artifact trust maturity remain unchanged.
 
 Artifact discovery maturity, artifact validation, identity, integrity, Build
 ID, Build Evidence, CI build invocation, release handoff, and publication

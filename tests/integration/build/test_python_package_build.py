@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -10,18 +11,28 @@ from familyos_cli.application.build import PackageBuildStatus
 from familyos_cli.infrastructure.build import PythonPackageBuilder
 
 
-def _snapshot(directory: Path) -> dict[str, bytes]:
+def _tracked_snapshot(repository_root: Path) -> dict[str, bytes | None]:
+    completed = subprocess.run(
+        ("git", "ls-files", "-z"),
+        cwd=repository_root,
+        capture_output=True,
+        check=True,
+    )
+    tracked_paths = completed.stdout.decode().split("\0")
     return {
-        str(path.relative_to(directory)): path.read_bytes()
-        for path in sorted(directory.rglob("*"))
-        if path.is_file()
+        relative_path: (
+            path.read_bytes()
+            if (path := repository_root / relative_path).is_file()
+            else None
+        )
+        for relative_path in tracked_paths
+        if relative_path
     }
 
 
 def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> None:
     repository_root = Path(__file__).resolve().parents[3]
-    tracked_egg_info = repository_root / "src" / "familyos_cli.egg-info"
-    egg_info_before = _snapshot(tracked_egg_info)
+    tracked_before = _tracked_snapshot(repository_root)
 
     project_root = tmp_path / "familyos-project"
     package_root = project_root / "src" / "familyos_cli"
@@ -51,4 +62,18 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     assert len(sdists) == 1
     assert all(path.parent == output_dir for path in result.outputs)
     assert all(path.is_file() for path in result.outputs)
-    assert _snapshot(tracked_egg_info) == egg_info_before
+    assert _tracked_snapshot(repository_root) == tracked_before
+
+    ignored_egg_info = subprocess.run(
+        (
+            "git",
+            "check-ignore",
+            "--no-index",
+            "src/familyos_cli.egg-info/PKG-INFO",
+        ),
+        cwd=repository_root,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    assert ignored_egg_info.returncode == 0

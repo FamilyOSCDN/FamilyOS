@@ -1251,13 +1251,32 @@ Build Framework implementation:    IN PROGRESS
 The real integration test builds through the production adapter in a temporary
 project containing the current `pyproject.toml`, `README.md`, `LICENSE`, and
 `src/familyos_cli` tree. It produces one wheel and one source distribution and
-asserts that checkout `src/familyos_cli.egg-info` remains byte-identical.
+asserts that all tracked checkout paths remain byte-identical.
 
-Direct package construction against the checkout is known to let setuptools
-rewrite tracked `src/familyos_cli.egg-info/*`. That pre-existing repository
-hygiene limitation is deferred to a separate slice; the directory is not a
-canonical package output, and this slice does not claim source-tree
-immutability.
+The hygiene slice removes generated `*.egg-info/` from repository authority
+and configures it, root `dist/`, and root `build/` as ignored generated state.
+Setuptools may regenerate packaging metadata locally. After the deletions are
+committed, that regenerated state should no longer dirty Git-tracked authority.
+`pyproject.toml` remains authoritative for package metadata, and generated
+`requirements.txt` remains the controlled resolved dependency state.
+
+Pre-commit repository-hygiene validation exercised these workflows while the
+six egg-info deletions were still uncommitted:
+
+* editable installation with `--no-deps --no-build-isolation`: PASS;
+* dependency freshness: PASS;
+* real `familyos build`: PASS — one wheel and one source distribution;
+* canonical `familyos validation ci`: PASS;
+* ignore-boundary verification: PASS — generated packaging paths ignored and
+  authoritative `docs/build/`, application build, and integration-test paths
+  visible.
+
+Because the current commit still tracks the six egg-info paths, these runs do
+not prove checkout immutability after the removals enter Git history. The Level
+13 authoritative-source mutation item remains open pending post-commit
+execution of the canonical packaging and dependency workflows. This evidence
+does not establish Artifact Discovery, artifact validation, identity,
+integrity, trust, or Build Evidence.
 
 This evidence does not claim Artifact Discovery completion, canonical artifact
 identity, validation, integrity, Build ID, Build Evidence, release handoff, or

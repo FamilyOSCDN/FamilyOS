@@ -23,5 +23,10 @@ demo4/
 # Generated artifacts
 generated/
 
+# Python packaging outputs
+*.egg-info/
+/dist/
+/build/
+
 # macOS
 .DS_Store

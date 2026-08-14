@@ -126,9 +126,8 @@ needed:
 familyos build --output-dir /tmp/familyos-package-build
 ```
 
-`dist/` is generated package-build output and is not currently ignored by
-Git. Do not commit it. After inspecting the outputs, remove `dist/` when it is
-no longer needed.
+Root `dist/` and root `build/` are generated package-build outputs and are
+ignored by Git. They are not authoritative source and must not be committed.
 
 A successful command reports the wheel and source-distribution paths produced
 by packaging. A packaging or execution failure returns a non-zero status and a
@@ -138,12 +137,18 @@ This first build slice does not establish canonical artifact discovery,
 artifact validation, artifact identity, integrity, Build Evidence, or release
 handoff. CI does not invoke `familyos build` yet.
 
-Setuptools metadata generation during a real build currently rewrites tracked
-files under `src/familyos_cli.egg-info/`. This is a known pre-existing
-repository-hygiene limitation; egg-info is not part of the canonical package
-output. Its removal and ignore policy are deliberately deferred to a separate
-repository-hygiene slice. Inspect `git status` after local builds. The current
-build command does not claim source-tree immutability.
+This hygiene change removes generated `*.egg-info/` metadata from repository
+authority and configures it as ignored state. Setuptools may regenerate it
+locally during installation, dependency resolution, or package construction.
+After the removals are committed, regenerated metadata should therefore no
+longer dirty Git-tracked authority. `pyproject.toml` remains the canonical
+packaging metadata authority, while `requirements.txt` remains the controlled
+resolved dependency state.
+
+The current uncommitted transition does not yet prove that every canonical
+packaging and dependency workflow leaves the committed checkout clean. That
+claim requires post-commit execution after the egg-info removals exist in Git
+history.
 
 ## Common failures
 
