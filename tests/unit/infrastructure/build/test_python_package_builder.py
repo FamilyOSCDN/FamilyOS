@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -88,6 +89,81 @@ def test_success_does_not_report_unchanged_stale_package_outputs(
 
     assert result.status is PackageBuildStatus.SUCCEEDED
     assert result.outputs == ()
+
+
+def test_success_reports_all_new_direct_files_including_unexpected(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "packages"
+    output_dir.mkdir()
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    unexpected = output_dir / "backend.log"
+
+    def succeed(command: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        wheel.touch()
+        unexpected.touch()
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", succeed)
+
+    result = PythonPackageBuilder("/controlled/python").build(
+        project_root=tmp_path,
+        output_dir=output_dir,
+    )
+
+    assert result.outputs == (unexpected, wheel)
+
+
+def test_success_reports_changed_stale_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "packages"
+    output_dir.mkdir()
+    stale = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    stale.write_text("old", encoding="utf-8")
+
+    def succeed(command: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        stale.write_text("replacement output", encoding="utf-8")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", succeed)
+
+    result = PythonPackageBuilder("/controlled/python").build(
+        project_root=tmp_path,
+        output_dir=output_dir,
+    )
+
+    assert result.outputs == (stale,)
+
+
+def test_same_size_same_mtime_content_replacement_is_reported(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "packages"
+    output_dir.mkdir()
+    replaced = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    replaced.write_bytes(b"old!")
+    original_mtime_ns = replaced.stat().st_mtime_ns
+
+    def succeed(command: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        replaced.write_bytes(b"new!")
+        os.utime(replaced, ns=(original_mtime_ns, original_mtime_ns))
+        assert replaced.stat().st_size == 4
+        assert replaced.stat().st_mtime_ns == original_mtime_ns
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", succeed)
+
+    result = PythonPackageBuilder("/controlled/python").build(
+        project_root=tmp_path,
+        output_dir=output_dir,
+    )
+
+    assert replaced.read_bytes() == b"new!"
+    assert result.outputs == (replaced,)
 
 
 def test_nonzero_subprocess_result_is_normalized_failure(

@@ -1221,10 +1221,26 @@ This reconciliation changes no build behavior and introduces no Level 14 or
 later artifact semantics, validation, identity, integrity, Build Evidence, or
 release capability.
 
-This slice does not establish Artifact Discovery completion, validation,
-identity, integrity, Build ID, Build Evidence, CI build invocation, release
-handoff, or publication. The Build Framework technical implementation remains
-in progress, and framework version `1.0.0` plus historical publication tag
+## Level 14 Artifact Discovery — 2026-08-14
+
+This incremental technical revision introduces an application-owned expected
+artifact contract and discovery use case after canonical package execution.
+The packaging adapter reports every direct file created or replaced by the
+current execution without assigning artifact policy. Discovery requires one
+wheel and one source distribution in the resolved canonical output directory,
+rejects missing, duplicate, out-of-location, and unexpected current outputs,
+and classifies the exact expected set as candidates.
+
+Focused static checks and 29 targeted application, infrastructure, integration,
+and CLI tests passed, including a real isolated package build through the
+production discovery path. Candidate classification carries no validation,
+identity, integrity, trust, Build ID, Build Evidence, release, or publication
+meaning.
+
+Level 14 remains partial because temporary and intermediate output
+classification and Build ID association remain open. CI still does not invoke
+`familyos build`. The Build Framework technical implementation remains in
+progress, and framework version `1.0.0` plus historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
 ---

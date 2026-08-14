@@ -7,7 +7,15 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from familyos_cli.application.build import PackageBuildResult, PackageBuildStatus
+from familyos_cli.application.build import (
+    ArtifactClass,
+    ArtifactDiscoveryResult,
+    ArtifactDiscoveryStatus,
+    CanonicalPackageBuildResult,
+    DiscoveredArtifact,
+    PackageBuildResult,
+    PackageBuildStatus,
+)
 from familyos_cli.interfaces.cli.app import app
 from familyos_cli.interfaces.cli.commands import build as build_command
 
@@ -15,11 +23,11 @@ runner = CliRunner()
 
 
 class _UseCase:
-    def __init__(self, result: PackageBuildResult) -> None:
+    def __init__(self, result: CanonicalPackageBuildResult) -> None:
         self.result = result
         self.output_dirs: list[Path] = []
 
-    def execute(self, output_dir: Path) -> PackageBuildResult:
+    def execute(self, output_dir: Path) -> CanonicalPackageBuildResult:
         self.output_dirs.append(output_dir)
         return self.result
 
@@ -31,11 +39,37 @@ class _Context:
 
 def _install_context(
     monkeypatch: pytest.MonkeyPatch,
-    result: PackageBuildResult,
+    result: CanonicalPackageBuildResult,
 ) -> _UseCase:
     use_case = _UseCase(result)
     monkeypatch.setattr(build_command, "CommandContext", lambda: _Context(use_case))
     return use_case
+
+
+def _execution(
+    status: PackageBuildStatus = PackageBuildStatus.SUCCEEDED,
+    *,
+    diagnostic: str | None = None,
+) -> PackageBuildResult:
+    return PackageBuildResult(status=status, diagnostic=diagnostic)
+
+
+def _successful_result(output_dir: Path) -> CanonicalPackageBuildResult:
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    discovery = ArtifactDiscoveryResult(
+        status=ArtifactDiscoveryStatus.SUCCEEDED,
+        output_dir=output_dir,
+        candidates=(
+            DiscoveredArtifact(sdist, ArtifactClass.SOURCE_DISTRIBUTION),
+            DiscoveredArtifact(wheel, ArtifactClass.PYTHON_WHEEL),
+        ),
+    )
+    return CanonicalPackageBuildResult(
+        status=PackageBuildStatus.SUCCEEDED,
+        execution=_execution(),
+        discovery=discovery,
+    )
 
 
 def test_familyos_build_is_registered() -> None:
@@ -50,15 +84,9 @@ def test_build_success_reports_outputs_and_returns_zero(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     output_dir = tmp_path / "packages"
-    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
-    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
     use_case = _install_context(
         monkeypatch,
-        PackageBuildResult(
-            status=PackageBuildStatus.SUCCEEDED,
-            outputs=(wheel, sdist),
-            exit_code=0,
-        ),
+        _successful_result(output_dir),
     )
 
     result = runner.invoke(
@@ -69,8 +97,11 @@ def test_build_success_reports_outputs_and_returns_zero(
 
     assert result.exit_code == 0
     assert "Canonical Package Build: SUCCEEDED" in result.output
-    assert str(wheel) in result.output
-    assert str(sdist) in result.output
+    assert "python-wheel:" in result.output
+    assert "source-distribution:" in result.output
+    assert "validated" not in result.output.lower()
+    assert "trusted" not in result.output.lower()
+    assert "release-ready" not in result.output.lower()
     assert use_case.output_dirs == [output_dir]
 
 
@@ -81,10 +112,12 @@ def test_build_failure_returns_nonzero_and_diagnostic(
     output_dir = tmp_path / "packages"
     _install_context(
         monkeypatch,
-        PackageBuildResult(
+        CanonicalPackageBuildResult(
             status=PackageBuildStatus.FAILED,
-            exit_code=2,
-            diagnostic="backend failed",
+            execution=_execution(
+                PackageBuildStatus.FAILED,
+                diagnostic="backend failed",
+            ),
         ),
     )
 
@@ -99,12 +132,47 @@ def test_build_failure_returns_nonzero_and_diagnostic(
     assert "backend failed" in result.output
 
 
+@pytest.mark.parametrize("unexpected_name", [None, "extra.whl", "backend.log"])
+def test_discovery_failure_returns_nonzero(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    unexpected_name: str | None,
+) -> None:
+    output_dir = tmp_path / "packages"
+    unexpected = (output_dir / unexpected_name,) if unexpected_name else ()
+    diagnostic = (
+        f"Artifact discovery failed: unexpected {unexpected_name}"
+        if unexpected_name
+        else "Artifact discovery failed: missing python-wheel"
+    )
+    aggregate = CanonicalPackageBuildResult(
+        status=PackageBuildStatus.FAILED,
+        execution=_execution(),
+        discovery=ArtifactDiscoveryResult(
+            status=ArtifactDiscoveryStatus.FAILED,
+            output_dir=output_dir,
+            unexpected_outputs=unexpected,
+            diagnostic=diagnostic,
+        ),
+    )
+    _install_context(monkeypatch, aggregate)
+
+    result = runner.invoke(
+        app,
+        ["build", "--output-dir", str(output_dir)],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 1
+    assert diagnostic in result.output
+
+
 def test_build_defaults_to_conventional_dist_directory(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     use_case = _install_context(
         monkeypatch,
-        PackageBuildResult(status=PackageBuildStatus.SUCCEEDED, exit_code=0),
+        _successful_result(Path("dist")),
     )
 
     result = runner.invoke(app, ["build"], catch_exceptions=False)

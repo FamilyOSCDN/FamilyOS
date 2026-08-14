@@ -5,7 +5,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from familyos_cli.application.build import RunPackageBuildUseCase
+from familyos_cli.application.build import (
+    DiscoverPackageArtifactsUseCase,
+    RunPackageBuildUseCase,
+)
 from familyos_cli.application.generation.application_recipe_registry_factory import (
     ApplicationRecipeRegistryFactory,
 )
@@ -274,6 +277,7 @@ class ApplicationContainer:
 
         return RunPackageBuildUseCase(
             builder=PythonPackageBuilder(),
+            discoverer=DiscoverPackageArtifactsUseCase(),
             project_root=Path(__file__).resolve().parents[3],
         )
 

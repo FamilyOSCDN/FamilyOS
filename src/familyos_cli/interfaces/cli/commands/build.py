@@ -7,7 +7,7 @@ from typing import Annotated
 
 import typer
 
-from familyos_cli.application.build import PackageBuildResult
+from familyos_cli.application.build import CanonicalPackageBuildResult
 from familyos_cli.interfaces.cli.context import CommandContext
 
 EXIT_SUCCESS = 0
@@ -23,12 +23,12 @@ def run_package_build(output_dir: Path) -> int:
     return EXIT_SUCCESS if result.successful else EXIT_FAILURE
 
 
-def _render_result(result: PackageBuildResult) -> None:
+def _render_result(result: CanonicalPackageBuildResult) -> None:
     """Render process-level build output without trust claims."""
 
     typer.echo(f"Canonical Package Build: {result.status.value.upper()}")
-    for output in result.outputs:
-        typer.echo(f"- {output}")
+    for artifact in result.candidates:
+        typer.echo(f"- {artifact.artifact_class.value}: {artifact.path}")
     if result.diagnostic:
         typer.echo(result.diagnostic, err=True)
 

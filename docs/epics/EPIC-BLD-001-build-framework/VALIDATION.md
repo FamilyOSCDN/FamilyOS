@@ -1295,9 +1295,36 @@ were executed against the real checkout:
 Ignored `*.egg-info/`, root `dist/`, and root `build/` state is generated state,
 not authoritative source. This post-commit evidence directly closes the Level
 13 requirement that execution not unexpectedly mutate authoritative source.
-It does not establish Level 14 Artifact Discovery, artifact validation,
-identity, integrity, trust, Build Evidence, release readiness, or publication.
+It does not establish artifact validation, identity, integrity, trust, Build
+Evidence, release readiness, or publication.
 
-This evidence does not claim Artifact Discovery completion, canonical artifact
-identity, validation, integrity, Build ID, Build Evidence, release handoff, or
-publication. CI build invocation also remains unimplemented.
+## Level 14 Artifact Discovery — 2026-08-14
+
+The canonical package-build path now separates execution output observation
+from application-owned artifact discovery:
+
+```text
+PythonPackageBuilder
+    -> raw direct files created or replaced by this execution
+DiscoverPackageArtifactsUseCase
+    -> expected wheel and source-distribution contract
+    -> classified candidate outputs
+```
+
+The current contract requires exactly one regular `.whl` and exactly one
+regular `.tar.gz` file in the resolved output directory. The default directory
+is `<project-root>/dist`; an explicit `--output-dir` becomes canonical for that
+invocation. Missing, duplicate, out-of-location, and unexpected current outputs
+produce a deterministic discovery failure and non-zero command result.
+Unchanged stale files are excluded by the execution snapshot; changed or
+replaced files are current outputs and are discovered normally.
+
+Focused Ruff and MyPy validation passed. The targeted application,
+infrastructure, integration, and CLI suite passed with 29 tests, including a
+real isolated build through the production execution and discovery path.
+
+Candidate classification proves only conformance to the expected current
+output set. It does not establish artifact validation, identity, integrity,
+trust, Build ID, Build Evidence, release handoff, or publication. Level 14
+remains partial because temporary/intermediate output classification and Build
+ID association remain open. CI build invocation also remains unimplemented.

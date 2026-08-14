@@ -129,13 +129,18 @@ familyos build --output-dir /tmp/familyos-package-build
 Root `dist/` and root `build/` are generated package-build outputs and are
 ignored by Git. They are not authoritative source and must not be committed.
 
-A successful command reports the wheel and source-distribution paths produced
-by packaging. A packaging or execution failure returns a non-zero status and a
-concise diagnostic. The command never publishes its outputs.
+A successful command requires exactly one current wheel and exactly one current
+source distribution in the resolved output directory. It classifies those two
+outputs as candidates and fails if either is missing, duplicated, or accompanied
+by another current output. Candidate classification means only that an output
+matches this expected build-output contract; it does not mean validated,
+trusted, integrity-checked, releasable, or release-ready.
 
-This first build slice does not establish canonical artifact discovery,
-artifact validation, artifact identity, integrity, Build Evidence, or release
-handoff. CI does not invoke `familyos build` yet.
+A packaging, execution, or discovery failure returns a non-zero status and a
+concise diagnostic. The command never publishes its outputs. Temporary and
+intermediate output classification, Build ID association, artifact validation,
+identity, integrity, Build Evidence, and release handoff remain future work. CI
+does not invoke `familyos build` yet.
 
 Generated `*.egg-info/` metadata is excluded from repository authority and
 configured as ignored state. Setuptools may regenerate it locally during

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -77,21 +78,33 @@ class PythonPackageBuilder(PackageBuilderPort):
             return "Package build failed without diagnostic output."
         return normalized[-_MAX_DIAGNOSTIC_CHARACTERS:]
 
-    def _snapshot_outputs(self, output_dir: Path) -> dict[Path, tuple[int, int]]:
+    def _snapshot_outputs(
+        self,
+        output_dir: Path,
+    ) -> dict[Path, tuple[int, int, bytes]]:
         """Capture package-output state in deterministic path order."""
 
         if not output_dir.is_dir():
             return {}
-        package_outputs = sorted(
+        direct_file_outputs = sorted(
             (
                 path
                 for path in output_dir.iterdir()
                 if path.is_file()
-                and (path.suffix == ".whl" or path.name.endswith(".tar.gz"))
             ),
             key=lambda path: path.name,
         )
         return {
-            path: (path.stat().st_mtime_ns, path.stat().st_size)
-            for path in package_outputs
+            path: (
+                path.stat().st_mtime_ns,
+                path.stat().st_size,
+                self._content_fingerprint(path),
+            )
+            for path in direct_file_outputs
         }
+
+    def _content_fingerprint(self, path: Path) -> bytes:
+        """Fingerprint raw output privately for reliable change observation."""
+
+        with path.open("rb") as output_file:
+            return hashlib.file_digest(output_file, "sha256").digest()

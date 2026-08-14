@@ -572,17 +572,29 @@ Explicitly identify the output of each build.
 
 ### Checklist
 
-* [ ] Define expected artifact classes.
-* [ ] Define expected artifact count.
-* [ ] Define canonical output locations.
-* [ ] Collect artifacts explicitly after execution.
-* [ ] Detect missing required artifacts.
-* [ ] Detect unexpected artifacts where useful.
+* [x] Define expected artifact classes.
+* [x] Define expected artifact count.
+* [x] Define canonical output locations.
+* [x] Collect artifacts explicitly after execution.
+* [x] Detect missing required artifacts.
+* [x] Detect unexpected artifacts where useful.
 * [ ] Distinguish temporary output.
 * [ ] Distinguish intermediate output.
-* [ ] Distinguish candidate artifacts.
+* [x] Distinguish candidate artifacts.
 * [ ] Associate candidate artifacts with Build ID.
-* [ ] Add artifact-discovery tests.
+* [x] Add artifact-discovery tests.
+
+Implementation evidence: the application-owned package discovery use case
+compares raw files created or replaced by the current packaging execution with
+an explicit contract requiring exactly one `.whl` and one `.tar.gz` file. The
+resolved `--output-dir`, defaulting to `<project-root>/dist`, is canonical for
+that invocation. Missing, duplicate, out-of-location, and unexpected current
+outputs fail discovery and therefore fail `familyos build`. Matching outputs
+are classified as candidates only; no validation, identity, integrity, trust,
+Build ID, Build Evidence, release, or publication meaning is assigned.
+
+Level 14 remains partial. Temporary and intermediate output classification and
+Build ID association remain open.
 
 ---
 

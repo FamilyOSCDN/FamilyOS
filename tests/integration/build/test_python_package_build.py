@@ -7,7 +7,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-from familyos_cli.application.build import PackageBuildStatus
+from familyos_cli.application.build import (
+    ArtifactClass,
+    DiscoverPackageArtifactsUseCase,
+    PackageBuildStatus,
+    RunPackageBuildUseCase,
+)
 from familyos_cli.infrastructure.build import PythonPackageBuilder
 
 
@@ -49,19 +54,30 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     assert not (project_root / "src" / "familyos_cli.egg-info").exists()
 
     output_dir = tmp_path / "package-output"
-    result = PythonPackageBuilder(sys.executable).build(
+    result = RunPackageBuildUseCase(
+        builder=PythonPackageBuilder(sys.executable),
+        discoverer=DiscoverPackageArtifactsUseCase(),
         project_root=project_root,
-        output_dir=output_dir,
-    )
+    ).execute(output_dir)
 
-    wheels = tuple(path for path in result.outputs if path.suffix == ".whl")
-    sdists = tuple(path for path in result.outputs if path.name.endswith(".tar.gz"))
+    wheels = tuple(
+        artifact
+        for artifact in result.candidates
+        if artifact.artifact_class is ArtifactClass.PYTHON_WHEEL
+    )
+    sdists = tuple(
+        artifact
+        for artifact in result.candidates
+        if artifact.artifact_class is ArtifactClass.SOURCE_DISTRIBUTION
+    )
     assert result.status is PackageBuildStatus.SUCCEEDED, result.diagnostic
-    assert result.exit_code == 0
+    assert result.execution.exit_code == 0
+    assert result.discovery is not None
+    assert result.discovery.successful
     assert len(wheels) == 1
     assert len(sdists) == 1
-    assert all(path.parent == output_dir for path in result.outputs)
-    assert all(path.is_file() for path in result.outputs)
+    assert all(artifact.path.parent == output_dir for artifact in result.candidates)
+    assert all(artifact.path.is_file() for artifact in result.candidates)
     assert _tracked_snapshot(repository_root) == tracked_before
 
     ignored_egg_info = subprocess.run(

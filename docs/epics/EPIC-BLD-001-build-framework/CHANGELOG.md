@@ -169,10 +169,24 @@ closing the Level 13 source-mutation item. No build behavior changed in this
 documentation-only reconciliation; it records evidence from already-implemented
 behavior. Artifact Discovery and artifact trust maturity remain unchanged.
 
-Artifact discovery maturity, artifact validation, identity, integrity, Build
-ID, Build Evidence, CI build invocation, release handoff, and publication
-remain future work. The framework remains version `1.0.0`, and historical tag
-`v4.7.0-build-framework` remains unchanged.
+At that revision, artifact discovery maturity, artifact validation, identity,
+integrity, Build ID, Build Evidence, CI build invocation, release handoff, and
+publication remained future work. The framework remains version `1.0.0`, and
+historical tag `v4.7.0-build-framework` remains unchanged.
+
+## Level 14 Artifact Discovery — 2026-08-14
+
+Added application-owned discovery of the current Python package output set.
+The execution adapter now reports all direct files created or replaced in the
+explicit output directory; the discovery use case requires exactly one wheel
+and one source distribution and rejects missing, duplicate, out-of-location,
+or unexpected current outputs.
+
+Candidate classification records output-contract conformance only. Temporary
+and intermediate classification, Build ID, validation, identity, integrity,
+trust, Build Evidence, CI build invocation, release, and publication remain
+open. Framework version `1.0.0` and historical tag
+`v4.7.0-build-framework` are unchanged.
 
 ---
 
