@@ -158,13 +158,16 @@ copy of the current packaging inputs. It contains no publication behavior.
 This slice removes generated setuptools egg-info from Git authority.
 `*.egg-info/`, root `dist/`, and root `build/` outputs are configured as ignored
 generated state, leaving `pyproject.toml` as the package metadata authority and
-`requirements.txt` as the controlled resolved dependency state. Once committed,
-regenerated egg-info should no longer dirty Git-tracked authority.
+`requirements.txt` as the controlled resolved dependency state. Hygiene commit
+`a85b5a7` established those removals in Git history; regenerated egg-info no
+longer dirties Git-tracked authority.
 
-The Level 13 source-mutation item remains open. Because the egg-info deletions
-are not yet represented in Git history, post-commit execution is still required
-to prove that canonical packaging and dependency workflows leave the committed
-checkout clean. Artifact Discovery and artifact trust maturity remain unchanged.
+Post-hygiene verification after commit `a85b5a7` executed editable installation,
+dependency freshness, a real checkout `familyos build`, and canonical
+validation. Tracked Git status remained clean after each workflow, directly
+closing the Level 13 source-mutation item. No build behavior changed in this
+documentation-only reconciliation; it records evidence from already-implemented
+behavior. Artifact Discovery and artifact trust maturity remain unchanged.
 
 Artifact discovery maturity, artifact validation, identity, integrity, Build
 ID, Build Evidence, CI build invocation, release handoff, and publication

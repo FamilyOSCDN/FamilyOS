@@ -137,18 +137,14 @@ This first build slice does not establish canonical artifact discovery,
 artifact validation, artifact identity, integrity, Build Evidence, or release
 handoff. CI does not invoke `familyos build` yet.
 
-This hygiene change removes generated `*.egg-info/` metadata from repository
-authority and configures it as ignored state. Setuptools may regenerate it
-locally during installation, dependency resolution, or package construction.
-After the removals are committed, regenerated metadata should therefore no
-longer dirty Git-tracked authority. `pyproject.toml` remains the canonical
-packaging metadata authority, while `requirements.txt` remains the controlled
-resolved dependency state.
-
-The current uncommitted transition does not yet prove that every canonical
-packaging and dependency workflow leaves the committed checkout clean. That
-claim requires post-commit execution after the egg-info removals exist in Git
-history.
+Generated `*.egg-info/` metadata is excluded from repository authority and
+configured as ignored state. Setuptools may regenerate it locally during
+installation, dependency resolution, or package construction without dirtying
+Git-tracked authority. Post-commit verification after hygiene commit `a85b5a7`
+confirmed that editable installation, dependency freshness, canonical package
+construction, and canonical validation leave tracked status clean.
+`pyproject.toml` remains the canonical packaging metadata authority, while
+`requirements.txt` remains the controlled resolved dependency state.
 
 ## Common failures
 

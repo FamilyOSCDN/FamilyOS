@@ -1255,8 +1255,8 @@ asserts that all tracked checkout paths remain byte-identical.
 
 The hygiene slice removes generated `*.egg-info/` from repository authority
 and configures it, root `dist/`, and root `build/` as ignored generated state.
-Setuptools may regenerate packaging metadata locally. After the deletions are
-committed, that regenerated state should no longer dirty Git-tracked authority.
+Setuptools may regenerate packaging metadata locally without dirtying
+Git-tracked authority after hygiene commit `a85b5a7`.
 `pyproject.toml` remains authoritative for package metadata, and generated
 `requirements.txt` remains the controlled resolved dependency state.
 
@@ -1271,12 +1271,32 @@ six egg-info deletions were still uncommitted:
   authoritative `docs/build/`, application build, and integration-test paths
   visible.
 
-Because the current commit still tracks the six egg-info paths, these runs do
-not prove checkout immutability after the removals enter Git history. The Level
-13 authoritative-source mutation item remains open pending post-commit
-execution of the canonical packaging and dependency workflows. This evidence
-does not establish Artifact Discovery, artifact validation, identity,
-integrity, trust, or Build Evidence.
+These pre-commit runs did not by themselves prove checkout immutability after
+the removals entered Git history. The dedicated post-commit evidence below
+provides that proof. Neither evidence set establishes Artifact Discovery,
+artifact validation, identity, integrity, trust, or Build Evidence.
+
+## Post-Commit Source-Mutation Verification — 2026-08-14
+
+After packaging repository hygiene commit `a85b5a7`, the following workflows
+were executed against the real checkout:
+
+* editable installation with `--no-deps --no-build-isolation`: PASS — only
+  ignored packaging metadata was regenerated, and tracked status was clean;
+* dependency freshness: PASS — `requirements.txt` was synchronized with
+  `pyproject.toml`, generated state remained ignored, and tracked status was
+  clean;
+* real `familyos build`: PASS — root `dist/` contained
+  `familyos_cli-0.1.0-py3-none-any.whl` and
+  `familyos_cli-0.1.0.tar.gz`, while tracked status remained clean;
+* `familyos validation ci`: PASS — all six mandatory gates passed, all seven
+  official builtin plugins were compliant, and final tracked status was clean.
+
+Ignored `*.egg-info/`, root `dist/`, and root `build/` state is generated state,
+not authoritative source. This post-commit evidence directly closes the Level
+13 requirement that execution not unexpectedly mutate authoritative source.
+It does not establish Level 14 Artifact Discovery, artifact validation,
+identity, integrity, trust, Build Evidence, release readiness, or publication.
 
 This evidence does not claim Artifact Discovery completion, canonical artifact
 identity, validation, integrity, Build ID, Build Evidence, release handoff, or

@@ -525,7 +525,7 @@ Implement predictable and observable transformation from validated context to ca
 * [ ] Define execution finalization.
 * [x] Propagate mandatory stage failures.
 * [x] Prevent ignored subprocess failures.
-* [ ] Ensure execution does not unexpectedly mutate authoritative source.
+* [x] Ensure execution does not unexpectedly mutate authoritative source.
 * [ ] Define partial-output handling.
 * [ ] Define failure cleanup.
 * [ ] Define cancellation semantics if required.
@@ -538,13 +538,13 @@ one controlled packaging invocation and returns only sorted wheel and
 source-distribution paths as process-level outputs. Non-zero frontend results
 and launch errors cannot become successful build results. This does not assign
 artifact identity, validation, integrity, trust, or Build Evidence semantics.
-The packaging-hygiene slice removes six generated egg-info files from Git
-authority and configures `*.egg-info/`, root `dist/`, and root `build/` as
-ignored generated state. Until those removals are committed, metadata
-generation can still rewrite paths tracked by the current commit. Post-commit
-execution must therefore prove that canonical packaging and dependency
-workflows leave tracked authoritative source unchanged before the
-source-mutation item can close.
+Packaging repository hygiene commit `a85b5a7` removes six generated egg-info
+files from Git authority and configures `*.egg-info/`, root `dist/`, and root
+`build/` as ignored generated state. Post-commit empirical verification ran an
+editable installation, dependency freshness, a real checkout `familyos build`,
+and `familyos validation ci`; tracked Git status was clean after every workflow.
+This directly closes the source-mutation item without assigning Artifact
+Discovery, validation, identity, integrity, trust, or Build Evidence semantics.
 
 ---
 
@@ -895,9 +895,8 @@ failures. The provider-neutral command is the same entry point invoked by
 `.github/workflows/ci.yml`.
 
 Level 26 remains incomplete. A canonical candidate-artifact location,
-artifact-related cleanup contract, proof that build execution has no CI-only
-steps, and post-commit source-mutation verification depend on later validation
-or future build integration and artifact implementation.
+artifact-related cleanup contract, and proof that build execution has no
+CI-only steps depend on future build integration and artifact implementation.
 
 ---
 
