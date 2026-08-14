@@ -1450,6 +1450,38 @@ promotion, or deployment semantics are introduced. Framework version `1.0.0`
 and immutable historical publication tag `v4.7.0-build-framework` remain
 unchanged.
 
+
+## Minimal Build Context — Source Revision Capture — 2026-08-15
+
+This incremental revision introduces the first concrete source-state component
+of Build Context. An immutable application `SourceState` records the observed
+Git revision and relevant working-tree dirty state, while
+`SourceStateProviderPort` keeps repository inspection outside application
+orchestration. `GitSourceStateProvider` is the infrastructure implementation.
+
+Repository discovery requires the resolved Git top-level directory to equal the
+resolved configured project root exactly. `RunPackageBuildUseCase` captures the
+observation once before build execution and `CanonicalPackageBuildResult`
+retains it through success and failure paths.
+
+A real canonical FamilyOS build captured
+`169b0141a28ce997aca1b765014ebf12587ebfbb`, exactly matching independently
+queried `HEAD`, correctly reported the already-dirty pre-build checkout, emitted
+two candidate artifacts successfully, and left tracked checkout state
+unchanged.
+
+Local validation passed Ruff, MyPy across 1183 source files, 123 build-slice
+tests, and the controlled full suite of 1561 tests. Plain pytest continues to
+expose the unrelated pre-existing top-level `scripts` import-path collection
+issue under importlib mode.
+
+This revision closes only the Level 5 source-revision and relevant
+working-tree-state capture items. It does not complete the minimum Build Context
+model and does not establish canonical repository/source identity, Build ID,
+Artifact Identity, Artifact Integrity, Build Manifest, Build Evidence, or
+provenance. Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

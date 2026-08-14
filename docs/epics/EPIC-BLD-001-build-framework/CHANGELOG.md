@@ -999,3 +999,25 @@ Repository Validation:  VALIDATED
 Final Validation:       VALIDATED
 Revalidation Result:    PASS
 ```
+
+---
+
+# Minimal Build Context — Source Revision Capture — 2026-08-15
+
+Implemented the first concrete source-state portion of Build Context. The
+canonical package-build flow now captures source state exactly once before
+package construction, associates it with `CanonicalPackageBuildResult`, rejects
+ancestor-repository misassociation, and preserves unknown state for non-Git or
+unavailable-Git conditions without failing the build.
+
+Behavioral coverage includes real Git repositories and orchestration ordering.
+Local validation passed Ruff, MyPy across 1183 source files, 123 build-slice
+tests, and the controlled full suite of 1561 tests.
+
+Level 5 source-revision capture and relevant working-tree-state capture are now
+implemented. The minimum Build Context model, canonical source identity, Build
+ID, Artifact Identity, Artifact Integrity, Build Evidence, provenance, and
+release-candidate source policy remain open or outside this slice.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

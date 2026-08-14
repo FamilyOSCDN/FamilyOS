@@ -19,10 +19,13 @@ from familyos_cli.application.ports.build.package_builder import PackageBuilderP
 from familyos_cli.application.ports.build.python_wheel_functional_validator import (
     PythonWheelFunctionalValidatorPort,
 )
+from familyos_cli.application.ports.build.source_state_provider import (
+    SourceStateProviderPort,
+)
 
 
 class RunPackageBuildUseCase:
-    """Delegate canonical Python packaging through the configured port."""
+    """Delegate canonical Python packaging through the configured ports."""
 
     def __init__(
         self,
@@ -30,12 +33,14 @@ class RunPackageBuildUseCase:
         discoverer: DiscoverPackageArtifactsUseCase,
         validator: ValidatePythonPackageArtifactsUseCase,
         functional_validator: PythonWheelFunctionalValidatorPort,
+        source_state_provider: SourceStateProviderPort,
         project_root: Path,
     ) -> None:
         self._builder = builder
         self._discoverer = discoverer
         self._validator = validator
         self._functional_validator = functional_validator
+        self._source_state_provider = source_state_provider
         self._project_root = project_root
 
     def execute(
@@ -49,6 +54,9 @@ class RunPackageBuildUseCase:
         resolved_output_dir = (
             output_dir if output_dir.is_absolute() else self._project_root / output_dir
         )
+        source_state = self._source_state_provider.observe(
+            project_root=self._project_root,
+        )
         execution = self._builder.build(
             project_root=self._project_root,
             output_dir=resolved_output_dir,
@@ -57,6 +65,7 @@ class RunPackageBuildUseCase:
             return CanonicalPackageBuildResult(
                 status=execution.status,
                 execution=execution,
+                source_state=source_state,
             )
 
         discovery = self._discoverer.execute(
@@ -67,6 +76,7 @@ class RunPackageBuildUseCase:
             return CanonicalPackageBuildResult(
                 status=PackageBuildStatus.FAILED,
                 execution=execution,
+                source_state=source_state,
                 discovery=discovery,
             )
 
@@ -75,6 +85,7 @@ class RunPackageBuildUseCase:
             return CanonicalPackageBuildResult(
                 status=PackageBuildStatus.FAILED,
                 execution=execution,
+                source_state=source_state,
                 discovery=discovery,
                 validation=validation,
             )
@@ -82,6 +93,7 @@ class RunPackageBuildUseCase:
             return CanonicalPackageBuildResult(
                 status=PackageBuildStatus.SUCCEEDED,
                 execution=execution,
+                source_state=source_state,
                 discovery=discovery,
                 validation=validation,
             )
@@ -99,6 +111,7 @@ class RunPackageBuildUseCase:
                 else PackageBuildStatus.FAILED
             ),
             execution=execution,
+            source_state=source_state,
             discovery=discovery,
             validation=validation,
             functional_validation=functional_validation,

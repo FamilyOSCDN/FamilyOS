@@ -21,6 +21,7 @@ from familyos_cli.application.build import (
     PackageStructuralValidationStatus,
     PythonPackageStructuralValidationResult,
     PythonWheelFunctionalValidationResult,
+    SourceState,
     WheelFunctionalValidationFinding,
     WheelFunctionalValidationStage,
 )
@@ -28,6 +29,12 @@ from familyos_cli.interfaces.cli.app import app
 from familyos_cli.interfaces.cli.commands import build as build_command
 
 runner = CliRunner()
+
+
+_SOURCE_STATE = SourceState(
+    revision="0123456789abcdef0123456789abcdef01234567",
+    dirty=False,
+)
 
 
 class _UseCase:
@@ -93,6 +100,7 @@ def _successful_result(output_dir: Path) -> CanonicalPackageBuildResult:
     return CanonicalPackageBuildResult(
         status=PackageBuildStatus.SUCCEEDED,
         execution=_execution(),
+        source_state=_SOURCE_STATE,
         discovery=discovery,
         validation=validation,
     )
@@ -235,6 +243,7 @@ def test_build_failure_returns_nonzero_and_diagnostic(
                 PackageBuildStatus.FAILED,
                 diagnostic="backend failed",
             ),
+            source_state=_SOURCE_STATE,
         ),
     )
 
@@ -265,6 +274,7 @@ def test_discovery_failure_returns_nonzero(
     aggregate = CanonicalPackageBuildResult(
         status=PackageBuildStatus.FAILED,
         execution=_execution(),
+        source_state=_SOURCE_STATE,
         discovery=ArtifactDiscoveryResult(
             status=ArtifactDiscoveryStatus.FAILED,
             output_dir=output_dir,
@@ -313,6 +323,7 @@ def test_structural_validation_failure_returns_nonzero_and_diagnostic(
         CanonicalPackageBuildResult(
             status=PackageBuildStatus.FAILED,
             execution=_execution(),
+            source_state=_SOURCE_STATE,
             discovery=discovery,
             validation=validation,
         ),

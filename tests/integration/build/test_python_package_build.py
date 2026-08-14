@@ -23,6 +23,7 @@ from familyos_cli.application.build import (
     WheelFunctionalValidationStage,
 )
 from familyos_cli.infrastructure.build import (
+    GitSourceStateProvider,
     PythonPackageBuilder,
     PythonWheelFunctionalValidator,
 )
@@ -177,6 +178,7 @@ def test_real_familyos_package_build_isolated_from_checkout(
         discoverer=DiscoverPackageArtifactsUseCase(),
         validator=ValidatePythonPackageArtifactsUseCase(project_root),
         functional_validator=functional_validator,
+        source_state_provider=GitSourceStateProvider(),
         project_root=project_root,
     ).execute(output_dir, validate_functionally=True)
 
@@ -191,6 +193,8 @@ def test_real_familyos_package_build_isolated_from_checkout(
         if artifact.artifact_class is ArtifactClass.SOURCE_DISTRIBUTION
     )
     assert result.status is PackageBuildStatus.SUCCEEDED, result.diagnostic
+    assert result.source_state.revision is None
+    assert result.source_state.dirty is None
     assert result.execution.exit_code == 0
     assert result.discovery is not None
     assert result.discovery.successful

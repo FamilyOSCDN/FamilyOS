@@ -248,8 +248,8 @@ Create a stable effective Build Context for execution and evidence.
 ### Checklist
 
 * [ ] Define the minimum Build Context model.
-* [ ] Capture source revision when Git is available.
-* [ ] Capture relevant working-tree state.
+* [x] Capture source revision when Git is available.
+* [x] Capture relevant working-tree state.
 * [ ] Capture selected build profile.
 * [ ] Capture selected build target.
 * [ ] Capture effective configuration.

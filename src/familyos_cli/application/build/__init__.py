@@ -28,6 +28,7 @@ from familyos_cli.application.build.package_validation import (
     PythonPackageStructuralValidationResult,
 )
 from familyos_cli.application.build.run_package_build import RunPackageBuildUseCase
+from familyos_cli.application.build.source_state import SourceState
 from familyos_cli.application.build.validate_python_package_artifacts import (
     ValidatePythonPackageArtifactsUseCase,
 )
@@ -49,6 +50,7 @@ __all__ = [
     "PythonPackageStructuralValidationResult",
     "PythonWheelFunctionalValidationResult",
     "RunPackageBuildUseCase",
+    "SourceState",
     "ValidatePythonPackageArtifactsUseCase",
     "WheelFunctionalValidationFinding",
     "WheelFunctionalValidationStage",

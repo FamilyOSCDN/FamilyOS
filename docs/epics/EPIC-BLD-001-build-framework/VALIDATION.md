@@ -1872,3 +1872,48 @@ Build ID, Artifact Integrity, digest, Build Manifest, Build Evidence,
 provenance, trust, signing, release readiness, publication, promotion, or
 deployment semantics are introduced. Framework version `1.0.0` and immutable
 historical tag `v4.7.0-build-framework` remain unchanged.
+
+## Minimal Build Context — Source Revision Capture — 2026-08-15
+
+The canonical package-build application flow now captures an immutable
+pre-build `SourceState` through `SourceStateProviderPort` before package
+construction. `GitSourceStateProvider` accepts Git state only when
+`git rev-parse --show-toplevel` resolves exactly to the configured project
+root, preventing nested projects from inheriting an ancestor repository.
+
+Accepted repositories capture the exact `HEAD^{commit}` and derive working-tree
+dirtiness from `git status --porcelain=v1 -z --untracked-files=all`. Non-Git
+roots, unavailable Git, inaccessible metadata, and rejected ancestor
+repositories produce unknown source state without failing the build.
+
+`CanonicalPackageBuildResult` preserves the same pre-build observation across
+successful and failure returns. Real-Git behavioral tests cover clean, unstaged,
+staged, deleted, untracked, ignored, detached/tagged, shallow, non-Git,
+unavailable-Git, and ancestor-root rejection cases.
+
+A real canonical FamilyOS build captured revision
+`169b0141a28ce997aca1b765014ebf12587ebfbb`, exactly matching independently
+queried `HEAD`; it captured the pre-build dirty state as `true`, succeeded with
+two candidate artifacts, and left tracked checkout state unchanged.
+
+Executed local validation:
+
+```text
+Build-slice tests:                                  PASS — 123 tests
+Global Ruff:                                        PASS
+Global MyPy:                                        PASS — 1183 source files
+Controlled full Pytest (PYTHONPATH=. pytest -q):    PASS — 1561 tests
+Git checkout canonical-build probe:                 PASS
+git diff --check:                                   PASS
+```
+
+Plain `pytest -q` remains independently blocked during collection by the
+pre-existing top-level `scripts` import-path behavior under configured
+`--import-mode=importlib`. No import-path change is included in this slice.
+
+This closes only Level 5 source-revision capture and relevant working-tree-state
+capture. The minimum Build Context model, canonical source identity, Build ID,
+Artifact Identity, Artifact Integrity, Build Manifest, Build Evidence,
+provenance, and release-candidate source policy remain open or out of scope.
+Framework version `1.0.0` and immutable historical tag
+`v4.7.0-build-framework` remain unchanged.

@@ -11,6 +11,7 @@ from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
 )
+from familyos_cli.application.build.source_state import SourceState
 
 if TYPE_CHECKING:
     from familyos_cli.application.build.package_functional_validation import (
@@ -90,6 +91,7 @@ class CanonicalPackageBuildResult:
 
     status: PackageBuildStatus
     execution: PackageBuildResult
+    source_state: SourceState
     discovery: ArtifactDiscoveryResult | None = None
     validation: PythonPackageStructuralValidationResult | None = None
     functional_validation: PythonWheelFunctionalValidationResult | None = None

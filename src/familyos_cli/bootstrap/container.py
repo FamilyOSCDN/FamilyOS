@@ -86,6 +86,7 @@ from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
 )
 from familyos_cli.infrastructure.build import (
+    GitSourceStateProvider,
     PythonPackageBuilder,
     PythonWheelFunctionalValidator,
 )
@@ -288,6 +289,7 @@ class ApplicationContainer:
                 project_root=project_root,
                 requirements_lock=project_root / "requirements.txt",
             ),
+            source_state_provider=GitSourceStateProvider(),
             project_root=project_root,
         )
 
