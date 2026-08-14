@@ -190,7 +190,7 @@ open. Framework version `1.0.0` and historical tag
 
 ## CI Package Build Integration — 2026-08-14
 
-Status: IMPLEMENTED LOCALLY / WORKFLOW WIRED — NOT YET REMOTELY VERIFIED.
+Status: REMOTELY VERIFIED.
 
 The `Canonical CI Validation` workflow gained one new step invoking the
 existing canonical `familyos build --output-dir dist` command after
@@ -198,10 +198,21 @@ successful validation, and one candidate-upload step publishing `dist/` as
 `familyos-package-candidates` only when that build succeeds. No packaging or
 discovery policy was added to YAML; a failed mandatory validation or a failed
 build/discovery both prevent candidate upload without weakening existing
-failure semantics. This slice has not yet been exercised by a real GitHub
-Actions run. Artifact validation, identity, integrity, trust, Build Evidence,
-release, and publication remain open. Framework version `1.0.0` and
-historical tag `v4.7.0-build-framework` are unchanged.
+failure semantics.
+
+Push run `31792439104` for commit `63693e6` completed successfully, retained
+`familyos-ci-validation`, and transported exactly one wheel and one source
+distribution through `familyos-package-candidates`. This documentation-only
+reconciliation records remote evidence for already-committed workflow
+behavior; it introduces no new build implementation. Artifact validation,
+identity, integrity, trust, Build Evidence, release, and publication remain
+open.
+
+Deferred CI-maintenance debt: the run warned that the pinned
+`actions/checkout`, `actions/setup-python`, and `actions/upload-artifact`
+versions target Node.js 20 and were forced to Node.js 24. Action updates are
+outside this evidence slice. Framework version `1.0.0` and historical tag
+`v4.7.0-build-framework` are unchanged.
 
 ---
 

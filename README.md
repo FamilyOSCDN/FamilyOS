@@ -152,9 +152,11 @@ upload and fails the workflow. `familyos-package-candidates` is an
 unvalidated, untrusted, unpublished build-output transport only; the name
 does not imply release readiness.
 
-This workflow wiring is implemented and statically reviewed. It has not yet
-been confirmed by a real GitHub Actions run; treat remote build success and
-the uploaded candidate contents as unverified until that evidence exists.
+This path was remotely verified by successful GitHub Actions run
+`31792439104` for commit `63693e6`. The downloaded
+`familyos-package-candidates` artifact contained exactly one wheel and one
+source distribution. These remain unvalidated, untrusted package candidates;
+remote transport does not establish artifact integrity or release readiness.
 
 To reproduce the full CI path locally:
 

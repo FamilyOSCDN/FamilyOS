@@ -951,8 +951,8 @@ Use CI as an independent executor of canonical build semantics.
 * [x] Run Ruff.
 * [x] Run MyPy.
 * [x] Run Pytest.
-* [ ] Run canonical build command.
-* [ ] Collect explicit candidate artifacts.
+* [x] Run canonical build command.
+* [x] Collect explicit candidate artifacts.
 * [ ] Run artifact validation.
 * [ ] Generate artifact integrity data.
 * [ ] Collect Build Evidence.
@@ -962,16 +962,14 @@ Use CI as an independent executor of canonical build semantics.
 
 Implementation evidence: commit `504bd19` introduced the provider-neutral Canonical CI Validation Baseline and its thin GitHub Actions adapter. Commit `c2ed8de` corrected the missing Health documentation template found by the first real execution. GitHub Actions run `31749853569` then completed successfully under Python 3.13, uploaded `ci-validation.json`, and recorded all six mandatory gates as `PASSED`.
 
-Package-build integration evidence (implemented locally / workflow wired, NOT
-yet remotely verified): the workflow now runs `familyos build --output-dir
-dist` after successful validation and uploads `dist/` as
-`familyos-package-candidates` only on build success, with no `if: always()`
-override and no wheel/sdist filename logic in YAML. Static review confirms
-exactly one `familyos build` invocation, no `python -m build`, and least-
-privilege permissions unchanged. `README.md` documents the identical local
-reproduction sequence. This wiring has not yet been exercised by a real
-GitHub Actions run, so "Run canonical build command" and "Collect explicit
-candidate artifacts" remain open pending that remote proof.
+Package-build integration evidence: commit `63693e6` was executed by the
+`Canonical CI Validation` workflow in push run `31792439104`. The completed
+run and `validate` job both succeeded, retained `familyos-ci-validation`, and
+uploaded `familyos-package-candidates`. The downloaded candidate artifact
+contained exactly `familyos_cli-0.1.0-py3-none-any.whl` and
+`familyos_cli-0.1.0.tar.gz` (one wheel and one source distribution). This
+empirically satisfies canonical build execution and explicit candidate
+collection in CI.
 
 This evidence does not complete artifact validation or artifact integrity,
 and does not establish full Build Evidence capabilities.

@@ -1238,14 +1238,14 @@ identity, integrity, trust, Build ID, Build Evidence, release, or publication
 meaning.
 
 Level 14 remains partial because temporary and intermediate output
-classification and Build ID association remain open. CI still does not invoke
-`familyos build`. The Build Framework technical implementation remains in
-progress, and framework version `1.0.0` plus historical publication tag
+classification and Build ID association remain open. At that revision, CI did
+not yet invoke `familyos build`. The Build Framework technical implementation
+remains in progress, and framework version `1.0.0` plus historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
 ## CI Package Build Integration — 2026-08-14
 
-Status: IMPLEMENTED LOCALLY / WORKFLOW WIRED — NOT YET REMOTELY VERIFIED.
+Status: REMOTELY VERIFIED.
 
 This revision wires the `Canonical CI Validation` workflow to invoke the
 existing canonical `familyos build --output-dir dist` command after
@@ -1260,11 +1260,19 @@ step.
 
 Local reproduction of the full path (`familyos validation ci` then
 `familyos build --output-dir dist`) was executed against this checkout and
-succeeded, matching the workflow's exact invocation. This revision does not
-include a real GitHub Actions run; "Run canonical build command" and
-"Collect explicit candidate artifacts" (Level 27) remain open pending that
-remote evidence. Artifact validation, identity, integrity, trust, Build
-Evidence, release, and publication remain open. The Build Framework technical
+succeeded, matching the workflow's exact invocation.
+
+Post-implementation remote verification on 2026-08-14 executed commit
+`63693e6` in push run `31792439104`. The workflow and `validate` job succeeded,
+retained `familyos-ci-validation/ci-validation.json`, and uploaded exactly:
+
+* `familyos_cli-0.1.0-py3-none-any.whl`;
+* `familyos_cli-0.1.0.tar.gz`.
+
+This evidence closes the Level 27 canonical-build and explicit
+candidate-collection requirements. It introduces no new implementation and no
+Level 15+ artifact validation, identity, integrity, trust, Build ID, Build
+Evidence, release, or publication capability. The Build Framework technical
 implementation remains in progress, and framework version `1.0.0` plus
 historical publication tag `v4.7.0-build-framework` remain unchanged.
 

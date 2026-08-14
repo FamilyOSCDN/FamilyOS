@@ -1327,11 +1327,12 @@ Candidate classification proves only conformance to the expected current
 output set. It does not establish artifact validation, identity, integrity,
 trust, Build ID, Build Evidence, release handoff, or publication. Level 14
 remains partial because temporary/intermediate output classification and Build
-ID association remain open. CI build invocation also remains unimplemented.
+ID association remain open. At that revision, CI build invocation also
+remained unimplemented.
 
 ## CI Package Build Integration — 2026-08-14
 
-Status: IMPLEMENTED LOCALLY / WORKFLOW WIRED — NOT YET REMOTELY VERIFIED.
+Status: REMOTELY VERIFIED.
 
 The `Canonical CI Validation` workflow now runs `familyos build --output-dir
 dist` immediately after successful validation, and uploads the resulting
@@ -1357,8 +1358,23 @@ Static and local review confirmed:
   `familyos build --output-dir dist`) was executed against this checkout and
   succeeded, matching the workflow's exact invocation.
 
-This slice does not include a real GitHub Actions run. "Run canonical build
-command" and "Collect explicit candidate artifacts" (Level 27) remain open
-pending that remote evidence. This work does not establish artifact
-validation, identity, integrity, trust, Build ID, Build Evidence, release
-handoff, or publication. No Level 15+ item was changed.
+Remote execution evidence:
+
+* implementation commit: `63693e6152c4c8cd822313cde88e2019e5ca71a0`
+  (`63693e6`);
+* workflow run: `31792439104`, triggered by `push`;
+* workflow status/conclusion: `completed` / `success`;
+* `validate` job result: `success`;
+* retained validation artifact:
+  `familyos-ci-validation/ci-validation.json`;
+* downloaded candidate artifact contents:
+  `familyos_cli-0.1.0-py3-none-any.whl` and
+  `familyos_cli-0.1.0.tar.gz`;
+* candidate counts: wheel `1`, source distribution `1`.
+
+This direct evidence closes the Level 27 canonical-build and explicit
+candidate-collection requirements. Candidate means discovered build output
+only. No Artifact Validation occurred, no integrity digest or integrity
+evidence was generated, and no identity, trust, Build ID, Build Evidence,
+release-readiness, handoff, or publication semantics are established. No Level
+15+ item was changed.
