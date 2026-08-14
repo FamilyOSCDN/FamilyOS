@@ -11,10 +11,13 @@ from familyos_cli.application.build import (
     ArtifactClass,
     ArtifactDiscoveryResult,
     ArtifactDiscoveryStatus,
+    CandidatePackageValidationResult,
     CanonicalPackageBuildResult,
     DiscoveredArtifact,
     PackageBuildResult,
     PackageBuildStatus,
+    PackageStructuralValidationStatus,
+    PythonPackageStructuralValidationResult,
 )
 from familyos_cli.interfaces.cli.app import app
 from familyos_cli.interfaces.cli.commands import build as build_command
@@ -65,10 +68,21 @@ def _successful_result(output_dir: Path) -> CanonicalPackageBuildResult:
             DiscoveredArtifact(wheel, ArtifactClass.PYTHON_WHEEL),
         ),
     )
+    validation = PythonPackageStructuralValidationResult(
+        status=PackageStructuralValidationStatus.VALID,
+        candidate_results=tuple(
+            CandidatePackageValidationResult(
+                candidate=candidate,
+                status=PackageStructuralValidationStatus.VALID,
+            )
+            for candidate in discovery.candidates
+        ),
+    )
     return CanonicalPackageBuildResult(
         status=PackageBuildStatus.SUCCEEDED,
         execution=_execution(),
         discovery=discovery,
+        validation=validation,
     )
 
 
@@ -99,6 +113,7 @@ def test_build_success_reports_outputs_and_returns_zero(
     assert "Canonical Package Build: SUCCEEDED" in result.output
     assert "python-wheel:" in result.output
     assert "source-distribution:" in result.output
+    assert "Python Package Structural Validation: VALID" in result.output
     assert "validated" not in result.output.lower()
     assert "trusted" not in result.output.lower()
     assert "release-ready" not in result.output.lower()
@@ -167,6 +182,56 @@ def test_discovery_failure_returns_nonzero(
     assert diagnostic in result.output
 
 
+def test_structural_validation_failure_returns_nonzero_and_diagnostic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "packages"
+    wheel = DiscoveredArtifact(
+        output_dir / "familyos_cli-0.1.0-py3-none-any.whl",
+        ArtifactClass.PYTHON_WHEEL,
+    )
+    discovery = ArtifactDiscoveryResult(
+        status=ArtifactDiscoveryStatus.SUCCEEDED,
+        output_dir=output_dir,
+        candidates=(wheel,),
+    )
+    validation = PythonPackageStructuralValidationResult(
+        status=PackageStructuralValidationStatus.INVALID,
+        candidate_results=(
+            CandidatePackageValidationResult(
+                candidate=wheel,
+                status=PackageStructuralValidationStatus.INVALID,
+                diagnostics=("wheel is missing required METADATA metadata",),
+            ),
+        ),
+    )
+    _install_context(
+        monkeypatch,
+        CanonicalPackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            execution=_execution(),
+            discovery=discovery,
+            validation=validation,
+        ),
+    )
+
+    result = runner.invoke(
+        app,
+        ["build", "--output-dir", str(output_dir)],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 1
+    assert "Canonical Package Build: FAILED" in result.output
+    assert "Python Package Structural Validation: INVALID" in result.output
+    assert wheel.path.name in result.output
+    assert "missing required METADATA" in result.output
+    assert "trusted" not in result.output.lower()
+    assert "release-ready" not in result.output.lower()
+    assert "integrity-verified" not in result.output.lower()
+
+
 def test_build_defaults_to_conventional_dist_directory(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -179,3 +244,24 @@ def test_build_defaults_to_conventional_dist_directory(
 
     assert result.exit_code == 0
     assert use_case.output_dirs == [Path("dist")]
+
+
+def test_real_familyos_build_reports_valid_structural_packages(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "real-package-output"
+
+    result = runner.invoke(
+        app,
+        ["build", "--output-dir", str(output_dir)],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Canonical Package Build: SUCCEEDED" in result.output
+    assert "Python Package Structural Validation: VALID" in result.output
+    assert len(tuple(output_dir.glob("*.whl"))) == 1
+    assert len(tuple(output_dir.glob("*.tar.gz"))) == 1
+    assert "trusted" not in result.output.lower()
+    assert "release-ready" not in result.output.lower()
+    assert "integrity-verified" not in result.output.lower()

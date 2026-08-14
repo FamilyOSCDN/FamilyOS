@@ -1276,6 +1276,38 @@ Evidence, release, or publication capability. The Build Framework technical
 implementation remains in progress, and framework version `1.0.0` plus
 historical publication tag `v4.7.0-build-framework` remain unchanged.
 
+## Python Package Structural Validation — 2026-08-14
+
+This incremental technical revision adds a dedicated application-owned
+structural validator after successful Artifact Discovery. The canonical build
+composition passes the exact discovered candidates to that use case; it does
+not rescan or glob the output directory. Execution failure skips discovery and
+validation, discovery failure skips validation, and an `INVALID` structural
+result fails the aggregate build.
+
+Wheel inspection validates the filename, ZIP readability and CRC, safe and
+unique member paths, exactly one top-level `.dist-info` directory, readable
+core and wheel metadata, required `METADATA`, `WHEEL`, and `RECORD` files, and
+structural `RECORD` rows without verifying their hashes. Source-distribution
+inspection validates the filename, gzip/tar readability, safe regular members,
+one package root, `PKG-INFO`, archived `pyproject.toml`, Python source presence,
+and readable package metadata. Both archive formats must represent the same
+name/version as the authoritative repository `pyproject.toml`.
+
+The result model is immutable and exposes only `VALID`/`INVALID` structural
+semantics with deterministic candidate-specific diagnostics. It does not mutate
+candidate classification or add Artifact Identity, Artifact Integrity, trust,
+provenance, Build ID, Build Evidence, release, or publication state. Archive
+members are inspected through bounded in-memory decompression without filesystem
+extraction; no dependency or workflow file changes occur, and Level 27 artifact
+validation remains open pending direct remote CI evidence.
+
+Level 16 remains partial: runtime and dependency metadata, complete expected
+module/resource and inclusion policy, installation, import/CLI smoke, and
+functional source-distribution build/install validation remain future slices.
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

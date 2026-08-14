@@ -5,11 +5,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
 )
+
+if TYPE_CHECKING:
+    from familyos_cli.application.build.package_validation import (
+        PythonPackageStructuralValidationResult,
+    )
 
 
 class ArtifactClass(StrEnum):
@@ -77,15 +83,16 @@ class ArtifactDiscoveryResult:
 
 @dataclass(frozen=True, slots=True)
 class CanonicalPackageBuildResult:
-    """Aggregate execution and discovery result for the canonical command."""
+    """Aggregate execution, discovery, and structural validation result."""
 
     status: PackageBuildStatus
     execution: PackageBuildResult
     discovery: ArtifactDiscoveryResult | None = None
+    validation: PythonPackageStructuralValidationResult | None = None
 
     @property
     def successful(self) -> bool:
-        """Return whether execution and artifact discovery both succeeded."""
+        """Return whether every performed canonical build stage succeeded."""
 
         return self.status is PackageBuildStatus.SUCCEEDED
 
@@ -97,8 +104,10 @@ class CanonicalPackageBuildResult:
 
     @property
     def diagnostic(self) -> str | None:
-        """Return the applicable execution or discovery diagnostic."""
+        """Return the latest applicable canonical-stage diagnostic."""
 
+        if self.validation and self.validation.diagnostic:
+            return self.validation.diagnostic
         if self.discovery and self.discovery.diagnostic:
             return self.discovery.diagnostic
         return self.execution.diagnostic

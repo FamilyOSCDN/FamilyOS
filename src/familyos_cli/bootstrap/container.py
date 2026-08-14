@@ -8,6 +8,7 @@ from pathlib import Path
 from familyos_cli.application.build import (
     DiscoverPackageArtifactsUseCase,
     RunPackageBuildUseCase,
+    ValidatePythonPackageArtifactsUseCase,
 )
 from familyos_cli.application.generation.application_recipe_registry_factory import (
     ApplicationRecipeRegistryFactory,
@@ -275,10 +276,12 @@ class ApplicationContainer:
     def run_package_build_use_case(self) -> RunPackageBuildUseCase:
         """Create the provider-neutral canonical package-build use case."""
 
+        project_root = Path(__file__).resolve().parents[3]
         return RunPackageBuildUseCase(
             builder=PythonPackageBuilder(),
             discoverer=DiscoverPackageArtifactsUseCase(),
-            project_root=Path(__file__).resolve().parents[3],
+            validator=ValidatePythonPackageArtifactsUseCase(project_root),
+            project_root=project_root,
         )
 
     def plugin_verifier(

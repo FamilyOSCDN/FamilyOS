@@ -49,7 +49,7 @@ Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
 Latest Reconciliation:   Local Developer Workflow
-Latest Technical Slice:  Canonical Package Build
+Latest Technical Slice:  Python Package Structural Validation
 ```
 
 The canonical Build Framework documentation is complete and the current repository representation has passed post-release revalidation.
@@ -213,6 +213,32 @@ Deferred CI-maintenance debt: the run warned that the pinned
 versions target Node.js 20 and were forced to Node.js 24. Action updates are
 outside this evidence slice. Framework version `1.0.0` and historical tag
 `v4.7.0-build-framework` are unchanged.
+
+## Python Package Structural Validation — 2026-08-14
+
+The canonical `familyos build` application flow now validates the exact wheel
+and source-distribution candidates returned by successful Artifact Discovery.
+A dedicated application use case inspects ZIP and gzip-compressed tar members
+through bounded decompression streams without filesystem extraction, rejects
+unsafe or corrupt archive structure, requires the standard package metadata
+files, and checks package name/version coherence
+across filenames, archive layout, package metadata, archived project metadata,
+and the authoritative repository `pyproject.toml`.
+
+The immutable validation result distinguishes `VALID` from `INVALID` and
+provides deterministic candidate-specific diagnostics. Execution or discovery
+failure skips validation; structural failure fails the aggregate canonical
+build and therefore returns a non-zero CLI status. The existing GitHub Actions
+workflow is unchanged and will use this behavior through its existing
+`familyos build --output-dir dist` invocation.
+
+This first Level 16 slice does not install artifacts, execute imports or the
+packaged CLI, validate the complete expected module/resource inventory, verify
+`RECORD` hashes, generate digests, or establish Artifact Identity, Artifact
+Integrity, trust, provenance, Build Evidence, release readiness, or publication.
+Level 27 artifact validation remains open until a later remote workflow run
+provides direct evidence. Framework version `1.0.0` and historical tag
+`v4.7.0-build-framework` remain unchanged.
 
 ---
 

@@ -1378,3 +1378,75 @@ only. No Artifact Validation occurred, no integrity digest or integrity
 evidence was generated, and no identity, trust, Build ID, Build Evidence,
 release-readiness, handoff, or publication semantics are established. No Level
 15+ item was changed.
+
+## Python Package Structural Validation — 2026-08-14
+
+This implementation slice extends the canonical application sequence without
+changing the GitHub Actions workflow:
+
+```text
+PythonPackageBuilder
+    -> DiscoverPackageArtifactsUseCase
+    -> ValidatePythonPackageArtifactsUseCase
+    -> CanonicalPackageBuildResult
+```
+
+Validation consumes only the exact candidates returned by successful Artifact
+Discovery. It does not rescan `dist/`. Execution failure skips discovery and
+validation, discovery failure skips validation, structural `INVALID` fails the
+aggregate build, and structural `VALID` permits aggregate success.
+
+The wheel contract covers:
+
+* a regular non-symlink candidate file;
+* a readable, non-corrupt ZIP with safe and unique member paths;
+* exactly one top-level package `.dist-info` directory;
+* required readable `METADATA`, `WHEEL`, and `RECORD` files;
+* structurally readable core/WHEEL metadata and CSV `RECORD` rows;
+* coherent name/version across filename, `.dist-info`, core metadata, and the
+  authoritative repository `pyproject.toml`.
+
+The source-distribution contract covers:
+
+* a regular non-symlink candidate file;
+* a readable, non-corrupt gzip-compressed tar archive;
+* safe regular members under exactly one coherent package root;
+* required readable `PKG-INFO` and archived `pyproject.toml`;
+* presence of Python source material;
+* coherent name/version across filename, root, `PKG-INFO`, archived project
+  metadata, and the authoritative repository `pyproject.toml`.
+
+Archive members are decompressed and inspected through bounded in-memory streams
+without filesystem extraction; repository paths are never materialized from
+archive member names. The bounded-inspection controls allow at most 10,000
+members, 64 MiB of actual content per regular member, and 512 MiB of aggregate
+actual decompressed content per archive. Wheel inspection accepts stored and
+deflated members; compression methods whose standard-library readers cannot
+honor bounded output requests are rejected before decompression. These controls
+bound this validator's structural inspection; they are not a universal hostile-
+archive sandbox. `RECORD` hashes and sizes are not verified. The slice does not
+install either artifact, resolve dependencies, run imports or the CLI, validate
+the complete expected module/resource inventory, build from the sdist, or
+generate integrity data.
+
+Executed local evidence:
+
+```text
+Changed-file Ruff:                         PASS
+Changed-file MyPy:                         PASS — 11 source files
+Targeted validation/build suite:           PASS — 65 tests
+Full Pytest:                               PASS — 1559 tests
+Canonical repository validation:           PASS — all six gates
+Real `familyos build --output-dir dist`:    PASS — structural result `VALID`
+```
+
+The immutable result's `VALID` state means structurally valid according to this
+contract only. Candidate classification remains unchanged. Structural validity
+does not establish Artifact Identity, Artifact Integrity, trust, provenance,
+Build ID, Build Evidence, signing, attestation, release readiness, publication,
+promotion, or deployment.
+
+Level 16 remains partial, and the Level 27 `Run artifact validation` item remains
+open until a later committed revision is executed successfully by the remote
+GitHub Actions workflow. Framework version `1.0.0` and immutable historical tag
+`v4.7.0-build-framework` remain unchanged.

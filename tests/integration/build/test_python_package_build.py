@@ -11,7 +11,9 @@ from familyos_cli.application.build import (
     ArtifactClass,
     DiscoverPackageArtifactsUseCase,
     PackageBuildStatus,
+    PackageStructuralValidationStatus,
     RunPackageBuildUseCase,
+    ValidatePythonPackageArtifactsUseCase,
 )
 from familyos_cli.infrastructure.build import PythonPackageBuilder
 
@@ -57,6 +59,7 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     result = RunPackageBuildUseCase(
         builder=PythonPackageBuilder(sys.executable),
         discoverer=DiscoverPackageArtifactsUseCase(),
+        validator=ValidatePythonPackageArtifactsUseCase(project_root),
         project_root=project_root,
     ).execute(output_dir)
 
@@ -74,6 +77,9 @@ def test_real_familyos_package_build_isolated_from_checkout(tmp_path: Path) -> N
     assert result.execution.exit_code == 0
     assert result.discovery is not None
     assert result.discovery.successful
+    assert result.validation is not None
+    assert result.validation.status is PackageStructuralValidationStatus.VALID
+    assert result.validation.diagnostic is None
     assert len(wheels) == 1
     assert len(sdists) == 1
     assert all(artifact.path.parent == output_dir for artifact in result.candidates)

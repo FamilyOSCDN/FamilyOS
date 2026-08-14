@@ -29,6 +29,11 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
     typer.echo(f"Canonical Package Build: {result.status.value.upper()}")
     for artifact in result.candidates:
         typer.echo(f"- {artifact.artifact_class.value}: {artifact.path}")
+    if result.validation:
+        typer.echo(
+            "Python Package Structural Validation: "
+            f"{result.validation.status.value.upper()}"
+        )
     if result.diagnostic:
         typer.echo(result.diagnostic, err=True)
 

@@ -628,11 +628,11 @@ Validate current FamilyOS Python artifacts directly.
 
 ### Checklist
 
-* [ ] Build wheel artifact.
-* [ ] Build source distribution where required.
-* [ ] Validate artifact filename.
-* [ ] Validate archive structure.
-* [ ] Validate package metadata.
+* [x] Build wheel artifact.
+* [x] Build source distribution where required.
+* [x] Validate artifact filename.
+* [x] Validate archive structure.
+* [x] Validate package metadata.
 * [ ] Validate Python runtime requirement metadata.
 * [ ] Validate dependency metadata.
 * [ ] Validate expected package modules.
@@ -643,6 +643,26 @@ Validate current FamilyOS Python artifacts directly.
 * [ ] Perform basic import smoke test.
 * [ ] Perform CLI smoke test where appropriate.
 * [ ] Validate source distribution can build or install correctly if required.
+
+Implementation evidence: the canonical `familyos build` application flow now
+passes the exact successful Artifact Discovery candidates to an application-owned
+Python package structural validator. The validator inspects and decompresses
+archive members through bounded streams without filesystem extraction. It
+validates wheel and source-distribution filename coherence, ZIP/gzip-tar
+readability and corruption, safe archive member paths, one
+appropriate wheel `.dist-info` directory, required `METADATA`, `WHEEL`, and
+`RECORD` structure, one source-distribution root, required `PKG-INFO`, archived
+`pyproject.toml`, Python source presence, and package name/version consistency
+with the authoritative repository `pyproject.toml`. Focused tests cover valid,
+corrupt, malformed, incoherent, missing-metadata, traversal-like, composition,
+integration, and CLI outcomes.
+
+Level 16 remains partial. Python runtime requirement and dependency metadata,
+the exact expected module/resource inventory, unintended or missing package
+content, clean installation, import/CLI smoke tests, and functional source-
+distribution build/install validation remain open. `VALID` in this slice means
+structurally valid only; it does not establish Artifact Identity, Artifact
+Integrity, trust, provenance, Build Evidence, or release readiness.
 
 ---
 

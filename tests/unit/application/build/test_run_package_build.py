@@ -5,12 +5,18 @@ from __future__ import annotations
 from pathlib import Path
 
 from familyos_cli.application.build import (
+    ArtifactClass,
     ArtifactDiscoveryResult,
     ArtifactDiscoveryStatus,
+    CandidatePackageValidationResult,
+    DiscoveredArtifact,
     DiscoverPackageArtifactsUseCase,
     PackageBuildResult,
     PackageBuildStatus,
+    PackageStructuralValidationStatus,
+    PythonPackageStructuralValidationResult,
     RunPackageBuildUseCase,
+    ValidatePythonPackageArtifactsUseCase,
 )
 from familyos_cli.application.ports.build import PackageBuilderPort
 
@@ -27,6 +33,25 @@ class _PackageBuilder(PackageBuilderPort):
         output_dir: Path,
     ) -> PackageBuildResult:
         self.calls.append((project_root, output_dir))
+        return self.result
+
+
+class _RecordingValidator(ValidatePythonPackageArtifactsUseCase):
+    def __init__(
+        self,
+        result: PythonPackageStructuralValidationResult | None = None,
+    ) -> None:
+        self.result = result or PythonPackageStructuralValidationResult(
+            status=PackageStructuralValidationStatus.VALID,
+            candidate_results=(),
+        )
+        self.calls: list[tuple[DiscoveredArtifact, ...]] = []
+
+    def execute(
+        self,
+        candidates: tuple[DiscoveredArtifact, ...],
+    ) -> PythonPackageStructuralValidationResult:
+        self.calls.append(candidates)
         return self.result
 
 
@@ -49,6 +74,7 @@ def test_use_case_delegates_explicit_paths_to_packaging_port(
     result = RunPackageBuildUseCase(
         builder,
         DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
         project_root,
     ).execute(output_dir)
 
@@ -76,6 +102,7 @@ def test_use_case_resolves_relative_output_from_project_root(
     result = RunPackageBuildUseCase(
         builder,
         DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
         project_root,
     ).execute(Path("dist"))
 
@@ -129,23 +156,30 @@ def test_execution_failure_skips_discovery(tmp_path: Path) -> None:
     )
     builder = _PackageBuilder(execution)
     discoverer = _RecordingDiscoverer()
+    validator = _RecordingValidator()
 
-    result = RunPackageBuildUseCase(builder, discoverer, tmp_path).execute(
-        Path("dist")
-    )
+    result = RunPackageBuildUseCase(
+        builder,
+        discoverer,
+        validator,
+        tmp_path,
+    ).execute(Path("dist"))
 
     assert result.status is PackageBuildStatus.FAILED
     assert result.discovery is None
     assert result.diagnostic == "backend failed"
     assert not discoverer.called
+    assert validator.calls == []
 
 
 def test_discovery_failure_makes_aggregate_build_fail(tmp_path: Path) -> None:
     execution = PackageBuildResult(status=PackageBuildStatus.SUCCEEDED, outputs=())
 
+    validator = _RecordingValidator()
     result = RunPackageBuildUseCase(
         _PackageBuilder(execution),
         DiscoverPackageArtifactsUseCase(),
+        validator,
         tmp_path,
     ).execute(Path("dist"))
 
@@ -156,3 +190,71 @@ def test_discovery_failure_makes_aggregate_build_fail(tmp_path: Path) -> None:
         "Artifact discovery failed: missing python-wheel; "
         "missing source-distribution"
     )
+    assert result.validation is None
+    assert validator.calls == []
+
+
+def test_validation_runs_only_after_successful_discovery(tmp_path: Path) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+    execution = PackageBuildResult(
+        status=PackageBuildStatus.SUCCEEDED,
+        outputs=(sdist, wheel),
+    )
+    validator = _RecordingValidator()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(execution),
+        DiscoverPackageArtifactsUseCase(),
+        validator,
+        tmp_path,
+    ).execute(output_dir)
+
+    assert result.successful
+    assert result.validation is validator.result
+    assert len(validator.calls) == 1
+    assert tuple(candidate.path for candidate in validator.calls[0]) == (
+        wheel,
+        sdist,
+    )
+
+
+def test_validation_failure_makes_aggregate_build_fail(tmp_path: Path) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+    execution = PackageBuildResult(
+        status=PackageBuildStatus.SUCCEEDED,
+        outputs=(wheel, sdist),
+    )
+    invalid = PythonPackageStructuralValidationResult(
+        status=PackageStructuralValidationStatus.INVALID,
+        candidate_results=(
+            CandidatePackageValidationResult(
+                candidate=DiscoveredArtifact(wheel, ArtifactClass.PYTHON_WHEEL),
+                status=PackageStructuralValidationStatus.INVALID,
+                diagnostics=("wheel is corrupt",),
+            ),
+        ),
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(execution),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(invalid),
+        tmp_path,
+    ).execute(output_dir)
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.discovery is not None
+    assert result.discovery.successful
+    assert result.validation is invalid
+    assert result.diagnostic is not None
+    assert "wheel is corrupt" in result.diagnostic

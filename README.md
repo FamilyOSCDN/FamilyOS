@@ -5,9 +5,10 @@ the FamilyOS repository. The project currently supports a controlled Python
 development environment and one provider-neutral validation command shared by
 local development and GitHub Actions.
 
-The repository provides a canonical package-build command. Package outputs are
-process-level build results only: producing them does not validate them, make
-them trusted, or publish a release.
+The repository provides a canonical package-build command. A successful command
+now includes structural validation of its discovered Python package candidates.
+Structural validity does not establish artifact integrity, trust, provenance,
+release readiness, or publication.
 
 ## Prerequisites
 
@@ -132,31 +133,55 @@ ignored by Git. They are not authoritative source and must not be committed.
 A successful command requires exactly one current wheel and exactly one current
 source distribution in the resolved output directory. It classifies those two
 outputs as candidates and fails if either is missing, duplicated, or accompanied
-by another current output. Candidate classification means only that an output
-matches this expected build-output contract; it does not mean validated,
-trusted, integrity-checked, releasable, or release-ready.
+by another current output. After successful discovery, the application inspects
+and decompresses those exact ZIP and gzip-compressed tar candidates through
+bounded in-memory streams without filesystem extraction. It validates safe
+coherent archive structure, required standard package metadata, and package
+name/version consistency with `pyproject.toml`.
 
-A packaging, execution, or discovery failure returns a non-zero status and a
-concise diagnostic. The command never publishes its outputs. Temporary and
-intermediate output classification, Build ID association, artifact validation,
-identity, integrity, Build Evidence, and release handoff remain future work.
+The states remain deliberately distinct:
+
+```text
+candidate artifact
+    != structurally valid artifact
+    != integrity-verified artifact
+    != trusted artifact
+    != release-ready artifact
+```
+
+`VALID` means only that a discovered candidate satisfies the implemented Python
+package structural-validation contract. It does not verify `RECORD` hashes,
+install either package, run imports or the CLI, establish provenance, or authorize
+release use.
+
+A packaging, execution, discovery, or structural-validation failure returns a
+non-zero status and a concise diagnostic. Structural diagnostics identify the
+candidate and failed contract. The command never publishes its outputs.
+Temporary and intermediate output classification, Build ID association,
+Artifact Identity, Artifact Integrity, functional package validation, Build
+Evidence, and release handoff remain future work.
 
 ## CI package build
 
-The `Canonical CI Validation` GitHub Actions workflow now also runs
+The `Canonical CI Validation` GitHub Actions workflow also runs
 `familyos build --output-dir dist` after canonical validation succeeds, and
 uploads the resulting `dist/` directory as the `familyos-package-candidates`
-workflow artifact when the build succeeds. A failed mandatory validation skips
-the build step entirely; a failed build or discovery skips the candidate
-upload and fails the workflow. `familyos-package-candidates` is an
-unvalidated, untrusted, unpublished build-output transport only; the name
-does not imply release readiness.
+workflow artifact when the build succeeds. Because structural validation is
+part of the canonical command, a local structural failure prevents upload
+without duplicating validation logic in YAML. A failed mandatory validation
+skips the build step entirely; a failed build, discovery, or structural
+validation skips the candidate upload and fails the workflow. The workflow
+transport does not establish Artifact Integrity, trust, release readiness, or
+publication.
 
 This path was remotely verified by successful GitHub Actions run
 `31792439104` for commit `63693e6`. The downloaded
 `familyos-package-candidates` artifact contained exactly one wheel and one
-source distribution. These remain unvalidated, untrusted package candidates;
-remote transport does not establish artifact integrity or release readiness.
+source distribution. Those historical outputs predate this
+structural-validation implementation and remain unvalidated, untrusted package
+candidates. A later successful remote run is required before EPIC-BLD-001
+records structural validation as executed in CI; remote transport alone does
+not establish Artifact Integrity or release readiness.
 
 To reproduce the full CI path locally:
 
@@ -239,12 +264,13 @@ future build outputs.
 
 ## Current build boundary
 
-FamilyOS exposes canonical package-build execution, but does not yet expose a
-candidate-artifact contract, artifact-validation pipeline, artifact identity,
-integrity, Build Evidence, release handoff, or canonical build-output cleanup
-command. Those capabilities remain future EPIC-BLD-001 implementation work.
-Do not infer trust or release semantics from setuptools output or a successful
-build command.
+FamilyOS exposes canonical package-build execution, explicit candidate
+discovery, and application-owned Python package structural validation. It does
+not yet expose functional installation/runtime validation, Artifact Identity,
+Artifact Integrity, Build Evidence, release handoff, or a canonical build-output
+cleanup command. Those capabilities remain future EPIC-BLD-001 implementation
+work. Do not infer integrity, trust, provenance, or release semantics from a
+successful build command.
 
 The normative Build Framework is under
 `docs/epics/EPIC-BLD-001-build-framework/`. Repository engineering standards
