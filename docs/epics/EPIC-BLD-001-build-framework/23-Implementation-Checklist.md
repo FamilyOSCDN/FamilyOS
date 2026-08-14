@@ -973,7 +973,7 @@ Use CI as an independent executor of canonical build semantics.
 * [x] Run Pytest.
 * [x] Run canonical build command.
 * [x] Collect explicit candidate artifacts.
-* [ ] Run artifact validation.
+* [x] Run artifact validation.
 * [ ] Generate artifact integrity data.
 * [ ] Collect Build Evidence.
 * [x] Upload CI artifacts where useful.
@@ -991,8 +991,22 @@ contained exactly `familyos_cli-0.1.0-py3-none-any.whl` and
 empirically satisfies canonical build execution and explicit candidate
 collection in CI.
 
-This evidence does not complete artifact validation or artifact integrity,
-and does not establish full Build Evidence capabilities.
+Structural artifact-validation evidence: commit `c49c655` was executed by the
+`Canonical CI Validation` workflow in push run `31801029251`. The completed
+run and `validate` job both succeeded. At that commit, the canonical
+`familyos build --output-dir dist` invocation includes Python Package
+Structural Validation after successful Artifact Discovery, so this success
+empirically proves remote execution of the mandatory structural-validation
+path, not only build and discovery. `familyos-ci-validation` remained
+available and `familyos-package-candidates` was uploaded, again containing
+exactly `familyos_cli-0.1.0-py3-none-any.whl` and
+`familyos_cli-0.1.0.tar.gz` (one wheel and one source distribution). This
+closes `Run artifact validation` above.
+
+This evidence does not establish artifact integrity, does not establish Build
+Evidence, and does not complete the remaining functional Level 16 checks
+(clean-environment installation, import/CLI smoke, or source-distribution
+build/install validation).
 
 ---
 

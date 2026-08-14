@@ -174,14 +174,16 @@ validation skips the candidate upload and fails the workflow. The workflow
 transport does not establish Artifact Integrity, trust, release readiness, or
 publication.
 
-This path was remotely verified by successful GitHub Actions run
-`31792439104` for commit `63693e6`. The downloaded
-`familyos-package-candidates` artifact contained exactly one wheel and one
-source distribution. Those historical outputs predate this
-structural-validation implementation and remain unvalidated, untrusted package
-candidates. A later successful remote run is required before EPIC-BLD-001
-records structural validation as executed in CI; remote transport alone does
-not establish Artifact Integrity or release readiness.
+This path was first remotely verified by successful GitHub Actions run
+`31792439104` for commit `63693e6`, before structural validation existed;
+those historical outputs remain unvalidated, untrusted package candidates.
+Structural validation itself was remotely verified by successful run
+`31801029251` for commit `c49c655`, again containing exactly one wheel and one
+source distribution. Candidates remain untrusted and non-integrity-verified;
+remote transport alone does not establish Artifact Integrity or release
+readiness, and the remaining functional Level 16 checks (clean-environment
+installation, import/CLI smoke, source-distribution build/install validation)
+remain future work.
 
 To reproduce the full CI path locally:
 

@@ -1308,6 +1308,36 @@ functional source-distribution build/install validation remain future slices.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+## Remote Structural-Validation Evidence — 2026-08-14
+
+This revision records remote CI evidence only; it introduces no Level 15,
+Level 17, Build Evidence, release, provenance, signing, promotion, or
+deployment capability.
+
+The `Canonical CI Validation` workflow executed commit
+`c49c655837f300930fa7a6b5df1714207e71e903` (short `c49c655`, branch
+`feature/bld-python-package-structural-validation`, `push` event) as GitHub
+Actions run `31801029251`. The run and its `validate` job both completed with
+conclusion `success`. Because the canonical `familyos build --output-dir dist`
+invocation at that commit already includes Python Package Structural
+Validation after successful Artifact Discovery, this success is direct remote
+evidence that the mandatory structural-validation path executed, not merely
+build and discovery.
+
+The `familyos-ci-validation` artifact remained available, and
+`familyos-package-candidates` was uploaded and downloaded, containing exactly
+`familyos_cli-0.1.0-py3-none-any.whl` and `familyos_cli-0.1.0.tar.gz` (wheel
+count `1`, source-distribution count `1`).
+
+This closes the Level 27 `Run artifact validation` checklist item. It does not
+close `Generate artifact integrity data` or `Collect Build Evidence`, both of
+which remain open, and it does not complete the remaining functional Level 16
+checks. The run again emitted the previously recorded GitHub Actions Node.js
+20 deprecation warning; that maintenance debt is unchanged and is not
+duplicated here, and it does not affect the run's `success` conclusion.
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

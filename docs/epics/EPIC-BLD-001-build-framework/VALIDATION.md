@@ -1450,3 +1450,56 @@ Level 16 remains partial, and the Level 27 `Run artifact validation` item remain
 open until a later committed revision is executed successfully by the remote
 GitHub Actions workflow. Framework version `1.0.0` and immutable historical tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Remote Structural-Validation Evidence — 2026-08-14
+
+This slice records remote evidence only. No production Python, tests, or CI
+workflow definition changed.
+
+The `Canonical CI Validation` workflow executed commit
+`c49c655837f300930fa7a6b5df1714207e71e903` (short `c49c655`) on branch
+`feature/bld-python-package-structural-validation`, `push` event, GitHub
+Actions run `31801029251`. The run and its `validate` job both completed with
+conclusion `success`.
+
+At commit `c49c655`, the canonical `familyos build --output-dir dist`
+invocation already includes the sequence:
+
+```text
+Build Execution
+    -> Artifact Discovery
+    -> Python Package Structural Validation
+```
+
+so this successful remote run empirically proves remote execution of the
+mandatory structural-validation path, not merely build and discovery. The
+`familyos-ci-validation` artifact (`ci-validation.json`) remained available,
+and `familyos-package-candidates` was uploaded containing exactly
+`familyos_cli-0.1.0-py3-none-any.whl` and `familyos_cli-0.1.0.tar.gz` (wheel
+count `1`, source-distribution count `1`).
+
+This directly closes the Level 27 `Run artifact validation` checklist item.
+The prior sentence above, stating that this item "remains open until a later
+committed revision is executed successfully by the remote GitHub Actions
+workflow," is superseded by this run.
+
+The run again emitted the previously recorded GitHub Actions Node.js 20
+deprecation warning. That maintenance debt is unchanged and already recorded;
+it does not affect this run's `success` conclusion or the validation evidence
+above.
+
+This evidence establishes only that the currently implemented structural
+validation executed successfully in CI. It does NOT establish:
+
+* isolated wheel installation;
+* import smoke or CLI smoke validation;
+* source-distribution functional build/install validation;
+* Artifact Identity;
+* Artifact Integrity or integrity digest generation;
+* Build Evidence;
+* trust, provenance, signing, release readiness, or publication.
+
+`Generate artifact integrity data` and `Collect Build Evidence` remain open.
+No Level 15 or Level 17 item changed. The remaining functional Level 16 items
+remain open. Framework version `1.0.0` and immutable historical tag
+`v4.7.0-build-framework` remain unchanged.

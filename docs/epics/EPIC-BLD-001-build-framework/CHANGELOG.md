@@ -48,7 +48,7 @@ Historical Publication:  Published
 Historical Tag:          v4.7.0-build-framework
 Implementation:          In Progress
 Implemented Slice:       Dependency Reproducibility Baseline
-Latest Reconciliation:   Local Developer Workflow
+Latest Reconciliation:   Remote Structural-Validation Evidence
 Latest Technical Slice:  Python Package Structural Validation
 ```
 
@@ -239,6 +239,31 @@ Integrity, trust, provenance, Build Evidence, release readiness, or publication.
 Level 27 artifact validation remains open until a later remote workflow run
 provides direct evidence. Framework version `1.0.0` and historical tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Remote Structural-Validation Evidence Reconciliation — 2026-08-14
+
+This is a documentation/checklist-only reconciliation. It introduces no new
+technical validation behavior; it records remote execution of the structural
+validation behavior already committed in `c49c655`.
+
+The `Canonical CI Validation` workflow executed commit `c49c655` (branch
+`feature/bld-python-package-structural-validation`, `push` event) as GitHub
+Actions run `31801029251`, completing with conclusion `success`. Because the
+canonical `familyos build --output-dir dist` invocation at that commit already
+includes Python Package Structural Validation after successful Artifact
+Discovery, this run empirically proves remote execution of the mandatory
+structural-validation path. `familyos-package-candidates` was uploaded
+containing exactly one wheel and one source distribution, and
+`familyos-ci-validation` remained available.
+
+Level 27 `Run artifact validation` is now proven remotely and is closed.
+`Generate artifact integrity data` and `Collect Build Evidence` remain open.
+No Level 15 or Level 17 capability was introduced. The remaining functional
+Level 16 checks (clean-environment installation, import/CLI smoke, and
+source-distribution build/install validation) remain open. The previously
+recorded GitHub Actions Node.js 20 deprecation warning recurred in this run;
+that maintenance debt is unchanged and is not duplicated here. Framework
+version `1.0.0` and historical tag `v4.7.0-build-framework` are unchanged.
 
 ---
 
