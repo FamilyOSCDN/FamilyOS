@@ -8,6 +8,7 @@ from familyos_cli.application.build.artifact_discovery import (
     ArtifactClass,
     CanonicalPackageBuildResult,
 )
+from familyos_cli.application.build.build_id_generator import BuildIdGenerator
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
 )
@@ -35,6 +36,7 @@ class RunPackageBuildUseCase:
         functional_validator: PythonWheelFunctionalValidatorPort,
         source_state_provider: SourceStateProviderPort,
         project_root: Path,
+        build_id_generator: BuildIdGenerator | None = None,
     ) -> None:
         self._builder = builder
         self._discoverer = discoverer
@@ -42,6 +44,7 @@ class RunPackageBuildUseCase:
         self._functional_validator = functional_validator
         self._source_state_provider = source_state_provider
         self._project_root = project_root
+        self._build_id_generator = build_id_generator or BuildIdGenerator()
 
     def execute(
         self,
@@ -51,6 +54,7 @@ class RunPackageBuildUseCase:
     ) -> CanonicalPackageBuildResult:
         """Build the repository package into an explicit output directory."""
 
+        build_id = self._build_id_generator.generate()
         resolved_output_dir = (
             output_dir if output_dir.is_absolute() else self._project_root / output_dir
         )
@@ -66,6 +70,7 @@ class RunPackageBuildUseCase:
                 status=execution.status,
                 execution=execution,
                 source_state=source_state,
+                build_id=build_id,
             )
 
         discovery = self._discoverer.execute(
@@ -77,6 +82,7 @@ class RunPackageBuildUseCase:
                 status=PackageBuildStatus.FAILED,
                 execution=execution,
                 source_state=source_state,
+                build_id=build_id,
                 discovery=discovery,
             )
 
@@ -86,6 +92,7 @@ class RunPackageBuildUseCase:
                 status=PackageBuildStatus.FAILED,
                 execution=execution,
                 source_state=source_state,
+                build_id=build_id,
                 discovery=discovery,
                 validation=validation,
             )
@@ -94,6 +101,7 @@ class RunPackageBuildUseCase:
                 status=PackageBuildStatus.SUCCEEDED,
                 execution=execution,
                 source_state=source_state,
+                build_id=build_id,
                 discovery=discovery,
                 validation=validation,
             )
@@ -112,6 +120,7 @@ class RunPackageBuildUseCase:
             ),
             execution=execution,
             source_state=source_state,
+            build_id=build_id,
             discovery=discovery,
             validation=validation,
             functional_validation=functional_validation,

@@ -1917,3 +1917,62 @@ Artifact Identity, Artifact Integrity, Build Manifest, Build Evidence,
 provenance, and release-candidate source policy remain open or out of scope.
 Framework version `1.0.0` and immutable historical tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Minimal Build Identity — 2026-08-15
+
+Canonical package-build execution now receives an opaque, provider-neutral
+Build ID. `BuildId` is an immutable UUID-backed application value object and
+`BuildIdGenerator` generates UUID version 4 identifiers by default while
+allowing deterministic UUID factories in tests.
+
+`RunPackageBuildUseCase` generates exactly one Build ID at the beginning of
+each canonical execution, before source-state observation and package
+construction. The same identifier is propagated through
+`CanonicalPackageBuildResult` on successful and failed execution paths.
+
+Local development builds receive Build IDs under the same canonical semantics
+as CI and release-candidate executions. The identifier is independent of Git
+revision and CI-provider run identity. Two canonical executions from the same
+checkout therefore remain independently identifiable.
+
+The CLI exposes the identifier as:
+
+```text
+Build ID: <canonical UUID>
+```
+
+Real canonical builds emitted UUID version 4 identifiers, and separate
+executions emitted distinct identifiers. A real build with functional
+validation completed successfully while preserving the same execution-level
+identity through the canonical result.
+
+Executed local validation:
+
+```text
+Targeted Build Identity and existing build tests:       PASS — 27 tests
+Global Ruff:                                             PASS
+Global MyPy:                                             PASS — 1186 source files
+Canonical full Pytest (`python -m pytest -q`):           PASS — 1561 tests
+Canonical repository validation:                        PASS — all six gates
+Real canonical package build:                           PASS
+Real build with functional validation:                  PASS
+UUID version check:                                     PASS — UUID4
+Separate-execution identity check:                      PASS — distinct IDs
+git diff --check:                                       PASS
+```
+
+The canonical full-suite invocation is `python -m pytest -q`. Direct invocation
+through the `pytest` executable continues to expose the pre-existing top-level
+`scripts` namespace import-path behavior; no import-path change is included in
+this slice.
+
+This revision establishes minimal Build ID semantics, generation for canonical
+local/CI/release-candidate build execution, diagnostic exposure, canonical UUID
+format, and generation/propagation tests. It does not yet associate Build ID
+with a complete Build Context, Artifact Identity, structured validation
+results, or Build Evidence. Artifact Manifest, Artifact Integrity, provenance,
+signing, publication, promotion, and deployment semantics remain open or out
+of scope.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

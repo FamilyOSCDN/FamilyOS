@@ -293,17 +293,17 @@ Associate significant build execution with stable identity.
 
 ### Checklist
 
-* [ ] Define Build ID semantics.
-* [ ] Generate a Build ID for CI and release-candidate builds.
-* [ ] Determine whether local development builds require Build IDs.
+* [x] Define Build ID semantics.
+* [x] Generate a Build ID for CI and release-candidate builds.
+* [x] Determine whether local development builds require Build IDs.
 * [ ] Associate Build ID with Build Context.
 * [ ] Associate Build ID with artifacts.
 * [ ] Associate Build ID with validation results.
 * [ ] Associate Build ID with Build Evidence.
-* [ ] Include Build ID in diagnostics.
-* [ ] Avoid using CI provider run ID as the only logical Build ID unless explicitly adopted.
-* [ ] Document Build ID format.
-* [ ] Add tests for Build ID generation and propagation.
+* [x] Include Build ID in diagnostics.
+* [x] Avoid using CI provider run ID as the only logical Build ID unless explicitly adopted.
+* [x] Document Build ID format.
+* [x] Add tests for Build ID generation and propagation.
 
 ---
 

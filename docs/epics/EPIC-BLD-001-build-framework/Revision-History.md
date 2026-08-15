@@ -1482,6 +1482,42 @@ Artifact Identity, Artifact Integrity, Build Manifest, Build Evidence, or
 provenance. Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Minimal Build Identity — 2026-08-15
+
+This incremental revision introduces executable Build Identity for canonical
+package builds.
+
+`BuildId` is an immutable UUID-backed application value object.
+`BuildIdGenerator` produces UUID version 4 identifiers by default and supports
+deterministic factories for tests. `RunPackageBuildUseCase` generates exactly
+one identifier before source-state observation and package execution and
+propagates it through `CanonicalPackageBuildResult` on success and failure
+paths.
+
+Canonical local development builds receive Build IDs under the same semantics
+as CI and release-candidate executions. The FamilyOS Build ID is
+provider-neutral and does not adopt a CI-provider run identifier as its logical
+identity. Distinct executions from identical source state therefore remain
+independently correlatable.
+
+The canonical CLI exposes the identifier for diagnostics. Local evidence
+includes UUID4 format verification, distinct identifiers across separate real
+canonical executions, successful functional package validation, Ruff, MyPy
+across 1186 source files, the full canonical suite of 1561 tests, and all six
+canonical repository validation gates.
+
+This revision closes the implemented Level 6 items for Build ID semantics,
+generation, local-build policy, diagnostic exposure, provider-neutral identity,
+format documentation, and generation/propagation testing. Association with a
+complete Build Context, artifacts, structured validation results, and Build
+Evidence remains open.
+
+No Artifact Manifest, Artifact Integrity, provenance, signing, release,
+publication, promotion, or deployment semantics are established. Framework
+version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

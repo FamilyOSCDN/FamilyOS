@@ -1021,3 +1021,36 @@ release-candidate source policy remain open or outside this slice.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Minimal Build Identity — 2026-08-15
+
+Implemented provider-neutral identity for canonical package-build executions.
+
+Each canonical execution now receives one opaque UUID version 4 `BuildId`
+before source-state observation and package construction. The identifier is
+preserved by `CanonicalPackageBuildResult` across successful and failed paths
+and is exposed by the CLI for execution correlation.
+
+Local development builds use the same Build ID semantics as CI and
+release-candidate builds. Build identity is independent of Git revision and
+CI-provider run identity, so separate executions from the same source state
+receive distinct identifiers.
+
+Local validation passed Ruff, MyPy across 1186 source files, the canonical full
+suite of 1561 tests, all six canonical repository validation gates, real
+canonical package construction, functional validation, UUID4 format checking,
+and separate-execution uniqueness checking.
+
+Level 6 now has executable minimal Build ID semantics, generation, local-build
+policy, diagnostic exposure, provider-neutral format, and generation/
+propagation coverage. Build Context association, Artifact Identity association,
+structured validation-result association, and Build Evidence association
+remain open for subsequent slices.
+
+Artifact Manifest, Artifact Integrity, provenance, signing, release,
+publication, promotion, and deployment semantics are not introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

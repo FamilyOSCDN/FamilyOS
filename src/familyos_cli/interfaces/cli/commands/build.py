@@ -30,6 +30,7 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
     """Render process-level build output without trust claims."""
 
     typer.echo(f"Canonical Package Build: {result.status.value.upper()}")
+    typer.echo(f"Build ID: {result.build_id}")
     for artifact in result.candidates:
         typer.echo(f"- {artifact.artifact_class.value}: {artifact.path}")
     if result.validation:

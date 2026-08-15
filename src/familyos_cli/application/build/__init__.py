@@ -9,6 +9,8 @@ from familyos_cli.application.build.artifact_discovery import (
     DiscoveredArtifact,
     ExpectedArtifactDefinition,
 )
+from familyos_cli.application.build.build_id import BuildId
+from familyos_cli.application.build.build_id_generator import BuildIdGenerator
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
 )
@@ -38,6 +40,8 @@ __all__ = [
     "ArtifactDiscoveryResult",
     "ArtifactDiscoveryStatus",
     "ArtifactOutputClassification",
+    "BuildId",
+    "BuildIdGenerator",
     "CanonicalPackageBuildResult",
     "CandidatePackageValidationResult",
     "DiscoverPackageArtifactsUseCase",

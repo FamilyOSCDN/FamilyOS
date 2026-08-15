@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
@@ -92,6 +93,7 @@ class CanonicalPackageBuildResult:
     status: PackageBuildStatus
     execution: PackageBuildResult
     source_state: SourceState
+    build_id: BuildId = field(default_factory=BuildId.generate)
     discovery: ArtifactDiscoveryResult | None = None
     validation: PythonPackageStructuralValidationResult | None = None
     functional_validation: PythonWheelFunctionalValidationResult | None = None
