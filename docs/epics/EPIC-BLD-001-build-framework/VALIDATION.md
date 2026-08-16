@@ -1976,3 +1976,66 @@ of scope.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Minimal Artifact Identity — 2026-08-16
+
+Canonical package-build execution now constructs explicit Artifact Identity
+metadata for structurally valid candidate artifacts.
+
+Structural validation exposes a validated `PackageIdentity` containing the
+authoritative package logical name and version only when candidate metadata
+satisfies the project package contract. Identity construction therefore reuses
+validated package metadata rather than independently reparsing or deriving
+package identity from artifact filenames.
+
+`BuildArtifactIdentitiesUseCase` combines each successful candidate with the
+canonical execution context to produce immutable `ArtifactIdentity` metadata
+containing:
+
+```text
+logical_name
+artifact_type
+version
+source_revision
+build_id
+path
+size
+Artifact type is represented by the shared ArtifactClass model. Discovery
+remains identity-neutral: DiscoveredArtifact continues to represent only the
+discovered path, semantic artifact class, and discovery classification.
+
+A real canonical build produced exactly two Artifact Identity records: one
+Python wheel and one source distribution. Both carried package name
+familyos-cli, version 0.1.0, the canonical Build ID, the pre-build source
+revision, their actual output paths, and filesystem sizes matching the produced
+files.
+
+A real canonical build with functional validation also preserved complete
+minimal Artifact Identity metadata.
+
+Executed local validation:
+
+Targeted Artifact Identity/build tests:             PASS — 90 tests
+Global Ruff:                                        PASS
+Global MyPy:                                        PASS — 1191 source files
+Canonical full Pytest (`python -m pytest -q`):      PASS — 1561 tests
+Canonical repository validation:                    PASS — all six gates
+Real canonical package build:                       PASS
+Real canonical functional build:                    PASS
+Artifact Identity count:                            PASS — 2
+Build ID association:                               PASS
+Source revision association:                        PASS
+Artifact path/size verification:                    PASS
+Discovery identity-boundary probe:                  PASS
+git diff --check:                                   PASS
+
+This revision closes candidate-artifact Build ID association for the implemented
+Level 14 candidate model and implements the non-cryptographic Artifact Identity
+portion of Level 15.
+
+Cryptographic digest remains intentionally open. Artifact Integrity, Artifact
+Manifest, Build Evidence, provenance, signing, release, publication, promotion,
+and deployment semantics are not introduced by this slice.
+
+Framework version 1.0.0 and immutable historical publication tag
+v4.7.0-build-framework remain unchanged.

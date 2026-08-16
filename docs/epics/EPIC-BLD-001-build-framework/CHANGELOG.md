@@ -1054,3 +1054,41 @@ publication, promotion, and deployment semantics are not introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Minimal Artifact Identity — 2026-08-16
+
+Implemented explicit identity metadata for structurally valid canonical package
+artifacts.
+
+The build application now distinguishes discovery metadata from artifact
+identity. `DiscoveredArtifact` remains discovery-only, while immutable
+`ArtifactIdentity` records authoritative package logical name and version,
+semantic artifact type, pre-build source revision, canonical Build ID, artifact
+path, and filesystem size.
+
+Validated package name and version are exposed through `PackageIdentity` after
+structural validation rather than being reparsed independently for identity
+construction. `ArtifactClass` was moved to a neutral shared artifact-type
+module so discovery and identity can use the same semantic type without a
+dependency cycle.
+
+Real canonical builds produced explicit identities for both the Python wheel
+and source distribution, with Build ID and source revision matching the
+canonical execution context and sizes matching the generated files.
+
+Local validation passed Ruff, MyPy across 1191 source files, the canonical full
+suite of 1561 tests, all six canonical repository validation gates, real
+canonical package construction, functional validation, and explicit
+Artifact Identity boundary probes.
+
+Candidate-artifact Build ID association is now implemented for Level 14.
+Level 15 now has executable non-cryptographic Artifact Identity semantics.
+Cryptographic digest remains open for subsequent Artifact Integrity work.
+
+Artifact Manifest, Build Evidence, provenance, signing, release, publication,
+promotion, and deployment semantics are not introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

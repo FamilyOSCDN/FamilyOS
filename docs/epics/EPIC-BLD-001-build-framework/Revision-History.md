@@ -1518,6 +1518,42 @@ publication, promotion, or deployment semantics are established. Framework
 version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Minimal Artifact Identity — 2026-08-16
+
+This incremental revision introduces explicit Artifact Identity for
+structurally valid canonical package candidates.
+
+Structural validation now exposes validated `PackageIdentity` metadata only
+when candidate package metadata satisfies the authoritative project package
+contract. `BuildArtifactIdentitiesUseCase` combines that validated package
+identity with the canonical Build ID, pre-build source revision, semantic
+artifact type, artifact path, and observed filesystem size.
+
+`ArtifactIdentity` is intentionally distinct from `DiscoveredArtifact`.
+Discovery remains responsible only for identifying candidate outputs, while
+identity metadata is constructed after successful structural validation.
+`ArtifactClass` is shared through a neutral artifact-type module so both
+concepts use the same semantic classification without introducing a dependency
+cycle.
+
+Real canonical builds produced exactly two identities, covering the wheel and
+source distribution. Local evidence includes 90 targeted tests, Ruff, MyPy
+across 1191 source files, the full canonical suite of 1561 tests, all six
+canonical repository validation gates, real package construction, functional
+validation, Build ID/source-revision association, artifact path/size checks,
+and explicit discovery-boundary verification.
+
+This revision implements candidate-artifact Build ID association for the
+current Level 14 candidate model and the non-cryptographic Artifact Identity
+portion of Level 15. Cryptographic digest remains open for subsequent Artifact
+Integrity work.
+
+No Artifact Manifest, Build Evidence, provenance, signing, release,
+publication, promotion, or deployment semantics are established. Framework
+version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

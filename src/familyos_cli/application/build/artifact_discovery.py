@@ -7,6 +7,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from familyos_cli.application.build.artifact_identity import ArtifactIdentity
+from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
@@ -21,13 +23,6 @@ if TYPE_CHECKING:
     from familyos_cli.application.build.package_validation import (
         PythonPackageStructuralValidationResult,
     )
-
-
-class ArtifactClass(StrEnum):
-    """Semantic classes supported by the current package output contract."""
-
-    PYTHON_WHEEL = "python-wheel"
-    SOURCE_DISTRIBUTION = "source-distribution"
 
 
 class ArtifactOutputClassification(StrEnum):
@@ -94,6 +89,7 @@ class CanonicalPackageBuildResult:
     execution: PackageBuildResult
     source_state: SourceState
     build_id: BuildId = field(default_factory=BuildId.generate)
+    artifact_identities: tuple[ArtifactIdentity, ...] = ()
     discovery: ArtifactDiscoveryResult | None = None
     validation: PythonPackageStructuralValidationResult | None = None
     functional_validation: PythonWheelFunctionalValidationResult | None = None

@@ -26,9 +26,10 @@ from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
 
 from familyos_cli.application.build.artifact_discovery import (
-    ArtifactClass,
     DiscoveredArtifact,
 )
+from familyos_cli.application.build.artifact_type import ArtifactClass
+from familyos_cli.application.build.package_identity import PackageIdentity
 from familyos_cli.application.build.package_validation import (
     CandidatePackageValidationResult,
     PackageStructuralValidationStatus,
@@ -191,6 +192,15 @@ class ValidatePythonPackageArtifactsUseCase:
                     else PackageStructuralValidationStatus.VALID
                 ),
                 diagnostics=inspection.diagnostics,
+                package_identity=(
+                    PackageIdentity(
+                        name=inspection.identity.name,
+                        version=inspection.identity.version,
+                    )
+                    if inspection.identity is not None
+                    and not inspection.diagnostics
+                    else None
+                ),
             )
             for inspection in inspections
         )

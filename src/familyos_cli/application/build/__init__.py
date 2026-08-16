@@ -1,13 +1,17 @@
 """Canonical package-build application services."""
 
 from familyos_cli.application.build.artifact_discovery import (
-    ArtifactClass,
     ArtifactDiscoveryResult,
     ArtifactDiscoveryStatus,
     ArtifactOutputClassification,
     CanonicalPackageBuildResult,
     DiscoveredArtifact,
     ExpectedArtifactDefinition,
+)
+from familyos_cli.application.build.artifact_identity import ArtifactIdentity
+from familyos_cli.application.build.artifact_type import ArtifactClass
+from familyos_cli.application.build.build_artifact_identities import (
+    BuildArtifactIdentitiesUseCase,
 )
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
@@ -24,6 +28,7 @@ from familyos_cli.application.build.package_functional_validation import (
     WheelFunctionalValidationFinding,
     WheelFunctionalValidationStage,
 )
+from familyos_cli.application.build.package_identity import PackageIdentity
 from familyos_cli.application.build.package_validation import (
     CandidatePackageValidationResult,
     PackageStructuralValidationStatus,
@@ -37,6 +42,8 @@ from familyos_cli.application.build.validate_python_package_artifacts import (
 
 __all__ = [
     "ArtifactClass",
+    "ArtifactIdentity",
+    "BuildArtifactIdentitiesUseCase",
     "ArtifactDiscoveryResult",
     "ArtifactDiscoveryStatus",
     "ArtifactOutputClassification",
@@ -49,6 +56,7 @@ __all__ = [
     "ExpectedArtifactDefinition",
     "PackageBuildResult",
     "PackageBuildStatus",
+    "PackageIdentity",
     "PackageFunctionalValidationStatus",
     "PackageStructuralValidationStatus",
     "PythonPackageStructuralValidationResult",

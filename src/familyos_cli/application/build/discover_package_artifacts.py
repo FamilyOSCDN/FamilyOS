@@ -5,12 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from familyos_cli.application.build.artifact_discovery import (
-    ArtifactClass,
     ArtifactDiscoveryResult,
     ArtifactDiscoveryStatus,
     DiscoveredArtifact,
     ExpectedArtifactDefinition,
 )
+from familyos_cli.application.build.artifact_type import ArtifactClass
 
 PACKAGE_ARTIFACT_DEFINITIONS = (
     ExpectedArtifactDefinition(

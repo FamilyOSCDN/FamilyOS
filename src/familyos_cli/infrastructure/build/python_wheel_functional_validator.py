@@ -11,9 +11,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from familyos_cli.application.build.artifact_discovery import (
-    ArtifactClass,
     DiscoveredArtifact,
 )
+from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.package_functional_validation import (
     PackageFunctionalValidationStatus,
     PythonWheelFunctionalValidationResult,

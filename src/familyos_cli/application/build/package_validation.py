@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from familyos_cli.application.build.artifact_discovery import DiscoveredArtifact
+from familyos_cli.application.build.package_identity import PackageIdentity
 
 
 class PackageStructuralValidationStatus(StrEnum):
@@ -22,6 +23,7 @@ class CandidatePackageValidationResult:
     candidate: DiscoveredArtifact
     status: PackageStructuralValidationStatus
     diagnostics: tuple[str, ...] = ()
+    package_identity: PackageIdentity | None = None
 
     @property
     def successful(self) -> bool:
@@ -32,7 +34,7 @@ class CandidatePackageValidationResult:
 
 @dataclass(frozen=True, slots=True)
 class PythonPackageStructuralValidationResult:
-    """Aggregate structural result without identity, integrity, or trust meaning."""
+    """Aggregate structural result without integrity or trust meaning."""
 
     status: PackageStructuralValidationStatus
     candidate_results: tuple[CandidatePackageValidationResult, ...]

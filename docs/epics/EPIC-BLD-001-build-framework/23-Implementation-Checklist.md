@@ -591,7 +591,7 @@ Explicitly identify the output of each build.
 * [ ] Distinguish temporary output.
 * [ ] Distinguish intermediate output.
 * [x] Distinguish candidate artifacts.
-* [ ] Associate candidate artifacts with Build ID.
+* [x] Associate candidate artifacts with Build ID.
 * [x] Add artifact-discovery tests.
 
 Implementation evidence: the application-owned package discovery use case
@@ -603,8 +603,10 @@ outputs fail discovery and therefore fail `familyos build`. Matching outputs
 are classified as candidates only; no validation, identity, integrity, trust,
 Build ID, Build Evidence, release, or publication meaning is assigned.
 
-Level 14 remains partial. Temporary and intermediate output classification and
-Build ID association remain open.
+Level 14 remains partial. Temporary and intermediate output classification
+remain open. Candidate artifacts are associated with the canonical Build ID
+through explicit Artifact Identity metadata after successful structural
+validation; discovery itself remains identity-neutral.
 
 ---
 
@@ -616,17 +618,17 @@ Make artifacts independently identifiable.
 
 ### Checklist
 
-* [ ] Define artifact logical name.
-* [ ] Define artifact type.
-* [ ] Capture version context.
-* [ ] Associate source revision.
-* [ ] Associate Build ID.
-* [ ] Record artifact path or storage reference.
-* [ ] Record artifact size.
+* [x] Define artifact logical name.
+* [x] Define artifact type.
+* [x] Capture version context.
+* [x] Associate source revision.
+* [x] Associate Build ID.
+* [x] Record artifact path or storage reference.
+* [x] Record artifact size.
 * [ ] Introduce cryptographic digest.
-* [ ] Define artifact metadata representation.
-* [ ] Ensure artifact metadata does not conflict with package metadata.
-* [ ] Add artifact-identity tests.
+* [x] Define artifact metadata representation.
+* [x] Ensure artifact metadata does not conflict with package metadata.
+* [x] Add artifact-identity tests.
 
 ---
 
