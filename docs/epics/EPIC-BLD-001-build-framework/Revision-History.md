@@ -1554,6 +1554,46 @@ publication, promotion, or deployment semantics are established. Framework
 version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Minimal Artifact Integrity — 2026-08-16
+
+This incremental revision introduces the first explicit cryptographic integrity
+layer for canonical FamilyOS package artifacts.
+
+After successful structural validation and Artifact Identity construction,
+`BuildArtifactIntegritiesUseCase` calculates integrity metadata for the exact
+validated candidate artifacts. `ArtifactIntegrityService` uses SHA-256 over the
+artifact file stream and supports verification of current artifact bytes
+against the recorded digest.
+
+The canonical package-build result now carries Artifact Integrity records on
+both successful static-only and functional-validation paths. The integrity
+model remains separate from Artifact Identity and Artifact Discovery,
+preserving the existing build-stage boundaries.
+
+Real execution evidence produced and verified SHA-256 records for both the
+Python wheel and source distribution. Independent digest calculation matched
+the recorded value. A same-size one-byte mutation of a copied wheel failed
+verification against the original digest, while explicit recalculation
+established a different valid digest for the modified bytes.
+
+Local evidence includes 29 targeted Artifact Integrity/build tests, Ruff, MyPy
+across 1195 source files, the full canonical suite of 1561 tests, all six
+canonical repository validation gates, a real functional canonical build,
+independent SHA-256 verification, and controlled mutation detection.
+
+This revision closes the Level 15 cryptographic-digest item and implements the
+minimal digest-calculation and verification foundation of Level 17. Build
+Evidence recording, automation-stage transfer verification, lifecycle-enforced
+recalculation after intentional mutation, and automatic invalidation of
+previous validation state after byte modification remain open.
+
+No Artifact Manifest, Build Evidence, provenance, signing, release,
+publication, promotion, or deployment semantics are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

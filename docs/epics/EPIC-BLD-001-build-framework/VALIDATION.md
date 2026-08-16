@@ -2039,3 +2039,65 @@ and deployment semantics are not introduced by this slice.
 
 Framework version 1.0.0 and immutable historical publication tag
 v4.7.0-build-framework remain unchanged.
+
+## Minimal Artifact Integrity — 2026-08-16
+
+Canonical package-build execution now calculates explicit cryptographic
+integrity metadata for the final bytes of structurally validated candidate
+artifacts.
+
+The implemented integrity model adopts SHA-256 as the canonical artifact digest
+algorithm. `ArtifactIntegrity` associates an existing Artifact Identity with the
+selected digest algorithm and its hexadecimal digest.
+`ArtifactIntegrityService` calculates SHA-256 directly from the artifact file
+stream and verifies current bytes against a previously recorded digest.
+`BuildArtifactIntegritiesUseCase` constructs the deterministic integrity set
+after successful structural validation and Artifact Identity construction.
+
+The canonical build result exposes Artifact Integrity records on both the
+static-only successful path and the opt-in functional-validation path.
+Artifact Discovery remains integrity-neutral, and Artifact Identity remains
+separate from cryptographic integrity metadata.
+
+A real canonical functional build produced exactly two integrity records: one
+for the Python wheel and one for the source distribution. Both SHA-256 digests
+verified successfully against their final artifact bytes and remained
+associated with Artifact Identities carrying the canonical Build ID and
+pre-build source revision.
+
+An independent SHA-256 calculation over the same final artifact bytes matched
+the recorded digest. A copied wheel was modified by one byte while preserving
+its filesystem size. Verification against the original digest failed.
+Explicit recalculation over the intentionally modified copy produced a
+different digest that successfully verified the new bytes.
+
+Executed local validation:
+
+- Targeted Artifact Integrity/build tests: PASS — 29 tests
+- Global Ruff: PASS
+- Global MyPy: PASS — 1195 source files
+- Canonical full Pytest: PASS — 1561 tests
+- Canonical repository validation: PASS — all six gates
+- Real canonical functional build: PASS
+- Artifact Integrity count: PASS — 2
+- SHA-256 algorithm selection: PASS
+- Independent SHA-256 verification: PASS
+- Same-size byte-mutation detection: PASS
+- Explicit recalculation probe after mutation: PASS
+- Build ID/source revision association: PASS
+- `git diff --check`: PASS
+
+This revision closes the cryptographic-digest item of Level 15 and implements
+the minimal cryptographic calculation and verification foundation of Level 17.
+
+It does not record digests in Build Evidence, verify artifacts after transfer
+between automation stages, establish a lifecycle that automatically
+recalculates integrity after intentional mutation, or automatically invalidate
+previous structural or functional validation state after byte modification.
+Those Level 17 responsibilities remain open.
+
+Artifact Manifest, Build Evidence, provenance, signing, release, publication,
+promotion, and deployment semantics are not introduced by this slice.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

@@ -9,9 +9,19 @@ from familyos_cli.application.build.artifact_discovery import (
     ExpectedArtifactDefinition,
 )
 from familyos_cli.application.build.artifact_identity import ArtifactIdentity
+from familyos_cli.application.build.artifact_integrity import (
+    ArtifactDigestAlgorithm,
+    ArtifactIntegrity,
+)
+from familyos_cli.application.build.artifact_integrity_service import (
+    ArtifactIntegrityService,
+)
 from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_artifact_identities import (
     BuildArtifactIdentitiesUseCase,
+)
+from familyos_cli.application.build.build_artifact_integrities import (
+    BuildArtifactIntegritiesUseCase,
 )
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
@@ -42,8 +52,12 @@ from familyos_cli.application.build.validate_python_package_artifacts import (
 
 __all__ = [
     "ArtifactClass",
+    "ArtifactDigestAlgorithm",
     "ArtifactIdentity",
+    "ArtifactIntegrity",
+    "ArtifactIntegrityService",
     "BuildArtifactIdentitiesUseCase",
+    "BuildArtifactIntegritiesUseCase",
     "ArtifactDiscoveryResult",
     "ArtifactDiscoveryStatus",
     "ArtifactOutputClassification",

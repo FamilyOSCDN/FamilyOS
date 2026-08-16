@@ -625,7 +625,7 @@ Make artifacts independently identifiable.
 * [x] Associate Build ID.
 * [x] Record artifact path or storage reference.
 * [x] Record artifact size.
-* [ ] Introduce cryptographic digest.
+* [x] Introduce cryptographic digest.
 * [x] Define artifact metadata representation.
 * [x] Ensure artifact metadata does not conflict with package metadata.
 * [x] Add artifact-identity tests.
@@ -724,13 +724,41 @@ Protect artifact identity through cryptographic integrity.
 
 ### Checklist
 
-* [ ] Select approved digest algorithm.
-* [ ] Calculate digest from final candidate bytes.
+* [x] Select approved digest algorithm.
+* [x] Calculate digest from final candidate bytes.
 * [ ] Record digest in Build Evidence.
 * [ ] Verify digest after artifact transfer between automation stages.
 * [ ] Recalculate digest after any intentional artifact mutation.
 * [ ] Prevent validation state from surviving byte modification.
-* [ ] Add integrity-verification tests.
+* [x] Add integrity-verification tests.
+
+Implementation evidence: canonical package-build execution now calculates
+explicit SHA-256 integrity metadata from the final bytes of each structurally
+validated candidate artifact. Immutable `ArtifactIntegrity` records associate
+the corresponding Artifact Identity with the selected digest algorithm and
+hexadecimal digest. Integrity calculation occurs after successful structural
+validation and Artifact Identity construction; Artifact Discovery remains
+integrity-neutral.
+
+`ArtifactIntegrityService` calculates SHA-256 directly from the artifact file
+stream and can verify current bytes against a recorded digest.
+`BuildArtifactIntegritiesUseCase` deterministically constructs integrity
+records for the validated canonical artifact set. The aggregate canonical
+package-build result exposes those records on both successful static-only and
+functional-validation paths.
+
+Focused tests cover digest calculation, deterministic SHA-256 representation,
+successful verification, byte-modification detection, and construction of
+integrity records from Artifact Identity metadata. A real canonical functional
+build produced and verified integrity records for both the Python wheel and
+source distribution. An independent SHA-256 calculation matched the recorded
+digest, while a same-size one-byte mutation of a copied wheel invalidated the
+recorded integrity digest.
+
+Level 17 remains partial. Build Evidence recording, verification after transfer
+between automation stages, lifecycle-enforced recalculation after intentional
+artifact mutation, and automatic invalidation of previously established
+validation state after byte modification remain open.
 
 ---
 

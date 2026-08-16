@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from familyos_cli.application.build.artifact_identity import ArtifactIdentity
+from familyos_cli.application.build.artifact_integrity import ArtifactIntegrity
 from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.package_build import (
@@ -90,6 +91,7 @@ class CanonicalPackageBuildResult:
     source_state: SourceState
     build_id: BuildId = field(default_factory=BuildId.generate)
     artifact_identities: tuple[ArtifactIdentity, ...] = ()
+    artifact_integrities: tuple[ArtifactIntegrity, ...] = ()
     discovery: ArtifactDiscoveryResult | None = None
     validation: PythonPackageStructuralValidationResult | None = None
     functional_validation: PythonWheelFunctionalValidationResult | None = None

@@ -1092,3 +1092,41 @@ promotion, and deployment semantics are not introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Minimal Artifact Integrity — 2026-08-16
+
+Implemented minimal cryptographic integrity metadata for canonical package
+artifacts.
+
+Canonical package-build execution now calculates SHA-256 from the final bytes
+of structurally validated wheel and source-distribution candidates after
+Artifact Identity construction. Immutable `ArtifactIntegrity` records associate
+the existing Artifact Identity with the selected algorithm and hexadecimal
+digest, while `ArtifactIntegrityService` provides explicit calculation and
+verification behavior.
+
+The canonical result exposes integrity records on successful static-only and
+functional-validation paths. Artifact Discovery remains integrity-neutral, and
+Artifact Identity remains separate from cryptographic integrity metadata.
+
+Local validation passed Ruff, MyPy across 1195 source files, the canonical full
+suite of 1561 tests, all six canonical repository validation gates, real
+functional package construction, independent SHA-256 verification, and a
+same-size byte-mutation negative control.
+
+The cryptographic-digest item of Level 15 is now implemented. Level 17 now has
+an approved SHA-256 algorithm, digest calculation from final candidate bytes,
+and integrity-verification tests.
+
+Build Evidence recording, verification after automation-stage transfer,
+lifecycle-enforced digest recalculation after intentional mutation, and
+automatic invalidation of previous validation state after byte modification
+remain open.
+
+Artifact Manifest, Build Evidence, provenance, signing, release, publication,
+promotion, and deployment semantics are not introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.
