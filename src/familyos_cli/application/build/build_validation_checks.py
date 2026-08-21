@@ -1,4 +1,4 @@
-"""Map established canonical package-build results to Build Validation checks."""
+"""Map established validation results to Build Validation checks."""
 
 from __future__ import annotations
 
@@ -11,10 +11,21 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationRequirement,
     BuildValidationStatus,
 )
+from familyos_cli.application.validation import (
+    GateResult,
+    ValidationStatus,
+)
+
+_DEPENDENCY_GATE_IDS = frozenset(
+    {
+        "dependency-freshness",
+        "dependency-consistency",
+    }
+)
 
 
 class BuildValidationCheckFactory:
-    """Create normalized Build Validation checks from canonical build results."""
+    """Create normalized Build Validation checks from established results."""
 
     def from_package_build(
         self,
@@ -140,3 +151,41 @@ class BuildValidationCheckFactory:
         )
 
         return tuple(checks)
+
+    def from_dependency_validation(
+        self,
+        gates: tuple[GateResult, ...],
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Map existing canonical dependency gates without re-executing them."""
+
+        checks: list[BuildValidationCheckResult] = []
+
+        for gate in gates:
+            if gate.gate_id not in _DEPENDENCY_GATE_IDS:
+                raise ValueError(
+                    "Unsupported dependency validation gate: "
+                    f"{gate.gate_id}"
+                )
+
+            checks.append(
+                BuildValidationCheckResult(
+                    check_id=gate.gate_id,
+                    domain=BuildValidationDomain.DEPENDENCY,
+                    requirement=BuildValidationRequirement.REQUIRED,
+                    status=self._from_gate_status(gate.status),
+                    diagnostic=gate.diagnostic,
+                )
+            )
+
+        return tuple(checks)
+
+    @staticmethod
+    def _from_gate_status(
+        status: ValidationStatus,
+    ) -> BuildValidationStatus:
+        """Translate canonical gate status into Build Validation semantics."""
+
+        if status is ValidationStatus.PASSED:
+            return BuildValidationStatus.PASSED
+
+        return BuildValidationStatus.FAILED

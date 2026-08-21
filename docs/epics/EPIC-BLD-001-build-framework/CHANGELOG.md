@@ -1201,3 +1201,37 @@ publication, promotion, or deployment semantics are introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Build Dependency Validation Integration — 2026-08-21
+
+Integrated existing canonical dependency-validation results into Build
+Validation orchestration.
+
+`dependency-freshness` and `dependency-consistency` `GateResult` values can now
+be converted into required `DEPENDENCY` Build Validation checks without
+re-executing their underlying controls.
+
+Passing canonical gates map to passing Build Validation checks. Failed or
+errored canonical dependency gates map to blocking Build Validation failures.
+Diagnostics are preserved, and unrelated canonical gates are rejected.
+
+Focused tests cover successful mapping, freshness failure, consistency failure,
+canonical execution error, diagnostic preservation, unrelated-gate rejection,
+and aggregate decision behavior. The complete Build Validation targeted suite
+passes 20 tests.
+
+A real canonical CI validation run produced both dependency gates successfully,
+and those exact results mapped to two required passing dependency checks with an
+aggregate Build Validation `PASSED` decision.
+
+Level 19 dependency validation is now implemented. Input, configuration,
+toolchain, environment, and Build Evidence validation remain open.
+
+No dependency-resolution ownership, Build Evidence, release authority,
+provenance, signing, publication, promotion, or deployment semantics are
+introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

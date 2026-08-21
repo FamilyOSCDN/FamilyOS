@@ -2217,3 +2217,54 @@ publication, promotion, or deployment semantics are introduced by this slice.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Build Dependency Validation Integration — 2026-08-21
+
+Build Validation now consumes the existing canonical dependency-validation
+results without re-executing dependency checks or taking ownership away from
+the canonical CI validation layer.
+
+`BuildValidationCheckFactory.from_dependency_validation()` accepts established
+canonical `GateResult` values for exactly:
+
+- `dependency-freshness`;
+- `dependency-consistency`.
+
+Both gates are mapped into required `DEPENDENCY` Build Validation checks.
+Canonical validation `PASSED` maps to Build Validation `PASSED`. Canonical
+validation `FAILED` and `ERROR` both map to blocking Build Validation `FAILED`,
+because an unsuccessful or unexecutable required dependency control cannot
+establish dependency validity.
+
+Gate diagnostics are preserved unchanged. Non-dependency gates are rejected
+rather than silently accepted.
+
+Executed validation evidence:
+
+- dependency mapping tests: PASS;
+- all Build Validation tests: PASS — 20 tests;
+- dependency freshness failure mapping: PASS;
+- dependency consistency failure mapping: PASS;
+- dependency gate error mapping: PASS;
+- unrelated-gate rejection: PASS;
+- diagnostic preservation: PASS;
+- real canonical dependency gate execution: PASS;
+- real Build Validation dependency decision: PASS;
+- `git diff --check`: PASS.
+
+A real canonical CI validation run produced passing `dependency-freshness` and
+`dependency-consistency` results. Those exact results were consumed by Build
+Validation as two required dependency checks and produced an aggregate
+`PASSED` decision.
+
+This closes the current Level 19 dependency-validation item.
+
+Input, configuration, toolchain, environment, and Build Evidence validation
+remain open.
+
+No dependency-resolution ownership is moved into Build Validation, and no new
+dependency command, release authority, Build Evidence, provenance, signing,
+publication, promotion, or deployment semantics are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

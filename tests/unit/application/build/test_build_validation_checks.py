@@ -291,3 +291,160 @@ def test_real_canonical_build_maps_to_successful_validation_decision(
 
     assert validation_result.failures == ()
     assert validation_result.warnings == ()
+
+
+def test_dependency_validation_maps_canonical_gate_results() -> None:
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    checks = BuildValidationCheckFactory().from_dependency_validation(
+        (
+            GateResult(
+                gate_id="dependency-freshness",
+                status=ValidationStatus.PASSED,
+            ),
+            GateResult(
+                gate_id="dependency-consistency",
+                status=ValidationStatus.PASSED,
+            ),
+        )
+    )
+
+    assert tuple(check.check_id for check in checks) == (
+        "dependency-freshness",
+        "dependency-consistency",
+    )
+    assert all(
+        check.domain is BuildValidationDomain.DEPENDENCY
+        for check in checks
+    )
+    assert all(
+        check.requirement is BuildValidationRequirement.REQUIRED
+        for check in checks
+    )
+    assert all(
+        check.status is BuildValidationStatus.PASSED
+        for check in checks
+    )
+
+
+def test_dependency_validation_preserves_failure_diagnostic() -> None:
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    checks = BuildValidationCheckFactory().from_dependency_validation(
+        (
+            GateResult(
+                gate_id="dependency-freshness",
+                status=ValidationStatus.FAILED,
+                exit_code=1,
+                diagnostic="dependency lock is stale",
+            ),
+            GateResult(
+                gate_id="dependency-consistency",
+                status=ValidationStatus.PASSED,
+            ),
+        )
+    )
+
+    freshness = checks[0]
+
+    assert freshness.status is BuildValidationStatus.FAILED
+    assert freshness.diagnostic == "dependency lock is stale"
+
+
+def test_dependency_validation_consistency_failure_is_required() -> None:
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    checks = BuildValidationCheckFactory().from_dependency_validation(
+        (
+            GateResult(
+                gate_id="dependency-freshness",
+                status=ValidationStatus.PASSED,
+            ),
+            GateResult(
+                gate_id="dependency-consistency",
+                status=ValidationStatus.FAILED,
+                diagnostic="installed dependencies are inconsistent",
+            ),
+        )
+    )
+
+    consistency = checks[1]
+
+    assert consistency.status is BuildValidationStatus.FAILED
+    assert (
+        consistency.requirement
+        is BuildValidationRequirement.REQUIRED
+    )
+    assert (
+        consistency.diagnostic
+        == "installed dependencies are inconsistent"
+    )
+
+
+def test_dependency_validation_error_blocks_build_validation() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+    )
+    from familyos_cli.application.build.build_validation_orchestrator import (
+        BuildValidationOrchestrator,
+    )
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    checks = BuildValidationCheckFactory().from_dependency_validation(
+        (
+            GateResult(
+                gate_id="dependency-freshness",
+                status=ValidationStatus.ERROR,
+                diagnostic="dependency gate could not execute",
+            ),
+            GateResult(
+                gate_id="dependency-consistency",
+                status=ValidationStatus.PASSED,
+            ),
+        )
+    )
+
+    result = BuildValidationOrchestrator().execute(
+        build_id=_BUILD_ID,
+        profile=BuildValidationProfile.CI,
+        checks=checks,
+    )
+
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert checks[0].diagnostic == "dependency gate could not execute"
+    assert result.status is BuildValidationStatus.FAILED
+    assert not result.successful
+
+
+def test_dependency_validation_rejects_non_dependency_gate() -> None:
+    import pytest
+
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Unsupported dependency validation gate",
+    ):
+        BuildValidationCheckFactory().from_dependency_validation(
+            (
+                GateResult(
+                    gate_id="ruff",
+                    status=ValidationStatus.PASSED,
+                ),
+            )
+        )

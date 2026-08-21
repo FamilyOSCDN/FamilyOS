@@ -826,7 +826,7 @@ Implement layered validation aligned with `15-Build-Validation.md`.
 
 * [ ] Implement input validation.
 * [ ] Implement configuration validation.
-* [ ] Implement dependency validation.
+* [x] Implement dependency validation.
 * [ ] Implement toolchain validation.
 * [ ] Implement environment validation.
 * [x] Implement execution validation.
@@ -888,6 +888,20 @@ required skipped checks, successful mandatory checks, Build ID and profile
 preservation, and the current empty-check-set behavior. A real canonical
 functional package build was mapped to six Build Validation checks and produced
 a successful aggregate decision with every performed check passing.
+
+Dependency Validation integration now consumes the existing canonical
+`dependency-freshness` and `dependency-consistency` gate results without
+re-executing their underlying checks. `BuildValidationCheckFactory` maps both
+gates into required `DEPENDENCY` checks while preserving diagnostics.
+Canonical gate `PASSED` maps to Build Validation `PASSED`; both gate `FAILED`
+and gate `ERROR` map to blocking Build Validation `FAILED`.
+
+Focused tests cover successful dependency mapping, freshness failure,
+consistency failure, diagnostic preservation, canonical gate execution error,
+rejection of unrelated validation gates, and aggregate Build Validation
+failure behavior. A real canonical CI validation run produced passing
+`dependency-freshness` and `dependency-consistency` gates, which mapped to two
+required passing Build Validation dependency checks.
 
 Level 19 remains partial. Input, configuration, dependency, toolchain,
 environment, and Build Evidence validation are represented as canonical
