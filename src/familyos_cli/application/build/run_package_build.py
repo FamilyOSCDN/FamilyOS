@@ -14,6 +14,9 @@ from familyos_cli.application.build.build_artifact_identities import (
 from familyos_cli.application.build.build_artifact_integrities import (
     BuildArtifactIntegritiesUseCase,
 )
+from familyos_cli.application.build.build_artifact_manifest import (
+    BuildArtifactManifestUseCase,
+)
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
@@ -110,6 +113,11 @@ class RunPackageBuildUseCase:
         artifact_integrities = BuildArtifactIntegritiesUseCase().execute(
             artifact_identities,
         )
+        artifact_manifest = BuildArtifactManifestUseCase().execute(
+            artifact_integrities,
+            validation,
+            build_id=build_id,
+        )
 
         if not validate_functionally:
             return CanonicalPackageBuildResult(
@@ -119,6 +127,7 @@ class RunPackageBuildUseCase:
                 build_id=build_id,
                 artifact_identities=artifact_identities,
                 artifact_integrities=artifact_integrities,
+                artifact_manifest=artifact_manifest,
                 discovery=discovery,
                 validation=validation,
             )
@@ -140,6 +149,7 @@ class RunPackageBuildUseCase:
             build_id=build_id,
             artifact_identities=artifact_identities,
             artifact_integrities=artifact_integrities,
+            artifact_manifest=artifact_manifest,
             discovery=discovery,
             validation=validation,
             functional_validation=functional_validation,

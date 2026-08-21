@@ -1594,6 +1594,45 @@ publication, promotion, or deployment semantics are established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Minimal Artifact Manifest — 2026-08-21
+
+This incremental revision introduces the first explicit structured Artifact
+Manifest for canonical FamilyOS package builds.
+
+After successful structural validation, Artifact Identity construction, and
+Artifact Integrity calculation, `BuildArtifactManifestUseCase` constructs an
+immutable manifest for the exact canonical artifact set.
+
+The manifest records the canonical Build ID and deterministic artifact metadata
+including logical name, artifact type, version, size, path, digest algorithm,
+digest, and structural validation state. It does not recalculate established
+identity or integrity information.
+
+Completeness validation rejects duplicate artifact paths, mismatched artifact
+sets between integrity and structural validation, Build ID inconsistencies, and
+artifact-type inconsistencies.
+
+Real execution evidence produced a two-entry manifest for the Python wheel and
+source distribution. Each entry matched its established Artifact Identity and
+Artifact Integrity metadata, carried SHA-256 integrity data, reported structural
+state `valid`, and referenced an artifact whose filesystem size matched the
+manifest record.
+
+Local evidence includes nine focused manifest-generation tests, 24 related
+Artifact Identity/Integrity/build tests, Ruff, MyPy across 1198 source files,
+the full canonical suite of 1561 tests, all six canonical repository validation
+gates, and a real functional canonical build.
+
+This revision implements Level 18 except for association of the manifest with
+Build Evidence, which remains open.
+
+No serialized manifest artifact, Build Evidence bundle, provenance, signing,
+trust, release, publication, promotion, or deployment semantics are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

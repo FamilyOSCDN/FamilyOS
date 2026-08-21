@@ -770,17 +770,49 @@ Provide a structured record of generated artifact sets.
 
 ### Checklist
 
-* [ ] Define artifact manifest structure.
-* [ ] Include Build ID.
-* [ ] Include artifact names.
-* [ ] Include artifact types.
-* [ ] Include artifact sizes.
-* [ ] Include artifact digests.
-* [ ] Include validation state.
-* [ ] Include artifact references or paths.
-* [ ] Validate manifest completeness.
+* [x] Define artifact manifest structure.
+* [x] Include Build ID.
+* [x] Include artifact names.
+* [x] Include artifact types.
+* [x] Include artifact sizes.
+* [x] Include artifact digests.
+* [x] Include validation state.
+* [x] Include artifact references or paths.
+* [x] Validate manifest completeness.
 * [ ] Associate manifest with Build Evidence.
-* [ ] Add manifest-generation tests.
+* [x] Add manifest-generation tests.
+
+Implementation evidence: canonical package-build execution now constructs an
+immutable `ArtifactManifest` after Artifact Identity and Artifact Integrity
+have been established for the structurally validated artifact set. The manifest
+records the canonical Build ID and deterministic artifact entries containing
+logical name, artifact type, version, size, path, digest algorithm, digest, and
+structural validation state.
+
+`BuildArtifactManifestUseCase` consumes established Artifact Integrity and
+structural-validation results without recalculating artifact identity or
+cryptographic digest data. Manifest completeness validation rejects duplicate
+artifact paths, mismatched artifact sets, Build ID inconsistencies, and
+artifact-type inconsistencies between integrity metadata and structural
+validation.
+
+A real canonical functional build produced exactly two manifest entries: one
+for the Python wheel and one for the source distribution. Each entry matched
+the corresponding Artifact Identity and Artifact Integrity metadata, carried
+SHA-256 integrity data, reported structural validation state `valid`, and
+referenced an existing artifact whose filesystem size matched the manifest
+entry.
+
+Focused manifest-generation tests cover complete manifest construction,
+deterministic ordering, missing integrity, unmatched artifact sets, Build ID
+mismatch, duplicate integrity paths, artifact-type mismatch, preservation of
+established digest and size metadata, and exclusion of Build Evidence, trust,
+provenance, signing, publication, and release semantics.
+
+Level 18 remains partial only because association with Build Evidence is not
+implemented. The manifest is currently application-owned structured metadata;
+no serialized manifest artifact, Build Evidence bundle, provenance, signing,
+publication, promotion, or deployment semantics are introduced.
 
 ---
 

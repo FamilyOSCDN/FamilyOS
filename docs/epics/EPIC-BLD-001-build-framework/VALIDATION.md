@@ -2101,3 +2101,54 @@ promotion, and deployment semantics are not introduced by this slice.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Minimal Artifact Manifest — 2026-08-21
+
+Canonical package-build execution now constructs an immutable structured
+`ArtifactManifest` after Artifact Identity and Artifact Integrity have been
+established for the structurally validated artifact set.
+
+The manifest records the canonical Build ID and deterministic artifact entries
+containing logical name, artifact type, version, size, path, digest algorithm,
+digest, and structural validation state.
+
+`BuildArtifactManifestUseCase` consumes established Artifact Integrity and
+structural-validation results without recalculating artifact identity or
+cryptographic digest data. Manifest completeness validation rejects duplicate
+artifact paths, mismatched integrity and structural-validation artifact sets,
+Build ID inconsistencies, and artifact-type inconsistencies.
+
+A real canonical functional build produced exactly two manifest entries: one
+for the Python wheel and one for the source distribution. Each manifest entry
+matched its corresponding Artifact Identity and Artifact Integrity metadata,
+used SHA-256 integrity data, reported structural validation state `valid`, and
+referenced an existing artifact whose current filesystem size matched the
+recorded manifest size.
+
+Executed local validation:
+
+- Manifest-generation tests: PASS — 9 tests
+- Related Artifact Identity/Integrity/build tests: PASS — 24 tests
+- Global Ruff: PASS
+- Global MyPy: PASS — 1198 source files
+- Canonical full Pytest: PASS — 1561 tests
+- Canonical repository validation: PASS — all six gates
+- Real canonical functional build: PASS
+- Manifest entry count: PASS — 2
+- Build ID consistency: PASS
+- Artifact Identity consistency: PASS
+- Artifact Integrity consistency: PASS
+- SHA-256 digest propagation: PASS
+- Structural validation-state propagation: PASS
+- Manifest completeness guards: PASS
+- `git diff --check`: PASS
+
+This revision implements the minimal application-owned Artifact Manifest
+foundation of Level 18.
+
+Association of the manifest with Build Evidence remains open. No serialized
+manifest artifact, Build Evidence bundle, provenance, signing, trust,
+publication, promotion, or deployment semantics are introduced by this slice.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

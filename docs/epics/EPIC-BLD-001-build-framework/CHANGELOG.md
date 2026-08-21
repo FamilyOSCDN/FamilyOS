@@ -1130,3 +1130,38 @@ promotion, and deployment semantics are not introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Minimal Artifact Manifest — 2026-08-21
+
+Implemented minimal structured Artifact Manifest metadata for canonical package
+builds.
+
+Canonical package-build execution now constructs an immutable
+`ArtifactManifest` after Artifact Identity and Artifact Integrity creation. The
+manifest records Build ID, artifact names, types, versions, sizes, paths,
+SHA-256 digest metadata, and structural validation state.
+
+`BuildArtifactManifestUseCase` validates completeness across the established
+integrity and structural-validation artifact sets and rejects duplicate paths,
+set mismatches, Build ID mismatches, and artifact-type inconsistencies.
+
+A real canonical functional build produced a complete two-entry manifest for
+the Python wheel and source distribution. Each manifest entry remained
+consistent with its established Artifact Identity and Artifact Integrity
+metadata.
+
+Local validation passed nine focused manifest tests, 24 related build tests,
+Ruff, MyPy across 1198 source files, the full canonical suite of 1561 tests,
+all six canonical repository validation gates, and a real functional canonical
+build.
+
+Level 18 is now implemented except for association with Build Evidence, which
+remains open.
+
+No serialized manifest artifact, Build Evidence, provenance, signing, trust,
+release, publication, promotion, or deployment semantics are introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.
