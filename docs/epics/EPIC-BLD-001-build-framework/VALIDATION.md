@@ -2352,3 +2352,44 @@ promotion, or deployment semantics are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Build Input Validation Integration — 2026-08-21
+
+Build Validation now includes explicit required checks for canonical package-
+build request inputs.
+
+`BuildValidationCheckFactory.from_input_validation()` maps established request
+observations into two required `INPUT` checks:
+
+- `output-dir-input`;
+- `functional-validation-input`.
+
+The output-dir input check validates the requested build-output path as a
+canonical build request input without duplicating filesystem or environment
+validation. The functional-validation input check validates the canonical
+boolean option controlling optional functional artifact validation.
+
+Focused tests cover successful input mapping, invalid output-path input,
+invalid functional-validation input, diagnostic preservation, and aggregate
+Build Validation failure behavior.
+
+A real input probe confirmed:
+
+- canonical output input: `dist`;
+- functional-validation input `False`: accepted;
+- functional-validation input `True`: accepted;
+- `output-dir-input`: required / passed;
+- `functional-validation-input`: required / passed;
+- aggregate Build Validation decision: PASSED;
+- `git diff --check`: PASS.
+
+This closes the current Level 19 input-validation item.
+
+Configuration and Build Evidence validation remain open.
+
+No filesystem ownership, environment validation, build execution, Build
+Evidence, release authority, provenance, signing, publication, promotion, or
+deployment semantics are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

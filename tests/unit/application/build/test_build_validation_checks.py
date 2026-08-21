@@ -599,3 +599,79 @@ def test_environment_validation_failure_blocks_build_validation() -> None:
 
     assert result.status is BuildValidationStatus.FAILED
     assert not result.successful
+
+
+def test_input_validation_maps_required_build_inputs() -> None:
+    checks = BuildValidationCheckFactory().from_input_validation(
+        output_dir_valid=True,
+        functional_validation_valid=True,
+    )
+
+    assert len(checks) == 2
+
+    output_check, functional_check = checks
+
+    assert output_check.check_id == "output-dir-input"
+    assert output_check.domain is BuildValidationDomain.INPUT
+    assert output_check.requirement is BuildValidationRequirement.REQUIRED
+    assert output_check.status is BuildValidationStatus.PASSED
+    assert output_check.diagnostic is None
+
+    assert functional_check.check_id == "functional-validation-input"
+    assert functional_check.domain is BuildValidationDomain.INPUT
+    assert functional_check.requirement is BuildValidationRequirement.REQUIRED
+    assert functional_check.status is BuildValidationStatus.PASSED
+    assert functional_check.diagnostic is None
+
+
+def test_input_validation_output_dir_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_input_validation(
+        output_dir_valid=False,
+        functional_validation_valid=True,
+        output_dir_diagnostic="build output path input is invalid",
+    )
+
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert checks[0].diagnostic == "build output path input is invalid"
+
+
+def test_input_validation_functional_option_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_input_validation(
+        output_dir_valid=True,
+        functional_validation_valid=False,
+        functional_validation_diagnostic=(
+            "functional validation option is invalid"
+        ),
+    )
+
+    assert checks[1].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[1].status is BuildValidationStatus.FAILED
+    assert (
+        checks[1].diagnostic
+        == "functional validation option is invalid"
+    )
+
+
+def test_input_validation_failure_blocks_build_validation() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+    )
+    from familyos_cli.application.build.build_validation_orchestrator import (
+        BuildValidationOrchestrator,
+    )
+
+    checks = BuildValidationCheckFactory().from_input_validation(
+        output_dir_valid=False,
+        functional_validation_valid=True,
+        output_dir_diagnostic="invalid build output input",
+    )
+
+    result = BuildValidationOrchestrator().execute(
+        build_id=_BUILD_ID,
+        profile=BuildValidationProfile.CI,
+        checks=checks,
+    )
+
+    assert result.status is BuildValidationStatus.FAILED
+    assert not result.successful

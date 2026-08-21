@@ -257,6 +257,49 @@ class BuildValidationCheckFactory:
             ),
         )
 
+    def from_input_validation(
+        self,
+        *,
+        output_dir_valid: bool,
+        functional_validation_valid: bool,
+        output_dir_diagnostic: str | None = None,
+        functional_validation_diagnostic: str | None = None,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Map explicit canonical build-request input observations to checks."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="output-dir-input",
+                domain=BuildValidationDomain.INPUT,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if output_dir_valid
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if output_dir_valid
+                    else output_dir_diagnostic
+                ),
+            ),
+            BuildValidationCheckResult(
+                check_id="functional-validation-input",
+                domain=BuildValidationDomain.INPUT,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if functional_validation_valid
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if functional_validation_valid
+                    else functional_validation_diagnostic
+                ),
+            ),
+        )
+
     @staticmethod
     def _from_gate_status(
         status: ValidationStatus,

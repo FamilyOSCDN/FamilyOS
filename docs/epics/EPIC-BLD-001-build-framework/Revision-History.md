@@ -1771,6 +1771,35 @@ are established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Build Input Validation Integration — 2026-08-21
+
+This incremental revision adds explicit Build Input validation to the Build
+Validation orchestration layer.
+
+`BuildValidationCheckFactory.from_input_validation()` converts established
+canonical package-build request observations into required checks for the
+requested output path and functional-validation option.
+
+Focused evidence covers successful mapping, invalid output-path input, invalid
+functional-validation input, diagnostic preservation, aggregate failure
+behavior, and a real canonical input probe.
+
+The real probe confirmed the canonical `dist` output input and both valid
+boolean functional-validation modes. Both required input checks passed and the
+aggregate Build Validation decision was `PASSED`.
+
+This revision closes the current Level 19 input-validation item.
+
+Configuration and Build Evidence validation remain open.
+
+No filesystem ownership, environment validation, Build Evidence, release
+authority, provenance, signing, publication, promotion, or deployment semantics
+are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

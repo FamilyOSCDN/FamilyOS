@@ -824,7 +824,7 @@ Implement layered validation aligned with `15-Build-Validation.md`.
 
 ### Checklist
 
-* [ ] Implement input validation.
+* [x] Implement input validation.
 * [ ] Implement configuration validation.
 * [x] Implement dependency validation.
 * [x] Implement toolchain validation.
@@ -925,6 +925,18 @@ validation failure behavior. A real canonical environment probe confirmed the
 repository project root and a writable temporary build-output directory,
 including a write/read/delete filesystem probe, and produced two required
 passing `ENVIRONMENT` checks with an aggregate Build Validation `PASSED`
+decision.
+
+Input Validation now maps explicit canonical package-build request
+observations into required checks. The current input contract covers the
+requested output-path input and the functional-validation option without
+duplicating environment, filesystem, or build-execution validation.
+
+Focused tests cover successful input mapping, invalid output-path input,
+invalid functional-validation input, diagnostic preservation, and aggregate
+validation failure behavior. A real probe confirmed the canonical `dist`
+output input and both boolean functional-validation modes, producing two
+required passing `INPUT` checks with an aggregate Build Validation `PASSED`
 decision.
 
 Level 19 remains partial. Input, configuration, dependency, toolchain,

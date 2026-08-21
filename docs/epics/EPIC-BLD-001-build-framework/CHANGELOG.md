@@ -1287,3 +1287,30 @@ signing, publication, promotion, or deployment semantics are introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Build Input Validation Integration — 2026-08-21
+
+Integrated explicit Build Input validation into Build Validation orchestration.
+
+The new input mapping produces required checks for the canonical output-path
+request and functional-validation option.
+
+Focused tests cover passing input observations, invalid output-path input,
+invalid functional-validation input, diagnostics, and aggregate decision
+behavior.
+
+A real probe confirmed the canonical `dist` output input and both valid boolean
+functional-validation modes, with both required input checks passing and an
+aggregate Build Validation `PASSED` decision.
+
+Level 19 input validation is now implemented. Configuration and Build Evidence
+validation remain open.
+
+No filesystem ownership, environment validation, release authority,
+provenance, signing, publication, promotion, or deployment semantics are
+introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.
