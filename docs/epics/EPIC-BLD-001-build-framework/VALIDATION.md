@@ -2152,3 +2152,68 @@ publication, promotion, or deployment semantics are introduced by this slice.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Build Validation Orchestration — 2026-08-21
+
+The Build Framework now provides an explicit application-owned Build Validation
+orchestration model for canonical package-build results.
+
+`BuildValidationProfile` defines development, validation, CI, and
+release-candidate profiles. `BuildValidationRequirement` explicitly classifies
+checks as required, optional, or informational. `BuildValidationStatus`
+represents passed, failed, or skipped outcomes.
+
+`BuildValidationCheckFactory` maps established canonical package-build results
+into normalized checks for:
+
+- build execution;
+- artifact discovery;
+- artifact structural validation;
+- artifact metadata;
+- artifact integrity;
+- functional artifact validation.
+
+Execution, artifact, metadata, and integrity checks are mandatory in the
+current mapping. Functional artifact validation is classified according to the
+caller-provided requirement.
+
+`BuildValidationOrchestrator` produces an explicit aggregate validation
+decision while preserving Build ID, validation profile, ordered checks,
+diagnostics, failures, and warnings.
+
+A failed or skipped required check blocks the aggregate validation decision.
+Optional failures remain observable as warnings without failing the aggregate
+decision. Informational failures are non-blocking.
+
+Executed validation evidence:
+
+- Ruff: PASS
+- MyPy: PASS
+- Build Validation tests: PASS — 15 tests
+- Canonical functional build mapping: PASS
+- Canonical mapped checks: PASS — 6
+- Required failure decision: PASS
+- Required skipped decision: PASS
+- Optional failure handling: PASS
+- Informational failure handling: PASS
+- Build ID/profile preservation: PASS
+- Validation diagnostics preservation: PASS
+- `git diff --check`: PASS
+
+A real canonical functional package build was mapped to six Build Validation
+checks and produced a successful aggregate decision with every performed check
+passing.
+
+This revision implements execution, artifact, metadata, integrity, and
+functional artifact validation orchestration, explicit mandatory-versus-
+optional semantics, overall validation decision logic, diagnostics, and the
+initial Build Validation test suite.
+
+Input, configuration, dependency, toolchain, environment, and Build Evidence
+validation remain open.
+
+No Build Evidence ownership, release authority, provenance, signing,
+publication, promotion, or deployment semantics are introduced by this slice.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

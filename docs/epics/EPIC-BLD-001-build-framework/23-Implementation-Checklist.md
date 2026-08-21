@@ -829,16 +829,16 @@ Implement layered validation aligned with `15-Build-Validation.md`.
 * [ ] Implement dependency validation.
 * [ ] Implement toolchain validation.
 * [ ] Implement environment validation.
-* [ ] Implement execution validation.
-* [ ] Implement artifact validation.
-* [ ] Implement metadata validation.
-* [ ] Implement integrity validation.
-* [ ] Integrate functional artifact validation.
+* [x] Implement execution validation.
+* [x] Implement artifact validation.
+* [x] Implement metadata validation.
+* [x] Implement integrity validation.
+* [x] Integrate functional artifact validation.
 * [ ] Integrate evidence validation.
-* [ ] Define mandatory versus optional checks.
-* [ ] Define overall validation decision.
-* [ ] Produce validation diagnostics.
-* [ ] Add validation test suite.
+* [x] Define mandatory versus optional checks.
+* [x] Define overall validation decision.
+* [x] Produce validation diagnostics.
+* [x] Add validation test suite.
 
 ---
 
@@ -857,6 +857,43 @@ FAILED
 ```
 
 for each mandatory validation profile.
+
+---
+
+
+Implementation evidence: Build Validation now provides an explicit immutable
+validation model covering the canonical input, configuration, dependency,
+toolchain, environment, execution, artifact, metadata, integrity, functional
+artifact, and evidence domains. Checks are explicitly classified as required,
+optional, or informational and carry deterministic passed, failed, or skipped
+status with optional diagnostics.
+
+`BuildValidationCheckFactory` currently maps established canonical package-build
+results into execution, artifact discovery, artifact structural validation,
+artifact metadata, artifact integrity, and functional-artifact checks.
+Execution, artifact, metadata, and integrity checks are mandatory. Functional
+artifact validation is classified according to the caller-provided requirement.
+
+`BuildValidationOrchestrator` produces the aggregate Build Validation decision.
+A failed or skipped required check blocks validation. Optional failures are
+reported as warnings without failing the aggregate decision, while
+informational failures remain non-blocking. The resulting
+`BuildValidationResult` preserves the Build ID, validation profile, ordered
+checks, diagnostics, failures, and warnings.
+
+Focused tests cover canonical check ordering and domain mapping, missing
+artifact discovery, missing manifest metadata, optional and required skipped
+functional validation, required failures, optional and informational failures,
+required skipped checks, successful mandatory checks, Build ID and profile
+preservation, and the current empty-check-set behavior. A real canonical
+functional package build was mapped to six Build Validation checks and produced
+a successful aggregate decision with every performed check passing.
+
+Level 19 remains partial. Input, configuration, dependency, toolchain,
+environment, and Build Evidence validation are represented as canonical
+domains but are not yet implemented as concrete Build Validation checks.
+No Build Evidence ownership, release decision, publication, promotion, signing,
+provenance, or deployment semantics are introduced.
 
 ---
 

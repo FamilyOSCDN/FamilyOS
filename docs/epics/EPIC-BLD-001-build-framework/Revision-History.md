@@ -1633,6 +1633,47 @@ trust, release, publication, promotion, or deployment semantics are established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Build Validation Orchestration — 2026-08-21
+
+This incremental revision introduces the first explicit Build Validation
+orchestration layer for canonical FamilyOS package builds.
+
+The new application-owned model defines validation profiles, domains,
+requirement classifications, statuses, normalized check results, and aggregate
+Build Validation results.
+
+`BuildValidationCheckFactory` maps established canonical package-build results
+into execution, artifact discovery, artifact structural validation, artifact
+metadata, artifact integrity, and functional-artifact checks.
+
+`BuildValidationOrchestrator` applies explicit decision semantics. Failed or
+skipped required checks block validation. Optional failures remain observable
+without failing the aggregate decision, while informational failures remain
+non-blocking.
+
+The result preserves Build ID, validation profile, ordered checks, diagnostics,
+required failures, and optional warnings.
+
+Focused evidence includes 15 Build Validation tests covering required,
+optional, informational, and skipped behavior; canonical check ordering;
+domain mapping; missing build-stage results; profile and Build ID preservation;
+diagnostics; and a real canonical functional package build mapped to six
+passing checks.
+
+This revision implements the current Level 19 execution, artifact, metadata,
+integrity, functional-artifact, mandatory-versus-optional, overall-decision,
+diagnostics, and validation-test-suite responsibilities.
+
+Input, configuration, dependency, toolchain, environment, and Build Evidence
+validation remain open.
+
+No Build Evidence ownership, release authority, provenance, signing,
+publication, promotion, or deployment semantics are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State
