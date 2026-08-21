@@ -675,3 +675,80 @@ def test_input_validation_failure_blocks_build_validation() -> None:
 
     assert result.status is BuildValidationStatus.FAILED
     assert not result.successful
+
+
+def test_configuration_validation_maps_required_build_configuration() -> None:
+    checks = BuildValidationCheckFactory().from_configuration_validation(
+        package_configuration_valid=True,
+        dependency_configuration_valid=True,
+    )
+
+    assert len(checks) == 2
+
+    assert checks[0].check_id == "package-configuration"
+    assert checks[0].domain is BuildValidationDomain.CONFIGURATION
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.PASSED
+    assert checks[0].diagnostic is None
+
+    assert checks[1].check_id == "dependency-configuration"
+    assert checks[1].domain is BuildValidationDomain.CONFIGURATION
+    assert checks[1].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[1].status is BuildValidationStatus.PASSED
+    assert checks[1].diagnostic is None
+
+
+def test_configuration_validation_package_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_configuration_validation(
+        package_configuration_valid=False,
+        dependency_configuration_valid=True,
+        package_diagnostic="canonical package configuration is invalid",
+    )
+
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert (
+        checks[0].diagnostic
+        == "canonical package configuration is invalid"
+    )
+
+
+def test_configuration_validation_dependency_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_configuration_validation(
+        package_configuration_valid=True,
+        dependency_configuration_valid=False,
+        dependency_diagnostic=(
+            "canonical dependency configuration is invalid"
+        ),
+    )
+
+    assert checks[1].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[1].status is BuildValidationStatus.FAILED
+    assert (
+        checks[1].diagnostic
+        == "canonical dependency configuration is invalid"
+    )
+
+
+def test_configuration_validation_failure_blocks_build_validation() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+    )
+    from familyos_cli.application.build.build_validation_orchestrator import (
+        BuildValidationOrchestrator,
+    )
+
+    checks = BuildValidationCheckFactory().from_configuration_validation(
+        package_configuration_valid=False,
+        dependency_configuration_valid=True,
+        package_diagnostic="invalid canonical build configuration",
+    )
+
+    result = BuildValidationOrchestrator().execute(
+        build_id=_BUILD_ID,
+        profile=BuildValidationProfile.CI,
+        checks=checks,
+    )
+
+    assert result.status is BuildValidationStatus.FAILED
+    assert not result.successful

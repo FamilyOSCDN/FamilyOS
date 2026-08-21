@@ -825,7 +825,7 @@ Implement layered validation aligned with `15-Build-Validation.md`.
 ### Checklist
 
 * [x] Implement input validation.
-* [ ] Implement configuration validation.
+* [x] Implement configuration validation.
 * [x] Implement dependency validation.
 * [x] Implement toolchain validation.
 * [x] Implement environment validation.
@@ -938,6 +938,20 @@ validation failure behavior. A real probe confirmed the canonical `dist`
 output input and both boolean functional-validation modes, producing two
 required passing `INPUT` checks with an aggregate Build Validation `PASSED`
 decision.
+
+Configuration Validation now maps explicit observations of the
+canonical build configuration into required checks. The current configuration
+contract verifies the authoritative package/build configuration from
+`pyproject.toml` and the canonical dependency-constraint configuration from
+`requirements.txt` without duplicating dependency freshness or consistency
+execution.
+
+Focused tests cover successful configuration mapping, invalid package
+configuration, invalid dependency configuration, diagnostic preservation, and
+aggregate validation failure behavior. A real canonical configuration probe
+confirmed project metadata, Python requirement, build backend, and the
+dependency-constraint file, producing two required passing `CONFIGURATION`
+checks with an aggregate Build Validation `PASSED` decision.
 
 Level 19 remains partial. Input, configuration, dependency, toolchain,
 environment, and Build Evidence validation are represented as canonical

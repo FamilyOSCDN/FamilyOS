@@ -300,6 +300,49 @@ class BuildValidationCheckFactory:
             ),
         )
 
+    def from_configuration_validation(
+        self,
+        *,
+        package_configuration_valid: bool,
+        dependency_configuration_valid: bool,
+        package_diagnostic: str | None = None,
+        dependency_diagnostic: str | None = None,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Map explicit canonical build-configuration observations to checks."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="package-configuration",
+                domain=BuildValidationDomain.CONFIGURATION,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if package_configuration_valid
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if package_configuration_valid
+                    else package_diagnostic
+                ),
+            ),
+            BuildValidationCheckResult(
+                check_id="dependency-configuration",
+                domain=BuildValidationDomain.CONFIGURATION,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if dependency_configuration_valid
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if dependency_configuration_valid
+                    else dependency_diagnostic
+                ),
+            ),
+        )
+
     @staticmethod
     def _from_gate_status(
         status: ValidationStatus,

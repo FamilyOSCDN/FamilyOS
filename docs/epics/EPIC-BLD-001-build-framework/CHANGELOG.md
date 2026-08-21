@@ -1314,3 +1314,30 @@ introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Build Configuration Validation Integration — 2026-08-21
+
+Integrated explicit Build Configuration validation into Build Validation
+orchestration.
+
+The new configuration mapping produces required checks for the authoritative
+package/build configuration and canonical dependency-constraint configuration.
+
+Focused tests cover passing configuration observations, invalid package
+configuration, invalid dependency configuration, diagnostics, and aggregate
+decision behavior.
+
+A real probe confirmed the canonical `pyproject.toml` metadata and build backend
+plus the committed `requirements.txt`, with both required configuration checks
+passing and an aggregate Build Validation `PASSED` decision.
+
+Level 19 configuration validation is now implemented. Build Evidence validation
+remains open.
+
+No dependency gate ownership, Build Evidence, release authority, provenance,
+signing, publication, promotion, or deployment semantics are introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

@@ -2393,3 +2393,46 @@ deployment semantics are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Build Configuration Validation Integration — 2026-08-21
+
+Build Validation now includes explicit required checks for canonical package-
+build configuration.
+
+`BuildValidationCheckFactory.from_configuration_validation()` maps established
+configuration observations into two required `CONFIGURATION` checks:
+
+- `package-configuration`;
+- `dependency-configuration`.
+
+The package-configuration check validates the authoritative package/build
+configuration from `pyproject.toml`. The dependency-configuration check
+validates availability of the canonical dependency-constraint configuration
+from `requirements.txt`.
+
+Focused tests cover successful configuration mapping, invalid package
+configuration, invalid dependency configuration, diagnostic preservation, and
+aggregate Build Validation failure behavior.
+
+A real configuration probe confirmed:
+
+- project name: `familyos-cli`;
+- project version: `0.1.0`;
+- Python requirement: `>=3.13`;
+- build backend: `setuptools.build_meta`;
+- canonical `requirements.txt`: available and non-empty;
+- `package-configuration`: required / passed;
+- `dependency-configuration`: required / passed;
+- aggregate Build Validation decision: PASSED;
+- `git diff --check`: PASS.
+
+This closes the current Level 19 configuration-validation item.
+
+Build Evidence validation remains open.
+
+No dependency freshness or consistency gate is re-executed by this slice.
+No Build Evidence, release authority, provenance, signing, publication,
+promotion, or deployment semantics are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

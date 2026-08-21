@@ -1800,6 +1800,37 @@ are established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Build Configuration Validation Integration — 2026-08-21
+
+This incremental revision adds explicit Build Configuration validation to the
+Build Validation orchestration layer.
+
+`BuildValidationCheckFactory.from_configuration_validation()` converts
+established canonical configuration observations into required checks for the
+authoritative package/build configuration and dependency-constraint
+configuration.
+
+Focused evidence covers successful mapping, invalid package configuration,
+invalid dependency configuration, diagnostic preservation, aggregate failure
+behavior, and a real canonical configuration probe.
+
+The real probe confirmed project name `familyos-cli`, version `0.1.0`, Python
+requirement `>=3.13`, build backend `setuptools.build_meta`, and availability of
+the canonical `requirements.txt`. Both required configuration checks passed and
+the aggregate Build Validation decision was `PASSED`.
+
+This revision closes the current Level 19 configuration-validation item.
+
+Build Evidence validation remains open.
+
+No dependency validation ownership, Build Evidence, release authority,
+provenance, signing, publication, promotion, or deployment semantics are
+established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State
