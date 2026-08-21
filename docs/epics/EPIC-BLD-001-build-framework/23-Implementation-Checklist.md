@@ -827,7 +827,7 @@ Implement layered validation aligned with `15-Build-Validation.md`.
 * [ ] Implement input validation.
 * [ ] Implement configuration validation.
 * [x] Implement dependency validation.
-* [ ] Implement toolchain validation.
+* [x] Implement toolchain validation.
 * [ ] Implement environment validation.
 * [x] Implement execution validation.
 * [x] Implement artifact validation.
@@ -902,6 +902,17 @@ rejection of unrelated validation gates, and aggregate Build Validation
 failure behavior. A real canonical CI validation run produced passing
 `dependency-freshness` and `dependency-consistency` gates, which mapped to two
 required passing Build Validation dependency checks.
+
+Toolchain Validation now consumes explicit observations of the
+canonical build toolchain. Build Validation currently requires a compatible
+Python runtime and availability of the Python `build` module used by canonical
+package construction. These observations map to required `TOOLCHAIN` checks.
+
+Focused tests cover successful toolchain mapping, unsupported Python,
+unavailable build tooling, diagnostic preservation, and aggregate validation
+failure behavior. A real probe confirmed Python 3.13.7, `build` 1.5.0, and a
+successful aggregate Build Validation decision for both required toolchain
+checks.
 
 Level 19 remains partial. Input, configuration, dependency, toolchain,
 environment, and Build Evidence validation are represented as canonical

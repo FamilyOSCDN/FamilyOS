@@ -2268,3 +2268,46 @@ publication, promotion, or deployment semantics are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Build Toolchain Validation Integration — 2026-08-21
+
+Build Validation now includes explicit required checks for the canonical package
+build toolchain.
+
+`BuildValidationCheckFactory.from_toolchain_validation()` maps explicit
+toolchain observations into two required `TOOLCHAIN` checks:
+
+- `python-toolchain`;
+- `python-build-tool`.
+
+The Python check verifies that the active runtime satisfies the canonical
+FamilyOS Python requirement. The build-tool check verifies availability of the
+Python `build` module used by canonical package construction.
+
+Focused tests cover successful toolchain mapping, incompatible Python,
+unavailable build tooling, diagnostic preservation, and aggregate Build
+Validation failure behavior.
+
+A real toolchain probe confirmed:
+
+- Python: 3.13.7;
+- canonical Python requirement: satisfied;
+- `python -m build`: available;
+- `build` version: 1.5.0;
+- `python-toolchain`: required / passed;
+- `python-build-tool`: required / passed;
+- aggregate Build Validation decision: PASSED;
+- `git diff --check`: PASS.
+
+This closes the current Level 19 toolchain-validation item.
+
+Input, configuration, environment, and Build Evidence validation remain open.
+
+Ruff, MyPy, and Pytest remain canonical quality/testing validation gates and are
+not reclassified as Build Toolchain checks by this slice.
+
+No Build Evidence, release authority, provenance, signing, publication,
+promotion, or deployment semantics are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

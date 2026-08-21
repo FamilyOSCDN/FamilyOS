@@ -1709,6 +1709,38 @@ established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Build Toolchain Validation Integration — 2026-08-21
+
+This incremental revision adds explicit Build Toolchain validation to the
+Build Validation orchestration layer.
+
+`BuildValidationCheckFactory.from_toolchain_validation()` converts established
+toolchain observations into required checks for the active Python runtime and
+availability of the Python `build` module used by canonical package
+construction.
+
+Focused evidence covers successful mapping, incompatible Python, unavailable
+build tooling, diagnostic preservation, aggregate failure behavior, and a real
+probe of the current canonical toolchain.
+
+The real environment reported Python 3.13.7 and `build` 1.5.0. Both required
+toolchain checks passed and produced an aggregate Build Validation `PASSED`
+decision.
+
+This revision closes the current Level 19 toolchain-validation item.
+
+Input, configuration, environment, and Build Evidence validation remain open.
+
+Ruff, MyPy, and Pytest remain existing canonical validation gates and are not
+reclassified as Build Toolchain checks.
+
+No Build Evidence, release authority, provenance, signing, publication,
+promotion, or deployment semantics are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

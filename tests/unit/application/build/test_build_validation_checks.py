@@ -448,3 +448,78 @@ def test_dependency_validation_rejects_non_dependency_gate() -> None:
                 ),
             )
         )
+
+
+def test_toolchain_validation_maps_required_toolchain_checks() -> None:
+    checks = BuildValidationCheckFactory().from_toolchain_validation(
+        python_compatible=True,
+        build_available=True,
+    )
+
+    assert len(checks) == 2
+
+    python_check, build_check = checks
+
+    assert python_check.check_id == "python-toolchain"
+    assert python_check.domain is BuildValidationDomain.TOOLCHAIN
+    assert python_check.requirement is BuildValidationRequirement.REQUIRED
+    assert python_check.status is BuildValidationStatus.PASSED
+    assert python_check.diagnostic is None
+
+    assert build_check.check_id == "python-build-tool"
+    assert build_check.domain is BuildValidationDomain.TOOLCHAIN
+    assert build_check.requirement is BuildValidationRequirement.REQUIRED
+    assert build_check.status is BuildValidationStatus.PASSED
+    assert build_check.diagnostic is None
+
+
+def test_toolchain_validation_python_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_toolchain_validation(
+        python_compatible=False,
+        build_available=True,
+        python_diagnostic="Python 3.13 or newer is required",
+    )
+
+    python_check, build_check = checks
+
+    assert python_check.status is BuildValidationStatus.FAILED
+    assert python_check.diagnostic == "Python 3.13 or newer is required"
+    assert build_check.status is BuildValidationStatus.PASSED
+
+
+def test_toolchain_validation_build_tool_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_toolchain_validation(
+        python_compatible=True,
+        build_available=False,
+        build_diagnostic="python -m build is unavailable",
+    )
+
+    python_check, build_check = checks
+
+    assert python_check.status is BuildValidationStatus.PASSED
+    assert build_check.status is BuildValidationStatus.FAILED
+    assert build_check.diagnostic == "python -m build is unavailable"
+
+
+def test_toolchain_validation_failure_blocks_build_validation() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+    )
+    from familyos_cli.application.build.build_validation_orchestrator import (
+        BuildValidationOrchestrator,
+    )
+
+    checks = BuildValidationCheckFactory().from_toolchain_validation(
+        python_compatible=False,
+        build_available=True,
+        python_diagnostic="unsupported Python toolchain",
+    )
+
+    result = BuildValidationOrchestrator().execute(
+        build_id=_BUILD_ID,
+        profile=BuildValidationProfile.VALIDATION,
+        checks=checks,
+    )
+
+    assert result.status is BuildValidationStatus.FAILED
+    assert not result.successful

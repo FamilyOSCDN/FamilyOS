@@ -179,6 +179,49 @@ class BuildValidationCheckFactory:
 
         return tuple(checks)
 
+    def from_toolchain_validation(
+        self,
+        *,
+        python_compatible: bool,
+        build_available: bool,
+        python_diagnostic: str | None = None,
+        build_diagnostic: str | None = None,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Map explicit canonical build-toolchain observations to checks."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="python-toolchain",
+                domain=BuildValidationDomain.TOOLCHAIN,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if python_compatible
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if python_compatible
+                    else python_diagnostic
+                ),
+            ),
+            BuildValidationCheckResult(
+                check_id="python-build-tool",
+                domain=BuildValidationDomain.TOOLCHAIN,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if build_available
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if build_available
+                    else build_diagnostic
+                ),
+            ),
+        )
+
     @staticmethod
     def _from_gate_status(
         status: ValidationStatus,
