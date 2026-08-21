@@ -523,3 +523,79 @@ def test_toolchain_validation_failure_blocks_build_validation() -> None:
 
     assert result.status is BuildValidationStatus.FAILED
     assert not result.successful
+
+
+def test_environment_validation_maps_required_environment_checks(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "project"
+    output_dir = tmp_path / "dist"
+    project_root.mkdir()
+    output_dir.mkdir()
+
+    checks = BuildValidationCheckFactory().from_environment_validation(
+        project_root_available=project_root.is_dir(),
+        output_environment_available=output_dir.is_dir(),
+    )
+
+    assert len(checks) == 2
+
+    assert checks[0].check_id == "project-environment"
+    assert checks[0].domain is BuildValidationDomain.ENVIRONMENT
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.PASSED
+    assert checks[0].diagnostic is None
+
+    assert checks[1].check_id == "output-environment"
+    assert checks[1].domain is BuildValidationDomain.ENVIRONMENT
+    assert checks[1].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[1].status is BuildValidationStatus.PASSED
+    assert checks[1].diagnostic is None
+
+
+def test_environment_validation_project_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_environment_validation(
+        project_root_available=False,
+        output_environment_available=True,
+        project_diagnostic="project root is unavailable",
+    )
+
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert checks[0].diagnostic == "project root is unavailable"
+
+
+def test_environment_validation_output_failure_is_required() -> None:
+    checks = BuildValidationCheckFactory().from_environment_validation(
+        project_root_available=True,
+        output_environment_available=False,
+        output_diagnostic="build output environment is unavailable",
+    )
+
+    assert checks[1].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[1].status is BuildValidationStatus.FAILED
+    assert checks[1].diagnostic == "build output environment is unavailable"
+
+
+def test_environment_validation_failure_blocks_build_validation() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+    )
+    from familyos_cli.application.build.build_validation_orchestrator import (
+        BuildValidationOrchestrator,
+    )
+
+    checks = BuildValidationCheckFactory().from_environment_validation(
+        project_root_available=True,
+        output_environment_available=False,
+        output_diagnostic="output directory cannot support package build",
+    )
+
+    result = BuildValidationOrchestrator().execute(
+        build_id=_BUILD_ID,
+        profile=BuildValidationProfile.CI,
+        checks=checks,
+    )
+
+    assert result.status is BuildValidationStatus.FAILED
+    assert not result.successful

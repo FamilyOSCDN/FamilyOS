@@ -1261,3 +1261,29 @@ not repurposed as Build Toolchain checks.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Build Environment Validation Integration — 2026-08-21
+
+Integrated explicit Build Environment validation into Build Validation
+orchestration.
+
+The new environment mapping produces required checks for availability of the
+canonical project root and usability of the build-output environment.
+
+Focused tests cover passing environment observations, missing project root,
+unavailable output environment, diagnostics, and aggregate decision behavior.
+
+A real probe confirmed the repository project root, a writable build-output
+directory, successful filesystem write/read/delete behavior, and an aggregate
+Build Validation `PASSED` decision.
+
+Level 19 environment validation is now implemented. Input, configuration, and
+Build Evidence validation remain open.
+
+No new build execution, filesystem ownership, release authority, provenance,
+signing, publication, promotion, or deployment semantics are introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

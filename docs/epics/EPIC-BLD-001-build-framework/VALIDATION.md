@@ -2311,3 +2311,44 @@ promotion, or deployment semantics are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Build Environment Validation Integration — 2026-08-21
+
+Build Validation now includes explicit required checks for the canonical package
+build environment.
+
+`BuildValidationCheckFactory.from_environment_validation()` maps established
+environment observations into two required `ENVIRONMENT` checks:
+
+- `project-environment`;
+- `output-environment`.
+
+The project-environment check requires the canonical project root to be
+available as a directory. The output-environment check requires the configured
+build-output environment to exist, be a directory, and be writable.
+
+Focused tests cover successful environment mapping, unavailable project root,
+unavailable output environment, diagnostic preservation, and aggregate Build
+Validation failure behavior.
+
+A real environment probe confirmed:
+
+- canonical project root: available;
+- canonical output directory: available;
+- canonical output directory: writable;
+- write/read/delete filesystem probe: PASS;
+- `project-environment`: required / passed;
+- `output-environment`: required / passed;
+- aggregate Build Validation decision: PASSED;
+- `git diff --check`: PASS.
+
+This closes the current Level 19 environment-validation item.
+
+Input, configuration, and Build Evidence validation remain open.
+
+No new filesystem ownership, build execution, source-state ownership,
+Build Evidence, release authority, provenance, signing, publication,
+promotion, or deployment semantics are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

@@ -199,11 +199,7 @@ class BuildValidationCheckFactory:
                     if python_compatible
                     else BuildValidationStatus.FAILED
                 ),
-                diagnostic=(
-                    None
-                    if python_compatible
-                    else python_diagnostic
-                ),
+                diagnostic=None if python_compatible else python_diagnostic,
             ),
             BuildValidationCheckResult(
                 check_id="python-build-tool",
@@ -214,10 +210,49 @@ class BuildValidationCheckFactory:
                     if build_available
                     else BuildValidationStatus.FAILED
                 ),
+                diagnostic=None if build_available else build_diagnostic,
+            ),
+        )
+
+    def from_environment_validation(
+        self,
+        *,
+        project_root_available: bool,
+        output_environment_available: bool,
+        project_diagnostic: str | None = None,
+        output_diagnostic: str | None = None,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Map explicit canonical build-environment observations to checks."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="project-environment",
+                domain=BuildValidationDomain.ENVIRONMENT,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if project_root_available
+                    else BuildValidationStatus.FAILED
+                ),
                 diagnostic=(
                     None
-                    if build_available
-                    else build_diagnostic
+                    if project_root_available
+                    else project_diagnostic
+                ),
+            ),
+            BuildValidationCheckResult(
+                check_id="output-environment",
+                domain=BuildValidationDomain.ENVIRONMENT,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if output_environment_available
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if output_environment_available
+                    else output_diagnostic
                 ),
             ),
         )

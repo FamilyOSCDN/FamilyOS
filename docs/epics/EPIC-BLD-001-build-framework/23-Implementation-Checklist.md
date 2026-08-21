@@ -828,7 +828,7 @@ Implement layered validation aligned with `15-Build-Validation.md`.
 * [ ] Implement configuration validation.
 * [x] Implement dependency validation.
 * [x] Implement toolchain validation.
-* [ ] Implement environment validation.
+* [x] Implement environment validation.
 * [x] Implement execution validation.
 * [x] Implement artifact validation.
 * [x] Implement metadata validation.
@@ -913,6 +913,19 @@ unavailable build tooling, diagnostic preservation, and aggregate validation
 failure behavior. A real probe confirmed Python 3.13.7, `build` 1.5.0, and a
 successful aggregate Build Validation decision for both required toolchain
 checks.
+
+Environment Validation now maps explicit observations of the
+canonical build environment into required checks. The current environment
+contract verifies that the project root is available and that the configured
+build-output environment exists, is a directory, and is writable.
+
+Focused tests cover successful environment mapping, unavailable project root,
+unavailable output environment, diagnostic preservation, and aggregate
+validation failure behavior. A real canonical environment probe confirmed the
+repository project root and a writable temporary build-output directory,
+including a write/read/delete filesystem probe, and produced two required
+passing `ENVIRONMENT` checks with an aggregate Build Validation `PASSED`
+decision.
 
 Level 19 remains partial. Input, configuration, dependency, toolchain,
 environment, and Build Evidence validation are represented as canonical
