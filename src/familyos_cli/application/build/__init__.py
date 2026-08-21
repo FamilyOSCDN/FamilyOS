@@ -30,6 +30,10 @@ from familyos_cli.application.build.build_artifact_integrities import (
 from familyos_cli.application.build.build_artifact_manifest import (
     BuildArtifactManifestUseCase,
 )
+from familyos_cli.application.build.build_evidence import BuildEvidence
+from familyos_cli.application.build.build_evidence_factory import (
+    BuildEvidenceFactory,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
 from familyos_cli.application.build.discover_package_artifacts import (
@@ -60,17 +64,19 @@ from familyos_cli.application.build.validate_python_package_artifacts import (
 __all__ = [
     "ArtifactClass",
     "ArtifactDigestAlgorithm",
+    "ArtifactDiscoveryResult",
+    "ArtifactDiscoveryStatus",
     "ArtifactIdentity",
     "ArtifactIntegrity",
     "ArtifactIntegrityService",
-    "BuildArtifactIdentitiesUseCase",
-    "BuildArtifactIntegritiesUseCase",
-    "ArtifactDiscoveryResult",
-    "ArtifactDiscoveryStatus",
-    "ArtifactOutputClassification",
     "ArtifactManifest",
     "ArtifactManifestEntry",
+    "ArtifactOutputClassification",
+    "BuildArtifactIdentitiesUseCase",
+    "BuildArtifactIntegritiesUseCase",
     "BuildArtifactManifestUseCase",
+    "BuildEvidence",
+    "BuildEvidenceFactory",
     "BuildId",
     "BuildIdGenerator",
     "CanonicalPackageBuildResult",
@@ -80,8 +86,8 @@ __all__ = [
     "ExpectedArtifactDefinition",
     "PackageBuildResult",
     "PackageBuildStatus",
-    "PackageIdentity",
     "PackageFunctionalValidationStatus",
+    "PackageIdentity",
     "PackageStructuralValidationStatus",
     "PythonPackageStructuralValidationResult",
     "PythonWheelFunctionalValidationResult",

@@ -1341,3 +1341,36 @@ signing, publication, promotion, or deployment semantics are introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Minimum Build Evidence Integration — 2026-08-21
+
+Added a concrete immutable `BuildEvidence` aggregate and
+`BuildEvidenceFactory`.
+
+The bundle preserves canonical Build ID, source state, Build Validation result,
+artifact manifest, and artifact integrity records from an established package
+build without recalculating those authorities.
+
+Cross-authority invariants now reject mismatched Build IDs and artifact
+integrity records that are not represented by the artifact manifest.
+
+Focused tests cover the evidence model, factory construction, consistency
+invariants, and failure behavior.
+
+A real canonical package build successfully produced coherent Build Evidence
+containing the same Build ID, captured source revision, validation profile and
+result, two manifest entries, and two SHA-256 artifact digests.
+
+This implementation closes six initial Level 24 evidence items plus the open
+Level 17 digest association and Level 18 manifest association.
+
+Target identity, runtime version, critical tool versions, effective
+configuration summary, and mature evidence capabilities remain open.
+
+No provenance, signing, release authority, publication, promotion, deployment,
+or reproducibility semantics are introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

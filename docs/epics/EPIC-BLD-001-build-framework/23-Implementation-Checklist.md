@@ -726,7 +726,7 @@ Protect artifact identity through cryptographic integrity.
 
 * [x] Select approved digest algorithm.
 * [x] Calculate digest from final candidate bytes.
-* [ ] Record digest in Build Evidence.
+* [x] Record digest in Build Evidence.
 * [ ] Verify digest after artifact transfer between automation stages.
 * [ ] Recalculate digest after any intentional artifact mutation.
 * [ ] Prevent validation state from surviving byte modification.
@@ -779,7 +779,7 @@ Provide a structured record of generated artifact sets.
 * [x] Include validation state.
 * [x] Include artifact references or paths.
 * [x] Validate manifest completeness.
-* [ ] Associate manifest with Build Evidence.
+* [x] Associate manifest with Build Evidence.
 * [x] Add manifest-generation tests.
 
 Implementation evidence: canonical package-build execution now constructs an
@@ -1047,16 +1047,16 @@ Create evidence sufficient to explain important builds.
 
 ### Initial Evidence Checklist
 
-* [ ] Build ID.
-* [ ] source revision.
+* [x] Build ID.
+* [x] source revision.
 * [ ] target.
-* [ ] profile.
+* [x] profile.
 * [ ] runtime version.
 * [ ] critical tool versions.
 * [ ] effective configuration summary.
-* [ ] validation result.
-* [ ] artifact manifest.
-* [ ] artifact digests.
+* [x] validation result.
+* [x] artifact manifest.
+* [x] artifact digests.
 
 ### Mature Evidence Checklist
 

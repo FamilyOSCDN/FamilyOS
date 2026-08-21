@@ -1831,6 +1831,45 @@ established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Minimum Build Evidence Integration — 2026-08-21
+
+This incremental revision introduces concrete minimum Build Evidence.
+
+`BuildEvidence` now aggregates the canonical Build ID, source state, Build
+Validation result, artifact manifest, and artifact integrity records associated
+with one build.
+
+`BuildEvidenceFactory` assembles those authorities directly from
+`CanonicalPackageBuildResult` and `BuildValidationResult` without regenerating
+identity, source state, digests, or manifest information.
+
+Consistency invariants require common Build IDs and require each artifact
+integrity record to correspond to an artifact represented by the manifest.
+
+Focused tests cover evidence authority preservation, source revision,
+validation profile, Build ID consistency, manifest consistency, source-revision
+requirements, foreign integrity records, manifest/integrity correspondence,
+and factory construction.
+
+A real canonical package build produced coherent Build Evidence with a common
+Build ID, captured source revision, passing validation result, two artifact
+manifest entries, and two SHA-256 integrity records.
+
+This revision closes the initial Level 24 Build ID, source revision, profile,
+validation result, artifact manifest, and artifact digest items. It also closes
+the Level 17 digest-to-Build-Evidence association and Level 18
+manifest-to-Build-Evidence association.
+
+Target, runtime version, critical tool versions, effective configuration
+summary, and all mature evidence capabilities remain open.
+
+No provenance, signing, release authority, publication, promotion, deployment,
+or reproducibility semantics are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

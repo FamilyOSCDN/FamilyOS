@@ -2436,3 +2436,79 @@ promotion, or deployment semantics are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Minimum Build Evidence Integration — 2026-08-21
+
+The Build Framework now provides a concrete immutable `BuildEvidence` aggregate
+and `BuildEvidenceFactory`.
+
+The minimum evidence bundle reuses established canonical authorities without
+recalculating them:
+
+- Build ID;
+- captured source state and source revision;
+- Build Validation result and profile;
+- artifact manifest;
+- artifact integrity records and digests.
+
+`BuildEvidence` enforces cross-authority consistency. The validation result and
+artifact manifest must belong to the same Build ID as the evidence bundle.
+Every artifact integrity record must belong to the same Build ID and must be
+represented by an equivalent artifact manifest entry using canonical identity,
+size, path, digest algorithm, and digest data.
+
+`BuildEvidenceFactory` assembles the bundle directly from
+`CanonicalPackageBuildResult` and `BuildValidationResult`. It does not generate
+a new Build ID, re-read source state, recalculate digests, or rebuild the
+artifact manifest.
+
+Focused tests cover:
+
+- preservation of canonical build authorities;
+- source revision exposure;
+- validation profile preservation;
+- mismatched validation Build IDs;
+- mismatched manifest Build IDs;
+- missing source revision;
+- foreign artifact-integrity Build IDs;
+- integrity records not represented by the artifact manifest;
+- factory preservation of package-build authorities;
+- missing artifact manifests;
+- mismatched factory validation Build IDs.
+
+A real canonical package build produced coherent Build Evidence with:
+
+- one Build ID shared across build, validation, manifest, and integrity records;
+- source revision captured from the repository;
+- validation profile `validation`;
+- aggregate validation status `passed`;
+- two artifact manifest entries;
+- two SHA-256 artifact integrity records.
+
+The minimum Level 24 evidence implementation therefore establishes:
+
+- Build ID;
+- source revision;
+- profile;
+- validation result;
+- artifact manifest;
+- artifact digests.
+
+It also closes the existing Level 17 digest-to-Build-Evidence association and
+Level 18 manifest-to-Build-Evidence association.
+
+The following initial evidence capabilities remain open because no canonical
+authority is yet established for them:
+
+- target;
+- runtime version;
+- critical tool versions;
+- effective configuration summary.
+
+Mature evidence capabilities also remain open.
+
+No provenance, signing, release authority, publication, promotion, deployment,
+or reproducibility claims are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
