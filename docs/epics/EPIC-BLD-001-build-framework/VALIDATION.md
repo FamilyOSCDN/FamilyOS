@@ -2752,3 +2752,41 @@ Level 17 is now complete at 7/7.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Artifact Manifest Completion Reconciliation — 2026-08-22
+
+Level 18 — Artifact Manifest is now fully reconciled with the implemented
+Build Evidence model.
+
+The canonical package build produces an immutable `ArtifactManifest` containing
+the Build ID and deterministic artifact entries with logical name, artifact
+type, version, size, path, digest algorithm, digest, and structural validation
+state.
+
+`BuildEvidenceFactory` requires the canonical package build result to contain
+an Artifact Manifest before Build Evidence can be assembled.
+
+The resulting immutable `BuildEvidence` aggregate directly contains the
+Artifact Manifest and enforces that:
+
+- the manifest Build ID matches the Build Evidence Build ID;
+- every Artifact Integrity record belongs to the same Build ID;
+- every Artifact Integrity record is represented by an equivalent manifest
+  entry.
+
+Focused manifest and Build Evidence tests validate complete manifest
+construction, manifest completeness, Build ID consistency, manifest/integrity
+coherence, missing-manifest rejection, and association of the established
+manifest with Build Evidence.
+
+The earlier Minimal Artifact Manifest revision correctly recorded that Build
+Evidence association was not yet implemented at that historical point.
+Subsequent Minimum Build Evidence integration closed that gap.
+
+No standalone serialized manifest artifact, provenance, signing, publication,
+promotion, release authority, or deployment semantics are introduced.
+
+Level 18 — Artifact Manifest is complete at 11/11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

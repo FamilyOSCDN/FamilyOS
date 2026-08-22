@@ -2010,6 +2010,32 @@ Integrity at 7/7.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Artifact Manifest Completion Reconciliation — 2026-08-22
+
+This incremental revision reconciles Level 18 — Artifact Manifest with the
+subsequently implemented Build Evidence association.
+
+`BuildEvidenceFactory` now requires an established Artifact Manifest and
+includes it in immutable `BuildEvidence`.
+
+`BuildEvidence` enforces matching Build IDs between itself and the manifest and
+requires each Artifact Integrity record to be represented by an equivalent
+manifest entry.
+
+The earlier Minimal Artifact Manifest revision remains historically accurate:
+at that point in the implementation sequence, Build Evidence association had
+not yet been introduced. The later Minimum Build Evidence integration closed
+that remaining gap.
+
+No new Artifact Manifest production capability is introduced by this
+documentation reconciliation.
+
+Level 18 — Artifact Manifest is complete at 11/11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

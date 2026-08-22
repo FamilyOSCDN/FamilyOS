@@ -851,10 +851,21 @@ mismatch, duplicate integrity paths, artifact-type mismatch, preservation of
 established digest and size metadata, and exclusion of Build Evidence, trust,
 provenance, signing, publication, and release semantics.
 
-Level 18 remains partial only because association with Build Evidence is not
-implemented. The manifest is currently application-owned structured metadata;
-no serialized manifest artifact, Build Evidence bundle, provenance, signing,
-publication, promotion, or deployment semantics are introduced.
+Artifact Manifest association with Build Evidence is implemented.
+`BuildEvidenceFactory` requires the canonical package build to contain an
+`ArtifactManifest` and passes that manifest into the immutable `BuildEvidence`
+aggregate. `BuildEvidence` requires the manifest Build ID to match its own
+Build ID and requires every Artifact Integrity record to be represented by an
+equivalent manifest entry.
+
+Focused Build Evidence and manifest tests cover manifest presence, Build ID
+consistency, manifest/integrity coherence, and preservation of the established
+manifest authority without recalculation.
+
+No standalone serialized manifest artifact, provenance, signing, publication,
+promotion, release authority, or deployment semantics are introduced.
+
+Level 18 — Artifact Manifest is complete.
 
 ---
 

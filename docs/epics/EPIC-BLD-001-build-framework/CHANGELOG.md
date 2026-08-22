@@ -1526,3 +1526,28 @@ Level 17 — Artifact Integrity is now complete at 7/7.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Artifact Manifest Completion Reconciliation — 2026-08-22
+
+Reconciled Level 18 — Artifact Manifest with the implemented Build Evidence
+association.
+
+`BuildEvidenceFactory` requires an established Artifact Manifest and passes it
+into the immutable `BuildEvidence` aggregate.
+
+`BuildEvidence` enforces manifest Build ID consistency and requires every
+Artifact Integrity record to be represented by the Artifact Manifest.
+
+The historical Minimal Artifact Manifest entry remains unchanged because its
+statement that Build Evidence association was still open was accurate at that
+time. Subsequent Build Evidence implementation closed that gap.
+
+No additional Artifact Manifest production code was required for this
+reconciliation.
+
+Level 18 — Artifact Manifest is complete at 11/11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
