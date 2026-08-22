@@ -97,13 +97,26 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
 
     if result.build_context is not None:
         context = result.build_context
+        environment = context.environment_state
+
         typer.echo(f"Build Profile: {context.profile.value}")
         typer.echo(f"Build Target: {context.target.value}")
         typer.echo(f"Runtime Version: {context.runtime_version}")
+        typer.echo(f"Operating System: {environment.operating_system}")
+        typer.echo(
+            "Operating System Release: "
+            f"{environment.operating_system_release}"
+        )
+        typer.echo(
+            "Machine Architecture: "
+            f"{environment.machine_architecture}"
+        )
+
         for component in context.toolchain_state.critical_versions:
             typer.echo(
                 f"Toolchain {component.distribution}: {component.version}"
             )
+
         typer.echo(f"Output Directory: {context.output_dir}")
         typer.echo(
             "Functional Validation Requested: "

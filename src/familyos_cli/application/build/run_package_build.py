@@ -37,6 +37,9 @@ from familyos_cli.application.build.dependency_state_provider import (
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
 )
+from familyos_cli.application.build.environment_state_provider import (
+    EnvironmentStateProvider,
+)
 from familyos_cli.application.build.package_build import PackageBuildStatus
 from familyos_cli.application.build.toolchain_state_provider import (
     ToolchainStateProvider,
@@ -67,6 +70,7 @@ class RunPackageBuildUseCase:
         build_id_generator: BuildIdGenerator | None = None,
         dependency_state_provider: DependencyStateProvider | None = None,
         toolchain_state_provider: ToolchainStateProvider | None = None,
+        environment_state_provider: EnvironmentStateProvider | None = None,
     ) -> None:
         self._builder = builder
         self._discoverer = discoverer
@@ -80,6 +84,9 @@ class RunPackageBuildUseCase:
         )
         self._toolchain_state_provider = (
             toolchain_state_provider or ToolchainStateProvider()
+        )
+        self._environment_state_provider = (
+            environment_state_provider or EnvironmentStateProvider()
         )
 
     def execute(
@@ -102,6 +109,7 @@ class RunPackageBuildUseCase:
             self._project_root,
             self._dependency_state_provider,
             self._toolchain_state_provider,
+            self._environment_state_provider,
         ).resolve(
             output_dir,
             profile=profile,

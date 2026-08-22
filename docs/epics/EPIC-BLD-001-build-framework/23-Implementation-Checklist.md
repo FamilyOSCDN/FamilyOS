@@ -299,8 +299,8 @@ Create a stable effective Build Context for execution and evidence.
 * [x] Capture dependency state at appropriate maturity.
 * [x] Capture runtime version.
 * [x] Capture critical toolchain versions.
-* [ ] Capture relevant environment properties.
-* [ ] Capture applicable policy state where required.
+* [x] Capture relevant environment properties.
+* [x] Capture applicable policy state where required.
 * [x] Resolve context before significant execution.
 * [x] Prevent uncontrolled context mutation during execution.
 * [x] Make non-sensitive context inspectable.
@@ -327,11 +327,11 @@ BuildContext
 Additional fields may be introduced progressively.
 
 Implementation evidence: the application-owned immutable `BuildContext` now
-captures `SourceState`, canonical `DependencyState`, explicit `BuildProfile`,
-explicit `BuildTarget`, runtime version, non-sensitive effective
-configuration, and resolved artifact output location. `DependencyState`
-identifies the canonical `pyproject.toml` declaration and `requirements.txt`
-lock by resolved path and SHA-256 digest.
+captures `SourceState`, canonical `DependencyState`, immutable
+`EnvironmentState`, explicit `BuildProfile`, explicit `BuildTarget`, runtime
+version, non-sensitive effective configuration, and resolved artifact output
+location. `DependencyState` identifies the canonical `pyproject.toml`
+declaration and `requirements.txt` lock by resolved path and SHA-256 digest.
 
 The immutable `ToolchainState` captures the installed versions of the critical
 `build`, `pip-tools`, `setuptools`, and `wheel` distributions in deterministic
@@ -339,27 +339,53 @@ order. These cover the canonical package-build frontend, dependency-state
 compiler, build backend, and wheel packaging support. Python runtime identity
 remains explicit in its dedicated Build Context field.
 
-`BuildContextResolver` resolves this context before canonical package execution
-and captures source, dependency, and critical toolchain state before
-`PackageBuilderPort.build()` is invoked.
-`RunPackageBuildUseCase` preserves the resolved context in
-`CanonicalPackageBuildResult` on both successful and failed execution paths.
+`EnvironmentStateProvider` captures the canonical non-sensitive execution
+environment properties currently required by the Build Framework: operating
+system identity, operating-system release, and machine architecture. The
+captured `EnvironmentState` is immutable and becomes part of the resolved
+Build Context before package execution.
 
-`BuildContext`, `BuildEffectiveConfiguration`, and `SourceState` are immutable,
-preventing uncontrolled mutation of the resolved context during execution.
+At the current Build Framework maturity, applicable build-policy requirements
+are represented by the explicitly selected canonical `BuildProfileDefinition`.
+Profile definitions establish supported targets, validation scope, evidence
+requirements, environment requirements, and artifact expectations.
+`validate_profile_target()` rejects unsupported profile/target combinations
+before Build Context resolution and package execution.
 
-The canonical CLI renders the non-sensitive resolved profile, target, runtime
-version, output directory, and functional-validation configuration for
-inspection.
+No independent mutable or duplicated `PolicyState` is introduced at this
+maturity. Policy authorities owned by the Quality, Security, Plugin Compliance,
+Release, or repository-governance frameworks remain external authorities until
+their requirements become concrete inputs that must be independently resolved
+for a build. In particular, the Build Framework does not redefine plugin
+compliance rules or Release Framework promotion policy.
 
-Focused model, resolver, package-build, and CLI tests cover context resolution,
-relative and absolute output paths, source- and dependency-state capture,
-critical toolchain capture, explicit profile and target selection, runtime
-capture, immutability, execution ordering, failed execution preservation, and
-non-sensitive rendering.
+`BuildContextResolver` resolves source, dependency, critical toolchain,
+environment, profile, target, runtime, effective configuration, and output
+location before canonical package execution. `RunPackageBuildUseCase`
+preserves the resolved context in `CanonicalPackageBuildResult` on both
+successful and failed execution paths.
 
-Level 5 remains partial. Relevant environment properties and applicable policy
-state are not yet part of the canonical Build Context.
+`BuildContext`, `BuildEffectiveConfiguration`, `SourceState`,
+`DependencyState`, `ToolchainState`, and `EnvironmentState` are immutable,
+preventing uncontrolled mutation of resolved canonical context during
+execution.
+
+The canonical CLI renders the non-sensitive resolved profile, target, runtime,
+operating system, operating-system release, machine architecture, critical
+toolchain versions, output directory, and functional-validation configuration
+for inspection.
+
+Focused model, provider, resolver, package-build, execution-order, CLI, and
+real-build tests cover context resolution, source and dependency state,
+critical toolchain capture, environment capture, explicit profile and target
+selection, runtime capture, policy-bearing profile resolution, immutability,
+pre-execution ordering, failed execution preservation, and non-sensitive
+rendering.
+
+Level 5 is complete at the current Build Framework maturity. Future policy
+integration may extend the Build Context when an independently resolved
+Quality, Security, Plugin Compliance, Release, or governance policy becomes a
+concrete canonical build input.
 
 ---
 

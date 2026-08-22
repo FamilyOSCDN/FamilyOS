@@ -7,6 +7,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from familyos_cli.application.build.dependency_state import DependencyState
+from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.source_state import SourceState
 from familyos_cli.application.build.toolchain_state import ToolchainState
 
@@ -40,6 +41,7 @@ class BuildContext:
     source_state: SourceState
     dependency_state: DependencyState
     toolchain_state: ToolchainState
+    environment_state: EnvironmentState
     profile: BuildProfile
     target: BuildTarget
     runtime_version: str

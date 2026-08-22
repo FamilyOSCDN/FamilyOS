@@ -350,6 +350,9 @@ def test_build_renders_non_sensitive_build_context(
     from familyos_cli.application.build.dependency_state import (
         DependencyState,
     )
+    from familyos_cli.application.build.environment_state import (
+        EnvironmentState,
+    )
     from familyos_cli.application.build.toolchain_state import (
         ToolchainState,
         ToolchainVersion,
@@ -372,6 +375,11 @@ def test_build_renders_non_sensitive_build_context(
                 ToolchainVersion("setuptools", "84.0.0"),
                 ToolchainVersion("wheel", "0.48.0"),
             ),
+        ),
+        environment_state=EnvironmentState(
+            operating_system="Darwin",
+            operating_system_release="24.6.0",
+            machine_architecture="arm64",
         ),
         profile=BuildProfile.CI,
         target=BuildTarget.FAMILYOS_CLI_PACKAGE,
@@ -411,6 +419,9 @@ def test_build_renders_non_sensitive_build_context(
     assert "Build Profile: ci" in stdout
     assert "Build Target: familyos-cli-package" in stdout
     assert "Runtime Version: 3.13.7" in stdout
+    assert "Operating System: Darwin" in stdout
+    assert "Operating System Release: 24.6.0" in stdout
+    assert "Machine Architecture: arm64" in stdout
     assert "Toolchain build: 1.5.0" in stdout
     assert "Toolchain pip-tools: 7.6.1" in stdout
     assert "Toolchain setuptools: 84.0.0" in stdout

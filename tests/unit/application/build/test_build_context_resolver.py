@@ -15,6 +15,10 @@ from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.dependency_state_provider import (
     DependencyStateProvider,
 )
+from familyos_cli.application.build.environment_state import EnvironmentState
+from familyos_cli.application.build.environment_state_provider import (
+    EnvironmentStateProvider,
+)
 from familyos_cli.application.build.source_state import SourceState
 from familyos_cli.application.build.toolchain_state import (
     ToolchainState,
@@ -39,6 +43,12 @@ _TOOLCHAIN_STATE = ToolchainState(
         ToolchainVersion("setuptools", "84.0.0"),
         ToolchainVersion("wheel", "0.48.0"),
     ),
+)
+
+_ENVIRONMENT_STATE = EnvironmentState(
+    operating_system="Darwin",
+    operating_system_release="24.6.0",
+    machine_architecture="arm64",
 )
 
 
@@ -93,18 +103,35 @@ class _ToolchainStateProvider(ToolchainStateProvider):
         return _TOOLCHAIN_STATE
 
 
+class _EnvironmentStateProvider(EnvironmentStateProvider):
+    def __init__(
+        self,
+        events: list[str] | None = None,
+    ) -> None:
+        self.calls = 0
+        self.events = events
+
+    def capture(self) -> EnvironmentState:
+        self.calls += 1
+        if self.events is not None:
+            self.events.append("environment-state")
+        return _ENVIRONMENT_STATE
+
+
 def _resolver(
     project_root: Path,
     *,
     source_provider: _SourceStateProvider | None = None,
     dependency_provider: _DependencyStateProvider | None = None,
     toolchain_provider: _ToolchainStateProvider | None = None,
+    environment_provider: _EnvironmentStateProvider | None = None,
 ) -> BuildContextResolver:
     return BuildContextResolver(
         source_provider or _SourceStateProvider(),
         project_root,
         dependency_provider or _DependencyStateProvider(),
         toolchain_provider or _ToolchainStateProvider(),
+        environment_provider or _EnvironmentStateProvider(),
     )
 
 
@@ -114,6 +141,7 @@ def test_resolves_relative_output_from_project_root(
     source_provider = _SourceStateProvider()
     dependency_provider = _DependencyStateProvider()
     toolchain_provider = _ToolchainStateProvider()
+    environment_provider = _EnvironmentStateProvider()
     project_root = tmp_path / "project"
 
     context = _resolver(
@@ -121,6 +149,7 @@ def test_resolves_relative_output_from_project_root(
         source_provider=source_provider,
         dependency_provider=dependency_provider,
         toolchain_provider=toolchain_provider,
+        environment_provider=environment_provider,
     ).resolve(
         Path("dist"),
         profile=BuildProfile.VALIDATION,
@@ -132,6 +161,7 @@ def test_resolves_relative_output_from_project_root(
     assert source_provider.calls == [project_root]
     assert dependency_provider.calls == [project_root]
     assert toolchain_provider.calls == 1
+    assert environment_provider.calls == 1
 
 
 def test_preserves_absolute_output_path(
@@ -150,7 +180,7 @@ def test_preserves_absolute_output_path(
     assert context.output_dir == output_dir
 
 
-def test_captures_source_dependency_toolchain_profile_target_and_configuration(
+def test_captures_source_dependency_toolchain_environment_profile_target_and_configuration(
     tmp_path: Path,
 ) -> None:
     context = _resolver(tmp_path).resolve(
@@ -170,6 +200,7 @@ def test_captures_source_dependency_toolchain_profile_target_and_configuration(
     )
     assert context.dependency_state.lock_digest == "b" * 64
     assert context.toolchain_state is _TOOLCHAIN_STATE
+    assert context.environment_state is _ENVIRONMENT_STATE
     assert context.profile is BuildProfile.DEVELOPMENT
     assert context.target is BuildTarget.FAMILYOS_CLI_PACKAGE
     assert context.effective_configuration.functional_validation is True
@@ -191,7 +222,7 @@ def test_captures_runtime_version(
     assert all(part.isdigit() for part in parts[:2])
 
 
-def test_dependency_state_is_resolved_before_context_is_returned(
+def test_environment_state_is_resolved_before_context_is_returned(
     tmp_path: Path,
 ) -> None:
     events: list[str] = []
@@ -201,6 +232,7 @@ def test_dependency_state_is_resolved_before_context_is_returned(
         tmp_path,
         _DependencyStateProvider(events),
         _ToolchainStateProvider(events),
+        _EnvironmentStateProvider(events),
     ).resolve(
         Path("dist"),
         profile=BuildProfile.CI,
@@ -212,6 +244,8 @@ def test_dependency_state_is_resolved_before_context_is_returned(
         "source-state",
         "dependency-state",
         "toolchain-state",
+        "environment-state",
     ]
     assert context.dependency_state.lock_digest == "b" * 64
     assert context.toolchain_state is _TOOLCHAIN_STATE
+    assert context.environment_state is _ENVIRONMENT_STATE

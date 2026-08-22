@@ -14,6 +14,9 @@ from familyos_cli.application.build.build_context import (
 from familyos_cli.application.build.dependency_state_provider import (
     DependencyStateProvider,
 )
+from familyos_cli.application.build.environment_state_provider import (
+    EnvironmentStateProvider,
+)
 from familyos_cli.application.build.toolchain_state_provider import (
     ToolchainStateProvider,
 )
@@ -31,6 +34,7 @@ class BuildContextResolver:
         project_root: Path,
         dependency_state_provider: DependencyStateProvider | None = None,
         toolchain_state_provider: ToolchainStateProvider | None = None,
+        environment_state_provider: EnvironmentStateProvider | None = None,
     ) -> None:
         self._source_state_provider = source_state_provider
         self._dependency_state_provider = (
@@ -38,6 +42,9 @@ class BuildContextResolver:
         )
         self._toolchain_state_provider = (
             toolchain_state_provider or ToolchainStateProvider()
+        )
+        self._environment_state_provider = (
+            environment_state_provider or EnvironmentStateProvider()
         )
         self._project_root = project_root
 
@@ -67,10 +74,13 @@ class BuildContextResolver:
 
         toolchain_state = self._toolchain_state_provider.capture()
 
+        environment_state = self._environment_state_provider.capture()
+
         return BuildContext(
             source_state=source_state,
             dependency_state=dependency_state,
             toolchain_state=toolchain_state,
+            environment_state=environment_state,
             profile=profile,
             target=target,
             runtime_version=platform.python_version(),

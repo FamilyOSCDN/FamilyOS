@@ -14,6 +14,7 @@ from familyos_cli.application.build.build_context import (
     BuildTarget,
 )
 from familyos_cli.application.build.dependency_state import DependencyState
+from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.source_state import SourceState
 from familyos_cli.application.build.toolchain_state import (
     ToolchainState,
@@ -41,12 +42,19 @@ _TOOLCHAIN_STATE = ToolchainState(
     ),
 )
 
+_ENVIRONMENT_STATE = EnvironmentState(
+    operating_system="Darwin",
+    operating_system_release="24.6.0",
+    machine_architecture="arm64",
+)
+
 
 def _context() -> BuildContext:
     return BuildContext(
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
         profile=BuildProfile.VALIDATION,
         target=BuildTarget.FAMILYOS_CLI_PACKAGE,
         runtime_version="3.13.7",
@@ -65,6 +73,10 @@ def test_context_captures_minimum_effective_build_state() -> None:
     assert context.source_state.dirty is False
     assert context.dependency_state is _DEPENDENCY_STATE
     assert context.toolchain_state is _TOOLCHAIN_STATE
+    assert context.environment_state is _ENVIRONMENT_STATE
+    assert context.environment_state.operating_system == "Darwin"
+    assert context.environment_state.operating_system_release == "24.6.0"
+    assert context.environment_state.machine_architecture == "arm64"
     assert context.profile is BuildProfile.VALIDATION
     assert context.target is BuildTarget.FAMILYOS_CLI_PACKAGE
     assert context.runtime_version == "3.13.7"
@@ -92,6 +104,13 @@ def test_context_is_immutable_after_resolution() -> None:
 
     with pytest.raises(FrozenInstanceError):
         context.runtime_version = "3.14.0"  # type: ignore[misc]
+
+
+def test_environment_state_is_immutable_after_resolution() -> None:
+    context = _context()
+
+    with pytest.raises(FrozenInstanceError):
+        context.environment_state.operating_system = "Linux"  # type: ignore[misc]
 
 
 def test_effective_configuration_is_immutable() -> None:
