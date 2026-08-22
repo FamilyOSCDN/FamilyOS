@@ -1136,7 +1136,7 @@ Keep canonical build behavior practical for developers.
 * [x] Document canonical build command.
 * [x] Document canonical validation command.
 * [x] Document artifact location.
-* [ ] Document cleanup.
+* [x] Document cleanup.
 * [x] Document common failures.
 * [x] Ensure local validation approximates CI semantics.
 * [x] Ensure developers can reproduce common CI failures locally.
@@ -1154,9 +1154,21 @@ developer runs locally, with no CI-only build flag, script, or logic; the
 candidate output location (`dist/`, defaulting from the Level 14 discovery
 contract) is now explicit in both places.
 
-Level 26 remains incomplete. An artifact-related cleanup contract depends on
-future artifact implementation (Level 13 partial-output/failure-cleanup
-semantics and Level 17 integrity work).
+Local developer cleanup is now explicitly documented in the repository root
+`README.md`. The procedure identifies the implemented derived state that may be
+removed safely: `.venv`, root `dist/`, root `build/`, generated `*.egg-info/`,
+and Pytest, Ruff, and MyPy cache directories.
+
+The cleanup contract preserves authoritative source, configuration, dependency
+definitions, tracked generated derivatives, and other repository authority.
+All documented cleanup targets are reconstructable from committed repository
+inputs and are already classified as ignored derived state where applicable.
+
+Artifact failure-cleanup semantics and broader lifecycle cleanup remain owned
+by their respective implementation levels and are not prerequisites for the
+local developer cleanup procedure.
+
+Level 26 — Local Developer Workflow is complete.
 
 ---
 

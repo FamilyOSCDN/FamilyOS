@@ -1933,6 +1933,33 @@ deployment semantics are established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Local Developer Cleanup Completion — 2026-08-22
+
+This incremental revision completes the remaining Local Developer Workflow
+cleanup documentation.
+
+The repository root `README.md` now defines the canonical cleanup procedure for
+implemented derived local state, including the virtual environment, package
+output directories, generated packaging metadata, and known validation/tool
+caches.
+
+The procedure explicitly protects authoritative repository source,
+configuration, dependency definitions, tracked generated derivatives, and
+other controlled state.
+
+No dedicated `familyos clean` command is introduced.
+
+This revision closes `Document cleanup` and completes Level 26 — Local
+Developer Workflow at 10/10.
+
+Broader execution failure cleanup, temporary/intermediate artifact lifecycle,
+release retention, and downstream artifact handling remain owned by their
+respective implementation levels.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

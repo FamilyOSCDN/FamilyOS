@@ -1435,3 +1435,39 @@ deployment semantics are introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Local Developer Cleanup Completion — 2026-08-22
+
+Completed the remaining Local Developer Workflow cleanup documentation.
+
+The repository root `README.md` now documents the canonical cleanup procedure
+for currently implemented derived local state, including:
+
+- `.venv`;
+- root `dist/`;
+- root `build/`;
+- generated `*.egg-info/`;
+- Pytest caches;
+- Ruff caches;
+- MyPy caches.
+
+The procedure explicitly preserves authoritative source, configuration,
+dependency definitions, tracked generated derivatives, and other repository
+authority.
+
+No dedicated `familyos clean` command is introduced. The documented shell
+procedure remains the canonical cleanup path for implemented local derived
+state.
+
+This closes the final open item in Level 26 — Local Developer Workflow.
+
+Level 26 is now complete at 10/10.
+
+Broader execution failure cleanup, temporary/intermediate artifact lifecycle,
+release retention, and downstream artifact handling remain outside this local
+developer workflow slice.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

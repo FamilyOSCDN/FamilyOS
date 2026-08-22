@@ -292,25 +292,42 @@ command so local validation continues to match CI.
 
 ## Safe local cleanup
 
-The virtual environment and tool caches are local, derived state. With the
-environment deactivated, they may be removed and reconstructed from the
-committed repository inputs:
+The virtual environment, tool caches, package-build outputs, and generated
+packaging metadata are local derived state. They are not authoritative source
+and may be removed when a clean local environment or package build is needed.
+
+With the environment deactivated, the known derived state can be removed with:
 
 ```bash
 deactivate
 rm -rf .venv
+rm -rf dist build
 find . -path ./.git -prune -o -type d \( \
-  -name .pytest_cache -o -name .ruff_cache -o -name .mypy_cache \
+  -name .pytest_cache -o \
+  -name .ruff_cache -o \
+  -name .mypy_cache -o \
+  -name "*.egg-info" \
   \) -exec rm -rf {} +
 ```
 
-The `find` command targets only these three known cache directory names
-anywhere under the repository root (for example `src/.pytest_cache` and
-`src/.ruff_cache` in addition to their repository-root counterparts) and
-prunes `.git`. Review the paths before removal and never use cleanup
-commands against the repository root or authoritative source directories.
-No canonical cleanup contract exists yet for candidate artifacts or other
-future build outputs.
+Root `dist/` and root `build/` are canonical generated package-output
+locations and are ignored by Git. Generated `*.egg-info/` metadata and the
+three listed tool-cache directory names are also ignored derived state and may
+appear below repository subdirectories.
+
+The cleanup procedure deliberately targets only these explicitly identified
+derived paths. It must not be generalized to arbitrary repository directories,
+tracked generated derivatives, source files, configuration, dependency
+definitions, or other authoritative state.
+
+After cleanup, the environment and package outputs can be reconstructed from
+the committed repository inputs through the documented controlled bootstrap,
+canonical validation, and canonical package-build commands. Correct build
+behavior must not depend on the removed caches or historical generated output.
+
+FamilyOS does not currently expose a dedicated `familyos clean` command; the
+documented shell procedure is the canonical local developer cleanup procedure
+for the implemented derived state.
 
 ## Current build boundary
 
@@ -322,11 +339,13 @@ source distribution, establishing source-distribution rebuildability. Its two
 isolated backend environments constrain requested dependency versions through
 the committed dependency state. The same build use case can explicitly add
 clean-environment wheel installation, installed import-path validation, and
-installed CLI smoke. It does not expose Artifact Identity, Artifact Integrity,
-Build Evidence, release handoff, or a canonical build-output cleanup command.
-Those capabilities remain future EPIC-BLD-001 implementation work. Do not infer
-offline capability, byte reproducibility, integrity, trust, provenance, or
-release semantics from a successful build command.
+installed CLI smoke. It also exposes Artifact Identity, Artifact Integrity, and
+machine-readable Build Evidence for successful canonical package builds. It
+does not expose release handoff or a dedicated build-output cleanup command;
+implemented derived state is cleaned through the documented local developer
+procedure. Do not infer offline capability, byte reproducibility, trust,
+provenance, release authority, or publication semantics from a successful
+build command.
 
 The normative Build Framework is under
 `docs/epics/EPIC-BLD-001-build-framework/`. Repository engineering standards

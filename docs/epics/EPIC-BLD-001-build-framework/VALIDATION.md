@@ -2622,3 +2622,42 @@ deployment semantics are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Local Developer Cleanup Completion — 2026-08-22
+
+The repository root `README.md` now documents the canonical local developer
+cleanup procedure for the implemented derived state.
+
+The documented procedure may remove:
+
+- `.venv`;
+- root `dist/`;
+- root `build/`;
+- generated `*.egg-info/`;
+- Pytest cache directories;
+- Ruff cache directories;
+- MyPy cache directories.
+
+These paths are local derived state and are reconstructable from committed
+repository inputs. Root `dist/`, root `build/`, generated `*.egg-info/`, and the
+listed tool caches are already classified as ignored derived state where
+applicable.
+
+The cleanup procedure explicitly avoids authoritative source, project
+configuration, dependency definitions, tracked generated derivatives, and
+other repository authority.
+
+No dedicated `familyos clean` command is introduced. The documented shell
+procedure is the canonical local developer cleanup path for the currently
+implemented derived state.
+
+This closes the final open item in Level 26 — Local Developer Workflow.
+
+Level 26 is now complete at 10/10.
+
+Broader execution failure cleanup, temporary/intermediate artifact lifecycle,
+release retention, and downstream artifact handling remain owned by their
+respective Build Framework implementation levels.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
