@@ -743,8 +743,8 @@ Protect artifact identity through cryptographic integrity.
 * [x] Calculate digest from final candidate bytes.
 * [x] Record digest in Build Evidence.
 * [x] Verify digest after artifact transfer between automation stages.
-* [ ] Recalculate digest after any intentional artifact mutation.
-* [ ] Prevent validation state from surviving byte modification.
+* [x] Recalculate digest after any intentional artifact mutation.
+* [x] Prevent validation state from surviving byte modification.
 * [x] Add integrity-verification tests.
 
 Implementation evidence: canonical package-build execution now calculates
@@ -780,9 +780,27 @@ The transferred artifacts matched their recorded digests. A same-size one-byte
 mutation of a transferred wheel produced a different digest and was rejected
 against the recorded Build Evidence integrity value.
 
-Lifecycle-enforced recalculation after intentional artifact mutation and
-automatic invalidation of previously established validation state after byte
-modification remain open.
+Intentional artifact mutation is now represented by the application-owned
+`MutateArtifactUseCase`. The mutation transition preserves logical build
+context while refreshing material Artifact Identity metadata from the mutated
+bytes and recalculating canonical SHA-256 Artifact Integrity immediately after
+the mutation.
+
+Previously recorded integrity does not survive byte modification: focused
+tests prove that both same-size and size-changing mutations invalidate the old
+digest while the freshly calculated integrity verifies the new bytes.
+
+Validation state is deliberately not carried through the mutation transition.
+`MutatedArtifact` contains only refreshed Artifact Identity and Artifact
+Integrity. It exposes no structural-validation, functional-validation,
+validated, or trusted state. Mutated bytes therefore require fresh validation
+before downstream validated-artifact semantics can be re-established.
+
+Focused lifecycle tests cover digest recalculation from new bytes, material
+identity refresh, invalidation of previous integrity, and exclusion of
+previous validation state.
+
+Level 17 — Artifact Integrity is complete.
 
 ---
 

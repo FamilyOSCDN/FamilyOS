@@ -20,6 +20,11 @@ from familyos_cli.application.build.artifact_manifest import (
     ArtifactManifest,
     ArtifactManifestEntry,
 )
+from familyos_cli.application.build.artifact_mutation import (
+    ArtifactMutation,
+    MutateArtifactUseCase,
+    MutatedArtifact,
+)
 from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_artifact_identities import (
     BuildArtifactIdentitiesUseCase,
@@ -71,6 +76,9 @@ __all__ = [
     "ArtifactIntegrityService",
     "ArtifactManifest",
     "ArtifactManifestEntry",
+    "MutateArtifactUseCase",
+    "MutatedArtifact",
+    "ArtifactMutation",
     "ArtifactOutputClassification",
     "BuildArtifactIdentitiesUseCase",
     "BuildArtifactIntegritiesUseCase",

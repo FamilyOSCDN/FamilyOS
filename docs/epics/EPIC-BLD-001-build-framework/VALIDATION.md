@@ -2703,3 +2703,52 @@ Level 14 is now complete at 11/11.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Artifact Integrity Lifecycle Completion — 2026-08-22
+
+Level 17 — Artifact Integrity now completes the remaining mutation lifecycle
+requirements.
+
+The application-owned `MutateArtifactUseCase` provides an explicit controlled
+transition for intentional artifact byte modification.
+
+After mutation, the use case:
+
+- preserves the logical artifact context;
+- refreshes material Artifact Identity metadata from the current bytes;
+- recalculates canonical SHA-256 Artifact Integrity;
+- returns only the refreshed identity and integrity state.
+
+Previously recorded integrity does not survive byte modification. Focused tests
+prove that the old digest fails against mutated bytes while the freshly
+calculated integrity verifies the new bytes.
+
+Validation state is intentionally not propagated through the mutation
+transition. `MutatedArtifact` contains no structural-validation,
+functional-validation, validated, or trusted state. Mutated bytes therefore
+require fresh validation before downstream validated-artifact semantics can be
+established again.
+
+Artifact integrity verification after automation-stage transfer was also
+validated against remotely produced CI artifacts. Downloaded wheel and source
+distribution bytes matched the SHA-256 digests recorded in canonical Build
+Evidence. A same-size one-byte mutation of the transferred wheel produced a
+different digest and was rejected.
+
+Focused mutation, integrity, and transfer tests cover:
+
+- digest generation from final bytes;
+- unchanged-byte verification;
+- same-size and size-changing mutation detection;
+- recalculation after intentional mutation;
+- material identity refresh;
+- invalidation of previous integrity;
+- exclusion of prior validation state;
+- verification after artifact transfer.
+
+This closes the final two open items in Level 17 — Artifact Integrity.
+
+Level 17 is now complete at 7/7.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

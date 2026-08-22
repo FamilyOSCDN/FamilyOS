@@ -1496,3 +1496,33 @@ Level 14 is now complete at 11/11.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Artifact Integrity Lifecycle Completion — 2026-08-22
+
+Completed the remaining Artifact Integrity lifecycle requirements.
+
+Added the application-owned `MutateArtifactUseCase` for intentional artifact
+byte mutation. The transition refreshes material Artifact Identity metadata and
+recalculates canonical SHA-256 Artifact Integrity after the mutation.
+
+Previously recorded integrity no longer verifies mutated bytes. The refreshed
+integrity verifies the new bytes.
+
+Mutation results deliberately carry no structural-validation,
+functional-validation, validated, or trusted state, requiring fresh validation
+before validated-artifact semantics can be re-established.
+
+Artifact integrity verification after automation-stage transfer was also
+validated against downloaded CI package artifacts and canonical Build Evidence.
+
+This closes the final two open Level 17 items:
+
+- `Recalculate digest after any intentional artifact mutation`;
+- `Prevent validation state from surviving byte modification`.
+
+Level 17 — Artifact Integrity is now complete at 7/7.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
