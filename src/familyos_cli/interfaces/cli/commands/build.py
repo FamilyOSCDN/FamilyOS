@@ -7,23 +7,83 @@ from typing import Annotated
 
 import typer
 
-from familyos_cli.application.build import CanonicalPackageBuildResult
+from familyos_cli.application.build import (
+    BuildEvidenceFactory,
+    CanonicalPackageBuildResult,
+)
+from familyos_cli.application.build.build_validation import (
+    BuildValidationProfile,
+    BuildValidationRequirement,
+)
+from familyos_cli.application.build.build_validation_checks import (
+    BuildValidationCheckFactory,
+)
+from familyos_cli.application.build.build_validation_orchestrator import (
+    BuildValidationOrchestrator,
+)
 from familyos_cli.interfaces.cli.context import CommandContext
+from familyos_cli.interfaces.cli.rendering.build_evidence_json import (
+    BuildEvidenceJsonRenderer,
+)
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
 DEFAULT_OUTPUT_DIR = Path("dist")
 
 
-def run_package_build(output_dir: Path, *, functional_validation: bool) -> int:
+def run_package_build(
+    output_dir: Path,
+    *,
+    functional_validation: bool,
+    evidence_output: Path | None = None,
+) -> int:
     """Execute and render the canonical package build."""
 
     result = CommandContext().run_package_build.execute(
         output_dir,
         validate_functionally=functional_validation,
     )
+
     _render_result(result)
-    return EXIT_SUCCESS if result.successful else EXIT_FAILURE
+
+    if not result.successful:
+        return EXIT_FAILURE
+
+    if evidence_output is not None:
+        functional_requirement = (
+            BuildValidationRequirement.REQUIRED
+            if functional_validation
+            else BuildValidationRequirement.OPTIONAL
+        )
+
+        checks = BuildValidationCheckFactory().from_package_build(
+            result,
+            functional_requirement=functional_requirement,
+        )
+
+        validation_result = BuildValidationOrchestrator().execute(
+            build_id=result.build_id,
+            profile=BuildValidationProfile.CI,
+            checks=checks,
+        )
+
+        evidence = BuildEvidenceFactory().from_package_build(
+            result,
+            validation_result,
+        )
+
+        rendered = BuildEvidenceJsonRenderer().render(evidence)
+
+        evidence_output.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        evidence_output.write_text(
+            rendered,
+            encoding="utf-8",
+        )
+
+    return EXIT_SUCCESS
 
 
 def _render_result(result: CanonicalPackageBuildResult) -> None:
@@ -31,20 +91,29 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
 
     typer.echo(f"Canonical Package Build: {result.status.value.upper()}")
     typer.echo(f"Build ID: {result.build_id}")
+
     for artifact in result.candidates:
-        typer.echo(f"- {artifact.artifact_class.value}: {artifact.path}")
+        typer.echo(
+            f"- {artifact.artifact_class.value}: {artifact.path}"
+        )
+
     if result.validation:
         typer.echo(
             "Python Package Structural Validation: "
             f"{result.validation.status.value.upper()}"
         )
+
     if result.functional_validation:
         typer.echo(
             "Python Wheel Functional Validation: "
             f"{result.functional_validation.status.value.upper()}"
         )
+
     if result.diagnostic:
-        typer.echo(result.diagnostic, err=True)
+        typer.echo(
+            result.diagnostic,
+            err=True,
+        )
 
 
 def build(
@@ -65,12 +134,24 @@ def build(
             ),
         ),
     ] = False,
+    evidence_output: Annotated[
+        Path | None,
+        typer.Option(
+            "--evidence-output",
+            help=(
+                "Write canonical Build Evidence as JSON after a "
+                "successful build."
+            ),
+        ),
+    ] = None,
 ) -> None:
     """Build the FamilyOS wheel and source distribution without publishing."""
 
     exit_code = run_package_build(
         output_dir,
         functional_validation=functional_validation,
+        evidence_output=evidence_output,
     )
+
     if exit_code != EXIT_SUCCESS:
         raise typer.Exit(code=exit_code)

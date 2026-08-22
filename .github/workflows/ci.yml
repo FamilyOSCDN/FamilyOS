@@ -44,7 +44,17 @@ jobs:
 
       - name: Run canonical package build
         id: canonical_package_build
-        run: familyos build --output-dir dist
+        run: >-
+          familyos build
+          --output-dir dist
+          --evidence-output build-evidence.json
+
+      - name: Upload canonical Build Evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: familyos-build-evidence
+          path: build-evidence.json
+          if-no-files-found: error
 
       - name: Upload package candidates
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
