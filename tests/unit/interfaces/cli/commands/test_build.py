@@ -8,6 +8,7 @@ from typing import Any
 from uuid import UUID
 
 import familyos_cli.interfaces.cli.commands.build as build_command
+from familyos_cli.application.build.build_context import BuildProfile
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationProfile,
@@ -22,15 +23,22 @@ _BUILD_ID = BuildId(
 class _RunPackageBuild:
     def __init__(self, result: Any) -> None:
         self._result = result
+        self.calls: list[tuple[Path, bool, BuildProfile]] = []
 
     def execute(
         self,
         output_dir: Path,
         *,
         validate_functionally: bool,
+        profile: BuildProfile = BuildProfile.DEVELOPMENT,
     ) -> Any:
-        del output_dir
-        del validate_functionally
+        self.calls.append(
+            (
+                output_dir,
+                validate_functionally,
+                profile,
+            )
+        )
         return self._result
 
 
@@ -63,11 +71,13 @@ def _install_evidence_fakes(
     *,
     package_result: Any,
     captured: dict[str, Any],
-) -> None:
+) -> _CommandContext:
+    context = _CommandContext(package_result)
+
     monkeypatch.setattr(
         build_command,
         "CommandContext",
-        lambda: _CommandContext(package_result),
+        lambda: context,
     )
 
     class CheckFactory:
@@ -142,6 +152,8 @@ def _install_evidence_fakes(
         raising=False,
     )
 
+    return context
+
 
 def test_successful_build_writes_build_evidence(
     tmp_path: Path,
@@ -150,16 +162,17 @@ def test_successful_build_writes_build_evidence(
     result = _package_result(successful=True)
     captured: dict[str, Any] = {}
 
-    _install_evidence_fakes(
+    context = _install_evidence_fakes(
         monkeypatch,
         package_result=result,
         captured=captured,
     )
 
+    output_dir = tmp_path / "dist"
     evidence_output = tmp_path / "build-evidence.json"
 
     exit_code = build_command.run_package_build(
-        tmp_path / "dist",
+        output_dir,
         functional_validation=False,
         evidence_output=evidence_output,
     )
@@ -168,6 +181,14 @@ def test_successful_build_writes_build_evidence(
     assert evidence_output.read_text(encoding="utf-8") == (
         '{"build_id": "01234567-89ab-4cde-8f01-23456789abcd"}\n'
     )
+
+    assert context.run_package_build.calls == [
+        (
+            output_dir,
+            False,
+            BuildProfile.DEVELOPMENT,
+        )
+    ]
 
     assert captured["check_result"] is result
     assert (
@@ -181,6 +202,70 @@ def test_successful_build_writes_build_evidence(
     assert captured["rendered_evidence"] is not None
 
 
+def test_explicit_build_profile_is_forwarded_to_use_case(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    context = _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    output_dir = tmp_path / "dist"
+
+    exit_code = build_command.run_package_build(
+        output_dir,
+        functional_validation=False,
+        profile=BuildProfile.CI,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert context.run_package_build.calls == [
+        (
+            output_dir,
+            False,
+            BuildProfile.CI,
+        )
+    ]
+
+
+def test_evidence_output_does_not_implicitly_select_ci_build_profile(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    context = _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    output_dir = tmp_path / "dist"
+
+    exit_code = build_command.run_package_build(
+        output_dir,
+        functional_validation=False,
+        evidence_output=tmp_path / "build-evidence.json",
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert context.run_package_build.calls == [
+        (
+            output_dir,
+            False,
+            BuildProfile.DEVELOPMENT,
+        )
+    ]
+
+    assert captured["validation_profile"] is BuildValidationProfile.CI
+
+
 def test_functional_build_requires_functional_validation_in_evidence(
     tmp_path: Path,
     monkeypatch: Any,
@@ -188,19 +273,28 @@ def test_functional_build_requires_functional_validation_in_evidence(
     result = _package_result(successful=True)
     captured: dict[str, Any] = {}
 
-    _install_evidence_fakes(
+    context = _install_evidence_fakes(
         monkeypatch,
         package_result=result,
         captured=captured,
     )
 
+    output_dir = tmp_path / "dist"
+
     exit_code = build_command.run_package_build(
-        tmp_path / "dist",
+        output_dir,
         functional_validation=True,
         evidence_output=tmp_path / "build-evidence.json",
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
+    assert context.run_package_build.calls == [
+        (
+            output_dir,
+            True,
+            BuildProfile.DEVELOPMENT,
+        )
+    ]
     assert (
         captured["functional_requirement"]
         is BuildValidationRequirement.REQUIRED
@@ -215,21 +309,29 @@ def test_failed_build_does_not_write_build_evidence(
     result = _package_result(successful=False)
     captured: dict[str, Any] = {}
 
-    _install_evidence_fakes(
+    context = _install_evidence_fakes(
         monkeypatch,
         package_result=result,
         captured=captured,
     )
 
+    output_dir = tmp_path / "dist"
     evidence_output = tmp_path / "build-evidence.json"
 
     exit_code = build_command.run_package_build(
-        tmp_path / "dist",
+        output_dir,
         functional_validation=False,
         evidence_output=evidence_output,
     )
 
     assert exit_code == build_command.EXIT_FAILURE
+    assert context.run_package_build.calls == [
+        (
+            output_dir,
+            False,
+            BuildProfile.DEVELOPMENT,
+        )
+    ]
     assert not evidence_output.exists()
     assert "validation_profile" not in captured
     assert "rendered_evidence" not in captured
@@ -243,7 +345,6 @@ def test_build_renders_non_sensitive_build_context(
     from familyos_cli.application.build.build_context import (
         BuildContext,
         BuildEffectiveConfiguration,
-        BuildProfile,
         BuildTarget,
     )
     from familyos_cli.application.build.dependency_state import (
@@ -283,20 +384,30 @@ def test_build_renders_non_sensitive_build_context(
 
     captured: dict[str, Any] = {}
 
-    _install_evidence_fakes(
+    context = _install_evidence_fakes(
         monkeypatch,
         package_result=result,
         captured=captured,
     )
 
+    output_dir = tmp_path / "dist"
+
     exit_code = build_command.run_package_build(
-        tmp_path / "dist",
+        output_dir,
         functional_validation=False,
+        profile=BuildProfile.CI,
     )
 
     stdout = capsys.readouterr().out
 
     assert exit_code == build_command.EXIT_SUCCESS
+    assert context.run_package_build.calls == [
+        (
+            output_dir,
+            False,
+            BuildProfile.CI,
+        )
+    ]
     assert "Build Profile: ci" in stdout
     assert "Build Target: familyos-cli-package" in stdout
     assert "Runtime Version: 3.13.7" in stdout

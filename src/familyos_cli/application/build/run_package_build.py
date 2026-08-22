@@ -25,6 +25,9 @@ from familyos_cli.application.build.build_context_resolver import (
     BuildContextResolver,
 )
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
+from familyos_cli.application.build.build_profile_registry import (
+    validate_profile_target,
+)
 from familyos_cli.application.build.build_target_registry import (
     get_build_target_definition,
 )
@@ -90,6 +93,7 @@ class RunPackageBuildUseCase:
         """Build the repository package from a resolved immutable context."""
 
         get_build_target_definition(target)
+        validate_profile_target(profile, target)
 
         build_id = self._build_id_generator.generate()
 

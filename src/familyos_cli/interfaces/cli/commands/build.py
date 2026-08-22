@@ -11,6 +11,7 @@ from familyos_cli.application.build import (
     BuildEvidenceFactory,
     CanonicalPackageBuildResult,
 )
+from familyos_cli.application.build.build_context import BuildProfile
 from familyos_cli.application.build.build_validation import (
     BuildValidationProfile,
     BuildValidationRequirement,
@@ -35,6 +36,7 @@ def run_package_build(
     output_dir: Path,
     *,
     functional_validation: bool,
+    profile: BuildProfile = BuildProfile.DEVELOPMENT,
     evidence_output: Path | None = None,
 ) -> int:
     """Execute and render the canonical package build."""
@@ -42,6 +44,7 @@ def run_package_build(
     result = CommandContext().run_package_build.execute(
         output_dir,
         validate_functionally=functional_validation,
+        profile=profile,
     )
 
     _render_result(result)
@@ -149,6 +152,13 @@ def build(
             ),
         ),
     ] = False,
+    profile: Annotated[
+        BuildProfile,
+        typer.Option(
+            "--profile",
+            help="Explicit canonical build-purpose profile.",
+        ),
+    ] = BuildProfile.DEVELOPMENT,
     evidence_output: Annotated[
         Path | None,
         typer.Option(
@@ -165,6 +175,7 @@ def build(
     exit_code = run_package_build(
         output_dir,
         functional_validation=functional_validation,
+        profile=profile,
         evidence_output=evidence_output,
     )
 

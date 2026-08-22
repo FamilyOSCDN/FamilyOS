@@ -25,6 +25,7 @@ from familyos_cli.application.build import (
     WheelFunctionalValidationFinding,
     WheelFunctionalValidationStage,
 )
+from familyos_cli.application.build.build_context import BuildProfile
 from familyos_cli.interfaces.cli.app import app
 from familyos_cli.interfaces.cli.commands import build as build_command
 
@@ -42,15 +43,18 @@ class _UseCase:
         self.result = result
         self.output_dirs: list[Path] = []
         self.functional_validation_requests: list[bool] = []
+        self.profile_requests: list[BuildProfile] = []
 
     def execute(
         self,
         output_dir: Path,
         *,
         validate_functionally: bool = False,
+        profile: BuildProfile = BuildProfile.DEVELOPMENT,
     ) -> CanonicalPackageBuildResult:
         self.output_dirs.append(output_dir)
         self.functional_validation_requests.append(validate_functionally)
+        self.profile_requests.append(profile)
         return self.result
 
 
@@ -139,6 +143,70 @@ def test_build_success_reports_outputs_and_returns_zero(
     assert "release-ready" not in result.output.lower()
     assert use_case.output_dirs == [output_dir]
     assert use_case.functional_validation_requests == [False]
+    assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
+
+
+@pytest.mark.parametrize(
+    "profile",
+    (
+        BuildProfile.DEVELOPMENT,
+        BuildProfile.VALIDATION,
+        BuildProfile.CI,
+        BuildProfile.RELEASE_CANDIDATE,
+    ),
+)
+def test_build_explicit_profile_is_forwarded(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    profile: BuildProfile,
+) -> None:
+    output_dir = tmp_path / "packages"
+    use_case = _install_context(
+        monkeypatch,
+        _successful_result(output_dir),
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--profile",
+            profile.value,
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    assert use_case.profile_requests == [profile]
+
+
+def test_build_rejects_unsupported_profile_before_execution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "packages"
+    use_case = _install_context(
+        monkeypatch,
+        _successful_result(output_dir),
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--profile",
+            "unsupported",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert use_case.output_dirs == []
+    assert use_case.functional_validation_requests == []
+    assert use_case.profile_requests == []
 
 
 def test_build_functional_validation_option_renders_success(
@@ -177,6 +245,7 @@ def test_build_functional_validation_option_renders_success(
     assert result.exit_code == 0
     assert "Python Wheel Functional Validation: VALID" in result.output
     assert use_case.functional_validation_requests == [True]
+    assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
 
 
 def test_build_functional_validation_failure_returns_nonzero_and_diagnostic(
@@ -226,6 +295,7 @@ def test_build_functional_validation_failure_returns_nonzero_and_diagnostic(
     assert "installed CLI smoke" in result.output
     assert "installed console entry point failed" in result.output
     assert use_case.functional_validation_requests == [True]
+    assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
     for term in ("trusted", "release-ready", "integrity-verified"):
         assert term not in result.output.lower()
 
@@ -235,7 +305,7 @@ def test_build_failure_returns_nonzero_and_diagnostic(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     output_dir = tmp_path / "packages"
-    _install_context(
+    use_case = _install_context(
         monkeypatch,
         CanonicalPackageBuildResult(
             status=PackageBuildStatus.FAILED,
@@ -256,6 +326,7 @@ def test_build_failure_returns_nonzero_and_diagnostic(
     assert result.exit_code == 1
     assert "Canonical Package Build: FAILED" in result.output
     assert "backend failed" in result.output
+    assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
 
 
 @pytest.mark.parametrize("unexpected_name", [None, "extra.whl", "backend.log"])
@@ -282,7 +353,7 @@ def test_discovery_failure_returns_nonzero(
             diagnostic=diagnostic,
         ),
     )
-    _install_context(monkeypatch, aggregate)
+    use_case = _install_context(monkeypatch, aggregate)
 
     result = runner.invoke(
         app,
@@ -292,6 +363,7 @@ def test_discovery_failure_returns_nonzero(
 
     assert result.exit_code == 1
     assert diagnostic in result.output
+    assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
 
 
 def test_structural_validation_failure_returns_nonzero_and_diagnostic(
@@ -318,7 +390,7 @@ def test_structural_validation_failure_returns_nonzero_and_diagnostic(
             ),
         ),
     )
-    _install_context(
+    use_case = _install_context(
         monkeypatch,
         CanonicalPackageBuildResult(
             status=PackageBuildStatus.FAILED,
@@ -343,6 +415,7 @@ def test_structural_validation_failure_returns_nonzero_and_diagnostic(
     assert "trusted" not in result.output.lower()
     assert "release-ready" not in result.output.lower()
     assert "integrity-verified" not in result.output.lower()
+    assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
 
 
 def test_build_defaults_to_conventional_dist_directory(
@@ -358,6 +431,7 @@ def test_build_defaults_to_conventional_dist_directory(
     assert result.exit_code == 0
     assert use_case.output_dirs == [Path("dist")]
     assert use_case.functional_validation_requests == [False]
+    assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
 
 
 def test_real_familyos_build_reports_valid_structural_packages(
@@ -373,9 +447,35 @@ def test_real_familyos_build_reports_valid_structural_packages(
 
     assert result.exit_code == 0, result.output
     assert "Canonical Package Build: SUCCEEDED" in result.output
+    assert "Build Profile: development" in result.output
     assert "Python Package Structural Validation: VALID" in result.output
     assert len(tuple(output_dir.glob("*.whl"))) == 1
     assert len(tuple(output_dir.glob("*.tar.gz"))) == 1
     assert "trusted" not in result.output.lower()
     assert "release-ready" not in result.output.lower()
     assert "integrity-verified" not in result.output.lower()
+
+
+def test_real_familyos_build_accepts_explicit_ci_profile(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "real-ci-package-output"
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--profile",
+            BuildProfile.CI.value,
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Canonical Package Build: SUCCEEDED" in result.output
+    assert "Build Profile: ci" in result.output
+    assert "Python Package Structural Validation: VALID" in result.output
+    assert len(tuple(output_dir.glob("*.whl"))) == 1
+    assert len(tuple(output_dir.glob("*.tar.gz"))) == 1

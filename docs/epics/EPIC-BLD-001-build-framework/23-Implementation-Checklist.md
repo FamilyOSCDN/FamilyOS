@@ -244,18 +244,41 @@ Additional profiles should only be introduced when necessary.
 
 ### Checklist
 
-* [ ] Define `development` profile purpose.
-* [ ] Define `validation` profile purpose.
-* [ ] Define `ci` profile purpose.
-* [ ] Define `release-candidate` profile purpose.
-* [ ] Define profile-specific validation.
-* [ ] Define profile-specific evidence requirements.
-* [ ] Define profile-specific environment restrictions.
-* [ ] Define artifact expectations per profile.
-* [ ] Ensure profile selection is explicit.
-* [ ] Avoid environment-based implicit profile switching.
-* [ ] Validate unsupported target/profile combinations.
-* [ ] Document profile behavior.
+* [x] Define `development` profile purpose.
+* [x] Define `validation` profile purpose.
+* [x] Define `ci` profile purpose.
+* [x] Define `release-candidate` profile purpose.
+* [x] Define profile-specific validation.
+* [x] Define profile-specific evidence requirements.
+* [x] Define profile-specific environment restrictions.
+* [x] Define artifact expectations per profile.
+* [x] Ensure profile selection is explicit.
+* [x] Avoid environment-based implicit profile switching.
+* [x] Validate unsupported target/profile combinations.
+* [x] Document profile behavior.
+
+Implementation evidence: immutable `BuildProfileDefinition` contracts now
+define purpose, supported targets, validation scope, evidence requirements,
+environment requirements, and artifact expectations for `development`,
+`validation`, `ci`, and `release-candidate`.
+
+`validate_profile_target()` provides the canonical compatibility authority for
+profile/target combinations and is invoked by `RunPackageBuildUseCase` before
+Build Context resolution or package execution.
+
+The public `familyos build` command exposes explicit `--profile` selection with
+`development` as the documented default. Typer rejects unsupported profile
+values before execution. No environment variable or evidence-output option
+implicitly changes the selected Build Profile.
+
+The canonical GitHub Actions package-build step explicitly invokes
+`familyos build --profile ci`, so CI package execution records `ci` in the
+resolved Build Context rather than relying on the development default.
+
+Unit and end-to-end coverage verifies profile definitions, explicit CLI
+propagation, default-profile behavior, invalid-profile rejection, CI-profile
+real package execution, and pre-execution profile/target compatibility
+enforcement.
 
 ---
 

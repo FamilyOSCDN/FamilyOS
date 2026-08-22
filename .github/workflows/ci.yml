@@ -46,6 +46,7 @@ jobs:
         id: canonical_package_build
         run: >-
           familyos build
+          --profile ci
           --output-dir dist
           --evidence-output build-evidence.json
 
