@@ -1400,3 +1400,38 @@ deployment semantics are introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# CI Build Evidence Collection — 2026-08-22
+
+Added persistent canonical Build Evidence collection to the GitHub Actions
+package-build path.
+
+`familyos build` now supports `--evidence-output`, which writes deterministic
+machine-readable Build Evidence after a successful canonical package build.
+
+The CI workflow now invokes the canonical build with
+`--evidence-output build-evidence.json` and uploads the resulting file as the
+separate `familyos-build-evidence` artifact.
+
+GitHub Actions run `32574446181` completed successfully and uploaded:
+
+- `familyos-ci-validation`;
+- `familyos-build-evidence`;
+- `familyos-package-candidates`.
+
+Downloaded remote evidence matched the executed commit, contained a passing CI
+Build Validation result, two manifest entries, and two SHA-256 artifact
+integrity records whose digests matched the manifest.
+
+The observed CI source state was `dirty: true`; the evidence preserves this
+observation without introducing clean-tree policy.
+
+This closes the final two open items in Level 27 — CI Foundation.
+
+No release authority, publication, promotion, signing, provenance, or
+deployment semantics are introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

@@ -2558,3 +2558,67 @@ deployment semantics are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## CI Build Evidence Collection — 2026-08-22
+
+The canonical GitHub Actions build now persists machine-readable Build
+Evidence produced by the canonical FamilyOS build path.
+
+The workflow invokes:
+
+`familyos build --output-dir dist --evidence-output build-evidence.json`
+
+The build command preserves established build authorities and projects them
+through `BuildValidationCheckFactory`, `BuildValidationOrchestrator`,
+`BuildEvidenceFactory`, and `BuildEvidenceJsonRenderer`.
+
+The resulting `build-evidence.json` contains:
+
+- Build ID;
+- captured source revision and working-tree state;
+- CI Build Validation profile and aggregate result;
+- ordered Build Validation checks;
+- artifact manifest;
+- artifact integrity records;
+- SHA-256 digests for each canonical candidate artifact.
+
+GitHub Actions run `32574446181` completed successfully for commit
+`794907e7b3b2fc5b3cdfb04da148a56bf15a0167`.
+
+The run uploaded three distinct artifacts:
+
+- `familyos-ci-validation`;
+- `familyos-build-evidence`;
+- `familyos-package-candidates`.
+
+The downloaded Build Evidence was validated independently after the run.
+
+Observed remote evidence:
+
+- source revision matched the executed commit exactly;
+- Build Validation profile was `ci`;
+- aggregate Build Validation status was `passed`;
+- six Build Validation checks were present;
+- two artifact manifest entries were present;
+- two artifact integrity records were present;
+- both integrity records used SHA-256;
+- manifest digests matched the corresponding integrity digests;
+- each artifact integrity record referenced the same captured source revision.
+
+The captured source working-tree state was `dirty: true`. This value is retained
+as observed evidence and is not normalized or overridden by the Build
+Framework. Clean-tree enforcement is not introduced by this CI Foundation
+revision and remains a separate policy concern for stricter build profiles.
+
+This evidence closes the remaining Level 27 items:
+
+- Generate artifact integrity data.
+- Collect Build Evidence.
+
+Level 27 — CI Foundation is now functionally complete.
+
+No release authority, publication, promotion, signing, provenance, or
+deployment semantics are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

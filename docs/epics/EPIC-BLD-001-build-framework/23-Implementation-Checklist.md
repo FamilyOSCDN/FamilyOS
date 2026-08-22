@@ -1198,8 +1198,8 @@ Use CI as an independent executor of canonical build semantics.
 * [x] Run canonical build command.
 * [x] Collect explicit candidate artifacts.
 * [x] Run artifact validation.
-* [ ] Generate artifact integrity data.
-* [ ] Collect Build Evidence.
+* [x] Generate artifact integrity data.
+* [x] Collect Build Evidence.
 * [x] Upload CI artifacts where useful.
 * [x] Ensure mandatory failure produces failed workflow.
 * [x] Document how to reproduce CI locally.

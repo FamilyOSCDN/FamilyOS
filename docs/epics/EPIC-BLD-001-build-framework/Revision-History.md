@@ -1900,6 +1900,39 @@ deployment semantics are established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## CI Build Evidence Collection — 2026-08-22
+
+This incremental revision completes the remaining CI Foundation evidence
+capabilities.
+
+The canonical package-build CLI now supports `--evidence-output` and writes
+deterministic JSON Build Evidence assembled from established build,
+validation, manifest, integrity, and source-state authorities.
+
+The GitHub Actions workflow now uploads this evidence separately as
+`familyos-build-evidence`.
+
+Remote run `32574446181` completed successfully for commit
+`794907e7b3b2fc5b3cdfb04da148a56bf15a0167`.
+
+Downloaded Build Evidence matched the executed source revision, contained a
+passing CI validation result, two artifact manifest entries, and two SHA-256
+artifact integrity records whose digests matched the manifest.
+
+The captured source state reported `dirty: true`. This observation is preserved
+as evidence and does not introduce clean-tree enforcement into the CI
+Foundation.
+
+This revision closes `Generate artifact integrity data` and
+`Collect Build Evidence`, completing Level 27 — CI Foundation.
+
+No release authority, publication, promotion, signing, provenance, or
+deployment semantics are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State
