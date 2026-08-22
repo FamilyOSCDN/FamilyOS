@@ -742,7 +742,7 @@ Protect artifact identity through cryptographic integrity.
 * [x] Select approved digest algorithm.
 * [x] Calculate digest from final candidate bytes.
 * [x] Record digest in Build Evidence.
-* [ ] Verify digest after artifact transfer between automation stages.
+* [x] Verify digest after artifact transfer between automation stages.
 * [ ] Recalculate digest after any intentional artifact mutation.
 * [ ] Prevent validation state from surviving byte modification.
 * [x] Add integrity-verification tests.
@@ -770,10 +770,19 @@ source distribution. An independent SHA-256 calculation matched the recorded
 digest, while a same-size one-byte mutation of a copied wheel invalidated the
 recorded integrity digest.
 
-Level 17 remains partial. Build Evidence recording, verification after transfer
-between automation stages, lifecycle-enforced recalculation after intentional
-artifact mutation, and automatic invalidation of previously established
-validation state after byte modification remain open.
+Level 17 remains partial. Build Evidence recording is implemented, and
+artifact integrity verification after transfer between automation stages has
+now been demonstrated against remotely produced CI artifacts.
+
+Downloaded wheel and source-distribution bytes were recomputed locally and
+compared against the SHA-256 digests recorded in canonical Build Evidence.
+The transferred artifacts matched their recorded digests. A same-size one-byte
+mutation of a transferred wheel produced a different digest and was rejected
+against the recorded Build Evidence integrity value.
+
+Lifecycle-enforced recalculation after intentional artifact mutation and
+automatic invalidation of previously established validation state after byte
+modification remain open.
 
 ---
 
