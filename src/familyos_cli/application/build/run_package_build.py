@@ -112,6 +112,7 @@ class RunPackageBuildUseCase:
             self._environment_state_provider,
         ).resolve(
             output_dir,
+            build_id=build_id,
             profile=profile,
             target=target,
             functional_validation=validate_functionally,

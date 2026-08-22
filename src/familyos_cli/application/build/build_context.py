@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
+from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.source_state import SourceState
@@ -38,6 +39,7 @@ class BuildEffectiveConfiguration:
 class BuildContext:
     """Stable effective context resolved before significant build execution."""
 
+    build_id: BuildId
     source_state: SourceState
     dependency_state: DependencyState
     toolchain_state: ToolchainState

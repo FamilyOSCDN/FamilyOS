@@ -11,6 +11,7 @@ from familyos_cli.application.build.build_context import (
     BuildProfile,
     BuildTarget,
 )
+from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.dependency_state_provider import (
     DependencyStateProvider,
 )
@@ -52,6 +53,7 @@ class BuildContextResolver:
         self,
         output_dir: Path,
         *,
+        build_id: BuildId,
         profile: BuildProfile,
         target: BuildTarget,
         functional_validation: bool,
@@ -77,6 +79,7 @@ class BuildContextResolver:
         environment_state = self._environment_state_provider.capture()
 
         return BuildContext(
+            build_id=build_id,
             source_state=source_state,
             dependency_state=dependency_state,
             toolchain_state=toolchain_state,

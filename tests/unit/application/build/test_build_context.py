@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
 from pathlib import Path
+from uuid import UUID
 
 import pytest
 
@@ -13,12 +14,17 @@ from familyos_cli.application.build.build_context import (
     BuildProfile,
     BuildTarget,
 )
+from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.source_state import SourceState
 from familyos_cli.application.build.toolchain_state import (
     ToolchainState,
     ToolchainVersion,
+)
+
+_BUILD_ID = BuildId(
+    UUID("01234567-89ab-4cde-8f01-23456789abcd")
 )
 
 _SOURCE_STATE = SourceState(
@@ -51,6 +57,7 @@ _ENVIRONMENT_STATE = EnvironmentState(
 
 def _context() -> BuildContext:
     return BuildContext(
+        build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
@@ -68,6 +75,7 @@ def _context() -> BuildContext:
 def test_context_captures_minimum_effective_build_state() -> None:
     context = _context()
 
+    assert context.build_id == _BUILD_ID
     assert context.source_state is _SOURCE_STATE
     assert context.source_state.revision == _SOURCE_STATE.revision
     assert context.source_state.dirty is False
@@ -104,6 +112,15 @@ def test_context_is_immutable_after_resolution() -> None:
 
     with pytest.raises(FrozenInstanceError):
         context.runtime_version = "3.14.0"  # type: ignore[misc]
+
+
+def test_build_id_is_immutable_with_context() -> None:
+    context = _context()
+
+    with pytest.raises(FrozenInstanceError):
+        context.build_id = BuildId(  # type: ignore[misc]
+            UUID("fedcba98-7654-4321-8abc-def012345678")
+        )
 
 
 def test_environment_state_is_immutable_after_resolution() -> None:

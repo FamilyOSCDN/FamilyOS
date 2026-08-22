@@ -400,14 +400,46 @@ Associate significant build execution with stable identity.
 * [x] Define Build ID semantics.
 * [x] Generate a Build ID for CI and release-candidate builds.
 * [x] Determine whether local development builds require Build IDs.
-* [ ] Associate Build ID with Build Context.
-* [ ] Associate Build ID with artifacts.
-* [ ] Associate Build ID with validation results.
-* [ ] Associate Build ID with Build Evidence.
+* [x] Associate Build ID with Build Context.
+* [x] Associate Build ID with artifacts.
+* [x] Associate Build ID with validation results.
+* [x] Associate Build ID with Build Evidence.
 * [x] Include Build ID in diagnostics.
 * [x] Avoid using CI provider run ID as the only logical Build ID unless explicitly adopted.
 * [x] Document Build ID format.
 * [x] Add tests for Build ID generation and propagation.
+
+Implementation evidence: `BuildId` is the canonical immutable UUID-backed
+identity for one build execution and is generated exactly once by
+`RunPackageBuildUseCase` before Build Context resolution or package execution.
+
+The generated Build ID is now part of the immutable `BuildContext`, making the
+resolved source, dependency, toolchain, environment, profile, target, runtime,
+configuration, and output location explicitly associated with the same
+execution identity carried by `CanonicalPackageBuildResult`.
+
+Successful structurally validated artifacts receive immutable
+`ArtifactIdentity` metadata containing the canonical Build ID. The
+`ArtifactManifest` preserves the same Build ID and rejects inconsistent
+artifact associations.
+
+Canonical build-validation results preserve the Build ID used for the build,
+and `BuildEvidence` requires Build ID consistency across validation, manifest,
+and artifact-integrity records. Evidence construction rejects mismatched Build
+IDs rather than silently combining records from different executions.
+
+The canonical CLI renders the Build ID for diagnostics. Build identity remains
+provider-neutral and does not depend on a CI-provider run identifier. Local
+development, validation, CI, and release-candidate executions use the same
+logical Build ID semantics.
+
+Focused Build ID, Build Context, package-build, Artifact Identity, manifest,
+validation, evidence, and CLI tests verify generation, immutability,
+pre-execution creation, successful and failed execution preservation, context
+association, artifact propagation, validation propagation, evidence
+consistency, and mismatch rejection.
+
+Level 6 is complete at the current Build Framework maturity.
 
 ---
 

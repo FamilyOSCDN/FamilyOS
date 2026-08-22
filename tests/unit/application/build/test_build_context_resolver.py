@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from uuid import UUID
 
 from familyos_cli.application.build.build_context import (
     BuildProfile,
@@ -11,6 +12,7 @@ from familyos_cli.application.build.build_context import (
 from familyos_cli.application.build.build_context_resolver import (
     BuildContextResolver,
 )
+from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.dependency_state_provider import (
     DependencyStateProvider,
@@ -29,6 +31,10 @@ from familyos_cli.application.build.toolchain_state_provider import (
 )
 from familyos_cli.application.ports.build.source_state_provider import (
     SourceStateProviderPort,
+)
+
+_BUILD_ID = BuildId(
+    UUID("01234567-89ab-4cde-8f01-23456789abcd")
 )
 
 _SOURCE_STATE = SourceState(
@@ -152,12 +158,14 @@ def test_resolves_relative_output_from_project_root(
         environment_provider=environment_provider,
     ).resolve(
         Path("dist"),
+        build_id=_BUILD_ID,
         profile=BuildProfile.VALIDATION,
         target=BuildTarget.FAMILYOS_CLI_PACKAGE,
         functional_validation=False,
     )
 
     assert context.output_dir == project_root / "dist"
+    assert context.build_id == _BUILD_ID
     assert source_provider.calls == [project_root]
     assert dependency_provider.calls == [project_root]
     assert toolchain_provider.calls == 1
@@ -172,24 +180,28 @@ def test_preserves_absolute_output_path(
 
     context = _resolver(project_root).resolve(
         output_dir,
+        build_id=_BUILD_ID,
         profile=BuildProfile.CI,
         target=BuildTarget.FAMILYOS_CLI_PACKAGE,
         functional_validation=True,
     )
 
     assert context.output_dir == output_dir
+    assert context.build_id == _BUILD_ID
 
 
-def test_captures_source_dependency_toolchain_environment_profile_target_and_configuration(
+def test_captures_build_id_source_dependency_toolchain_environment_profile_target_and_configuration(
     tmp_path: Path,
 ) -> None:
     context = _resolver(tmp_path).resolve(
         Path("dist"),
+        build_id=_BUILD_ID,
         profile=BuildProfile.DEVELOPMENT,
         target=BuildTarget.FAMILYOS_CLI_PACKAGE,
         functional_validation=True,
     )
 
+    assert context.build_id == _BUILD_ID
     assert context.source_state is _SOURCE_STATE
     assert context.dependency_state.declaration_path == (
         tmp_path / "pyproject.toml"
@@ -211,6 +223,7 @@ def test_captures_runtime_version(
 ) -> None:
     context = _resolver(tmp_path).resolve(
         Path("dist"),
+        build_id=_BUILD_ID,
         profile=BuildProfile.VALIDATION,
         target=BuildTarget.FAMILYOS_CLI_PACKAGE,
         functional_validation=False,
@@ -235,6 +248,7 @@ def test_environment_state_is_resolved_before_context_is_returned(
         _EnvironmentStateProvider(events),
     ).resolve(
         Path("dist"),
+        build_id=_BUILD_ID,
         profile=BuildProfile.CI,
         target=BuildTarget.FAMILYOS_CLI_PACKAGE,
         functional_validation=False,
@@ -246,6 +260,7 @@ def test_environment_state_is_resolved_before_context_is_returned(
         "toolchain-state",
         "environment-state",
     ]
+    assert context.build_id == _BUILD_ID
     assert context.dependency_state.lock_digest == "b" * 64
     assert context.toolchain_state is _TOOLCHAIN_STATE
     assert context.environment_state is _ENVIRONMENT_STATE

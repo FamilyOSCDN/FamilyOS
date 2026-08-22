@@ -361,6 +361,7 @@ def test_build_renders_non_sensitive_build_context(
     result = _package_result(successful=True)
 
     result.build_context = BuildContext(
+        build_id=_BUILD_ID,
         source_state=result.source_state,
         dependency_state=DependencyState(
             declaration_path=tmp_path / "pyproject.toml",

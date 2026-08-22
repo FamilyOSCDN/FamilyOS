@@ -155,6 +155,8 @@ def test_build_id_is_generated_before_source_observation_and_execution(
 
     assert events == ["build-id", "source-state", "build"]
     assert result.build_id == BuildId(_FIRST_UUID)
+    assert result.build_context is not None
+    assert result.build_context.build_id == result.build_id
 
 
 def test_failed_build_preserves_generated_build_id(
@@ -176,4 +178,7 @@ def test_failed_build_preserves_generated_build_id(
 
     assert result.status is PackageBuildStatus.FAILED
     assert result.build_id == expected_build_id
+    assert result.build_context is not None
+    assert result.build_context.build_id == expected_build_id
+    assert result.build_context.build_id == result.build_id
     assert result.diagnostic == "backend failed"
