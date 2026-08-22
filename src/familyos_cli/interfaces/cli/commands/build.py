@@ -92,6 +92,21 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
     typer.echo(f"Canonical Package Build: {result.status.value.upper()}")
     typer.echo(f"Build ID: {result.build_id}")
 
+    if result.build_context is not None:
+        context = result.build_context
+        typer.echo(f"Build Profile: {context.profile.value}")
+        typer.echo(f"Build Target: {context.target.value}")
+        typer.echo(f"Runtime Version: {context.runtime_version}")
+        for component in context.toolchain_state.critical_versions:
+            typer.echo(
+                f"Toolchain {component.distribution}: {component.version}"
+            )
+        typer.echo(f"Output Directory: {context.output_dir}")
+        typer.echo(
+            "Functional Validation Requested: "
+            f"{context.effective_configuration.functional_validation}"
+        )
+
     for artifact in result.candidates:
         typer.echo(
             f"- {artifact.artifact_class.value}: {artifact.path}"

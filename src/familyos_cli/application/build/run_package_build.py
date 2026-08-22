@@ -17,11 +17,24 @@ from familyos_cli.application.build.build_artifact_integrities import (
 from familyos_cli.application.build.build_artifact_manifest import (
     BuildArtifactManifestUseCase,
 )
+from familyos_cli.application.build.build_context import (
+    BuildProfile,
+    BuildTarget,
+)
+from familyos_cli.application.build.build_context_resolver import (
+    BuildContextResolver,
+)
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
+from familyos_cli.application.build.dependency_state_provider import (
+    DependencyStateProvider,
+)
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
 )
 from familyos_cli.application.build.package_build import PackageBuildStatus
+from familyos_cli.application.build.toolchain_state_provider import (
+    ToolchainStateProvider,
+)
 from familyos_cli.application.build.validate_python_package_artifacts import (
     ValidatePythonPackageArtifactsUseCase,
 )
@@ -46,6 +59,8 @@ class RunPackageBuildUseCase:
         source_state_provider: SourceStateProviderPort,
         project_root: Path,
         build_id_generator: BuildIdGenerator | None = None,
+        dependency_state_provider: DependencyStateProvider | None = None,
+        toolchain_state_provider: ToolchainStateProvider | None = None,
     ) -> None:
         self._builder = builder
         self._discoverer = discoverer
@@ -54,22 +69,40 @@ class RunPackageBuildUseCase:
         self._source_state_provider = source_state_provider
         self._project_root = project_root
         self._build_id_generator = build_id_generator or BuildIdGenerator()
+        self._dependency_state_provider = (
+            dependency_state_provider or DependencyStateProvider()
+        )
+        self._toolchain_state_provider = (
+            toolchain_state_provider or ToolchainStateProvider()
+        )
 
     def execute(
         self,
         output_dir: Path,
         *,
         validate_functionally: bool = False,
+        profile: BuildProfile = BuildProfile.DEVELOPMENT,
+        target: BuildTarget = BuildTarget.FAMILYOS_CLI_PACKAGE,
     ) -> CanonicalPackageBuildResult:
-        """Build the repository package into an explicit output directory."""
+        """Build the repository package from a resolved immutable context."""
 
         build_id = self._build_id_generator.generate()
-        resolved_output_dir = (
-            output_dir if output_dir.is_absolute() else self._project_root / output_dir
+
+        build_context = BuildContextResolver(
+            self._source_state_provider,
+            self._project_root,
+            self._dependency_state_provider,
+            self._toolchain_state_provider,
+        ).resolve(
+            output_dir,
+            profile=profile,
+            target=target,
+            functional_validation=validate_functionally,
         )
-        source_state = self._source_state_provider.observe(
-            project_root=self._project_root,
-        )
+
+        resolved_output_dir = build_context.output_dir
+        source_state = build_context.source_state
+
         execution = self._builder.build(
             project_root=self._project_root,
             output_dir=resolved_output_dir,
@@ -79,6 +112,7 @@ class RunPackageBuildUseCase:
                 status=execution.status,
                 execution=execution,
                 source_state=source_state,
+                build_context=build_context,
                 build_id=build_id,
             )
 
@@ -91,6 +125,7 @@ class RunPackageBuildUseCase:
                 status=PackageBuildStatus.FAILED,
                 execution=execution,
                 source_state=source_state,
+                build_context=build_context,
                 build_id=build_id,
                 discovery=discovery,
             )
@@ -101,6 +136,7 @@ class RunPackageBuildUseCase:
                 status=PackageBuildStatus.FAILED,
                 execution=execution,
                 source_state=source_state,
+                build_context=build_context,
                 build_id=build_id,
                 discovery=discovery,
                 validation=validation,
@@ -124,6 +160,7 @@ class RunPackageBuildUseCase:
                 status=PackageBuildStatus.SUCCEEDED,
                 execution=execution,
                 source_state=source_state,
+                build_context=build_context,
                 build_id=build_id,
                 artifact_identities=artifact_identities,
                 artifact_integrities=artifact_integrities,
@@ -146,6 +183,7 @@ class RunPackageBuildUseCase:
             ),
             execution=execution,
             source_state=source_state,
+            build_context=build_context,
             build_id=build_id,
             artifact_identities=artifact_identities,
             artifact_integrities=artifact_integrities,

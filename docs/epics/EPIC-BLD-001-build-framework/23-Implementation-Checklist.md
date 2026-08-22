@@ -247,21 +247,21 @@ Create a stable effective Build Context for execution and evidence.
 
 ### Checklist
 
-* [ ] Define the minimum Build Context model.
+* [x] Define the minimum Build Context model.
 * [x] Capture source revision when Git is available.
 * [x] Capture relevant working-tree state.
-* [ ] Capture selected build profile.
-* [ ] Capture selected build target.
-* [ ] Capture effective configuration.
-* [ ] Capture dependency state at appropriate maturity.
-* [ ] Capture runtime version.
-* [ ] Capture critical toolchain versions.
+* [x] Capture selected build profile.
+* [x] Capture selected build target.
+* [x] Capture effective configuration.
+* [x] Capture dependency state at appropriate maturity.
+* [x] Capture runtime version.
+* [x] Capture critical toolchain versions.
 * [ ] Capture relevant environment properties.
 * [ ] Capture applicable policy state where required.
-* [ ] Resolve context before significant execution.
-* [ ] Prevent uncontrolled context mutation during execution.
-* [ ] Make non-sensitive context inspectable.
-* [ ] Add tests for context resolution.
+* [x] Resolve context before significant execution.
+* [x] Prevent uncontrolled context mutation during execution.
+* [x] Make non-sensitive context inspectable.
+* [x] Add tests for context resolution.
 
 ---
 
@@ -282,6 +282,41 @@ BuildContext
 ```
 
 Additional fields may be introduced progressively.
+
+Implementation evidence: the application-owned immutable `BuildContext` now
+captures `SourceState`, canonical `DependencyState`, explicit `BuildProfile`,
+explicit `BuildTarget`, runtime version, non-sensitive effective
+configuration, and resolved artifact output location. `DependencyState`
+identifies the canonical `pyproject.toml` declaration and `requirements.txt`
+lock by resolved path and SHA-256 digest.
+
+The immutable `ToolchainState` captures the installed versions of the critical
+`build`, `pip-tools`, `setuptools`, and `wheel` distributions in deterministic
+order. These cover the canonical package-build frontend, dependency-state
+compiler, build backend, and wheel packaging support. Python runtime identity
+remains explicit in its dedicated Build Context field.
+
+`BuildContextResolver` resolves this context before canonical package execution
+and captures source, dependency, and critical toolchain state before
+`PackageBuilderPort.build()` is invoked.
+`RunPackageBuildUseCase` preserves the resolved context in
+`CanonicalPackageBuildResult` on both successful and failed execution paths.
+
+`BuildContext`, `BuildEffectiveConfiguration`, and `SourceState` are immutable,
+preventing uncontrolled mutation of the resolved context during execution.
+
+The canonical CLI renders the non-sensitive resolved profile, target, runtime
+version, output directory, and functional-validation configuration for
+inspection.
+
+Focused model, resolver, package-build, and CLI tests cover context resolution,
+relative and absolute output paths, source- and dependency-state capture,
+critical toolchain capture, explicit profile and target selection, runtime
+capture, immutability, execution ordering, failed execution preservation, and
+non-sensitive rendering.
+
+Level 5 remains partial. Relevant environment properties and applicable policy
+state are not yet part of the canonical Build Context.
 
 ---
 

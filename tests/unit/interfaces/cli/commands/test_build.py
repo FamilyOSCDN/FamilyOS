@@ -46,6 +46,11 @@ def _package_result(*, successful: bool) -> Any:
             value="succeeded" if successful else "failed",
         ),
         build_id=_BUILD_ID,
+        source_state=SimpleNamespace(
+            revision="0123456789abcdef0123456789abcdef01234567",
+            dirty=False,
+        ),
+        build_context=None,
         candidates=(),
         validation=None,
         functional_validation=None,
@@ -228,3 +233,76 @@ def test_failed_build_does_not_write_build_evidence(
     assert not evidence_output.exists()
     assert "validation_profile" not in captured
     assert "rendered_evidence" not in captured
+
+
+def test_build_renders_non_sensitive_build_context(
+    tmp_path: Path,
+    monkeypatch: Any,
+    capsys: Any,
+) -> None:
+    from familyos_cli.application.build.build_context import (
+        BuildContext,
+        BuildEffectiveConfiguration,
+        BuildProfile,
+        BuildTarget,
+    )
+    from familyos_cli.application.build.dependency_state import (
+        DependencyState,
+    )
+    from familyos_cli.application.build.toolchain_state import (
+        ToolchainState,
+        ToolchainVersion,
+    )
+
+    result = _package_result(successful=True)
+
+    result.build_context = BuildContext(
+        source_state=result.source_state,
+        dependency_state=DependencyState(
+            declaration_path=tmp_path / "pyproject.toml",
+            declaration_digest="a" * 64,
+            lock_path=tmp_path / "requirements.txt",
+            lock_digest="b" * 64,
+        ),
+        toolchain_state=ToolchainState(
+            critical_versions=(
+                ToolchainVersion("build", "1.5.0"),
+                ToolchainVersion("pip-tools", "7.6.1"),
+                ToolchainVersion("setuptools", "84.0.0"),
+                ToolchainVersion("wheel", "0.48.0"),
+            ),
+        ),
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        runtime_version="3.13.7",
+        effective_configuration=BuildEffectiveConfiguration(
+            functional_validation=False,
+        ),
+        output_dir=tmp_path / "dist",
+    )
+
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+    )
+
+    stdout = capsys.readouterr().out
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert "Build Profile: ci" in stdout
+    assert "Build Target: familyos-cli-package" in stdout
+    assert "Runtime Version: 3.13.7" in stdout
+    assert "Toolchain build: 1.5.0" in stdout
+    assert "Toolchain pip-tools: 7.6.1" in stdout
+    assert "Toolchain setuptools: 84.0.0" in stdout
+    assert "Toolchain wheel: 0.48.0" in stdout
+    assert f"Output Directory: {tmp_path / 'dist'}" in stdout
+    assert "Functional Validation Requested: False" in stdout

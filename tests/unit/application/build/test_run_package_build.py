@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+import familyos_cli.application.build.toolchain_state_provider as toolchain_provider_module
 from familyos_cli.application.build import (
     ArtifactClass,
     ArtifactDiscoveryResult,
@@ -33,6 +36,43 @@ _SOURCE_STATE = SourceState(
     revision="0123456789abcdef0123456789abcdef01234567",
     dirty=False,
 )
+
+_TOOLCHAIN_VERSIONS = {
+    "build": "1.5.0",
+    "pip-tools": "7.6.1",
+    "setuptools": "84.0.0",
+    "wheel": "0.48.0",
+}
+
+
+def _write_canonical_dependency_inputs(project_root: Path) -> None:
+    project_root.mkdir(parents=True, exist_ok=True)
+
+    (project_root / "pyproject.toml").write_text(
+        "[project]\n"
+        'name = "familyos-cli-test"\n'
+        'version = "0.0.0"\n',
+        encoding="utf-8",
+    )
+
+    (project_root / "requirements.txt").write_text(
+        "# canonical test lock\n",
+        encoding="utf-8",
+    )
+
+
+@pytest.fixture(autouse=True)
+def _canonical_build_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _write_canonical_dependency_inputs(tmp_path)
+    _write_canonical_dependency_inputs(tmp_path / "project")
+    monkeypatch.setattr(
+        toolchain_provider_module,
+        "distribution_version",
+        _TOOLCHAIN_VERSIONS.__getitem__,
+    )
 
 
 class _SourceStateProvider(SourceStateProviderPort):
@@ -474,3 +514,245 @@ def test_execution_failure_preserves_pre_build_source_state(
     assert result.discovery is None
     assert result.validation is None
     assert result.functional_validation is None
+
+
+def test_canonical_build_preserves_resolved_build_context(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_context import (
+        BuildProfile,
+        BuildTarget,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    execution = PackageBuildResult(
+        status=PackageBuildStatus.SUCCEEDED,
+        outputs=(wheel, sdist),
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(execution),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        profile=BuildProfile.VALIDATION,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+    )
+
+    assert result.build_context is not None
+    assert result.build_context.source_state is result.source_state
+    assert tuple(
+        (component.distribution, component.version)
+        for component in result.build_context.toolchain_state.critical_versions
+    ) == tuple(_TOOLCHAIN_VERSIONS.items())
+    assert result.build_context.profile is BuildProfile.VALIDATION
+    assert (
+        result.build_context.target
+        is BuildTarget.FAMILYOS_CLI_PACKAGE
+    )
+    assert result.build_context.output_dir == output_dir
+    assert (
+        result.build_context.effective_configuration.functional_validation
+        is False
+    )
+
+
+def test_build_context_is_resolved_before_package_execution(
+    tmp_path: Path,
+) -> None:
+    events: list[str] = []
+
+    class _OrderedBuilder(PackageBuilderPort):
+        def build(
+            self,
+            *,
+            project_root: Path,
+            output_dir: Path,
+        ) -> PackageBuildResult:
+            events.append("build")
+            return PackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                diagnostic="expected test failure",
+            )
+
+    provider = _SourceStateProvider(events=events)
+
+    result = RunPackageBuildUseCase(
+        _OrderedBuilder(),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        provider,
+        tmp_path,
+    ).execute(Path("dist"))
+
+    assert events == ["source-state", "build"]
+    assert result.build_context is not None
+    assert result.build_context.source_state is _SOURCE_STATE
+
+
+def test_failed_execution_preserves_resolved_build_context(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_context import BuildProfile
+
+    execution = PackageBuildResult(
+        status=PackageBuildStatus.FAILED,
+        exit_code=2,
+        diagnostic="backend failed",
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(execution),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        validate_functionally=True,
+        profile=BuildProfile.CI,
+    )
+
+    assert not result.successful
+    assert result.build_context is not None
+    assert result.build_context.profile is BuildProfile.CI
+    assert (
+        result.build_context.effective_configuration.functional_validation
+        is True
+    )
+    assert result.build_context.output_dir == tmp_path / "dist"
+
+
+def test_dependency_state_is_captured_before_package_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.dependency_state import DependencyState
+    from familyos_cli.application.build.dependency_state_provider import (
+        DependencyStateProvider,
+    )
+
+    events: list[str] = []
+
+    class _OrderedDependencyStateProvider(DependencyStateProvider):
+        def capture(self, *, project_root: Path) -> DependencyState:
+            events.append("dependency-state")
+            return DependencyState(
+                declaration_path=project_root / "pyproject.toml",
+                declaration_digest="a" * 64,
+                lock_path=project_root / "requirements.txt",
+                lock_digest="b" * 64,
+            )
+
+    class _OrderedBuilder(PackageBuilderPort):
+        def build(
+            self,
+            *,
+            project_root: Path,
+            output_dir: Path,
+        ) -> PackageBuildResult:
+            events.append("build")
+            return PackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                diagnostic="expected test failure",
+            )
+
+    source_provider = _SourceStateProvider(events=events)
+
+    result = RunPackageBuildUseCase(
+        _OrderedBuilder(),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        source_provider,
+        tmp_path,
+        dependency_state_provider=_OrderedDependencyStateProvider(),
+    ).execute(Path("dist"))
+
+    assert events == [
+        "source-state",
+        "dependency-state",
+        "build",
+    ]
+
+    assert result.build_context is not None
+    assert (
+        result.build_context.dependency_state.declaration_digest
+        == "a" * 64
+    )
+    assert (
+        result.build_context.dependency_state.lock_digest
+        == "b" * 64
+    )
+
+
+def test_toolchain_state_is_captured_before_package_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.toolchain_state import (
+        ToolchainState,
+        ToolchainVersion,
+    )
+    from familyos_cli.application.build.toolchain_state_provider import (
+        ToolchainStateProvider,
+    )
+
+    events: list[str] = []
+
+    class _OrderedToolchainStateProvider(ToolchainStateProvider):
+        def capture(self) -> ToolchainState:
+            events.append("toolchain-state")
+            return ToolchainState(
+                critical_versions=tuple(
+                    ToolchainVersion(distribution, version)
+                    for distribution, version in _TOOLCHAIN_VERSIONS.items()
+                ),
+            )
+
+    class _OrderedBuilder(PackageBuilderPort):
+        def build(
+            self,
+            *,
+            project_root: Path,
+            output_dir: Path,
+        ) -> PackageBuildResult:
+            events.append("build")
+            return PackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                diagnostic="expected test failure",
+            )
+
+    source_provider = _SourceStateProvider(events=events)
+
+    result = RunPackageBuildUseCase(
+        _OrderedBuilder(),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        source_provider,
+        tmp_path,
+        toolchain_state_provider=_OrderedToolchainStateProvider(),
+    ).execute(Path("dist"))
+
+    assert events == [
+        "source-state",
+        "toolchain-state",
+        "build",
+    ]
+    assert result.build_context is not None
+    assert tuple(
+        component.distribution
+        for component in result.build_context.toolchain_state.critical_versions
+    ) == tuple(_TOOLCHAIN_VERSIONS)
