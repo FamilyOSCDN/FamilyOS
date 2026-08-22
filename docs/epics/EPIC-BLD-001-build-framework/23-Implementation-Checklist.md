@@ -1227,10 +1227,17 @@ exactly `familyos_cli-0.1.0-py3-none-any.whl` and
 `familyos_cli-0.1.0.tar.gz` (one wheel and one source distribution). This
 closes `Run artifact validation` above.
 
-This evidence does not establish artifact integrity, does not establish Build
-Evidence, and does not complete the remaining functional Level 16 checks
-(clean-environment installation, import/CLI smoke, or source-distribution
-build/install validation).
+At the time of that structural-validation run, this evidence did not yet
+establish artifact integrity or Build Evidence and did not complete the
+remaining functional Level 16 checks (clean-environment installation,
+import/CLI smoke, or source-distribution build/install validation).
+
+Subsequent CI Build Evidence integration in commit `794907e` closed the
+artifact-integrity and Build Evidence gaps. GitHub Actions run `32574446181`
+successfully uploaded `familyos-build-evidence`; the downloaded evidence
+matched the executed source revision, contained a passing `ci` Build Validation
+result, two artifact manifest entries, and two matching SHA-256 integrity
+records. The observed working-tree state was preserved as `dirty: true`.
 
 ---
 
