@@ -453,39 +453,75 @@ Validate build-relevant source state before transformation.
 
 * [x] Validate required source directories.
 * [x] Validate required project configuration.
-* [ ] Validate package metadata.
+* [x] Validate package metadata.
 * [x] Validate required dependency definitions.
 * [x] Validate build-profile existence.
 * [x] Validate target existence.
-* [ ] Validate required generated inputs where applicable.
-* [ ] Detect stale generated inputs where practical.
-* [ ] Reject malformed build metadata.
+* [x] Validate required generated inputs where applicable.
+* [x] Detect stale generated inputs where practical.
+* [x] Reject malformed build metadata.
 * [x] Fail early on missing mandatory input.
 * [x] Produce actionable failure diagnostics.
 * [x] Add automated tests for invalid input cases.
 
 Implementation evidence: the canonical `familyos-cli-package` target declares
-its required build inputs through `BuildTargetDefinition`. `BuildInputValidator`
-checks those target-owned requirements before Build Context resolution and
-before package transformation when canonical input validation is enabled.
+its mandatory inputs through `BuildTargetDefinition`. `BuildInputValidator`
+enforces those requirements before Build Context resolution and before
+`PackageBuilderPort.build()` may execute.
 
-The current target requires `pyproject.toml`, `requirements.txt`, and package
-source. Missing mandatory inputs produce deterministic diagnostics such as
-`required build input missing: pyproject.toml` and prevent
-`PackageBuilderPort.build()` from being invoked.
+The canonical target requires `pyproject.toml`, generated `requirements.txt`,
+and package source governed by the project configuration. Missing mandatory
+inputs fail deterministically with actionable diagnostics and prevent package
+transformation.
 
-Build profile and target existence remain validated by the existing canonical
-profile and target registries before input validation. The production
-`ApplicationContainer` injects `BuildInputValidator`, making the input gate part
-of the real `familyos build` execution path rather than a test-only behavior.
+`BuildInputValidator` parses `pyproject.toml` before execution and validates
+the minimum canonical package metadata required at this maturity: a valid
+`[project]` table with non-empty `name`, `version`, and `requires-python`
+fields. Malformed TOML, absent project metadata, and invalid required fields
+are rejected before build execution.
 
-Focused model, validator, use-case, and production-wiring tests cover valid
-inputs, missing dependency declaration, missing dependency lock, missing
-package source, fail-fast behavior, diagnostic preservation, and prevention of
-package execution on invalid canonical input.
+Generated dependency state is treated as a canonical build input.
+`requirements.txt` carries the SHA-256 digest of normalized dependency-relevant
+inputs from `pyproject.toml`. The application-owned
+`dependency_input_freshness` contract computes that digest deterministically
+and compares it with the digest embedded in the generated lock.
 
-Package metadata parsing, malformed build-metadata rejection, and generated or
-stale generated-input validation remain open for subsequent Level 7 slices.
+A missing dependency digest or a digest that no longer matches canonical
+dependency declarations is rejected as stale before Build Context resolution
+and package execution. The existing canonical dependency-lock verification
+continues to perform the stronger seeded-resolution drift check independently,
+without duplicating that expensive operation in every package build.
+
+The application freshness digest has been verified byte-for-byte against the
+historical dependency-generation digest for the canonical repository state.
+The committed `requirements.txt` is currently synchronized with
+`pyproject.toml`.
+
+Build profile and target existence are validated by the canonical profile and
+target registries before input validation. Production `familyos build` receives
+`BuildInputValidator` through `ApplicationContainer`, making these checks part
+of the real package-build path rather than test-only behavior.
+
+Focused tests cover mandatory-input presence, valid and malformed package
+metadata, generated-lock digest presence, fresh and stale generated dependency
+state, deterministic digest calculation, diagnostic propagation, and fail-fast
+package-build behavior. Integration coverage proves that stale generated input
+prevents `PackageBuilderPort.build()` from being called.
+
+Validation evidence for this Level includes:
+
+* package-build integration: 19 passed;
+* input-validation and freshness coverage: 21 passed;
+* dependency-lock regression coverage: 18 passed;
+* Build Application suite: 267 passed;
+* full repository suite: 1575 passed;
+* Ruff: passed;
+* MyPy: passed for 664 source files;
+* canonical dependency freshness: `requirements.txt` synchronized with
+  `pyproject.toml`;
+* `git diff --check`: passed.
+
+Level 7 is complete at the current Build Framework maturity.
 
 ---
 

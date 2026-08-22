@@ -45,17 +45,39 @@ _TOOLCHAIN_VERSIONS = {
 }
 
 
-def _write_canonical_dependency_inputs(project_root: Path) -> None:
+def _write_canonical_dependency_inputs(
+    project_root: Path,
+) -> None:
+    from familyos_cli.application.build.dependency_input_freshness import (
+        DEPENDENCY_DIGEST_PREFIX,
+        dependency_input_digest,
+    )
+
     project_root.mkdir(parents=True, exist_ok=True)
 
-    (project_root / "pyproject.toml").write_text(
+    pyproject_path = project_root / "pyproject.toml"
+    requirements_path = project_root / "requirements.txt"
+
+    pyproject_path.write_text(
+        "[build-system]\n"
+        'requires = ["setuptools>=75", "wheel"]\n'
+        'build-backend = "setuptools.build_meta"\n'
+        "\n"
         "[project]\n"
         'name = "familyos-cli-test"\n'
-        'version = "0.0.0"\n',
+        'version = "0.0.0"\n'
+        'requires-python = ">=3.13"\n'
+        'dependencies = ["typer>=0.16"]\n'
+        "\n"
+        "[project.optional-dependencies]\n"
+        'dev = ["pytest>=8.4", "pip-tools==7.6.1"]\n',
         encoding="utf-8",
     )
 
-    (project_root / "requirements.txt").write_text(
+    digest = dependency_input_digest(pyproject_path)
+
+    requirements_path.write_text(
+        f"{DEPENDENCY_DIGEST_PREFIX}{digest}\n"
         "# canonical test lock\n",
         encoding="utf-8",
     )
@@ -853,4 +875,57 @@ def test_missing_build_input_prevents_package_execution(
 
     assert result.diagnostic == (
         "required build input missing: pyproject.toml"
+    )
+
+
+def test_stale_generated_dependency_input_prevents_package_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_input_validator import (
+        BuildInputValidator,
+    )
+    from familyos_cli.application.build.dependency_input_freshness import (
+        DEPENDENCY_DIGEST_PREFIX,
+    )
+
+    # The autouse fixture provides the canonical metadata and dependency
+    # inputs. Add the required package source so freshness is the only
+    # intentionally invalid canonical input.
+    (tmp_path / "src").mkdir(exist_ok=True)
+
+    requirements_path = tmp_path / "requirements.txt"
+    requirements_path.write_text(
+        f"{DEPENDENCY_DIGEST_PREFIX}{'0' * 64}\n"
+        "# stale canonical test lock\n",
+        encoding="utf-8",
+    )
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=BuildInputValidator(),
+    ).execute(tmp_path / "packages")
+
+    assert result.successful is False
+    assert result.status is PackageBuildStatus.FAILED
+    assert builder.calls == []
+
+    assert result.build_context is None
+    assert result.discovery is None
+    assert result.validation is None
+    assert result.functional_validation is None
+
+    assert result.diagnostic == (
+        "generated dependency input requirements.txt is stale; "
+        "regenerate requirements.txt"
     )
