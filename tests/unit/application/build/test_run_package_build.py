@@ -756,3 +756,101 @@ def test_toolchain_state_is_captured_before_package_execution(
         component.distribution
         for component in result.build_context.toolchain_state.critical_versions
     ) == tuple(_TOOLCHAIN_VERSIONS)
+
+def test_use_case_validates_build_inputs_before_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_input_validator import (
+        BuildInputValidator,
+    )
+
+    events: list[str] = []
+
+    (tmp_path / "src").mkdir(exist_ok=True)
+
+    class RecordingBuilder(_PackageBuilder):
+        def build(
+            self,
+            *,
+            project_root: Path,
+            output_dir: Path,
+        ) -> PackageBuildResult:
+            events.append("package-build")
+            return super().build(
+                project_root=project_root,
+                output_dir=output_dir,
+            )
+
+    output_dir = tmp_path / "packages"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = RecordingBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(events=events),
+        tmp_path,
+        build_input_validator=BuildInputValidator(),
+    ).execute(output_dir)
+
+    assert result.successful is True
+    assert events == ["source-state", "package-build"]
+    assert builder.calls == [(tmp_path, output_dir)]
+    assert result.build_context is not None
+    assert result.build_context.build_id == result.build_id
+
+
+def test_missing_build_input_prevents_package_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_input_validator import (
+        BuildInputValidator,
+    )
+
+    (tmp_path / "pyproject.toml").unlink()
+    (tmp_path / "src").mkdir(exist_ok=True)
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=BuildInputValidator(),
+    ).execute(tmp_path / "packages")
+
+    assert result.successful is False
+    assert result.status is PackageBuildStatus.FAILED
+    assert builder.calls == []
+
+    assert result.build_context is None
+    assert result.build_id is not None
+    assert result.source_state is _SOURCE_STATE
+
+    assert result.discovery is None
+    assert result.validation is None
+    assert result.functional_validation is None
+
+    assert result.diagnostic == (
+        "required build input missing: pyproject.toml"
+    )

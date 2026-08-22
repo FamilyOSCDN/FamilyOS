@@ -10,6 +10,9 @@ from familyos_cli.application.build import (
     RunPackageBuildUseCase,
     ValidatePythonPackageArtifactsUseCase,
 )
+from familyos_cli.application.build.build_input_validator import (
+    BuildInputValidator,
+)
 from familyos_cli.application.generation.application_recipe_registry_factory import (
     ApplicationRecipeRegistryFactory,
 )
@@ -291,6 +294,7 @@ class ApplicationContainer:
             ),
             source_state_provider=GitSourceStateProvider(),
             project_root=project_root,
+            build_input_validator=BuildInputValidator(),
         )
 
     def plugin_verifier(

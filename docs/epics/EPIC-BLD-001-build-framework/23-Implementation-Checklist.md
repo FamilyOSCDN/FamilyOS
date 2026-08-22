@@ -451,18 +451,41 @@ Validate build-relevant source state before transformation.
 
 ### Checklist
 
-* [ ] Validate required source directories.
-* [ ] Validate required project configuration.
+* [x] Validate required source directories.
+* [x] Validate required project configuration.
 * [ ] Validate package metadata.
-* [ ] Validate required dependency definitions.
-* [ ] Validate build-profile existence.
-* [ ] Validate target existence.
+* [x] Validate required dependency definitions.
+* [x] Validate build-profile existence.
+* [x] Validate target existence.
 * [ ] Validate required generated inputs where applicable.
 * [ ] Detect stale generated inputs where practical.
 * [ ] Reject malformed build metadata.
-* [ ] Fail early on missing mandatory input.
-* [ ] Produce actionable failure diagnostics.
-* [ ] Add automated tests for invalid input cases.
+* [x] Fail early on missing mandatory input.
+* [x] Produce actionable failure diagnostics.
+* [x] Add automated tests for invalid input cases.
+
+Implementation evidence: the canonical `familyos-cli-package` target declares
+its required build inputs through `BuildTargetDefinition`. `BuildInputValidator`
+checks those target-owned requirements before Build Context resolution and
+before package transformation when canonical input validation is enabled.
+
+The current target requires `pyproject.toml`, `requirements.txt`, and package
+source. Missing mandatory inputs produce deterministic diagnostics such as
+`required build input missing: pyproject.toml` and prevent
+`PackageBuilderPort.build()` from being invoked.
+
+Build profile and target existence remain validated by the existing canonical
+profile and target registries before input validation. The production
+`ApplicationContainer` injects `BuildInputValidator`, making the input gate part
+of the real `familyos build` execution path rather than a test-only behavior.
+
+Focused model, validator, use-case, and production-wiring tests cover valid
+inputs, missing dependency declaration, missing dependency lock, missing
+package source, fail-fast behavior, diagnostic preservation, and prevention of
+package execution on invalid canonical input.
+
+Package metadata parsing, malformed build-metadata rejection, and generated or
+stale generated-input validation remain open for subsequent Level 7 slices.
 
 ---
 
