@@ -5,6 +5,8 @@ from __future__ import annotations
 from familyos_cli.application.build.artifact_discovery import (
     CanonicalPackageBuildResult,
 )
+from familyos_cli.application.build.build_evidence import BuildEvidence
+from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationCheckResult,
     BuildValidationDomain,
@@ -340,6 +342,49 @@ class BuildValidationCheckFactory:
                     if dependency_configuration_valid
                     else dependency_diagnostic
                 ),
+            ),
+        )
+
+    def from_evidence_validation(
+        self,
+        evidence: BuildEvidence | None,
+        *,
+        build_id: BuildId,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Map canonical Build Evidence availability to a required check."""
+
+        if evidence is None:
+            return (
+                BuildValidationCheckResult(
+                    check_id="build-evidence",
+                    domain=BuildValidationDomain.EVIDENCE,
+                    requirement=BuildValidationRequirement.REQUIRED,
+                    status=BuildValidationStatus.FAILED,
+                    diagnostic="Build Evidence is unavailable",
+                ),
+            )
+
+        if evidence.build_id != build_id:
+            return (
+                BuildValidationCheckResult(
+                    check_id="build-evidence",
+                    domain=BuildValidationDomain.EVIDENCE,
+                    requirement=BuildValidationRequirement.REQUIRED,
+                    status=BuildValidationStatus.FAILED,
+                    diagnostic=(
+                        "Build Evidence build ID does not match "
+                        "validation build"
+                    ),
+                ),
+            )
+
+        return (
+            BuildValidationCheckResult(
+                check_id="build-evidence",
+                domain=BuildValidationDomain.EVIDENCE,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=BuildValidationStatus.PASSED,
+                diagnostic=None,
             ),
         )
 

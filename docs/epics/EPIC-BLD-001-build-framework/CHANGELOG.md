@@ -1374,3 +1374,29 @@ or reproducibility semantics are introduced.
 
 Framework version `1.0.0`, completed framework status, and immutable historical
 publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# Build Evidence Validation Integration — 2026-08-21
+
+Integrated concrete `BuildEvidence` into Build Validation.
+
+A new required `build-evidence` check now fails when Build Evidence is missing
+or belongs to another Build ID and passes when coherent Build Evidence belongs
+to the current validation build.
+
+Focused tests cover passing evidence, missing evidence, mismatched Build IDs,
+and aggregate validation failure behavior.
+
+A real canonical package build produced coherent Build Evidence and a required
+passing evidence check. Combined with the existing package-build checks, the
+final Build Validation decision was `PASSED`.
+
+This implementation closes the final open checklist item in Level 19 — Build
+Validation Orchestration.
+
+No release authority, publication, promotion, signing, provenance, or
+deployment semantics are introduced.
+
+Framework version `1.0.0`, completed framework status, and immutable historical
+publication tag `v4.7.0-build-framework` remain unchanged.

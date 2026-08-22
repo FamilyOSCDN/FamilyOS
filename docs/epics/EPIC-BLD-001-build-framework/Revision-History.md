@@ -1870,6 +1870,36 @@ or reproducibility semantics are established.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Build Evidence Validation Integration — 2026-08-21
+
+This incremental revision integrates concrete Build Evidence into Build
+Validation.
+
+`BuildValidationCheckFactory.from_evidence_validation()` now produces a
+required `EVIDENCE` check from an established `BuildEvidence` aggregate.
+
+Missing evidence and evidence associated with another Build ID are blocking
+failures. Coherent Build Evidence associated with the current validation Build
+ID produces a passing required check.
+
+Focused tests cover successful evidence mapping, missing evidence, mismatched
+Build IDs, and aggregate failure behavior.
+
+A real canonical package build was validated, converted into `BuildEvidence`,
+mapped to a required passing evidence check, and combined with the existing
+package-build validation checks. The resulting final Build Validation decision
+was `PASSED`.
+
+This revision closes the final open item in Level 19 — Build Validation
+Orchestration.
+
+No release authority, publication, promotion, signing, provenance, or
+deployment semantics are established.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State

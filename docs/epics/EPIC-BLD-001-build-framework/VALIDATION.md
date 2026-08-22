@@ -2512,3 +2512,49 @@ or reproducibility claims are introduced.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Build Evidence Validation Integration — 2026-08-21
+
+Build Validation now integrates concrete canonical `BuildEvidence`.
+
+`BuildValidationCheckFactory.from_evidence_validation()` maps Build Evidence
+availability and Build ID association into one required `EVIDENCE` check named
+`build-evidence`.
+
+The evidence check behaves as follows:
+
+- missing Build Evidence produces `FAILED`;
+- Build Evidence associated with another Build ID produces `FAILED`;
+- coherent Build Evidence associated with the current validation Build ID
+  produces `PASSED`.
+
+The check does not reconstruct or revalidate the internal artifact evidence.
+`BuildEvidence` already enforces the consistency of Build ID, source revision,
+validation result, artifact manifest, and artifact integrity records.
+
+Focused tests cover coherent Build Evidence mapping, missing evidence,
+mismatched evidence Build ID, and aggregate Build Validation failure behavior.
+
+A real canonical package build was executed with functional artifact validation,
+mapped into its base Build Validation result, converted into concrete
+`BuildEvidence`, and then mapped into a required passing `EVIDENCE` check.
+
+The resulting final validation contained seven passing required checks:
+
+- build execution;
+- artifact discovery;
+- artifact structural validation;
+- artifact metadata;
+- artifact integrity;
+- functional artifact validation;
+- Build Evidence.
+
+The final aggregate Build Validation decision was `PASSED`.
+
+This closes the final open item in Level 19 — Build Validation Orchestration.
+
+No release authority, publication, promotion, signing, provenance, or
+deployment semantics are introduced.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

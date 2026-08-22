@@ -834,7 +834,7 @@ Implement layered validation aligned with `15-Build-Validation.md`.
 * [x] Implement metadata validation.
 * [x] Implement integrity validation.
 * [x] Integrate functional artifact validation.
-* [ ] Integrate evidence validation.
+* [x] Integrate evidence validation.
 * [x] Define mandatory versus optional checks.
 * [x] Define overall validation decision.
 * [x] Produce validation diagnostics.
@@ -953,11 +953,24 @@ confirmed project metadata, Python requirement, build backend, and the
 dependency-constraint file, producing two required passing `CONFIGURATION`
 checks with an aggregate Build Validation `PASSED` decision.
 
-Level 19 remains partial. Input, configuration, dependency, toolchain,
-environment, and Build Evidence validation are represented as canonical
-domains but are not yet implemented as concrete Build Validation checks.
-No Build Evidence ownership, release decision, publication, promotion, signing,
-provenance, or deployment semantics are introduced.
+Evidence Validation now consumes concrete canonical `BuildEvidence`.
+`BuildValidationCheckFactory.from_evidence_validation()` produces one required
+`EVIDENCE` check. Missing Build Evidence fails validation, Build Evidence for a
+different Build ID fails validation, and coherent Build Evidence associated
+with the current validation Build ID passes.
+
+Focused tests cover coherent Build Evidence, missing evidence, mismatched Build
+IDs, and aggregate validation failure behavior. A real canonical package build
+was validated, converted into `BuildEvidence`, mapped to a required passing
+`EVIDENCE` check, and combined with the existing package-build checks to produce
+a final aggregate Build Validation `PASSED` decision.
+
+Level 19 is now functionally complete across input, configuration, dependency,
+toolchain, environment, execution, artifact, metadata, integrity, functional
+artifact, and Build Evidence validation.
+
+No release decision, publication, promotion, signing, provenance, or deployment
+semantics are introduced.
 
 ---
 

@@ -752,3 +752,122 @@ def test_configuration_validation_failure_blocks_build_validation() -> None:
 
     assert result.status is BuildValidationStatus.FAILED
     assert not result.successful
+
+
+def test_evidence_validation_maps_coherent_build_evidence(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_evidence import BuildEvidence
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+        BuildValidationResult,
+    )
+
+    evidence = BuildEvidence(
+        build_id=_BUILD_ID,
+        source_state=_SOURCE_STATE,
+        validation_result=BuildValidationResult(
+            build_id=_BUILD_ID,
+            profile=BuildValidationProfile.VALIDATION,
+            checks=(),
+            status=BuildValidationStatus.PASSED,
+        ),
+        artifact_manifest=ArtifactManifest(
+            build_id=_BUILD_ID,
+            entries=(),
+        ),
+        artifact_integrities=(),
+    )
+
+    checks = BuildValidationCheckFactory().from_evidence_validation(
+        evidence,
+        build_id=_BUILD_ID,
+    )
+
+    assert len(checks) == 1
+
+    check = checks[0]
+
+    assert check.check_id == "build-evidence"
+    assert check.domain is BuildValidationDomain.EVIDENCE
+    assert check.requirement is BuildValidationRequirement.REQUIRED
+    assert check.status is BuildValidationStatus.PASSED
+    assert check.diagnostic is None
+
+
+def test_evidence_validation_missing_evidence_is_required_failure() -> None:
+    checks = BuildValidationCheckFactory().from_evidence_validation(
+        None,
+        build_id=_BUILD_ID,
+    )
+
+    check = checks[0]
+
+    assert check.domain is BuildValidationDomain.EVIDENCE
+    assert check.requirement is BuildValidationRequirement.REQUIRED
+    assert check.status is BuildValidationStatus.FAILED
+    assert check.diagnostic == "Build Evidence is unavailable"
+
+
+def test_evidence_validation_rejects_evidence_for_different_build() -> None:
+    from familyos_cli.application.build.build_evidence import BuildEvidence
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+        BuildValidationResult,
+    )
+
+    other_build_id = BuildId(
+        UUID("11234567-89ab-4cde-8f01-23456789abcd")
+    )
+
+    evidence = BuildEvidence(
+        build_id=other_build_id,
+        source_state=_SOURCE_STATE,
+        validation_result=BuildValidationResult(
+            build_id=other_build_id,
+            profile=BuildValidationProfile.VALIDATION,
+            checks=(),
+            status=BuildValidationStatus.PASSED,
+        ),
+        artifact_manifest=ArtifactManifest(
+            build_id=other_build_id,
+            entries=(),
+        ),
+        artifact_integrities=(),
+    )
+
+    checks = BuildValidationCheckFactory().from_evidence_validation(
+        evidence,
+        build_id=_BUILD_ID,
+    )
+
+    check = checks[0]
+
+    assert check.status is BuildValidationStatus.FAILED
+    assert (
+        check.diagnostic
+        == "Build Evidence build ID does not match validation build"
+    )
+
+
+def test_evidence_validation_failure_blocks_build_validation() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+    )
+    from familyos_cli.application.build.build_validation_orchestrator import (
+        BuildValidationOrchestrator,
+    )
+
+    checks = BuildValidationCheckFactory().from_evidence_validation(
+        None,
+        build_id=_BUILD_ID,
+    )
+
+    result = BuildValidationOrchestrator().execute(
+        build_id=_BUILD_ID,
+        profile=BuildValidationProfile.CI,
+        checks=checks,
+    )
+
+    assert result.status is BuildValidationStatus.FAILED
+    assert not result.successful
