@@ -25,6 +25,9 @@ from familyos_cli.application.build.build_context_resolver import (
     BuildContextResolver,
 )
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
+from familyos_cli.application.build.build_target_registry import (
+    get_build_target_definition,
+)
 from familyos_cli.application.build.dependency_state_provider import (
     DependencyStateProvider,
 )
@@ -86,6 +89,8 @@ class RunPackageBuildUseCase:
     ) -> CanonicalPackageBuildResult:
         """Build the repository package from a resolved immutable context."""
 
+        get_build_target_definition(target)
+
         build_id = self._build_id_generator.generate()
 
         build_context = BuildContextResolver(
@@ -141,6 +146,7 @@ class RunPackageBuildUseCase:
                 discovery=discovery,
                 validation=validation,
             )
+
         artifact_identities = BuildArtifactIdentitiesUseCase().execute(
             validation,
             build_id=build_id,
@@ -175,6 +181,7 @@ class RunPackageBuildUseCase:
             if candidate.artifact_class is ArtifactClass.PYTHON_WHEEL
         )
         functional_validation = self._functional_validator.validate(wheel)
+
         return CanonicalPackageBuildResult(
             status=(
                 PackageBuildStatus.SUCCEEDED

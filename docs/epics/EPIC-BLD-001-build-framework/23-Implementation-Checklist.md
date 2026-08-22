@@ -192,16 +192,36 @@ Make build scope explicit.
 
 ### Checklist
 
-* [ ] Identify current build target or targets.
-* [ ] Define the FamilyOS CLI package as an explicit build target.
+* [x] Identify current build target or targets.
+* [x] Define the FamilyOS CLI package as an explicit build target.
 * [ ] Define official plugin build targets if independent packaging is required.
 * [ ] Define documentation build targets where appropriate.
-* [ ] Define expected inputs for every target.
-* [ ] Define expected artifact types for every target.
-* [ ] Define target-specific validation requirements.
-* [ ] Prevent targets from consuming unrelated repository state.
-* [ ] Document target ownership.
-* [ ] Add target validation tests where practical.
+* [x] Define expected inputs for every target.
+* [x] Define expected artifact types for every target.
+* [x] Define target-specific validation requirements.
+* [x] Prevent targets from consuming unrelated repository state.
+* [x] Document target ownership.
+* [x] Add target validation tests where practical.
+
+Implementation evidence: the canonical Build Framework currently supports one
+explicit build target, `familyos-cli-package`. The immutable
+`BuildTargetDefinition` records its owning framework responsibility, canonical
+dependency and package-source inputs, expected Python wheel and source
+distribution artifact classes, and structural-validation requirement.
+
+`RunPackageBuildUseCase` resolves the target definition before Build Context
+resolution and package execution. The production package builder executes from
+the explicit repository project root, while existing integration coverage proves
+the real package build can run from isolated copied packaging inputs without
+modifying tracked checkout files.
+
+The target-level expected artifact classes are intentionally kept separate from
+the richer package-discovery rules. A dedicated consistency test guarantees that
+the canonical target contract remains aligned with the discoverer's exact wheel
+and source-distribution expectations.
+
+Official plugin and documentation targets remain intentionally undefined until
+independent packaging requirements make those targets necessary.
 
 ---
 
