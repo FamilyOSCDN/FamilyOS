@@ -588,8 +588,8 @@ Explicitly identify the output of each build.
 * [x] Collect artifacts explicitly after execution.
 * [x] Detect missing required artifacts.
 * [x] Detect unexpected artifacts where useful.
-* [ ] Distinguish temporary output.
-* [ ] Distinguish intermediate output.
+* [x] Distinguish temporary output.
+* [x] Distinguish intermediate output.
 * [x] Distinguish candidate artifacts.
 * [x] Associate candidate artifacts with Build ID.
 * [x] Add artifact-discovery tests.
@@ -599,14 +599,29 @@ compares raw files created or replaced by the current packaging execution with
 an explicit contract requiring exactly one `.whl` and one `.tar.gz` file. The
 resolved `--output-dir`, defaulting to `<project-root>/dist`, is canonical for
 that invocation. Missing, duplicate, out-of-location, and unexpected current
-outputs fail discovery and therefore fail `familyos build`. Matching outputs
-are classified as candidates only; no validation, identity, integrity, trust,
-Build ID, Build Evidence, release, or publication meaning is assigned.
+outputs fail discovery and therefore fail `familyos build`.
 
-Level 14 remains partial. Temporary and intermediate output classification
-remain open. Candidate artifacts are associated with the canonical Build ID
-through explicit Artifact Identity metadata after successful structural
-validation; discovery itself remains identity-neutral.
+`ArtifactOutputClassification` now defines three distinct lifecycle roles:
+`TEMPORARY`, `INTERMEDIATE`, and `CANDIDATE`. This classification remains
+independent from `ArtifactClass`, which identifies artifact/package type such
+as Python wheel or source distribution.
+
+The current canonical Python package adapter exposes only final direct
+package-build outputs to artifact discovery. Therefore the wheel and source
+distribution discovered under the exact package contract are classified
+exclusively as `CANDIDATE`; temporary and intermediate roles remain explicitly
+representable without being falsely inferred from outputs the builder does not
+expose.
+
+Focused tests prove all three lifecycle classifications are distinct, that
+temporary and intermediate outputs can be represented explicitly, and that
+canonical package discovery emits only candidate outputs.
+
+Candidate artifacts are associated with the canonical Build ID through
+explicit Artifact Identity metadata after successful structural validation;
+discovery itself remains identity-neutral.
+
+Level 14 — Artifact Discovery is complete.
 
 ---
 

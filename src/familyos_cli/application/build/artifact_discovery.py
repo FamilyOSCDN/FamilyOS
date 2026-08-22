@@ -28,8 +28,10 @@ if TYPE_CHECKING:
 
 
 class ArtifactOutputClassification(StrEnum):
-    """Current Level 14 output classification."""
+    """Lifecycle role assigned to an observed build output."""
 
+    TEMPORARY = "temporary"
+    INTERMEDIATE = "intermediate"
     CANDIDATE = "candidate"
 
 
@@ -56,7 +58,7 @@ class ExpectedArtifactDefinition:
 
 @dataclass(frozen=True, slots=True)
 class DiscoveredArtifact:
-    """A current output classified as a candidate, without trust semantics."""
+    """A discovered build output with explicit type and lifecycle role."""
 
     path: Path
     artifact_class: ArtifactClass

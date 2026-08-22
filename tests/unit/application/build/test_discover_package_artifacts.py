@@ -10,6 +10,7 @@ from familyos_cli.application.build import (
     ArtifactClass,
     ArtifactDiscoveryStatus,
     ArtifactOutputClassification,
+    DiscoveredArtifact,
     DiscoverPackageArtifactsUseCase,
 )
 
@@ -170,3 +171,74 @@ def test_discovery_model_contains_no_later_maturity_fields(output_dir: Path) -> 
     for field in ("validated", "trusted", "digest", "build_id", "provenance"):
         assert not hasattr(result, field)
         assert all(not hasattr(artifact, field) for artifact in result.candidates)
+
+
+def test_output_classification_distinguishes_lifecycle_roles() -> None:
+    assert ArtifactOutputClassification.TEMPORARY.value == "temporary"
+    assert ArtifactOutputClassification.INTERMEDIATE.value == "intermediate"
+    assert ArtifactOutputClassification.CANDIDATE.value == "candidate"
+
+    assert len(set(ArtifactOutputClassification)) == 3
+
+
+def test_discovered_artifact_can_represent_temporary_output(
+    output_dir: Path,
+) -> None:
+    path = _file(output_dir, "temporary-build-output.tmp")
+
+    artifact = DiscoveredArtifact(
+        path=path,
+        artifact_class=ArtifactClass.PYTHON_WHEEL,
+        classification=ArtifactOutputClassification.TEMPORARY,
+    )
+
+    assert artifact.path == path
+    assert artifact.classification is ArtifactOutputClassification.TEMPORARY
+
+
+def test_discovered_artifact_can_represent_intermediate_output(
+    output_dir: Path,
+) -> None:
+    path = _file(output_dir, "intermediate-build-output.whl")
+
+    artifact = DiscoveredArtifact(
+        path=path,
+        artifact_class=ArtifactClass.PYTHON_WHEEL,
+        classification=ArtifactOutputClassification.INTERMEDIATE,
+    )
+
+    assert artifact.path == path
+    assert artifact.classification is ArtifactOutputClassification.INTERMEDIATE
+
+
+def test_canonical_package_discovery_emits_only_candidates(
+    output_dir: Path,
+) -> None:
+    wheel = _file(
+        output_dir,
+        "familyos_cli-0.1.0-py3-none-any.whl",
+    )
+    sdist = _file(
+        output_dir,
+        "familyos_cli-0.1.0.tar.gz",
+    )
+
+    result = DiscoverPackageArtifactsUseCase().execute(
+        output_dir=output_dir,
+        current_outputs=(wheel, sdist),
+    )
+
+    assert result.successful
+    assert result.candidates
+    assert all(
+        artifact.classification is ArtifactOutputClassification.CANDIDATE
+        for artifact in result.candidates
+    )
+    assert all(
+        artifact.classification
+        not in {
+            ArtifactOutputClassification.TEMPORARY,
+            ArtifactOutputClassification.INTERMEDIATE,
+        }
+        for artifact in result.candidates
+    )

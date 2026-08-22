@@ -2661,3 +2661,45 @@ respective Build Framework implementation levels.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Artifact Output Classification Completion — 2026-08-22
+
+Level 14 — Artifact Discovery now distinguishes build-output lifecycle roles
+explicitly.
+
+`ArtifactOutputClassification` defines:
+
+- `TEMPORARY`;
+- `INTERMEDIATE`;
+- `CANDIDATE`.
+
+This lifecycle classification remains independent from `ArtifactClass`, which
+describes artifact/package type such as Python wheel or source distribution.
+
+The current canonical Python package builder exposes only final direct
+package-build outputs to Artifact Discovery. Under the exact canonical package
+contract, the discovered wheel and source distribution are therefore classified
+exclusively as `CANDIDATE`.
+
+Temporary and intermediate roles remain explicitly representable without being
+falsely inferred from outputs the current builder does not expose.
+
+Focused tests establish that:
+
+- all three lifecycle classifications are distinct;
+- temporary output can be represented explicitly;
+- intermediate output can be represented explicitly;
+- canonical package discovery emits only candidate outputs.
+
+Artifact Discovery continues to reject missing, duplicate, unexpected, and
+out-of-location current outputs.
+
+Candidate Artifact Identity and Build ID association remain downstream of
+successful structural validation; discovery itself remains identity-neutral.
+
+This closes the final two open items in Level 14 — Artifact Discovery.
+
+Level 14 is now complete at 11/11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

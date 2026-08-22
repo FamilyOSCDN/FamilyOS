@@ -1960,6 +1960,29 @@ respective implementation levels.
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
 
+
+## Artifact Output Classification Completion — 2026-08-22
+
+This incremental revision completes the remaining Artifact Discovery
+classification work.
+
+`ArtifactOutputClassification` now defines `TEMPORARY`, `INTERMEDIATE`, and
+`CANDIDATE` lifecycle roles independently from `ArtifactClass`.
+
+The canonical Python package discovery path continues to expose only the final
+wheel and source distribution as candidate artifacts. Temporary and
+intermediate roles are explicitly representable without being falsely inferred
+from outputs not exposed by the current builder.
+
+Focused tests validate all three roles and confirm that canonical package
+discovery emits candidate outputs only.
+
+This revision closes `Distinguish temporary output` and `Distinguish
+intermediate output`, completing Level 14 — Artifact Discovery at 11/11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
 ---
 
 # Current Revision State
