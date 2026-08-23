@@ -258,6 +258,138 @@ Artifact validation occurs after execution output has been identified.
 
 ---
 
+# Current Execution Contract
+
+The current canonical FamilyOS package-build implementation uses one explicit
+application-owned orchestration path for the `familyos-cli-package` target.
+
+The implemented execution contract is intentionally simpler than the complete
+conceptual execution model described by this document.
+
+At the current implementation level, the canonical flow is:
+
+```text
+Build Request
+    ↓
+Resolve Target And Profile Policy
+    ↓
+Validate Build Inputs
+    ↓
+Validate Repository Layout
+    ↓
+Resolve And Validate Toolchain
+    ↓
+Capture And Validate Environment
+    ↓
+Resolve Immutable Build Context
+    ↓
+Validate Effective Configuration
+    ↓
+Execute Python Packaging
+    ↓
+Discover Candidate Package Outputs
+    ↓
+Validate Package Structure
+    ↓
+Establish Artifact Identity
+    ↓
+Establish Artifact Integrity
+    ↓
+Build Artifact Manifest
+    ↓
+Optional Wheel Functional Validation
+    ↓
+Canonical Package-Build Result
+```
+
+This is an orchestration sequence, not yet a canonical execution-stage event
+model.
+
+Mandatory validation or execution failure prevents later dependent operations
+from being reported as a successful build.
+
+Packaging failure, discovery failure, structural-validation failure, and
+requested functional-validation failure therefore propagate through the
+canonical result.
+
+The packaging execution boundary itself remains deliberately narrow.
+
+The package-builder port receives the canonical project root and resolved
+output directory and returns process-level status, direct outputs, an optional
+exit code, and an optional diagnostic.
+
+These process-level outputs do not establish artifact identity, integrity,
+validation, evidence, or trust by themselves.
+
+The current canonical package contract expects exactly one Python wheel and one
+source distribution in the resolved output directory.
+
+Artifact Discovery owns that classification after packaging execution.
+
+The current implementation does not expose canonical execution-stage records,
+stage identifiers, stage timestamps, stage durations, per-stage tool
+invocations, retry history, cancellation state, or a structured execution
+trace.
+
+Those concerns remain subsequent Canonical Execution Observability work.
+
+---
+
+# Current Canonical CLI Contract
+
+The implemented package-build entry point is:
+
+```text
+familyos build
+```
+
+Its current explicit execution controls include:
+
+```text
+--output-dir
+--functional-validation
+--profile
+--evidence-output
+```
+
+The currently supported build profiles are:
+
+```text
+development
+validation
+ci
+release-candidate
+```
+
+The currently supported canonical target is:
+
+```text
+familyos-cli-package
+```
+
+Target selection is represented explicitly in the application Build Context,
+although the current CLI package-build command does not expose a separate
+`--target` option.
+
+The CLI delegates to the canonical application-owned package-build use case.
+
+CI therefore reuses canonical build semantics rather than defining an
+independent packaging implementation.
+
+The CLI currently reports process-level and effective-context information,
+including Build ID, profile, target, runtime and environment observations,
+critical toolchain versions, output configuration, evidence configuration,
+candidate outputs, validation outcomes, and failure diagnostics where
+available.
+
+This console reporting does not constitute canonical execution-stage
+observability.
+
+It exposes already-established state and results rather than a structured
+history of execution stages.
+
+---
+
 # Stage Model
 
 Execution SHOULD be divided into logical stages where doing so improves clarity.
@@ -1109,6 +1241,19 @@ Remote mutable state weakens reproducibility.
 ---
 
 # Execution Observability
+
+This section defines the target execution-observability model.
+
+The current implementation already exposes Build ID, target, profile,
+effective-context information, candidate outputs, validation outcomes, and
+failure diagnostics through its canonical result and CLI surfaces.
+
+It does not yet implement a canonical execution-stage event or trace model.
+
+Accordingly, dimensions such as current stage, stage duration, per-stage tool
+invocation, and failure-stage identity remain requirements for subsequent
+Canonical Execution Observability work rather than claims about current
+implementation state.
 
 Build execution must expose enough information to understand progress and failure.
 

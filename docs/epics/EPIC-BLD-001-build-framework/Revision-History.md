@@ -2038,6 +2038,48 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.2 — Current Execution Contract Reconciliation — 2026-08-24
+
+This documentation-only revision reconciles Level 13 — Build Execution with the
+canonical package-build behavior implemented after the original Level 13
+packaging slice.
+
+The current application-owned orchestration validates canonical inputs,
+repository layout, toolchain, environment, and effective configuration before
+significant packaging execution.
+
+It resolves immutable Build Context, delegates packaging through the
+package-builder port, discovers the exact package candidate set, performs
+structural package validation, establishes Artifact Identity, Artifact
+Integrity, and Artifact Manifest, and optionally performs wheel functional
+validation.
+
+Mandatory dependent failures propagate through the canonical package-build
+result rather than being silently converted into successful execution.
+
+The current CLI exposes the canonical package-build entry point and reports
+Build ID, effective profile and target, runtime and environment observations,
+critical toolchain versions, output and evidence configuration, candidate
+outputs, validation outcomes, and diagnostics where available.
+
+This existing result and console visibility does not constitute canonical
+execution-stage observability.
+
+The implementation does not yet define structured execution-stage records,
+stage-event history, stage timestamps, stage durations, per-stage tool
+invocation records, retry history, cancellation state, or a canonical execution
+trace.
+
+Accordingly, the open Level 13 execution-stage and execution-stage logging
+requirements remain open for subsequent Canonical Execution Observability work.
+
+No production code or runtime behavior changes in this reconciliation.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text
