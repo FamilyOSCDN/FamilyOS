@@ -930,21 +930,21 @@ Provide explicit and deterministic configuration behavior.
 
 ### Checklist
 
-* [ ] Inventory existing build configuration sources.
-* [ ] Identify canonical project configuration.
-* [ ] Define configuration precedence.
-* [ ] Define framework defaults where needed.
-* [ ] Define profile configuration.
-* [ ] Define explicit invocation overrides.
-* [ ] Minimize environment-variable overrides.
-* [ ] Validate final effective configuration.
-* [ ] Reject unknown critical settings.
-* [ ] Reject conflicting configuration.
-* [ ] Prevent arbitrary validation bypass.
-* [ ] Separate secrets from build configuration.
-* [ ] Make non-sensitive effective configuration inspectable.
-* [ ] Document configuration sources and precedence.
-* [ ] Add configuration-resolution tests.
+* [x] Inventory existing build configuration sources.
+* [x] Identify canonical project configuration.
+* [x] Define configuration precedence.
+* [x] Define framework defaults where needed.
+* [x] Define profile configuration.
+* [x] Define explicit invocation overrides.
+* [x] Minimize environment-variable overrides.
+* [x] Validate final effective configuration.
+* [x] Reject unknown critical settings.
+* [x] Reject conflicting configuration.
+* [x] Prevent arbitrary validation bypass.
+* [x] Separate secrets from build configuration.
+* [x] Make non-sensitive effective configuration inspectable.
+* [x] Document configuration sources and precedence.
+* [x] Add configuration-resolution tests.
 
 ---
 
@@ -957,6 +957,104 @@ Same Configuration Inputs
          ↓
 Same Effective Configuration
 ```
+
+Level 12.1 establishes the implementation-specific configuration contract in
+`11-Build-Configuration.md`. The current model is a combined authority:
+`pyproject.toml` owns project/package declarations and applicable tool
+configuration; generated `requirements.txt` owns controlled dependency
+resolution; typed registries own supported profile and target contracts; the
+CLI owns the four supported invocation settings; bootstrap owns adapter wiring;
+and Build Context providers contribute observed execution state rather than
+user overrides. FamilyOS does not use a monolithic build-configuration file or
+a generic environment-variable override namespace.
+
+The documented precedence contract records the `development`,
+`familyos-cli-package`, `dist`, disabled-functional-validation, and absent-
+evidence defaults; explicit profile, output, functional-validation, and
+evidence-output invocation behavior and repository-root resolution for both
+package and evidence output.
+It also records the duplicated but aligned `dist` representations in the CLI
+and `RepositoryLayout`.
+
+The profile contract distinguishes definition from enforcement. All four
+profiles declare supported targets, validation scope, evidence requirements,
+environment requirements, and artifact expectations. Current execution
+enforces profile existence and target compatibility and captures the selected
+profile. Typed `evidence_required` policy is enforced; descriptive validation,
+environment, and artifact strings are deliberately not interpreted as runtime
+rules.
+
+The environment contract records that canonical build semantics have no
+generic `FAMILYOS_*` environment override mechanism. Package construction
+removes inherited Python contamination variables and common Twine/UV
+publication credentials, forces `PYTHONNOUSERSITE=1`, and retains ordinary
+networking, proxy, certificate, and tool-compatibility variables. Git,
+temporary-directory, validation-subprocess, and permitted external-tool
+environment influence remains explicit rather than being claimed as fully
+isolated. Secrets remain outside typed Build Context and effective
+configuration models and outside ordinary package-build responsibility.
+
+Level 12.2 adds a focused immutable effective-configuration validation result
+and a deterministic application-layer validator. After the one canonical
+`BuildContext` is resolved, the validator checks its profile against the
+resolved canonical profile definition, confirms target support, validates the
+typed functional-validation value, and consumes the existing successful
+repository-layout decision without duplicating path rules. This gate runs
+before package construction; failure preserves the same Build ID, source
+state, and resolved context and prevents builder execution. Focused tests also
+prove that semantically equivalent default and explicit development/profile,
+target, functional-validation, and `dist` inputs resolve equivalently. The
+broader precedence/conflict matrix remains open.
+
+Level 12.3 makes the remaining concrete typed conflicts executable without a
+generic policy engine. Evidence output is now a repository-root-resolved,
+first-class `BuildContext` destination. The final validator rejects a missing
+destination for `ci` and `release-candidate`, consumes the repository-layout
+decision that protects canonical source/dependency authorities and the package
+output tree, and prevents builder/artifact execution on conflict. The CLI
+writes only to the resolved context destination, eliminating process-working-
+directory precedence.
+
+Required input, repository-layout, toolchain, environment, effective-
+configuration, artifact discovery, structural validation, and artifact
+identity/integrity/manifest stages expose no supported disable configuration.
+Build-input validation now defaults on for direct application use; optional
+functional validation remains explicit and captured. CLI and direct-use-case
+tests cover required-evidence rejection, safe evidence requests, path
+conflicts, failure ordering, and repository-root path equivalence. This does
+not turn descriptive profile strings into executable rules or claim that
+separate CI/release qualification is performed inside package construction.
+
+For acceptance, equivalent deterministic configuration inputs mean equivalent
+canonical repository declarations, typed registry policy, explicit supported
+invocation values, defaults, and fixed wiring. The expected result is the same
+resolved profile, target, package/evidence output, and effective options.
+Source, dependency, toolchain, runtime, platform, and temporary-directory
+observations may differ, so equivalent configuration does not imply identical
+complete `BuildContext` objects.
+
+Level 12.4 adds an immutable `EffectiveBuildConfigurationView` derived from the
+resolved Build Context and canonical profile definition. It exposes profile,
+target, resolved local package/evidence destinations, functional-validation
+selection, evidence-required/requested policy, and target support without
+becoming another authority. The CLI renders the local path-bearing view, while
+portable Build Evidence JSON records only profile, target, functional-
+validation, evidence-required, evidence-requested, and target-supported state.
+The evidence model rejects profile disagreement and never serializes checkout-
+specific output or evidence paths in this section.
+
+A dedicated configuration-resolution matrix proves canonical interface
+defaults, explicit overrides, equivalent relative/absolute/normalized paths,
+all four profile evidence policies, supported-target inspection, typed unknown-
+value rejection, required-evidence and protected-path conflicts, process-CWD
+independence, repeated determinism, immutable inspection state, and a closed
+non-sensitive projection surface. It separately varies Build ID, source,
+dependency, toolchain, runtime, platform, and temporary-directory observations
+and proves they do not change equivalent effective configuration.
+
+All Level 12 checklist items are now implemented. No generic configuration
+abstraction, policy engine, configuration file, or environment-variable
+override mechanism was introduced by Level 12.1 through Level 12.4.
 
 ---
 

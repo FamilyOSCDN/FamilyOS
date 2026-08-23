@@ -57,6 +57,17 @@ from familyos_cli.application.build.dependency_state_provider import (
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
 )
+from familyos_cli.application.build.effective_build_configuration_view import (
+    EffectiveBuildConfigurationView,
+)
+from familyos_cli.application.build.effective_configuration_validation import (
+    EffectiveConfigurationValidationFinding,
+    EffectiveConfigurationValidationResult,
+    EffectiveConfigurationValidationStatus,
+)
+from familyos_cli.application.build.effective_configuration_validator import (
+    EffectiveConfigurationValidator,
+)
 from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.environment_state_provider import (
     EnvironmentStateProvider,
@@ -147,6 +158,11 @@ __all__ = [
     "EnvironmentValidationResult",
     "EnvironmentValidationStatus",
     "EnvironmentValidator",
+    "EffectiveConfigurationValidationFinding",
+    "EffectiveConfigurationValidationResult",
+    "EffectiveConfigurationValidationStatus",
+    "EffectiveConfigurationValidator",
+    "EffectiveBuildConfigurationView",
     "ExpectedArtifactDefinition",
     "MutateArtifactUseCase",
     "MutatedArtifact",

@@ -11,6 +11,7 @@ from familyos_cli.application.build.artifact_discovery import (
     CanonicalPackageBuildResult,
 )
 from familyos_cli.application.build.artifact_manifest import ArtifactManifest
+from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationDomain,
@@ -21,6 +22,9 @@ from familyos_cli.application.build.build_validation_checks import (
     BuildValidationCheckFactory,
 )
 from familyos_cli.application.build.dependency_state import DependencyState
+from familyos_cli.application.build.effective_build_configuration_view import (
+    EffectiveBuildConfigurationView,
+)
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
@@ -45,6 +49,16 @@ _DEPENDENCY_STATE = DependencyState(
     declaration_digest="a" * 64,
     lock_path=Path("/project/requirements.txt"),
     lock_digest="b" * 64,
+)
+
+_EFFECTIVE_CONFIGURATION = EffectiveBuildConfigurationView(
+    profile=BuildProfile.VALIDATION,
+    target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+    output_dir=Path("/project/dist"),
+    functional_validation=False,
+    evidence_output=None,
+    evidence_required=False,
+    target_supported=True,
 )
 
 
@@ -775,6 +789,7 @@ def test_evidence_validation_maps_coherent_build_evidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=BuildValidationResult(
             build_id=_BUILD_ID,
             profile=BuildValidationProfile.VALIDATION,
@@ -833,6 +848,7 @@ def test_evidence_validation_rejects_evidence_for_different_build() -> None:
         build_id=other_build_id,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=BuildValidationResult(
             build_id=other_build_id,
             profile=BuildValidationProfile.VALIDATION,

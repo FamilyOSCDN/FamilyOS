@@ -49,3 +49,4 @@ class BuildContext:
     runtime_version: str
     effective_configuration: BuildEffectiveConfiguration
     output_dir: Path
+    evidence_output: Path | None = None

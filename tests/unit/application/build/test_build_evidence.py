@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import MISSING, fields
+from dataclasses import MISSING, fields, replace
 from pathlib import Path
 from uuid import UUID
 
@@ -17,6 +17,7 @@ from familyos_cli.application.build.artifact_manifest import (
     ArtifactManifestEntry,
 )
 from familyos_cli.application.build.artifact_type import ArtifactClass
+from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
 from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
@@ -25,6 +26,9 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationStatus,
 )
 from familyos_cli.application.build.dependency_state import DependencyState
+from familyos_cli.application.build.effective_build_configuration_view import (
+    EffectiveBuildConfigurationView,
+)
 from familyos_cli.application.build.package_validation import (
     PackageStructuralValidationStatus,
 )
@@ -48,6 +52,16 @@ _DEPENDENCY_STATE = DependencyState(
     declaration_digest="c" * 64,
     lock_path=Path("/project/requirements.txt"),
     lock_digest="d" * 64,
+)
+
+_EFFECTIVE_CONFIGURATION = EffectiveBuildConfigurationView(
+    profile=BuildProfile.VALIDATION,
+    target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+    output_dir=Path("/project/dist"),
+    functional_validation=False,
+    evidence_output=None,
+    evidence_required=False,
+    target_supported=True,
 )
 
 
@@ -89,6 +103,7 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=_validation(),
         artifact_manifest=manifest,
         artifact_integrities=(),
@@ -97,6 +112,7 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
     assert evidence.build_id == _BUILD_ID
     assert evidence.source_state == _SOURCE_STATE
     assert evidence.dependency_state is _DEPENDENCY_STATE
+    assert evidence.effective_configuration is _EFFECTIVE_CONFIGURATION
     assert evidence.validation_result == _validation()
     assert evidence.artifact_manifest is manifest
     assert evidence.artifact_integrities == ()
@@ -107,6 +123,7 @@ def test_build_evidence_exposes_source_revision() -> None:
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=_validation(),
         artifact_manifest=_manifest(),
         artifact_integrities=(),
@@ -120,6 +137,7 @@ def test_build_evidence_exposes_validation_profile() -> None:
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=_validation(),
         artifact_manifest=_manifest(),
         artifact_integrities=(),
@@ -139,6 +157,17 @@ def test_build_evidence_requires_dependency_state() -> None:
     assert dependency_field.default_factory is MISSING
 
 
+def test_build_evidence_requires_effective_configuration() -> None:
+    configuration_field = next(
+        field
+        for field in fields(BuildEvidence)
+        if field.name == "effective_configuration"
+    )
+
+    assert configuration_field.default is MISSING
+    assert configuration_field.default_factory is MISSING
+
+
 def test_build_evidence_requires_matching_validation_build_id() -> None:
     validation = BuildValidationResult(
         build_id=_OTHER_BUILD_ID,
@@ -155,7 +184,34 @@ def test_build_evidence_requires_matching_validation_build_id() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+            effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=validation,
+            artifact_manifest=_manifest(),
+            artifact_integrities=(),
+        )
+
+
+def test_build_evidence_requires_matching_configuration_profile() -> None:
+    configuration = replace(
+        _EFFECTIVE_CONFIGURATION,
+        profile=BuildProfile.CI,
+        evidence_output=Path("/project/build-evidence.json"),
+        evidence_required=True,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "effective configuration profile does not match "
+            "Build Evidence validation profile"
+        ),
+    ):
+        BuildEvidence(
+            build_id=_BUILD_ID,
+            source_state=_SOURCE_STATE,
+            dependency_state=_DEPENDENCY_STATE,
+            effective_configuration=configuration,
+            validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(),
         )
@@ -175,6 +231,7 @@ def test_build_evidence_requires_matching_manifest_build_id() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+            effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=manifest,
             artifact_integrities=(),
@@ -195,6 +252,7 @@ def test_build_evidence_requires_captured_source_revision() -> None:
             build_id=_BUILD_ID,
             source_state=source_state,
             dependency_state=_DEPENDENCY_STATE,
+            effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(),
@@ -228,6 +286,7 @@ def test_build_evidence_rejects_integrity_from_different_build() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+            effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(foreign_integrity,),
@@ -261,6 +320,7 @@ def test_build_evidence_rejects_integrity_not_represented_by_manifest() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+            effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(integrity,),

@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from uuid import UUID
 
+import pytest
+
 from familyos_cli.application.build.build_context import (
     BuildProfile,
     BuildTarget,
@@ -188,6 +190,95 @@ def test_preserves_absolute_output_path(
 
     assert context.output_dir == output_dir
     assert context.build_id == _BUILD_ID
+
+
+def test_resolves_relative_evidence_output_from_project_root(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "project"
+
+    context = _resolver(project_root).resolve(
+        Path("dist"),
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        evidence_output=Path("build-evidence.json"),
+    )
+
+    assert context.evidence_output == project_root / "build-evidence.json"
+
+
+def test_preserves_absolute_evidence_output(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "project"
+    evidence_output = tmp_path / "build-evidence.json"
+
+    context = _resolver(project_root).resolve(
+        Path("dist"),
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        evidence_output=evidence_output,
+    )
+
+    assert context.evidence_output == evidence_output
+
+
+def test_equivalent_relative_and_absolute_evidence_inputs_resolve_equivalently(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "project"
+
+    relative_context = _resolver(project_root).resolve(
+        Path("dist"),
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        evidence_output=Path("build-evidence.json"),
+    )
+    absolute_context = _resolver(project_root).resolve(
+        project_root / "dist",
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        evidence_output=project_root / "build-evidence.json",
+    )
+
+    assert relative_context.profile is absolute_context.profile
+    assert relative_context.target is absolute_context.target
+    assert relative_context.output_dir == absolute_context.output_dir
+    assert (
+        relative_context.effective_configuration
+        == absolute_context.effective_configuration
+    )
+    assert relative_context.evidence_output == absolute_context.evidence_output
+
+
+def test_relative_evidence_output_is_independent_of_process_working_directory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project_root = tmp_path / "project"
+    caller_directory = tmp_path / "caller"
+    caller_directory.mkdir()
+    monkeypatch.chdir(caller_directory)
+
+    context = _resolver(project_root).resolve(
+        Path("dist"),
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        evidence_output=Path("build-evidence.json"),
+    )
+
+    assert context.evidence_output == project_root / "build-evidence.json"
+    assert context.evidence_output != caller_directory / "build-evidence.json"
 
 
 def test_captures_build_id_source_dependency_toolchain_environment_profile_target_and_configuration(

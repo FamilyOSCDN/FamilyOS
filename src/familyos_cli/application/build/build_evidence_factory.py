@@ -6,7 +6,13 @@ from familyos_cli.application.build.artifact_discovery import (
     CanonicalPackageBuildResult,
 )
 from familyos_cli.application.build.build_evidence import BuildEvidence
+from familyos_cli.application.build.build_profile_registry import (
+    get_build_profile_definition,
+)
 from familyos_cli.application.build.build_validation import BuildValidationResult
+from familyos_cli.application.build.effective_build_configuration_view import (
+    EffectiveBuildConfigurationView,
+)
 
 
 class BuildEvidenceFactory:
@@ -39,10 +45,18 @@ class BuildEvidenceFactory:
                 "package build does not contain an artifact manifest"
             )
 
+        effective_configuration = EffectiveBuildConfigurationView.from_context(
+            package_result.build_context,
+            get_build_profile_definition(
+                package_result.build_context.profile,
+            ),
+        )
+
         return BuildEvidence(
             build_id=package_result.build_id,
             source_state=package_result.source_state,
             dependency_state=package_result.build_context.dependency_state,
+            effective_configuration=effective_configuration,
             validation_result=validation_result,
             artifact_manifest=package_result.artifact_manifest,
             artifact_integrities=package_result.artifact_integrities,

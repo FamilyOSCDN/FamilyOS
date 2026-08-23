@@ -125,6 +125,11 @@ class _FunctionalValidator(PythonWheelFunctionalValidatorPort):
 
 
 def _write_toolchain_policy(project_root: Path) -> None:
+    from familyos_cli.application.build.dependency_input_freshness import (
+        DEPENDENCY_DIGEST_PREFIX,
+        dependency_input_digest,
+    )
+
     (project_root / "pyproject.toml").write_text(
         "[build-system]\n"
         'requires = ["setuptools>=75", "wheel"]\n'
@@ -149,7 +154,13 @@ def _write_toolchain_policy(project_root: Path) -> None:
         'python_version = "3.13"\n',
         encoding="utf-8",
     )
-
+    (project_root / "src").mkdir()
+    digest = dependency_input_digest(project_root / "pyproject.toml")
+    (project_root / "requirements.txt").write_text(
+        f"{DEPENDENCY_DIGEST_PREFIX}{digest}\n"
+        "# canonical test lock\n",
+        encoding="utf-8",
+    )
 
 
 def test_environment_state_is_captured_before_package_execution(
@@ -172,9 +183,9 @@ def test_environment_state_is_captured_before_package_execution(
 
     assert events == [
         "toolchain-state",
+        "environment-state",
         "source-state",
         "dependency-state",
-        "environment-state",
         "build",
     ]
 

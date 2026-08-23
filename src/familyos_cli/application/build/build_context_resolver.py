@@ -59,16 +59,18 @@ class BuildContextResolver:
         profile: BuildProfile,
         target: BuildTarget,
         functional_validation: bool,
+        evidence_output: Path | None = None,
         toolchain_state: ToolchainState | None = None,
         environment_state: EnvironmentState | None = None,
         runtime_version: str | None = None,
     ) -> BuildContext:
         """Resolve the immutable context before significant execution."""
 
-        resolved_output_dir = (
-            output_dir
-            if output_dir.is_absolute()
-            else self._project_root / output_dir
+        resolved_output_dir = self._resolve_path(output_dir)
+        resolved_evidence_output = (
+            None
+            if evidence_output is None
+            else self._resolve_path(evidence_output)
         )
 
         source_state = self._source_state_provider.observe(
@@ -110,4 +112,15 @@ class BuildContextResolver:
                 functional_validation=functional_validation,
             ),
             output_dir=resolved_output_dir,
+            evidence_output=resolved_evidence_output,
         )
+
+    def _resolve_path(self, path: Path) -> Path:
+        """Resolve one invocation path against the canonical project root."""
+
+        candidate = (
+            path
+            if path.is_absolute()
+            else self._project_root / path
+        )
+        return candidate.resolve(strict=False)

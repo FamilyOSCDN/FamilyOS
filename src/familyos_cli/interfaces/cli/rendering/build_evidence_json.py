@@ -37,6 +37,22 @@ class BuildEvidenceJsonRenderer:
                     "sha256": evidence.dependency_state.lock_digest,
                 },
             },
+            "effective_configuration": {
+                "profile": evidence.effective_configuration.profile.value,
+                "target": evidence.effective_configuration.target.value,
+                "functional_validation": (
+                    evidence.effective_configuration.functional_validation
+                ),
+                "evidence_required": (
+                    evidence.effective_configuration.evidence_required
+                ),
+                "evidence_requested": (
+                    evidence.effective_configuration.evidence_requested
+                ),
+                "target_supported": (
+                    evidence.effective_configuration.target_supported
+                ),
+            },
             "validation": {
                 "profile": evidence.validation_result.profile.value,
                 "status": evidence.validation_result.status.value,

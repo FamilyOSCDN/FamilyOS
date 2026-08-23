@@ -17,6 +17,7 @@ from familyos_cli.application.build.artifact_manifest import (
     ArtifactManifestEntry,
 )
 from familyos_cli.application.build.artifact_type import ArtifactClass
+from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
 from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
@@ -28,6 +29,9 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationStatus,
 )
 from familyos_cli.application.build.dependency_state import DependencyState
+from familyos_cli.application.build.effective_build_configuration_view import (
+    EffectiveBuildConfigurationView,
+)
 from familyos_cli.application.build.package_validation import (
     PackageStructuralValidationStatus,
 )
@@ -104,10 +108,21 @@ _VALIDATION = BuildValidationResult(
     status=BuildValidationStatus.PASSED,
 )
 
+_EFFECTIVE_CONFIGURATION = EffectiveBuildConfigurationView(
+    profile=BuildProfile.CI,
+    target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+    output_dir=Path("/checkout/dist"),
+    functional_validation=False,
+    evidence_output=Path("/checkout/build-evidence.json"),
+    evidence_required=True,
+    target_supported=True,
+)
+
 _EVIDENCE = BuildEvidence(
     build_id=_BUILD_ID,
     source_state=_SOURCE_STATE,
     dependency_state=_DEPENDENCY_STATE,
+    effective_configuration=_EFFECTIVE_CONFIGURATION,
     validation_result=_VALIDATION,
     artifact_manifest=_MANIFEST,
     artifact_integrities=(_INTEGRITY,),
@@ -135,6 +150,15 @@ def test_renderer_emits_canonical_build_evidence_json() -> None:
             "identity": "requirements.txt",
             "sha256": "d" * 64,
         },
+    }
+
+    assert payload["effective_configuration"] == {
+        "profile": "ci",
+        "target": "familyos-cli-package",
+        "functional_validation": False,
+        "evidence_required": True,
+        "evidence_requested": True,
+        "target_supported": True,
     }
 
     assert payload["validation"]["profile"] == "ci"
@@ -208,6 +232,37 @@ def test_dependency_state_is_portable_across_checkout_roots(
             declaration_digest="c" * 64,
             lock_path=second_root / "requirements.txt",
             lock_digest="d" * 64,
+        ),
+    )
+
+    first_rendered = BuildEvidenceJsonRenderer().render(first)
+    second_rendered = BuildEvidenceJsonRenderer().render(second)
+
+    assert first_rendered == second_rendered
+    assert str(first_root) not in first_rendered
+    assert str(second_root) not in second_rendered
+
+
+def test_effective_configuration_is_portable_across_checkout_roots(
+    tmp_path: Path,
+) -> None:
+    first_root = tmp_path / "first-checkout"
+    second_root = tmp_path / "second-checkout"
+
+    first = replace(
+        _EVIDENCE,
+        effective_configuration=replace(
+            _EFFECTIVE_CONFIGURATION,
+            output_dir=first_root / "dist",
+            evidence_output=first_root / "build-evidence.json",
+        ),
+    )
+    second = replace(
+        _EVIDENCE,
+        effective_configuration=replace(
+            _EFFECTIVE_CONFIGURATION,
+            output_dir=second_root / "dist",
+            evidence_output=second_root / "build-evidence.json",
         ),
     )
 

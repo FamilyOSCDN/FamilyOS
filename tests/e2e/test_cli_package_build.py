@@ -45,6 +45,7 @@ class _UseCase:
         self.output_dirs: list[Path] = []
         self.functional_validation_requests: list[bool] = []
         self.profile_requests: list[BuildProfile] = []
+        self.evidence_output_requests: list[Path | None] = []
 
     def execute(
         self,
@@ -52,10 +53,12 @@ class _UseCase:
         *,
         validate_functionally: bool = False,
         profile: BuildProfile = BuildProfile.DEVELOPMENT,
+        evidence_output: Path | None = None,
     ) -> CanonicalPackageBuildResult:
         self.output_dirs.append(output_dir)
         self.functional_validation_requests.append(validate_functionally)
         self.profile_requests.append(profile)
+        self.evidence_output_requests.append(evidence_output)
         return self.result
 
 
@@ -145,6 +148,7 @@ def test_build_success_reports_outputs_and_returns_zero(
     assert use_case.output_dirs == [output_dir]
     assert use_case.functional_validation_requests == [False]
     assert use_case.profile_requests == [BuildProfile.DEVELOPMENT]
+    assert use_case.evidence_output_requests == [None]
 
 
 @pytest.mark.parametrize(
@@ -181,6 +185,7 @@ def test_build_explicit_profile_is_forwarded(
 
     assert result.exit_code == 0
     assert use_case.profile_requests == [profile]
+    assert use_case.evidence_output_requests == [None]
 
 
 def test_build_rejects_unsupported_profile_before_execution(
@@ -208,6 +213,7 @@ def test_build_rejects_unsupported_profile_before_execution(
     assert use_case.output_dirs == []
     assert use_case.functional_validation_requests == []
     assert use_case.profile_requests == []
+    assert use_case.evidence_output_requests == []
 
 
 def test_build_functional_validation_option_renders_success(
@@ -449,6 +455,9 @@ def test_real_familyos_build_reports_valid_structural_packages(
     assert result.exit_code == 0, result.output
     assert "Canonical Package Build: SUCCEEDED" in result.output
     assert "Build Profile: development" in result.output
+    assert "Profile Supports Target: True" in result.output
+    assert "Evidence Required: False" in result.output
+    assert "Evidence Requested: False" in result.output
     assert "Python Package Structural Validation: VALID" in result.output
     assert len(tuple(output_dir.glob("*.whl"))) == 1
     assert len(tuple(output_dir.glob("*.tar.gz"))) == 1
@@ -457,7 +466,7 @@ def test_real_familyos_build_reports_valid_structural_packages(
     assert "integrity-verified" not in result.output.lower()
 
 
-def test_real_familyos_build_accepts_explicit_ci_profile(
+def test_real_familyos_build_rejects_ci_profile_without_evidence(
     tmp_path: Path,
 ) -> None:
     output_dir = tmp_path / "real-ci-package-output"
@@ -474,12 +483,14 @@ def test_real_familyos_build_accepts_explicit_ci_profile(
         catch_exceptions=False,
     )
 
-    assert result.exit_code == 0, result.output
-    assert "Canonical Package Build: SUCCEEDED" in result.output
+    assert result.exit_code == 1, result.output
+    assert "Canonical Package Build: FAILED" in result.output
     assert "Build Profile: ci" in result.output
-    assert "Python Package Structural Validation: VALID" in result.output
-    assert len(tuple(output_dir.glob("*.whl"))) == 1
-    assert len(tuple(output_dir.glob("*.tar.gz"))) == 1
+    assert "Evidence Required: True" in result.output
+    assert "Evidence Requested: False" in result.output
+    assert "build profile requires an evidence output: ci" in result.output
+    assert "Python Package Structural Validation" not in result.output
+    assert not output_dir.exists()
 
 
 @pytest.mark.parametrize(
@@ -513,6 +524,14 @@ def test_real_familyos_build_evidence_captures_dependency_state_and_profile(
     dependency_state = payload["dependency_state"]
 
     assert payload["validation"]["profile"] == profile.value
+    assert payload["effective_configuration"] == {
+        "profile": profile.value,
+        "target": "familyos-cli-package",
+        "functional_validation": False,
+        "evidence_required": True,
+        "evidence_requested": True,
+        "target_supported": True,
+    }
     assert dependency_state["declaration"]["identity"] == "pyproject.toml"
     assert dependency_state["lock"]["identity"] == "requirements.txt"
     assert len(dependency_state["declaration"]["sha256"]) == 64

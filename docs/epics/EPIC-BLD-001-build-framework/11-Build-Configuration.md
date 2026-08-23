@@ -452,6 +452,465 @@ The implementation may use fewer layers.
 
 ---
 
+# Current Implemented Configuration Contract
+
+The current FamilyOS package build does not use a single monolithic build-
+configuration file. Its configuration authority is intentionally divided
+between repository declarations, typed Build Framework policy, supported
+invocation parameters, fixed application wiring, and observed execution state.
+
+The implemented flow is:
+
+```text
+Canonical Repository Authorities
+            +
+Typed Framework Policy And Defaults
+            +
+Explicit Supported Invocation Overrides
+            +
+Observed Execution State
+            ↓
+BuildContextResolver
+            ↓
+BuildContext
+            +
+BuildEffectiveConfiguration
+```
+
+This is a combined authority, not a precedence chain in which every source may
+override every other source. Each source owns a bounded category of state.
+
+## Canonical Configuration Authorities
+
+| Authority | Current responsibility | Not its responsibility |
+|---|---|---|
+| `pyproject.toml` | Project and package metadata, Python compatibility, direct dependency declarations, build backend requirements, setuptools package discovery and package-data configuration, and the applicable Ruff, MyPy, and Pytest tool configuration | Runtime invocation values such as profile, output directory, functional validation, or evidence output |
+| `requirements.txt` | Generated, controlled Python 3.13 development/CI dependency resolution and dependency-constraint state | Independently hand-authored project declarations or arbitrary build configuration |
+| `BuildProfile` registry | Supported profile contracts for `development`, `validation`, `ci`, and `release-candidate` | Project metadata, dependency resolution, or unrestricted user-defined profiles |
+| `BuildTarget` registry | Supported target contract for `familyos-cli-package`, including required inputs and expected artifact classes | Arbitrary target discovery or user-defined target configuration |
+| `familyos build` invocation | The supported per-invocation profile, output directory, functional-validation request, and evidence-output request | Replacement of canonical repository metadata, dependency state, profile definitions, or target definitions |
+| Application bootstrap/container | Repository-root derivation and wiring of the package builder, artifact discoverer and validators, functional validator, source-state provider, and build-input validator | Arbitrary user configuration |
+| Build Context providers | Observation of source, dependency, installed toolchain, runtime, platform, virtual-environment, filesystem-encoding, and temporary-directory state | User-provided semantic overrides |
+| `PythonPackageBuilder` | Fixed canonical package-construction command and subprocess boundary | A selectable build frontend, backend, distribution sequence, or publication mechanism |
+| `.github/workflows/ci.yml` | Explicit CI provisioning and invocation of canonical validation and package-build entry points | An independent source of FamilyOS package-build semantics |
+
+`pyproject.toml` is therefore the canonical project declaration authority, but
+it is not the complete runtime invocation authority. `requirements.txt` is
+generated from canonical dependency inputs through
+`scripts/compile_dependencies.py`; it records controlled resolution rather than
+competing with `pyproject.toml` as a hand-edited source.
+
+The typed profile and target registries are code-owned Build Framework policy.
+They provide a closed set of supported values. The current implementation does
+not load another YAML, TOML, environment, or dictionary-based Build Framework
+configuration namespace.
+
+## Invocation Configuration
+
+The public package-build command currently supports exactly these invocation
+settings:
+
+| Setting | CLI form | Meaning |
+|---|---|---|
+| Profile | `--profile` | Select one canonical `BuildProfile` |
+| Package output | `--output-dir` | Select the directory receiving package candidates |
+| Functional validation | `--functional-validation` | Request installation/import/CLI validation of the discovered wheel after structural validation |
+| Evidence output | `--evidence-output` | Request JSON Build Evidence after a successful build |
+
+Typer rejects an unsupported profile value before application execution.
+Target selection is available to the typed application use-case API but is not
+currently exposed as a public CLI option.
+
+Invocation configuration does not mutate `pyproject.toml`,
+`requirements.txt`, or the typed registries. Evidence-output selection does not
+implicitly select a profile, and profile selection is not inferred from an
+environment variable or CI-provider context.
+
+## Current Configuration Precedence
+
+The current model applies precedence only where more than one supported source
+can supply the same setting.
+
+| Setting | Source or default | Explicit override | Final resolved authority | Current conflict or rejection behavior |
+|---|---|---|---|---|
+| Repository/project root | Application bootstrap derives the repository root from the installed application location | No public CLI override; constructors accept an explicit root for composition and tests | `RunPackageBuildUseCase` and `BuildContextResolver` | Git source authority is accepted only when this path is the exact Git repository root |
+| Target | `BuildTarget.FAMILYOS_CLI_PACKAGE` | Typed application API only | `BuildTarget` plus `BuildTargetDefinition` | Unknown targets fail registry lookup; unsupported profile/target combinations fail before context resolution |
+| Profile | `BuildProfile.DEVELOPMENT` | `--profile` or typed application API | `BuildProfile` captured in `BuildContext` | Unknown CLI values are rejected; supported-target compatibility is validated |
+| Output directory | CLI default `Path("dist")` | `--output-dir` or required application argument | Repository-root-resolved `BuildContext.output_dir` for the canonical public command | Relative values resolve from the repository root; repository root, authoritative directories, and authoritative root files are rejected |
+| Functional validation | Disabled | `--functional-validation` or typed boolean application argument | `BuildEffectiveConfiguration.functional_validation` | The boolean controls whether functional wheel validation executes; it is not currently reconciled with profile policy |
+| Evidence output | Absent | `--evidence-output` or typed application argument | Repository-root-resolved `BuildContext.evidence_output` | Relative values resolve from the repository root; authoritative repository content, package-output overlap, and directory destinations are rejected; `ci` and `release-candidate` reject an absent destination |
+| Runtime and critical toolchain | Runtime requirement and tool requirements derived from `pyproject.toml`; versions observed from the active interpreter environment | No public override; providers may be injected internally | Validated runtime version and `ToolchainState` captured in `BuildContext` | Missing, malformed, incompatible, or undeclared critical tool policy prevents package execution |
+| Dependency state | Fixed `pyproject.toml` declaration and generated `requirements.txt` lock | None | `DependencyState` captured in `BuildContext` | Missing inputs or stale generated dependency state prevent canonical execution |
+| Environment state | Current runtime/platform observations | No public override; provider injection is internal | `EnvironmentState` captured in `BuildContext` | The current environment validator requires an available temporary directory; broader profile environment requirements are not yet enforced |
+
+An explicit supported invocation value takes precedence over its interface
+default. Repository authorities and typed registry definitions are not
+overridden by invocation values. Observed execution state is captured after
+the request has been selected; it is evidence about the execution context, not
+a higher-precedence source of semantic configuration.
+
+Package-output and evidence-output paths now share one deterministic relative-
+path authority: `BuildContextResolver` resolves both against the canonical
+repository root. Process working directory therefore does not change either
+effective destination. Evidence output remains a file destination owned by
+the CLI renderer rather than a `BuildEffectiveConfiguration` field; its
+resolved path is a first-class `BuildContext` field so the application gate
+can enforce profile and repository-layout policy before package construction.
+Equivalent relative, absolute, and normalized path forms therefore project to
+the same effective configuration.
+
+## Current Framework Defaults
+
+The current defaults proven by the public interface and application use case
+are:
+
+```text
+profile                 development
+target                  familyos-cli-package
+package output          dist
+functional validation   disabled
+evidence output          absent
+```
+
+The development-profile and disabled-functional-validation defaults appear at
+adjacent CLI/helper/application boundaries and currently agree. The package
+output default is also represented twice: the CLI exposes `Path("dist")`, while
+`RepositoryLayout.default_output_dir` represents `<project-root>/dist`.
+Resolution currently makes those representations equivalent, but their
+duplication is an implementation limitation rather than a new precedence
+layer.
+
+The target default is owned by the application use case because no public
+target option exists. Evidence is written only when an explicit evidence path
+is supplied. Selecting `ci` or `release-candidate` does not invent a default
+path; the absent default instead conflicts with those profiles' typed
+`evidence_required=True` policy and is rejected before package construction.
+
+## Bootstrap And Fixed Infrastructure Policy
+
+The application bootstrap wires the current repository-owned build adapters.
+This dependency injection supports architectural separation and testing; it is
+not an unrestricted user configuration surface.
+
+For the canonical Python package target, fixed infrastructure policy includes:
+
+* the active `sys.executable` as the canonical Python executable;
+* `python -m build` as the package frontend;
+* the absolute repository `requirements.txt` path supplied through
+  `--dependency-constraints-txt`;
+* `--outdir` set to the resolved package-output directory;
+* repository root as subprocess working directory;
+* no wheel-only or sdist-only flag, preserving pypa/build's wheel-from-sdist
+  behavior;
+* discovery of exactly one wheel and one source distribution with rejection of
+  unexpected direct outputs;
+* mandatory structural package validation for the current target;
+* no publishing or upload operation.
+
+These are fixed implementation semantics, not invocation overrides.
+
+## Configuration Versus Observed State
+
+`BuildContextResolver` combines selected configuration with state observed for
+one execution. The distinction is:
+
+```text
+Selected Configuration
+├── profile
+├── target
+├── output directory
+├── evidence-output destination
+└── functional-validation request
+
+Observed State
+├── source revision and working-tree state
+├── dependency declaration and lock digests
+├── installed critical toolchain versions
+├── runtime version
+├── operating system and architecture
+├── virtual-environment state
+├── filesystem encoding
+└── temporary-directory state
+```
+
+Observed state may determine whether execution is permitted, but it is not
+equivalent to a user-provided configuration override. Provider injection at an
+internal composition or test boundary does not create a public configuration
+source.
+
+## Current Profile Contract And Enforcement
+
+All four profile definitions are immutable and declare purpose, supported
+targets, validation scope, whether evidence is required, environment
+requirements, and artifact expectations.
+
+| Profile | Defined policy | Currently enforced by selecting the profile |
+|---|---|---|
+| `development` | Everyday local engineering, essential dependency and basic build/artifact checks, no required evidence, practical local isolation | Profile existence, support for `familyos-cli-package`, and capture of the selected profile in Build Context and optional evidence |
+| `validation` | Ruff, MyPy, Pytest, packaging and structural checks under a controlled validation environment, no required evidence | Profile existence, target compatibility, and profile capture; selecting it on `familyos build` does not itself execute Ruff, MyPy, or Pytest |
+| `ci` | Canonical environment, static validation, tests, build, artifact validation, and required standard evidence | Profile existence, target compatibility, profile capture, required explicit evidence destination, and correct evidence-profile identity; the repository CI workflow separately performs canonical validation and supplies the evidence destination |
+| `release-candidate` | Source, configuration, dependency, toolchain, environment, execution, artifact, integrity, evidence, and release-readiness controls with required stronger evidence | Profile existence, target compatibility, profile capture, required explicit evidence destination, and correct evidence-profile identity; clean-workspace, complete validation, and release-readiness remain outside the current typed execution policy |
+
+`profile` identity and `supported_targets` are executable typed policy already
+consumed before Build Context resolution and revalidated by the final gate.
+`evidence_required` is executable typed policy: the final gate rejects a
+resolved `ci` or `release-candidate` context without an explicit evidence
+destination. `purpose`, `validation_scope`, `environment_requirements`, and
+`artifact_expectations` remain descriptive policy only. Their strings are
+validated as documentation-bearing contract data and are not parsed into
+runtime rules.
+
+Likewise, `BuildTargetDefinition.required_inputs` participates in build-input
+validation. Other target policy is currently implemented through the single
+canonical package pipeline rather than selected dynamically from every target
+definition field.
+
+## Environment-Variable Boundary
+
+The current canonical package-build path has no generic `FAMILYOS_*`
+environment-variable mechanism for overriding profile, target, output,
+validation, evidence, dependency, or toolchain semantics.
+
+Before package construction, `PythonPackageBuilder` copies the parent
+environment and removes:
+
+```text
+PYTHONHOME
+PYTHONPATH
+PYTHONSTARTUP
+PYTHONUSERBASE
+VIRTUAL_ENV
+__PYVENV_LAUNCHER__
+TWINE_USERNAME
+TWINE_PASSWORD
+UV_PUBLISH_USERNAME
+UV_PUBLISH_PASSWORD
+UV_PUBLISH_TOKEN
+```
+
+It then sets:
+
+```text
+PYTHONNOUSERSITE=1
+```
+
+The first group prevents inherited Python interpreter and virtual-environment
+state from silently changing isolated package construction. The Twine and UV
+publication variables are removed because package construction has no
+publication responsibility.
+
+The environment is not an allowlist. Ordinary variables, including networking,
+proxy, certificate, locale, and external-tool compatibility state, may still
+propagate. This permits legitimate dependency retrieval but means that
+external-tool influence is not completely eliminated.
+
+Additional current environment influence includes:
+
+* Git source-state subprocesses inherit the ambient environment, so Git-specific
+  variables can affect Git behavior;
+* operating-system temporary-directory selection influences the observed
+  temporary directory and functional-validation workspace;
+* canonical validation subprocesses inherit the environment in which the
+  FamilyOS command executes.
+
+These are environment and tool-execution boundaries, not supported FamilyOS
+semantic override keys. They remain subject to later control where their
+influence proves material.
+
+## Secret Separation Contract
+
+Secrets are not Build Configuration.
+
+`BuildContext` and `BuildEffectiveConfiguration` are typed, non-sensitive
+models. They must not become arbitrary containers for credentials, tokens,
+private keys, or publication authority. Current Build Evidence does not
+serialize arbitrary environment variables.
+
+Package construction requires no publication credential. Common Twine and UV
+publication variables are removed from the canonical package-build subprocess.
+Publication credentials belong to downstream Release Framework publication
+concerns and must remain separate from ordinary package-build semantic
+configuration.
+
+This is not a claim that every possible ambient secret name is identified or
+that the subprocess environment is a complete allowlist. It defines the
+configuration ownership boundary and records the current verified sanitation.
+
+## Unknown Critical Settings
+
+The current Build Framework configuration surface is closed and typed:
+
+* Typer rejects unknown CLI options and unsupported profile values;
+* profile and target selection use enums and fixed registries;
+* there is no generic Build Framework configuration dictionary, `**kwargs`
+  extension surface, or user-defined build-configuration namespace;
+* `pyproject.toml` tool namespaces remain governed by their owning tools.
+
+Unknown critical Build Framework settings therefore cannot silently enter the
+currently supported configuration model. If a future extensible configuration
+schema is introduced, it must add explicit unknown-key handling rather than
+weakening this closed surface.
+
+## Final Effective-Configuration Validation
+
+Canonical package-build execution now validates the final resolved
+configuration after `BuildContextResolver` returns and before the package
+builder runs. `EffectiveConfigurationValidator` receives the exact
+`BuildContext` later used by execution, the canonical resolved
+`BuildProfileDefinition`, and the already-established package-output and
+evidence-output repository-layout validation results. It does not resolve
+another context, recapture observed state, or duplicate repository path rules.
+
+The current final gate deterministically verifies that the resolved profile
+matches its canonical definition, the resolved target is supported by that
+profile, the effective functional-validation setting remains a boolean, and
+the established output-layout decision succeeded. It also enforces the typed
+required-evidence policy and the established evidence-path safety decision. A
+failure prevents package transformation while preserving the resolved Build
+ID, source state, and Build Context in the pre-execution result.
+
+Evidence destinations are resolved in Build Context but evidence serialization
+remains at the CLI boundary. The final gate does not interpret descriptive
+profile strings or invent clean-workspace, release-readiness, or severity
+policy.
+
+## Conflict And Validation-Bypass Policy
+
+The current typed configuration surface rejects the material conflicts it can
+represent:
+
+* an unsupported profile/target pair;
+* a profile requiring evidence with no explicit evidence destination;
+* package output that conflicts with the repository root, authoritative
+  directories, or authoritative build-control files;
+* evidence output that replaces authoritative build-control files, overlaps
+  authoritative directories or the package-output tree, targets the repository
+  root, or names an existing directory;
+* malformed non-boolean functional-validation state at the typed application
+  boundary.
+
+Repeated CLI spelling does not introduce two surviving authorities: Typer
+resolves the closed option surface to one typed value before application
+execution. An explicitly selected evidence file may replace an earlier file at
+that same evidence destination; that is the requested output operation, not a
+conflict with canonical source or package artifacts.
+
+Mandatory package-build integrity stages are not selectable configuration.
+Build-input, repository-layout, toolchain, environment, final effective-
+configuration, artifact discovery, structural package validation, artifact
+identity/integrity, and manifest construction have no supported disable
+switch. `BuildInputValidator` is now instantiated by default even for direct
+application composition, so passing no validator no longer bypasses required
+input and dependency-freshness validation. Adapter injection remains a
+composition/test seam rather than a public build setting.
+
+Functional wheel validation remains intentionally optional and its selected
+boolean remains visible in `BuildEffectiveConfiguration`. Canonical CI
+validation is a separate repository-owned automation command executed before
+the CI package build; free-form profile `validation_scope` text is not treated
+as an in-process policy parser. Downstream release qualification likewise
+remains outside this package-build configuration gate.
+
+## Effective Configuration Inspectability
+
+`EffectiveBuildConfigurationView` is the immutable inspection projection of
+one already-resolved `BuildContext` and its canonical
+`BuildProfileDefinition`. It is derived state, not another configuration
+authority or resolver. The projection exposes exactly:
+
+* selected profile and target;
+* resolved package-output directory;
+* functional-validation selection;
+* resolved optional evidence destination and whether evidence was requested;
+* the profile's typed `evidence_required` policy;
+* whether the selected target is supported by that profile.
+
+Successful and pre-execution-failure CLI rendering uses this projection. It
+reports the resolved local package and evidence paths plus explicit
+`Evidence Required`, `Evidence Requested`, and `Profile Supports Target`
+decisions. These local paths are appropriate for operator inspection but are
+not portable evidence identities.
+
+Every `BuildEvidence` instance also carries the derived projection. Its JSON
+renderer emits a compact `effective_configuration` object containing profile,
+target, functional-validation, evidence-required, evidence-requested, and
+target-supported values. Package-output and evidence-output paths are omitted
+from JSON so equivalent builds in different checkout roots remain portable.
+The evidence model rejects a projected build profile that disagrees with the
+typed validation profile.
+
+Source state, dependency digests, installed toolchain versions, runtime and
+platform details, and temporary-directory state remain observations rather
+than effective configuration. The CLI may render those observations beside
+configuration, and Build Evidence may record them through their own evidence
+authorities, but the inspection projection does not mix them into
+configuration. It contains no environment-variable map, credentials, tokens,
+or publication secrets.
+
+## Current Implementation Limits
+
+The completed Level 12 contract retains these deliberate limits:
+
+* `BuildEffectiveConfiguration` currently contains only the functional-
+  validation boolean; the derived inspection view combines it with existing
+  first-class `BuildContext` and profile-policy fields without duplicating
+  their authority;
+* descriptive profile `validation_scope`, `environment_requirements`, and
+  `artifact_expectations` are not executable runtime policy;
+* Git and other permitted external-tool environment influence is not completely
+  controlled;
+* aligned defaults are duplicated at some adjacent code boundaries, including
+  the `dist` output representation.
+
+These limits do not create an additional configuration source or leave the
+Level 12 effective-resolution contract ambiguous. Broader profile semantics,
+external-tool control, and default-authority consolidation require their own
+typed policy decisions rather than interpretation by the configuration view.
+
+## Current Configuration Resolution Acceptance Contract
+
+Under the current architecture, "same configuration inputs" means:
+
+* the same canonical repository declarations relevant to the selected target;
+* the same typed profile and target registry definitions;
+* the same explicitly selected profile and target;
+* the same explicit package-output, evidence-output, and functional-validation
+  inputs after documented path resolution;
+* the same applicable framework defaults and fixed bootstrap wiring.
+
+For inputs currently represented by `BuildContextResolver`, the acceptance
+target is:
+
+```text
+Equivalent Deterministic Configuration Inputs
+                    ↓
+Same Resolved Profile, Target, Output, And Effective Options
+```
+
+Source revision, working-tree state, dependency digests, installed tool
+versions, runtime patch version, platform state, and temporary-directory state
+are observations. Equivalent configuration does not require two builds to have
+identical observations or identical complete `BuildContext` objects.
+
+Evidence-output selection is resolved into `BuildContext.evidence_output`.
+Equivalent relative and absolute destinations resolve identically, and a
+change in process working directory does not alter the repository-relative
+destination. The destination is intentionally not duplicated in
+`BuildEffectiveConfiguration`; its requested state and typed requirement are
+serialized without its machine-specific path.
+
+The dedicated configuration-resolution matrix proves public defaults,
+explicit overrides, normalized relative/absolute equivalence, all four
+profile evidence policies, supported-target inspection, missing-evidence and
+repository-path conflicts, working-directory independence, repeated
+determinism, and rejection of unknown enum values. It also constructs contexts
+with different Build IDs, source revisions, dependency digests, toolchain
+versions, runtime versions, operating systems, and temporary directories and
+proves that their equivalent deterministic inputs produce equal
+`EffectiveBuildConfigurationView` values rather than equal complete contexts.
+
+---
+
 # Framework Defaults
 
 Framework defaults define baseline behavior.

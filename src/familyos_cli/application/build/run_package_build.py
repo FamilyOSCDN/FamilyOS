@@ -41,6 +41,9 @@ from familyos_cli.application.build.dependency_state_provider import (
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
 )
+from familyos_cli.application.build.effective_configuration_validator import (
+    EffectiveConfigurationValidator,
+)
 from familyos_cli.application.build.environment_state_provider import (
     EnvironmentStateProvider,
 )
@@ -96,6 +99,9 @@ class RunPackageBuildUseCase:
         repository_layout_validator: RepositoryLayoutValidator | None = None,
         toolchain_policy_provider: ToolchainPolicyProvider | None = None,
         toolchain_validator: ToolchainValidator | None = None,
+        effective_configuration_validator: (
+            EffectiveConfigurationValidator | None
+        ) = None,
     ) -> None:
         self._builder = builder
         self._discoverer = discoverer
@@ -116,7 +122,9 @@ class RunPackageBuildUseCase:
         self._environment_validator = (
             environment_validator or EnvironmentValidator()
         )
-        self._build_input_validator = build_input_validator
+        self._build_input_validator = (
+            build_input_validator or BuildInputValidator()
+        )
         self._repository_layout_validator = (
             repository_layout_validator or RepositoryLayoutValidator()
         )
@@ -126,6 +134,10 @@ class RunPackageBuildUseCase:
         self._toolchain_validator = (
             toolchain_validator or ToolchainValidator()
         )
+        self._effective_configuration_validator = (
+            effective_configuration_validator
+            or EffectiveConfigurationValidator()
+        )
 
     def execute(
         self,
@@ -134,33 +146,33 @@ class RunPackageBuildUseCase:
         validate_functionally: bool = False,
         profile: BuildProfile = BuildProfile.DEVELOPMENT,
         target: BuildTarget = BuildTarget.FAMILYOS_CLI_PACKAGE,
+        evidence_output: Path | None = None,
     ) -> CanonicalPackageBuildResult:
         """Build the repository package from validated canonical inputs."""
 
         target_definition = get_build_target_definition(target)
-        validate_profile_target(profile, target)
+        profile_definition = validate_profile_target(profile, target)
 
         build_id = self._build_id_generator.generate()
 
-        if self._build_input_validator is not None:
-            input_validation = self._build_input_validator.validate(
+        input_validation = self._build_input_validator.validate(
+            project_root=self._project_root,
+            target_definition=target_definition,
+        )
+
+        if not input_validation.successful:
+            source_state = self._source_state_provider.observe(
                 project_root=self._project_root,
-                target_definition=target_definition,
             )
 
-            if not input_validation.successful:
-                source_state = self._source_state_provider.observe(
-                    project_root=self._project_root,
-                )
-
-                return CanonicalPackageBuildResult(
-                    status=PackageBuildStatus.FAILED,
-                    execution=self._failed_pre_execution(
-                        input_validation.diagnostic,
-                    ),
-                    source_state=source_state,
-                    build_id=build_id,
-                )
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(
+                    input_validation.diagnostic,
+                ),
+                source_state=source_state,
+                build_id=build_id,
+            )
 
         repository_layout = RepositoryLayout.from_project_root(
             self._project_root,
@@ -186,6 +198,14 @@ class RunPackageBuildUseCase:
                 source_state=source_state,
                 build_id=build_id,
             )
+
+        evidence_layout_validation = (
+            self._repository_layout_validator.validate_evidence_output(
+                layout=repository_layout,
+                evidence_output=evidence_output,
+                package_output_dir=output_dir,
+            )
+        )
 
         try:
             toolchain_policy = self._toolchain_policy_provider.resolve(
@@ -272,12 +292,33 @@ class RunPackageBuildUseCase:
             profile=profile,
             target=target,
             functional_validation=validate_functionally,
+            evidence_output=evidence_output,
             toolchain_state=toolchain_state,
             environment_state=environment_state,
             runtime_version=runtime_version,
         )
 
         source_state = build_context.source_state
+
+        effective_configuration_validation = (
+            self._effective_configuration_validator.validate(
+                context=build_context,
+                profile_definition=profile_definition,
+                output_layout_validation=layout_validation,
+                evidence_layout_validation=evidence_layout_validation,
+            )
+        )
+
+        if not effective_configuration_validation.successful:
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(
+                    effective_configuration_validation.diagnostic,
+                ),
+                source_state=source_state,
+                build_context=build_context,
+                build_id=build_id,
+            )
 
         execution = self._builder.build(
             project_root=self._project_root,

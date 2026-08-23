@@ -12,6 +12,9 @@ from familyos_cli.application.build import (
     CanonicalPackageBuildResult,
 )
 from familyos_cli.application.build.build_context import BuildProfile
+from familyos_cli.application.build.build_profile_registry import (
+    get_build_profile_definition,
+)
 from familyos_cli.application.build.build_validation import (
     BuildValidationProfile,
     BuildValidationRequirement,
@@ -21,6 +24,9 @@ from familyos_cli.application.build.build_validation_checks import (
 )
 from familyos_cli.application.build.build_validation_orchestrator import (
     BuildValidationOrchestrator,
+)
+from familyos_cli.application.build.effective_build_configuration_view import (
+    EffectiveBuildConfigurationView,
 )
 from familyos_cli.interfaces.cli.context import CommandContext
 from familyos_cli.interfaces.cli.rendering.build_evidence_json import (
@@ -54,6 +60,7 @@ def run_package_build(
         output_dir,
         validate_functionally=functional_validation,
         profile=profile,
+        evidence_output=evidence_output,
     )
 
     _render_result(result)
@@ -62,6 +69,15 @@ def run_package_build(
         return EXIT_FAILURE
 
     if evidence_output is not None:
+        if (
+            result.build_context is None
+            or result.build_context.evidence_output is None
+        ):
+            raise RuntimeError(
+                "successful evidence-producing build lacks an evidence output"
+            )
+
+        resolved_evidence_output = result.build_context.evidence_output
         functional_requirement = (
             BuildValidationRequirement.REQUIRED
             if functional_validation
@@ -86,11 +102,11 @@ def run_package_build(
 
         rendered = BuildEvidenceJsonRenderer().render(evidence)
 
-        evidence_output.parent.mkdir(
+        resolved_evidence_output.parent.mkdir(
             parents=True,
             exist_ok=True,
         )
-        evidence_output.write_text(
+        resolved_evidence_output.write_text(
             rendered,
             encoding="utf-8",
         )
@@ -107,9 +123,17 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
     if result.build_context is not None:
         context = result.build_context
         environment = context.environment_state
+        configuration = EffectiveBuildConfigurationView.from_context(
+            context,
+            get_build_profile_definition(context.profile),
+        )
 
-        typer.echo(f"Build Profile: {context.profile.value}")
-        typer.echo(f"Build Target: {context.target.value}")
+        typer.echo(f"Build Profile: {configuration.profile.value}")
+        typer.echo(f"Build Target: {configuration.target.value}")
+        typer.echo(
+            "Profile Supports Target: "
+            f"{configuration.target_supported}"
+        )
         typer.echo(f"Runtime Version: {context.runtime_version}")
         typer.echo(f"Operating System: {environment.operating_system}")
         typer.echo(
@@ -136,10 +160,20 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
                 f"Toolchain {component.distribution}: {component.version}"
             )
 
-        typer.echo(f"Output Directory: {context.output_dir}")
+        typer.echo(f"Output Directory: {configuration.output_dir}")
+        typer.echo(
+            f"Evidence Required: {configuration.evidence_required}"
+        )
+        typer.echo(
+            f"Evidence Requested: {configuration.evidence_requested}"
+        )
+        typer.echo(
+            "Evidence Output: "
+            f"{configuration.evidence_output or 'not requested'}"
+        )
         typer.echo(
             "Functional Validation Requested: "
-            f"{context.effective_configuration.functional_validation}"
+            f"{configuration.functional_validation}"
         )
 
     for artifact in result.candidates:

@@ -90,6 +90,7 @@ def test_context_captures_minimum_effective_build_state() -> None:
     assert context.runtime_version == "3.13.7"
     assert context.effective_configuration.functional_validation is True
     assert context.output_dir == Path("/tmp/familyos-dist")
+    assert context.evidence_output is None
 
 
 def test_build_profiles_are_explicit() -> None:

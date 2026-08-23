@@ -10,7 +10,7 @@ from uuid import UUID
 import pytest
 
 import familyos_cli.interfaces.cli.commands.build as build_command
-from familyos_cli.application.build.build_context import BuildProfile
+from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationProfile,
@@ -25,7 +25,9 @@ _BUILD_ID = BuildId(
 class _RunPackageBuild:
     def __init__(self, result: Any) -> None:
         self._result = result
-        self.calls: list[tuple[Path, bool, BuildProfile]] = []
+        self.calls: list[
+            tuple[Path, bool, BuildProfile, Path | None]
+        ] = []
 
     def execute(
         self,
@@ -33,14 +35,39 @@ class _RunPackageBuild:
         *,
         validate_functionally: bool,
         profile: BuildProfile = BuildProfile.DEVELOPMENT,
+        evidence_output: Path | None = None,
     ) -> Any:
         self.calls.append(
             (
                 output_dir,
                 validate_functionally,
                 profile,
+                evidence_output,
             )
         )
+        if (
+            evidence_output is not None
+            and self._result.build_context is None
+        ):
+            self._result.build_context = SimpleNamespace(
+                profile=profile,
+                target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+                runtime_version="3.13.7",
+                environment_state=SimpleNamespace(
+                    operating_system="TestOS",
+                    operating_system_release="1.0",
+                    machine_architecture="test-machine",
+                    virtual_environment_active=True,
+                    temporary_directory="/tmp",
+                    filesystem_encoding="utf-8",
+                ),
+                toolchain_state=SimpleNamespace(critical_versions=()),
+                output_dir=output_dir,
+                evidence_output=evidence_output,
+                effective_configuration=SimpleNamespace(
+                    functional_validation=validate_functionally,
+                ),
+            )
         return self._result
 
 
@@ -189,6 +216,7 @@ def test_successful_build_writes_build_evidence(
             output_dir,
             False,
             BuildProfile.DEVELOPMENT,
+            evidence_output,
         )
     ]
 
@@ -221,11 +249,13 @@ def test_explicit_build_profile_is_forwarded_to_use_case(
     )
 
     output_dir = tmp_path / "dist"
+    evidence_output = tmp_path / "build-evidence.json"
 
     exit_code = build_command.run_package_build(
         output_dir,
         functional_validation=False,
         profile=BuildProfile.CI,
+        evidence_output=evidence_output,
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -234,6 +264,7 @@ def test_explicit_build_profile_is_forwarded_to_use_case(
             output_dir,
             False,
             BuildProfile.CI,
+            evidence_output,
         )
     ]
 
@@ -265,6 +296,7 @@ def test_evidence_output_does_not_implicitly_select_ci_build_profile(
             output_dir,
             False,
             BuildProfile.DEVELOPMENT,
+            tmp_path / "build-evidence.json",
         )
     ]
 
@@ -301,6 +333,7 @@ def test_functional_build_requires_functional_validation_in_evidence(
             output_dir,
             True,
             BuildProfile.DEVELOPMENT,
+            tmp_path / "build-evidence.json",
         )
     ]
     assert (
@@ -385,11 +418,53 @@ def test_failed_build_does_not_write_build_evidence(
             output_dir,
             False,
             BuildProfile.DEVELOPMENT,
+            evidence_output,
         )
     ]
     assert not evidence_output.exists()
     assert "validation_profile" not in captured
     assert "rendered_evidence" not in captured
+
+
+def test_evidence_is_written_to_resolved_context_destination(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    project_root = tmp_path / "project"
+    caller_directory = tmp_path / "caller"
+    caller_directory.mkdir()
+    resolved_evidence_output = project_root / "build-evidence.json"
+    result.build_context = SimpleNamespace(
+        evidence_output=resolved_evidence_output,
+    )
+    captured: dict[str, Any] = {}
+
+    context = _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+    monkeypatch.setattr(build_command, "_render_result", lambda _: None)
+    monkeypatch.chdir(caller_directory)
+
+    exit_code = build_command.run_package_build(
+        Path("dist"),
+        functional_validation=False,
+        evidence_output=Path("build-evidence.json"),
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert resolved_evidence_output.is_file()
+    assert not (caller_directory / "build-evidence.json").exists()
+    assert context.run_package_build.calls == [
+        (
+            Path("dist"),
+            False,
+            BuildProfile.DEVELOPMENT,
+            Path("build-evidence.json"),
+        )
+    ]
 
 
 def test_build_renders_non_sensitive_build_context(
@@ -444,6 +519,7 @@ def test_build_renders_non_sensitive_build_context(
             functional_validation=False,
         ),
         output_dir=tmp_path / "dist",
+        evidence_output=None,
     )
 
     captured: dict[str, Any] = {}
@@ -470,10 +546,12 @@ def test_build_renders_non_sensitive_build_context(
             output_dir,
             False,
             BuildProfile.CI,
+            None,
         )
     ]
     assert "Build Profile: ci" in stdout
     assert "Build Target: familyos-cli-package" in stdout
+    assert "Profile Supports Target: True" in stdout
     assert "Runtime Version: 3.13.7" in stdout
     assert "Operating System: Darwin" in stdout
     assert "Operating System Release: 24.6.0" in stdout
@@ -486,4 +564,7 @@ def test_build_renders_non_sensitive_build_context(
     assert "Toolchain setuptools: 84.0.0" in stdout
     assert "Toolchain wheel: 0.48.0" in stdout
     assert f"Output Directory: {tmp_path / 'dist'}" in stdout
+    assert "Evidence Required: True" in stdout
+    assert "Evidence Requested: False" in stdout
+    assert "Evidence Output: not requested" in stdout
     assert "Functional Validation Requested: False" in stdout

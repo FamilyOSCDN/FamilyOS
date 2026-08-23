@@ -128,6 +128,16 @@ def test_factory_preserves_canonical_package_build_authorities() -> None:
         evidence.dependency_state
         is package_result.build_context.dependency_state
     )
+    assert evidence.effective_configuration.profile is BuildProfile.VALIDATION
+    assert (
+        evidence.effective_configuration.target
+        is BuildTarget.FAMILYOS_CLI_PACKAGE
+    )
+    assert evidence.effective_configuration.output_dir == Path("/project/dist")
+    assert evidence.effective_configuration.functional_validation is False
+    assert evidence.effective_configuration.evidence_requested is False
+    assert evidence.effective_configuration.evidence_required is False
+    assert evidence.effective_configuration.target_supported is True
     assert evidence.validation_result is validation_result
     assert evidence.artifact_manifest is package_result.artifact_manifest
     assert evidence.artifact_integrities is package_result.artifact_integrities

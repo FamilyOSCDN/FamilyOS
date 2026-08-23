@@ -12,9 +12,16 @@ from familyos_cli.application.build import (
     ArtifactClass,
     ArtifactDiscoveryResult,
     ArtifactDiscoveryStatus,
+    BuildContext,
+    BuildProfile,
+    BuildTarget,
     CandidatePackageValidationResult,
     DiscoveredArtifact,
     DiscoverPackageArtifactsUseCase,
+    EffectiveConfigurationValidationFinding,
+    EffectiveConfigurationValidationResult,
+    EffectiveConfigurationValidationStatus,
+    EffectiveConfigurationValidator,
     PackageBuildResult,
     PackageBuildStatus,
     PackageFunctionalValidationStatus,
@@ -26,6 +33,12 @@ from familyos_cli.application.build import (
     ValidatePythonPackageArtifactsUseCase,
     WheelFunctionalValidationFinding,
     WheelFunctionalValidationStage,
+)
+from familyos_cli.application.build.build_profile_definition import (
+    BuildProfileDefinition,
+)
+from familyos_cli.application.build.repository_layout_validation import (
+    RepositoryLayoutValidationResult,
 )
 from familyos_cli.application.ports.build import (
     PackageBuilderPort,
@@ -55,6 +68,7 @@ def _write_canonical_dependency_inputs(
     )
 
     project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "src").mkdir(exist_ok=True)
 
     pyproject_path = project_root / "pyproject.toml"
     requirements_path = project_root / "requirements.txt"
@@ -180,6 +194,48 @@ class _RecordingFunctionalValidator(PythonWheelFunctionalValidatorPort):
             candidate=candidate,
             status=self.status,
             findings=(self.finding,) if self.finding is not None else (),
+        )
+        return self.result
+
+
+class _RecordingEffectiveConfigurationValidator(
+    EffectiveConfigurationValidator,
+):
+    def __init__(
+        self,
+        result: EffectiveConfigurationValidationResult | None = None,
+        events: list[str] | None = None,
+    ) -> None:
+        self.result = result or EffectiveConfigurationValidationResult(
+            status=EffectiveConfigurationValidationStatus.SUCCEEDED,
+        )
+        self.events = events
+        self.calls: list[
+            tuple[
+                BuildContext,
+                BuildProfileDefinition,
+                RepositoryLayoutValidationResult,
+                RepositoryLayoutValidationResult,
+            ]
+        ] = []
+
+    def validate(
+        self,
+        *,
+        context: BuildContext,
+        profile_definition: BuildProfileDefinition,
+        output_layout_validation: RepositoryLayoutValidationResult,
+        evidence_layout_validation: RepositoryLayoutValidationResult,
+    ) -> EffectiveConfigurationValidationResult:
+        if self.events is not None:
+            self.events.append("effective-configuration")
+        self.calls.append(
+            (
+                context,
+                profile_definition,
+                output_layout_validation,
+                evidence_layout_validation,
+            )
         )
         return self.result
 
@@ -656,6 +712,7 @@ def test_failed_execution_preserves_resolved_build_context(
         Path("dist"),
         validate_functionally=True,
         profile=BuildProfile.CI,
+        evidence_output=tmp_path / "build-evidence.json",
     )
 
     assert not result.successful
@@ -848,10 +905,6 @@ def test_use_case_validates_build_inputs_before_execution(
 def test_missing_build_input_prevents_package_execution(
     tmp_path: Path,
 ) -> None:
-    from familyos_cli.application.build.build_input_validator import (
-        BuildInputValidator,
-    )
-
     (tmp_path / "pyproject.toml").unlink()
     (tmp_path / "src").mkdir(exist_ok=True)
 
@@ -868,7 +921,6 @@ def test_missing_build_input_prevents_package_execution(
         _RecordingFunctionalValidator(),
         _SourceStateProvider(),
         tmp_path,
-        build_input_validator=BuildInputValidator(),
     ).execute(tmp_path / "packages")
 
     assert result.successful is False
@@ -1239,6 +1291,11 @@ def test_unsupported_build_tool_version_prevents_package_execution(
 def test_invalid_toolchain_policy_prevents_package_execution(
     tmp_path: Path,
 ) -> None:
+    from familyos_cli.application.build.dependency_input_freshness import (
+        DEPENDENCY_DIGEST_PREFIX,
+        dependency_input_digest,
+    )
+
     (tmp_path / "pyproject.toml").write_text(
         "[build-system]\n"
         'requires = ["setuptools>=75", "wheel"]\n'
@@ -1255,6 +1312,12 @@ def test_invalid_toolchain_policy_prevents_package_execution(
         "\n"
         "[tool.mypy]\n"
         'python_version = "3.13"\n',
+        encoding="utf-8",
+    )
+    digest = dependency_input_digest(tmp_path / "pyproject.toml")
+    (tmp_path / "requirements.txt").write_text(
+        f"{DEPENDENCY_DIGEST_PREFIX}{digest}\n"
+        "# canonical test lock\n",
         encoding="utf-8",
     )
 
@@ -1471,4 +1534,327 @@ def test_environment_state_is_captured_once_and_reused_in_build_context(
             tmp_path,
             tmp_path / "dist",
         )
+    ]
+
+
+def test_effective_configuration_validation_precedes_package_execution(
+    tmp_path: Path,
+) -> None:
+    events: list[str] = []
+
+    class _OrderedBuilder(_PackageBuilder):
+        def build(
+            self,
+            *,
+            project_root: Path,
+            output_dir: Path,
+        ) -> PackageBuildResult:
+            events.append("build")
+            return super().build(
+                project_root=project_root,
+                output_dir=output_dir,
+            )
+
+    builder = _OrderedBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected test failure",
+        )
+    )
+    source_state_provider = _SourceStateProvider(events=events)
+    effective_validator = _RecordingEffectiveConfigurationValidator(
+        events=events,
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        source_state_provider,
+        tmp_path,
+        effective_configuration_validator=effective_validator,
+    ).execute(Path("dist"))
+
+    assert events == [
+        "source-state",
+        "effective-configuration",
+        "build",
+    ]
+    assert len(effective_validator.calls) == 1
+    (
+        validated_context,
+        profile_definition,
+        layout_validation,
+        evidence_layout_validation,
+    ) = (
+        effective_validator.calls[0]
+    )
+    assert result.build_context is validated_context
+    assert profile_definition.profile is BuildProfile.DEVELOPMENT
+    assert validated_context.target in profile_definition.supported_targets
+    assert layout_validation.successful is True
+    assert evidence_layout_validation.successful is True
+    assert source_state_provider.calls == [tmp_path]
+    assert builder.calls == [(tmp_path, validated_context.output_dir)]
+
+
+def test_invalid_effective_configuration_prevents_package_execution(
+    tmp_path: Path,
+) -> None:
+    failure = EffectiveConfigurationValidationResult(
+        status=EffectiveConfigurationValidationStatus.FAILED,
+        findings=(
+            EffectiveConfigurationValidationFinding(
+                component="profile",
+                diagnostic="resolved effective configuration is inconsistent",
+            ),
+        ),
+    )
+    effective_validator = _RecordingEffectiveConfigurationValidator(
+        result=failure,
+    )
+    builder = _PackageBuilder(
+        PackageBuildResult(status=PackageBuildStatus.SUCCEEDED)
+    )
+    source_state_provider = _SourceStateProvider()
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        source_state_provider,
+        tmp_path,
+        effective_configuration_validator=effective_validator,
+    ).execute(Path("dist"))
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.diagnostic == (
+        "resolved effective configuration is inconsistent"
+    )
+    assert builder.calls == []
+    assert len(effective_validator.calls) == 1
+    assert result.build_context is effective_validator.calls[0][0]
+    assert result.source_state is result.build_context.source_state
+    assert result.build_id == result.build_context.build_id
+    assert result.discovery is None
+    assert result.validation is None
+    assert result.functional_validation is None
+    assert source_state_provider.calls == [tmp_path]
+
+
+def test_equivalent_default_and_explicit_inputs_resolve_equivalently(
+    tmp_path: Path,
+) -> None:
+    effective_validator = _RecordingEffectiveConfigurationValidator()
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected test failure",
+        )
+    )
+    use_case = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        effective_configuration_validator=effective_validator,
+    )
+
+    default_result = use_case.execute(Path("dist"))
+    explicit_result = use_case.execute(
+        tmp_path / "dist",
+        validate_functionally=False,
+        profile=BuildProfile.DEVELOPMENT,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+    )
+
+    assert len(effective_validator.calls) == 2
+    default_context = effective_validator.calls[0][0]
+    explicit_context = effective_validator.calls[1][0]
+    assert default_result.build_context is default_context
+    assert explicit_result.build_context is explicit_context
+    assert default_context.profile is explicit_context.profile
+    assert default_context.target is explicit_context.target
+    assert default_context.output_dir == explicit_context.output_dir
+    assert (
+        default_context.effective_configuration
+        == explicit_context.effective_configuration
+    )
+
+
+@pytest.mark.parametrize(
+    "profile",
+    (BuildProfile.CI, BuildProfile.RELEASE_CANDIDATE),
+)
+def test_required_evidence_profile_cannot_bypass_evidence_destination(
+    tmp_path: Path,
+    profile: BuildProfile,
+) -> None:
+    builder = _PackageBuilder(
+        PackageBuildResult(status=PackageBuildStatus.SUCCEEDED)
+    )
+    discoverer = _RecordingDiscoverer()
+
+    result = RunPackageBuildUseCase(
+        builder,
+        discoverer,
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        profile=profile,
+    )
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.diagnostic == (
+        f"build profile requires an evidence output: {profile.value}"
+    )
+    assert result.build_context is not None
+    assert result.build_context.profile is profile
+    assert result.build_context.evidence_output is None
+    assert result.source_state is result.build_context.source_state
+    assert result.build_id == result.build_context.build_id
+    assert builder.calls == []
+    assert discoverer.called is False
+    assert result.discovery is None
+    assert result.validation is None
+    assert result.artifact_manifest is None
+    assert result.artifact_integrities == ()
+
+
+@pytest.mark.parametrize(
+    "profile",
+    (BuildProfile.CI, BuildProfile.RELEASE_CANDIDATE),
+)
+def test_required_evidence_profile_accepts_explicit_destination(
+    tmp_path: Path,
+    profile: BuildProfile,
+) -> None:
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected test failure",
+        )
+    )
+    evidence_output = tmp_path / "build-evidence.json"
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        profile=profile,
+        evidence_output=evidence_output,
+    )
+
+    assert result.diagnostic == "expected test failure"
+    assert result.build_context is not None
+    assert result.build_context.evidence_output == evidence_output
+    assert builder.calls == [(tmp_path, tmp_path / "dist")]
+
+
+@pytest.mark.parametrize(
+    ("evidence_output", "diagnostic"),
+    (
+        (
+            Path("pyproject.toml"),
+            "build evidence output must not replace "
+            "authoritative repository files",
+        ),
+        (
+            Path("requirements.txt"),
+            "build evidence output must not replace "
+            "authoritative repository files",
+        ),
+        (
+            Path("src/build-evidence.json"),
+            "build evidence output must not overlap "
+            "authoritative repository content",
+        ),
+        (
+            Path("dist/build-evidence.json"),
+            "build evidence output must not overlap package output directory",
+        ),
+    ),
+)
+def test_evidence_output_conflict_prevents_package_execution(
+    tmp_path: Path,
+    evidence_output: Path,
+    diagnostic: str,
+) -> None:
+    builder = _PackageBuilder(
+        PackageBuildResult(status=PackageBuildStatus.SUCCEEDED)
+    )
+    discoverer = _RecordingDiscoverer()
+
+    result = RunPackageBuildUseCase(
+        builder,
+        discoverer,
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        evidence_output=evidence_output,
+    )
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.diagnostic == diagnostic
+    assert result.build_context is not None
+    assert result.build_context.evidence_output == tmp_path / evidence_output
+    assert builder.calls == []
+    assert discoverer.called is False
+    assert result.discovery is None
+    assert result.validation is None
+    assert result.artifact_manifest is None
+
+
+def test_optional_functional_validation_remains_explicit_and_optional(
+    tmp_path: Path,
+) -> None:
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected test failure",
+        )
+    )
+    use_case = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    )
+
+    optional_result = use_case.execute(Path("dist"))
+    requested_result = use_case.execute(
+        Path("dist"),
+        validate_functionally=True,
+    )
+
+    assert optional_result.build_context is not None
+    assert requested_result.build_context is not None
+    assert (
+        optional_result.build_context.effective_configuration.functional_validation
+        is False
+    )
+    assert (
+        requested_result.build_context.effective_configuration.functional_validation
+        is True
+    )
+    assert builder.calls == [
+        (tmp_path, tmp_path / "dist"),
+        (tmp_path, tmp_path / "dist"),
     ]

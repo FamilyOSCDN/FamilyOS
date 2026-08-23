@@ -12,6 +12,9 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationResult,
 )
 from familyos_cli.application.build.dependency_state import DependencyState
+from familyos_cli.application.build.effective_build_configuration_view import (
+    EffectiveBuildConfigurationView,
+)
 from familyos_cli.application.build.source_state import SourceState
 
 
@@ -22,6 +25,7 @@ class BuildEvidence:
     build_id: BuildId
     source_state: SourceState
     dependency_state: DependencyState
+    effective_configuration: EffectiveBuildConfigurationView
     validation_result: BuildValidationResult
     artifact_manifest: ArtifactManifest
     artifact_integrities: tuple[ArtifactIntegrity, ...]
@@ -37,6 +41,15 @@ class BuildEvidence:
         if self.validation_result.build_id != self.build_id:
             raise ValueError(
                 "validation result build ID does not match Build Evidence"
+            )
+
+        if (
+            self.effective_configuration.profile.value
+            != self.validation_result.profile.value
+        ):
+            raise ValueError(
+                "effective configuration profile does not match "
+                "Build Evidence validation profile"
             )
 
         if self.artifact_manifest.build_id != self.build_id:
