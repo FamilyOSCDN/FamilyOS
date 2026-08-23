@@ -11,6 +11,12 @@ from familyos_cli.application.build.artifact_discovery import (
     CanonicalPackageBuildResult,
 )
 from familyos_cli.application.build.artifact_manifest import ArtifactManifest
+from familyos_cli.application.build.build_context import (
+    BuildContext,
+    BuildEffectiveConfiguration,
+    BuildProfile,
+    BuildTarget,
+)
 from familyos_cli.application.build.build_evidence_factory import (
     BuildEvidenceFactory,
 )
@@ -20,11 +26,17 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationResult,
     BuildValidationStatus,
 )
+from familyos_cli.application.build.dependency_state import DependencyState
+from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
 )
 from familyos_cli.application.build.source_state import SourceState
+from familyos_cli.application.build.toolchain_state import (
+    ToolchainState,
+    ToolchainVersion,
+)
 
 _BUILD_ID = BuildId(
     UUID("01234567-89ab-4cde-8f01-23456789abcd")
@@ -39,6 +51,36 @@ _SOURCE_STATE = SourceState(
     dirty=False,
 )
 
+_DEPENDENCY_STATE = DependencyState(
+    declaration_path=Path("/project/pyproject.toml"),
+    declaration_digest="a" * 64,
+    lock_path=Path("/project/requirements.txt"),
+    lock_digest="b" * 64,
+)
+
+
+def _build_context() -> BuildContext:
+    return BuildContext(
+        build_id=_BUILD_ID,
+        source_state=_SOURCE_STATE,
+        dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=ToolchainState(
+            critical_versions=(ToolchainVersion("build", "1.5.0"),),
+        ),
+        environment_state=EnvironmentState(
+            operating_system="Darwin",
+            operating_system_release="24.6.0",
+            machine_architecture="arm64",
+        ),
+        profile=BuildProfile.VALIDATION,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        runtime_version="3.13.7",
+        effective_configuration=BuildEffectiveConfiguration(
+            functional_validation=False,
+        ),
+        output_dir=Path("/project/dist"),
+    )
+
 
 def _package_result() -> CanonicalPackageBuildResult:
     return CanonicalPackageBuildResult(
@@ -48,6 +90,7 @@ def _package_result() -> CanonicalPackageBuildResult:
             outputs=(Path("dist/familyos_cli-0.1.0-py3-none-any.whl"),),
         ),
         source_state=_SOURCE_STATE,
+        build_context=_build_context(),
         build_id=_BUILD_ID,
         artifact_integrities=(),
         artifact_manifest=ArtifactManifest(
@@ -80,6 +123,11 @@ def test_factory_preserves_canonical_package_build_authorities() -> None:
 
     assert evidence.build_id == package_result.build_id
     assert evidence.source_state is package_result.source_state
+    assert package_result.build_context is not None
+    assert (
+        evidence.dependency_state
+        is package_result.build_context.dependency_state
+    )
     assert evidence.validation_result is validation_result
     assert evidence.artifact_manifest is package_result.artifact_manifest
     assert evidence.artifact_integrities is package_result.artifact_integrities
@@ -92,6 +140,28 @@ def test_factory_preserves_validation_profile() -> None:
     )
 
     assert evidence.profile is BuildValidationProfile.VALIDATION
+
+
+def test_factory_requires_build_context() -> None:
+    package_result = _package_result()
+
+    package_result = CanonicalPackageBuildResult(
+        status=package_result.status,
+        execution=package_result.execution,
+        source_state=package_result.source_state,
+        build_id=package_result.build_id,
+        artifact_integrities=package_result.artifact_integrities,
+        artifact_manifest=package_result.artifact_manifest,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="package build does not contain Build Context",
+    ):
+        BuildEvidenceFactory().from_package_build(
+            package_result,
+            _validation_result(),
+        )
 
 
 def test_factory_rejects_mismatched_validation_build_id() -> None:
@@ -112,6 +182,7 @@ def test_factory_requires_artifact_manifest() -> None:
         status=package_result.status,
         execution=package_result.execution,
         source_state=package_result.source_state,
+        build_context=package_result.build_context,
         build_id=package_result.build_id,
         artifact_integrities=package_result.artifact_integrities,
     )
@@ -136,6 +207,7 @@ def test_factory_requires_captured_source_revision() -> None:
             revision=None,
             dirty=False,
         ),
+        build_context=package_result.build_context,
         build_id=package_result.build_id,
         artifact_integrities=package_result.artifact_integrities,
         artifact_manifest=package_result.artifact_manifest,

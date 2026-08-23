@@ -7,6 +7,8 @@ from types import SimpleNamespace
 from typing import Any
 from uuid import UUID
 
+import pytest
+
 import familyos_cli.interfaces.cli.commands.build as build_command
 from familyos_cli.application.build.build_context import BuildProfile
 from familyos_cli.application.build.build_id import BuildId
@@ -196,7 +198,10 @@ def test_successful_build_writes_build_evidence(
         is BuildValidationRequirement.OPTIONAL
     )
     assert captured["validation_build_id"] == _BUILD_ID
-    assert captured["validation_profile"] is BuildValidationProfile.CI
+    assert (
+        captured["validation_profile"]
+        is BuildValidationProfile.DEVELOPMENT
+    )
     assert captured["validation_checks"] == ("package-checks",)
     assert captured["evidence_package_result"] is result
     assert captured["rendered_evidence"] is not None
@@ -263,7 +268,10 @@ def test_evidence_output_does_not_implicitly_select_ci_build_profile(
         )
     ]
 
-    assert captured["validation_profile"] is BuildValidationProfile.CI
+    assert (
+        captured["validation_profile"]
+        is BuildValidationProfile.DEVELOPMENT
+    )
 
 
 def test_functional_build_requires_functional_validation_in_evidence(
@@ -299,7 +307,54 @@ def test_functional_build_requires_functional_validation_in_evidence(
         captured["functional_requirement"]
         is BuildValidationRequirement.REQUIRED
     )
-    assert captured["validation_profile"] is BuildValidationProfile.CI
+    assert (
+        captured["validation_profile"]
+        is BuildValidationProfile.DEVELOPMENT
+    )
+
+
+@pytest.mark.parametrize(
+    ("build_profile", "validation_profile"),
+    (
+        (
+            BuildProfile.DEVELOPMENT,
+            BuildValidationProfile.DEVELOPMENT,
+        ),
+        (
+            BuildProfile.VALIDATION,
+            BuildValidationProfile.VALIDATION,
+        ),
+        (BuildProfile.CI, BuildValidationProfile.CI),
+        (
+            BuildProfile.RELEASE_CANDIDATE,
+            BuildValidationProfile.RELEASE_CANDIDATE,
+        ),
+    ),
+)
+def test_evidence_validation_profile_matches_build_profile(
+    tmp_path: Path,
+    monkeypatch: Any,
+    build_profile: BuildProfile,
+    validation_profile: BuildValidationProfile,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        profile=build_profile,
+        evidence_output=tmp_path / "build-evidence.json",
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert captured["validation_profile"] is validation_profile
 
 
 def test_failed_build_does_not_write_build_evidence(

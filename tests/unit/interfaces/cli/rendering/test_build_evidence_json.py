@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 from uuid import UUID
 
@@ -26,6 +27,7 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationResult,
     BuildValidationStatus,
 )
+from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.package_validation import (
     PackageStructuralValidationStatus,
 )
@@ -41,6 +43,13 @@ _BUILD_ID = BuildId(
 _SOURCE_STATE = SourceState(
     revision="a" * 40,
     dirty=False,
+)
+
+_DEPENDENCY_STATE = DependencyState(
+    declaration_path=Path("/checkout/pyproject.toml"),
+    declaration_digest="c" * 64,
+    lock_path=Path("/checkout/requirements.txt"),
+    lock_digest="d" * 64,
 )
 
 _ARTIFACT_PATH = Path(
@@ -98,6 +107,7 @@ _VALIDATION = BuildValidationResult(
 _EVIDENCE = BuildEvidence(
     build_id=_BUILD_ID,
     source_state=_SOURCE_STATE,
+    dependency_state=_DEPENDENCY_STATE,
     validation_result=_VALIDATION,
     artifact_manifest=_MANIFEST,
     artifact_integrities=(_INTEGRITY,),
@@ -114,6 +124,17 @@ def test_renderer_emits_canonical_build_evidence_json() -> None:
     assert payload["source"] == {
         "revision": _SOURCE_STATE.revision,
         "dirty": False,
+    }
+
+    assert payload["dependency_state"] == {
+        "declaration": {
+            "identity": "pyproject.toml",
+            "sha256": "c" * 64,
+        },
+        "lock": {
+            "identity": "requirements.txt",
+            "sha256": "d" * 64,
+        },
     }
 
     assert payload["validation"]["profile"] == "ci"
@@ -163,3 +184,36 @@ def test_renderer_terminates_json_with_newline() -> None:
     rendered = BuildEvidenceJsonRenderer().render(_EVIDENCE)
 
     assert rendered.endswith("\n")
+
+
+def test_dependency_state_is_portable_across_checkout_roots(
+    tmp_path: Path,
+) -> None:
+    first_root = tmp_path / "first-checkout"
+    second_root = tmp_path / "second-checkout"
+
+    first = replace(
+        _EVIDENCE,
+        dependency_state=DependencyState(
+            declaration_path=first_root / "pyproject.toml",
+            declaration_digest="c" * 64,
+            lock_path=first_root / "requirements.txt",
+            lock_digest="d" * 64,
+        ),
+    )
+    second = replace(
+        _EVIDENCE,
+        dependency_state=DependencyState(
+            declaration_path=second_root / "pyproject.toml",
+            declaration_digest="c" * 64,
+            lock_path=second_root / "requirements.txt",
+            lock_digest="d" * 64,
+        ),
+    )
+
+    first_rendered = BuildEvidenceJsonRenderer().render(first)
+    second_rendered = BuildEvidenceJsonRenderer().render(second)
+
+    assert first_rendered == second_rendered
+    assert str(first_root) not in first_rendered
+    assert str(second_root) not in second_rendered

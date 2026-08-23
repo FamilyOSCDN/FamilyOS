@@ -800,21 +800,25 @@ Make dependency state sufficiently explicit and reproducible.
 * [x] Inventory build dependencies.
 * [x] Inventory development dependencies.
 * [x] Inventory validation dependencies.
-* [ ] Remove undeclared build dependencies.
+* [x] Remove undeclared build dependencies.
 * [x] Confirm canonical dependency declaration source.
 * [x] Define version-constraint strategy.
 * [x] Evaluate dependency lock strategy.
-* [ ] Ensure CI installs from canonical definitions.
+* [x] Ensure CI installs from canonical definitions.
 * [x] Validate dependency-resolution failures clearly.
 * [x] Validate runtime compatibility.
-* [ ] Review unused dependencies.
-* [ ] Review duplicated dependency functionality.
+* [x] Review unused dependencies.
+* [x] Review duplicated dependency functionality.
 * [x] Define dependency update workflow.
-* [ ] Define security review integration.
-* [ ] Capture dependency state in release-candidate evidence when appropriate.
+* [x] Define security review integration.
+* [x] Capture dependency state in release-candidate evidence when appropriate.
 * [x] Add dependency-resolution tests where practical.
 
-Implementation evidence: commit `113148e` establishes and validates the Python 3.13 development/CI dependency version-resolution baseline. This does not complete CI integration or the broader Build Framework implementation.
+Initial implementation evidence: commit `113148e` established and validated the
+Python 3.13 development/CI dependency version-resolution baseline. Subsequent
+canonical bootstrap, CI, build-isolation, hygiene, and fresh-environment work
+completed the Level 11 dependency-management controls described below without
+claiming completion of unrelated Build Framework levels.
 
 Incremental isolated-backend evidence: canonical pypa/build execution now
 receives the absolute committed `requirements.txt` path as dependency
@@ -822,15 +826,86 @@ constraints for both its isolated sdist environment and its separate isolated
 wheel-from-sdist environment. Constraints restrict versions only for packages
 the backend requests; they do not install the complete lock or reject an
 otherwise resolvable dependency merely because it is absent. Build isolation
-and network/cache dependence remain. This evidence does not close `Ensure CI
-installs from canonical definitions`, and it does not establish the broader
-critical toolchain version identity required by Level 40.
+and network/cache dependence remain. This isolated-backend constraint mechanism
+complements rather than replaces full environment installation from the
+canonical lock. It does not establish the broader critical toolchain version
+identity required by Level 40.
+
+Undeclared-build-dependency closure: canonical package construction does not
+depend on an undeclared Python distribution. The `build` frontend,
+`setuptools` backend, `wheel` artifact support, `packaging` standards support,
+and `pip-tools` dependency-state compiler are all represented in canonical
+dependency declarations and the controlled resolution. Git remains an
+explicitly documented external system prerequisite for source-state
+observation and is not a Python dependency. Fresh-environment acceptance used
+the repository-owned bootstrap without global packages, the repository-local
+virtual environment, system site packages, or `PYTHONPATH` contamination.
+
+Canonical CI dependency installation is:
+
+```text
+python -m pip install -r requirements.txt
+python -m pip install --no-deps --no-build-isolation -e .
+familyos validation ci --output ci-validation.json
+familyos build --profile ci --output-dir dist --evidence-output build-evidence.json
+```
+
+`requirements.txt` is generated from the direct dependency authority in
+`pyproject.toml`. CI does not introduce an independent dependency-installation
+path that bypasses these controlled definitions. Isolated backend resolution
+uses declared build-system requirements under the canonical lock constraints.
+Dependency freshness plus dependency consistency are mandatory canonical CI
+validation gates before package construction.
+
+The unused-dependency review found an identified role for every remaining
+direct dependency. `packaging` supports standards-aware requirement and version
+handling; `typer` owns the CLI surface; `jinja2` owns template rendering;
+`pyyaml` owns YAML loading; and `pydantic` owns configuration models and
+validation. The development and build declarations assign `build` to package
+frontend execution, `pytest` to tests, `ruff` to linting, `mypy` to static
+typing, `types-PyYAML` to YAML type information, and `pip-tools` to
+dependency-lock compilation; `setuptools` and `wheel` supply the declared
+build backend and artifact support. Commit `53cc47f` (`chore(deps): remove
+redundant direct rich dependency`) removed FamilyOS's redundant direct Rich
+declaration. Rich remains in the controlled resolution only as a transitive
+dependency of Typer and is not a FamilyOS-owned direct contract.
+
+The duplicate-functionality review found no materially interchangeable direct
+dependency pair. `build`, `setuptools`, and `wheel` perform complementary
+frontend, backend, and artifact roles. Ruff linting and MyPy static typing are
+distinct validation responsibilities, while `pip-tools` is the canonical
+dependency-resolution and lock compiler. No duplicate direct CLI, YAML,
+templating, validation/model, or packaging framework was identified.
+
+Dependency-security review integration is now defined explicitly in
+`10-Dependency-Management.md`. The contract identifies the complete controlled
+direct and transitive dependency resolution through canonical declaration and
+lock digests, defines dependency-change and release-candidate trigger points,
+and establishes `PASS`, `FAIL`, `SKIPPED`, and `ERROR` outcome semantics.
+
+Security Architecture remains authoritative for vulnerability policy, finding
+interpretation, severity, exceptions, and risk acceptance. The Build Framework
+owns dependency facts and evidence binding, while the Release Framework may
+consume mature Security-owned conclusions for candidate qualification. CI
+integration is deferred until a stable local Security-owned implementation
+exists. This documentation contract does not select or implement a scanner,
+query advisory intelligence, add a CI gate, or establish release-candidate
+security blocking behavior. This contract itself does not capture dependency
+state; the separate Level 11.4 implementation is described below.
+
+The subsequent Level 11.4 evidence slice closes that separate gap. Every
+`BuildEvidence` instance now carries the dependency state already captured in
+its canonical `BuildContext`. JSON evidence exposes stable `pyproject.toml` and
+`requirements.txt` identities with their existing SHA-256 digests, excludes
+absolute checkout paths, and reports the validation profile corresponding to
+the selected build profile, including `release-candidate`. This does not make
+evidence-output selection mandatory based on profile policy.
 
 ---
 
 # Dependency Reproducibility Milestone
 
-A stronger implementation should support:
+Level 11 demonstrates the implemented flow:
 
 ```text id="3dpqmu"
 Canonical Dependency Declaration
@@ -839,6 +914,11 @@ Controlled Resolution State
             ↓
 Reconstructable Dependency Environment
 ```
+
+Fresh-environment acceptance and canonical CI validation establish this
+capability for the supported Python 3.13 development and CI workflow. It does
+not claim offline resolution, artifact equivalence, vulnerability scanning, or
+release authority.
 
 ---
 

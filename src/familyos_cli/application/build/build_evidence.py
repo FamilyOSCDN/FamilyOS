@@ -11,6 +11,7 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationProfile,
     BuildValidationResult,
 )
+from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.source_state import SourceState
 
 
@@ -20,6 +21,7 @@ class BuildEvidence:
 
     build_id: BuildId
     source_state: SourceState
+    dependency_state: DependencyState
     validation_result: BuildValidationResult
     artifact_manifest: ArtifactManifest
     artifact_integrities: tuple[ArtifactIntegrity, ...]

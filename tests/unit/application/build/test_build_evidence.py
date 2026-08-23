@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import MISSING, fields
 from pathlib import Path
 from uuid import UUID
 
@@ -23,6 +24,7 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationResult,
     BuildValidationStatus,
 )
+from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.package_validation import (
     PackageStructuralValidationStatus,
 )
@@ -39,6 +41,13 @@ _OTHER_BUILD_ID = BuildId(
 _SOURCE_STATE = SourceState(
     revision="0123456789abcdef0123456789abcdef01234567",
     dirty=False,
+)
+
+_DEPENDENCY_STATE = DependencyState(
+    declaration_path=Path("/project/pyproject.toml"),
+    declaration_digest="c" * 64,
+    lock_path=Path("/project/requirements.txt"),
+    lock_digest="d" * 64,
 )
 
 
@@ -79,6 +88,7 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        dependency_state=_DEPENDENCY_STATE,
         validation_result=_validation(),
         artifact_manifest=manifest,
         artifact_integrities=(),
@@ -86,6 +96,7 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
 
     assert evidence.build_id == _BUILD_ID
     assert evidence.source_state == _SOURCE_STATE
+    assert evidence.dependency_state is _DEPENDENCY_STATE
     assert evidence.validation_result == _validation()
     assert evidence.artifact_manifest is manifest
     assert evidence.artifact_integrities == ()
@@ -95,6 +106,7 @@ def test_build_evidence_exposes_source_revision() -> None:
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        dependency_state=_DEPENDENCY_STATE,
         validation_result=_validation(),
         artifact_manifest=_manifest(),
         artifact_integrities=(),
@@ -107,12 +119,24 @@ def test_build_evidence_exposes_validation_profile() -> None:
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        dependency_state=_DEPENDENCY_STATE,
         validation_result=_validation(),
         artifact_manifest=_manifest(),
         artifact_integrities=(),
     )
 
     assert evidence.profile is BuildValidationProfile.VALIDATION
+
+
+def test_build_evidence_requires_dependency_state() -> None:
+    dependency_field = next(
+        field
+        for field in fields(BuildEvidence)
+        if field.name == "dependency_state"
+    )
+
+    assert dependency_field.default is MISSING
+    assert dependency_field.default_factory is MISSING
 
 
 def test_build_evidence_requires_matching_validation_build_id() -> None:
@@ -130,6 +154,7 @@ def test_build_evidence_requires_matching_validation_build_id() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            dependency_state=_DEPENDENCY_STATE,
             validation_result=validation,
             artifact_manifest=_manifest(),
             artifact_integrities=(),
@@ -149,6 +174,7 @@ def test_build_evidence_requires_matching_manifest_build_id() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            dependency_state=_DEPENDENCY_STATE,
             validation_result=_validation(),
             artifact_manifest=manifest,
             artifact_integrities=(),
@@ -168,6 +194,7 @@ def test_build_evidence_requires_captured_source_revision() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=source_state,
+            dependency_state=_DEPENDENCY_STATE,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(),
@@ -200,6 +227,7 @@ def test_build_evidence_rejects_integrity_from_different_build() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            dependency_state=_DEPENDENCY_STATE,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(foreign_integrity,),
@@ -232,6 +260,7 @@ def test_build_evidence_rejects_integrity_not_represented_by_manifest() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            dependency_state=_DEPENDENCY_STATE,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(integrity,),

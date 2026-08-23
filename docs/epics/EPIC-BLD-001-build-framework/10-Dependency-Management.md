@@ -550,7 +550,7 @@ Review the resolved lock diff
 Run freshness and regression validation
 ```
 
-The current baseline closes version-resolution reproducibility only. It does not provide artifact hashes, SBOM generation, provenance or attestations, vulnerability scanning, a platform matrix, multiple Python-version locks, artifact-equivalence or repeated-build guarantees, or CI execution.
+The current baseline closes version-resolution reproducibility for the supported Python 3.13 development and CI workflow and is executed by canonical CI. It does not provide artifact hashes, SBOM generation, provenance or attestations, vulnerability scanning, a platform matrix, multiple Python-version locks, or artifact-equivalence or repeated-build guarantees.
 
 ---
 
@@ -798,6 +798,137 @@ A dependency vulnerability may affect:
 * release approval.
 
 Severity and action thresholds should be governed through Security and Quality frameworks.
+
+---
+
+# Dependency Security Review Integration Contract
+
+Dependency security review is a cross-framework responsibility.
+
+The Build Framework supplies controlled dependency facts and stable integration points. It does not define vulnerability policy, severity meaning, risk acceptance, or release-blocking thresholds.
+
+This contract defines how dependency state becomes an identifiable subject for Security-owned review and how resulting evidence may be consumed without transferring policy ownership into the Build Framework.
+
+## Review Subject
+
+The review subject is the complete controlled dependency resolution applicable to the build or release candidate.
+
+It includes:
+
+* direct dependencies;
+* transitive dependencies;
+* runtime dependencies;
+* build dependencies;
+* development and validation dependencies where they affect the reviewed workflow.
+
+The subject must be identified by the canonical dependency declaration digest and dependency lock digest.
+
+A package name, source revision, branch name, or mutable environment alone is not a sufficient dependency-review identity.
+
+## Review Triggers
+
+Dependency security review should be requested when:
+
+* canonical dependency declarations change;
+* the controlled lock or resolved dependency state changes;
+* a release candidate is qualified under an applicable security or release policy.
+
+An existing review becomes stale when its bound declaration or lock digest no longer matches the dependency state under consideration.
+
+Periodic review may also be appropriate because external advisory intelligence can change without a repository dependency change.
+
+The Security and Release Frameworks determine when periodic review is required for a particular risk or release profile.
+
+## Authority Boundary
+
+Responsibility remains divided as follows:
+
+```text
+Build Framework
+    ↓ supplies dependency facts and evidence identity
+Security Framework
+    ↓ owns policy, findings, severity, exceptions, and interpretation
+Release Framework
+    ↓ consumes mature security conclusions for candidate qualification
+CI
+    ↓ may execute mature repeatable checks
+```
+
+The Quality Framework may contribute broader quality and blocking policy.
+
+CI is an execution environment. It is not the source of dependency-security policy.
+
+## Review Outcome Semantics
+
+Dependency security review uses four explicit outcome classes:
+
+```text
+PASS
+FAIL
+SKIPPED
+ERROR
+```
+
+`PASS` means the identified dependency state was evaluated successfully under the applicable Security-owned policy and no condition requiring a different outcome was found.
+
+`FAIL` means the review completed and identified one or more findings that do not satisfy the applicable Security-owned policy.
+
+`SKIPPED` means the review was intentionally not performed. The reason and authorizing policy or authority must remain explicit.
+
+`ERROR` means the review could not complete reliably, including when required tooling, advisory intelligence, or another review prerequisite was unavailable or invalid.
+
+A missing, unavailable, partially executed, or silently disabled review MUST NOT be represented as `PASS`.
+
+These outcomes describe dependency security review only. They do not independently declare a build trusted or authorize a release.
+
+## Blocking Semantics
+
+The Build Framework does not invent vulnerability severity thresholds or translate findings into release policy.
+
+Security and Release policy determine whether a review outcome or finding blocks candidate qualification or publication. Quality governance may contribute broader blocking requirements.
+
+Critical dependency findings should normally block release unless they are explicitly governed through an applicable accepted-risk or exception mechanism.
+
+This contract does not add or change current build, CI, release-candidate, or publication blocking behavior.
+
+## Exception And Risk Acceptance
+
+An exception or accepted risk associated with dependency security must be:
+
+* explicit;
+* attributable to an approving authority and owner;
+* scoped to the affected dependency state and finding;
+* time-bounded or assigned an explicit review condition where appropriate;
+* auditable;
+* supported by rationale and any required compensating controls.
+
+Risk acceptance must identify the relevant dependency-security finding or findings. It must not silently convert an unresolved finding, skipped review, or review error into `PASS`.
+
+## Evidence Binding
+
+Dependency-security review evidence should be associated with:
+
+* the dependency declaration digest;
+* the dependency lock digest;
+* the Build ID where applicable;
+* the source revision where applicable;
+* the review observation time;
+* the review authority and tool identity, where a tool participates;
+* the review result and finding identifiers.
+
+When external advisory intelligence participates, the observation time and intelligence source must remain identifiable because an equivalent dependency state may receive a different later result as advisory knowledge changes.
+
+Evidence that cannot be associated with the reviewed dependency state must not be treated as evidence for that state.
+
+## Tooling And Automation Boundary
+
+This Build Framework contract does not select or implement a dependency vulnerability scanner.
+
+Scanner selection and vulnerability-analysis implementation belong to later Security-owned work. Any future scanner required for canonical engineering workflows must itself be declared through canonical dependency or toolchain state.
+
+Stable local validation should precede CI enforcement. Once a Security-owned implementation is mature and repeatable, CI may execute it and preserve its result, while the Release Framework may consume the resulting security conclusion according to release policy.
+
+This contract does not claim that vulnerability scanning exists, that advisory intelligence is currently queried, that CI currently blocks dependency vulnerabilities, or that release-candidate security gating is implemented.
 
 ---
 

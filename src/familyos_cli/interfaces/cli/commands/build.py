@@ -31,6 +31,15 @@ EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
 DEFAULT_OUTPUT_DIR = Path("dist")
 
+_VALIDATION_PROFILE_BY_BUILD_PROFILE = {
+    BuildProfile.DEVELOPMENT: BuildValidationProfile.DEVELOPMENT,
+    BuildProfile.VALIDATION: BuildValidationProfile.VALIDATION,
+    BuildProfile.CI: BuildValidationProfile.CI,
+    BuildProfile.RELEASE_CANDIDATE: (
+        BuildValidationProfile.RELEASE_CANDIDATE
+    ),
+}
+
 
 def run_package_build(
     output_dir: Path,
@@ -66,7 +75,7 @@ def run_package_build(
 
         validation_result = BuildValidationOrchestrator().execute(
             build_id=result.build_id,
-            profile=BuildValidationProfile.CI,
+            profile=_VALIDATION_PROFILE_BY_BUILD_PROFILE[profile],
             checks=checks,
         )
 

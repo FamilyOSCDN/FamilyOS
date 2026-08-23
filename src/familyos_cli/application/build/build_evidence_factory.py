@@ -29,6 +29,11 @@ class BuildEvidenceFactory:
                 "package build does not contain a captured source revision"
             )
 
+        if package_result.build_context is None:
+            raise ValueError(
+                "package build does not contain Build Context"
+            )
+
         if package_result.artifact_manifest is None:
             raise ValueError(
                 "package build does not contain an artifact manifest"
@@ -37,6 +42,7 @@ class BuildEvidenceFactory:
         return BuildEvidence(
             build_id=package_result.build_id,
             source_state=package_result.source_state,
+            dependency_state=package_result.build_context.dependency_state,
             validation_result=validation_result,
             artifact_manifest=package_result.artifact_manifest,
             artifact_integrities=package_result.artifact_integrities,

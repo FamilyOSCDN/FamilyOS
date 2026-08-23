@@ -20,6 +20,7 @@ from familyos_cli.application.build.build_validation import (
 from familyos_cli.application.build.build_validation_checks import (
     BuildValidationCheckFactory,
 )
+from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
@@ -37,6 +38,13 @@ _BUILD_ID = BuildId(
 _SOURCE_STATE = SourceState(
     revision="0123456789abcdef0123456789abcdef01234567",
     dirty=False,
+)
+
+_DEPENDENCY_STATE = DependencyState(
+    declaration_path=Path("/project/pyproject.toml"),
+    declaration_digest="a" * 64,
+    lock_path=Path("/project/requirements.txt"),
+    lock_digest="b" * 64,
 )
 
 
@@ -766,6 +774,7 @@ def test_evidence_validation_maps_coherent_build_evidence(
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        dependency_state=_DEPENDENCY_STATE,
         validation_result=BuildValidationResult(
             build_id=_BUILD_ID,
             profile=BuildValidationProfile.VALIDATION,
@@ -823,6 +832,7 @@ def test_evidence_validation_rejects_evidence_for_different_build() -> None:
     evidence = BuildEvidence(
         build_id=other_build_id,
         source_state=_SOURCE_STATE,
+        dependency_state=_DEPENDENCY_STATE,
         validation_result=BuildValidationResult(
             build_id=other_build_id,
             profile=BuildValidationProfile.VALIDATION,

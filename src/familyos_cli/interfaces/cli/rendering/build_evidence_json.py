@@ -27,6 +27,16 @@ class BuildEvidenceJsonRenderer:
                 "revision": evidence.source_state.revision,
                 "dirty": evidence.source_state.dirty,
             },
+            "dependency_state": {
+                "declaration": {
+                    "identity": evidence.dependency_state.declaration_path.name,
+                    "sha256": evidence.dependency_state.declaration_digest,
+                },
+                "lock": {
+                    "identity": evidence.dependency_state.lock_path.name,
+                    "sha256": evidence.dependency_state.lock_digest,
+                },
+            },
             "validation": {
                 "profile": evidence.validation_result.profile.value,
                 "status": evidence.validation_result.status.value,

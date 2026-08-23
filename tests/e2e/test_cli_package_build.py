@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from pathlib import Path
 
@@ -479,3 +480,41 @@ def test_real_familyos_build_accepts_explicit_ci_profile(
     assert "Python Package Structural Validation: VALID" in result.output
     assert len(tuple(output_dir.glob("*.whl"))) == 1
     assert len(tuple(output_dir.glob("*.tar.gz"))) == 1
+
+
+@pytest.mark.parametrize(
+    "profile",
+    (BuildProfile.CI, BuildProfile.RELEASE_CANDIDATE),
+)
+def test_real_familyos_build_evidence_captures_dependency_state_and_profile(
+    tmp_path: Path,
+    profile: BuildProfile,
+) -> None:
+    output_dir = tmp_path / f"real-{profile.value}-package-output"
+    evidence_output = tmp_path / f"{profile.value}-build-evidence.json"
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--profile",
+            profile.value,
+            "--evidence-output",
+            str(evidence_output),
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0, result.output
+
+    payload = json.loads(evidence_output.read_text(encoding="utf-8"))
+    dependency_state = payload["dependency_state"]
+
+    assert payload["validation"]["profile"] == profile.value
+    assert dependency_state["declaration"]["identity"] == "pyproject.toml"
+    assert dependency_state["lock"]["identity"] == "requirements.txt"
+    assert len(dependency_state["declaration"]["sha256"]) == 64
+    assert len(dependency_state["lock"]["sha256"]) == 64
+    assert str(Path.cwd()) not in json.dumps(dependency_state)
