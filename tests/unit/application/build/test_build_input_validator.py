@@ -7,6 +7,9 @@ from pathlib import Path
 import pytest
 
 from familyos_cli.application.build.build_context import BuildTarget
+from familyos_cli.application.build.build_input_validation import (
+    BuildInputValidationResult,
+)
 from familyos_cli.application.build.build_input_validator import (
     BuildInputValidator,
 )
@@ -66,7 +69,7 @@ def _write_required_inputs(
 
 def _validate(
     project_root: Path,
-):
+) -> BuildInputValidationResult:
     return BuildInputValidator().validate(
         project_root=project_root,
         target_definition=get_build_target_definition(

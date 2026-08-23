@@ -12,6 +12,9 @@ class EnvironmentState:
     operating_system: str
     operating_system_release: str
     machine_architecture: str
+    virtual_environment_active: bool = False
+    temporary_directory: str = "/tmp"
+    filesystem_encoding: str = "utf-8"
 
     def __post_init__(self) -> None:
         """Reject incomplete canonical environment state."""
@@ -24,3 +27,18 @@ class EnvironmentState:
 
         if not self.machine_architecture:
             raise ValueError("machine architecture must not be empty")
+
+        if not isinstance(self.virtual_environment_active, bool):
+            raise ValueError(
+                "virtual environment state must be a boolean",
+            )
+
+        if not self.temporary_directory.strip():
+            raise ValueError(
+                "temporary directory must not be empty",
+            )
+
+        if not self.filesystem_encoding.strip():
+            raise ValueError(
+                "filesystem encoding must not be empty",
+            )

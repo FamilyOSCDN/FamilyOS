@@ -423,6 +423,9 @@ def test_build_renders_non_sensitive_build_context(
     assert "Operating System: Darwin" in stdout
     assert "Operating System Release: 24.6.0" in stdout
     assert "Machine Architecture: arm64" in stdout
+    assert "Virtual Environment Active: False" in stdout
+    assert "Temporary Directory: /tmp" in stdout
+    assert "Filesystem Encoding: utf-8" in stdout
     assert "Toolchain build: 1.5.0" in stdout
     assert "Toolchain pip-tools: 7.6.1" in stdout
     assert "Toolchain setuptools: 84.0.0" in stdout

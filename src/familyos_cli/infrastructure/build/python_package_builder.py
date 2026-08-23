@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -41,10 +42,12 @@ class PythonPackageBuilder(PackageBuilderPort):
             "--outdir",
             str(output_dir),
         )
+        environment = self._sanitized_environment()
         try:
             completed = subprocess.run(
                 command,
                 cwd=project_root,
+                env=environment,
                 capture_output=True,
                 check=False,
                 text=True,
@@ -74,6 +77,27 @@ class PythonPackageBuilder(PackageBuilderPort):
             outputs=outputs,
             exit_code=0,
         )
+
+    def _sanitized_environment(self) -> dict[str, str]:
+        """Remove Python contamination and publication credentials."""
+
+        environment = dict(os.environ)
+        for name in (
+            "PYTHONHOME",
+            "PYTHONPATH",
+            "PYTHONSTARTUP",
+            "PYTHONUSERBASE",
+            "VIRTUAL_ENV",
+            "__PYVENV_LAUNCHER__",
+            "TWINE_USERNAME",
+            "TWINE_PASSWORD",
+            "UV_PUBLISH_USERNAME",
+            "UV_PUBLISH_PASSWORD",
+            "UV_PUBLISH_TOKEN",
+        ):
+            environment.pop(name, None)
+        environment["PYTHONNOUSERSITE"] = "1"
+        return environment
 
     def _normalize_diagnostic(self, diagnostic: str, project_root: Path) -> str:
         """Remove repository-specific paths and bound diagnostic size."""

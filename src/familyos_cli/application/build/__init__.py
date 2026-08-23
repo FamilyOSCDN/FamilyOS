@@ -57,6 +57,18 @@ from familyos_cli.application.build.dependency_state_provider import (
 from familyos_cli.application.build.discover_package_artifacts import (
     DiscoverPackageArtifactsUseCase,
 )
+from familyos_cli.application.build.environment_state import EnvironmentState
+from familyos_cli.application.build.environment_state_provider import (
+    EnvironmentStateProvider,
+)
+from familyos_cli.application.build.environment_validation import (
+    EnvironmentValidationFinding,
+    EnvironmentValidationResult,
+    EnvironmentValidationStatus,
+)
+from familyos_cli.application.build.environment_validator import (
+    EnvironmentValidator,
+)
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
@@ -129,6 +141,12 @@ __all__ = [
     "DependencyStateProvider",
     "DiscoverPackageArtifactsUseCase",
     "DiscoveredArtifact",
+    "EnvironmentState",
+    "EnvironmentStateProvider",
+    "EnvironmentValidationFinding",
+    "EnvironmentValidationResult",
+    "EnvironmentValidationStatus",
+    "EnvironmentValidator",
     "ExpectedArtifactDefinition",
     "MutateArtifactUseCase",
     "MutatedArtifact",

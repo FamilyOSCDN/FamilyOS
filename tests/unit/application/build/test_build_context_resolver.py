@@ -300,3 +300,24 @@ def test_reuses_preobserved_runtime_version(
     )
 
     assert context.runtime_version == "3.13.99"
+
+
+def test_reuses_preobserved_environment_state_without_recapturing(
+    tmp_path: Path,
+) -> None:
+    environment_provider = _EnvironmentStateProvider()
+
+    context = _resolver(
+        tmp_path,
+        environment_provider=environment_provider,
+    ).resolve(
+        Path("dist"),
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        environment_state=_ENVIRONMENT_STATE,
+    )
+
+    assert context.environment_state is _ENVIRONMENT_STATE
+    assert environment_provider.calls == 0

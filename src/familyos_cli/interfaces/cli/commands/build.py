@@ -111,6 +111,16 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
             "Machine Architecture: "
             f"{environment.machine_architecture}"
         )
+        typer.echo(
+            "Virtual Environment Active: "
+            f"{environment.virtual_environment_active}"
+        )
+        typer.echo(
+            f"Temporary Directory: {environment.temporary_directory}"
+        )
+        typer.echo(
+            f"Filesystem Encoding: {environment.filesystem_encoding}"
+        )
 
         for component in context.toolchain_state.critical_versions:
             typer.echo(

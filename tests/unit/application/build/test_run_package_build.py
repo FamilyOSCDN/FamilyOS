@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import platform
 from pathlib import Path
 
 import pytest
@@ -1158,8 +1159,6 @@ def test_unsupported_runtime_prevents_package_execution(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import familyos_cli.application.build.run_package_build as run_module
-
     builder = _PackageBuilder(
         PackageBuildResult(
             status=PackageBuildStatus.SUCCEEDED,
@@ -1167,7 +1166,7 @@ def test_unsupported_runtime_prevents_package_execution(
     )
 
     monkeypatch.setattr(
-        run_module.platform,
+        platform,
         "python_version",
         lambda: "3.14.0",
     )
@@ -1343,10 +1342,8 @@ def test_validated_runtime_is_reused_in_build_context(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import familyos_cli.application.build.run_package_build as run_module
-
     monkeypatch.setattr(
-        run_module.platform,
+        platform,
         "python_version",
         lambda: "3.13.42",
     )
@@ -1369,3 +1366,109 @@ def test_validated_runtime_is_reused_in_build_context(
 
     assert result.build_context is not None
     assert result.build_context.runtime_version == "3.13.42"
+
+
+def test_invalid_environment_fails_before_package_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.environment_state import (
+        EnvironmentState,
+    )
+    from familyos_cli.application.build.environment_state_provider import (
+        EnvironmentStateProvider,
+    )
+
+    unavailable = tmp_path / "missing-environment-temp"
+
+    class _InvalidEnvironmentStateProvider(EnvironmentStateProvider):
+        def capture(self) -> EnvironmentState:
+            return EnvironmentState(
+                operating_system="TestOS",
+                operating_system_release="1.0",
+                machine_architecture="test-machine",
+                virtual_environment_active=True,
+                temporary_directory=str(unavailable),
+                filesystem_encoding="utf-8",
+            )
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="builder must not execute",
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        environment_state_provider=_InvalidEnvironmentStateProvider(),
+    ).execute(Path("dist"))
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.successful is False
+    assert result.execution.diagnostic == (
+        f"temporary directory is unavailable: {unavailable}"
+    )
+    assert result.build_context is None
+    assert builder.calls == []
+
+
+def test_environment_state_is_captured_once_and_reused_in_build_context(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.environment_state import (
+        EnvironmentState,
+    )
+    from familyos_cli.application.build.environment_state_provider import (
+        EnvironmentStateProvider,
+    )
+
+    observed_state = EnvironmentState(
+        operating_system="TestOS",
+        operating_system_release="1.0",
+        machine_architecture="test-machine",
+        virtual_environment_active=True,
+        temporary_directory=str(tmp_path),
+        filesystem_encoding="utf-8",
+    )
+
+    class _RecordingEnvironmentStateProvider(EnvironmentStateProvider):
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def capture(self) -> EnvironmentState:
+            self.calls += 1
+            return observed_state
+
+    provider = _RecordingEnvironmentStateProvider()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected test failure",
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        environment_state_provider=provider,
+    ).execute(Path("dist"))
+
+    assert provider.calls == 1
+    assert result.build_context is not None
+    assert result.build_context.environment_state is observed_state
+    assert builder.calls == [
+        (
+            tmp_path,
+            tmp_path / "dist",
+        )
+    ]

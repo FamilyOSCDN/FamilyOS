@@ -681,30 +681,104 @@ Ensure builds can be reconstructed from supported environment requirements.
 
 ### Checklist
 
-* [ ] Document supported development environment.
-* [ ] Document supported CI environment.
-* [ ] Validate Python runtime before build.
-* [ ] Detect active virtual environment where useful.
-* [ ] Define environment setup instructions.
-* [ ] Ensure a fresh virtual environment can reproduce the build.
-* [ ] Remove reliance on undeclared globally installed packages.
-* [ ] Identify required system tools.
-* [ ] Identify relevant filesystem requirements.
-* [ ] Identify relevant network requirements.
-* [ ] Define temporary-directory behavior.
-* [ ] Define cache locations.
-* [ ] Ensure caches remain optional.
-* [ ] Protect sensitive environment variables.
-* [ ] Minimize environment variable influence on artifact semantics.
-* [ ] Add environment-validation tests.
+* [x] Document supported development environment.
+* [x] Document supported CI environment.
+* [x] Validate Python runtime before build.
+* [x] Detect active virtual environment where useful.
+* [x] Define environment setup instructions.
+* [x] Ensure a fresh virtual environment can reproduce the build.
+* [x] Remove reliance on undeclared globally installed packages.
+* [x] Identify required system tools.
+* [x] Identify relevant filesystem requirements.
+* [x] Identify relevant network requirements.
+* [x] Define temporary-directory behavior.
+* [x] Define cache locations.
+* [x] Ensure caches remain optional.
+* [x] Protect sensitive environment variables.
+* [x] Minimize environment variable influence on artifact semantics.
+* [x] Add environment-validation tests.
+
+Implementation evidence: canonical environment observation now captures the
+operating system, operating-system release, machine architecture, virtual-
+environment state, temporary-directory location, and filesystem encoding as
+non-sensitive Build Context state. Structural invariants are enforced by
+`EnvironmentState`, while `EnvironmentValidator` verifies operational
+temporary-storage availability before package transformation.
+
+`RunPackageBuildUseCase` captures environment state once, validates it
+fail-fast before invoking the package builder, and reuses the exact validated
+observation when resolving `BuildContext`. Invalid environment state therefore
+cannot silently proceed into canonical package construction. Focused tests
+cover state invariants, provider observation, validation results, fail-fast
+execution, and single-capture Build Context reuse.
+
+The CLI exposes the effective non-sensitive environment state for inspection:
+runtime version, operating system, operating-system release, machine
+architecture, virtual-environment activity, temporary directory, filesystem
+encoding, and critical toolchain versions.
+
+Canonical package construction now passes an explicit sanitized environment to
+`python -m build`. Python contamination variables including `PYTHONHOME`,
+`PYTHONPATH`, `PYTHONSTARTUP`, `PYTHONUSERBASE`, `VIRTUAL_ENV`, and
+`__PYVENV_LAUNCHER__` are removed, `PYTHONNOUSERSITE=1` is enforced, and
+publication-only Twine/uv credentials are excluded. Ordinary environment state
+needed for supported networking, proxy, certificate, and host behavior remains
+available rather than adopting an unnecessarily restrictive platform-specific
+allowlist.
+
+The supported development and CI bootstrap uses Python 3.13, the generated and
+exactly pinned `requirements.txt` dependency state, and FamilyOS installation
+without additional dependency resolution. Git is the explicit external system
+tool used for source-state observation; package, validation, and dependency
+tooling executes through the controlled Python environment.
+
+Filesystem, temporary-storage, network, cache, and environment-variable
+requirements are defined by the Build Environment Management contract. Package
+outputs and tool caches are derived state. Caches are optional performance
+state and must not affect correctness. Network access may be required for
+dependency acquisition and isolated package-build environments; successful
+build execution does not claim offline capability.
+
+Final fresh-environment acceptance was executed from one external Python 3.13
+virtual environment with `include-system-site-packages = false`, user site
+disabled, no repository `.venv`, no inherited `PYTHONPATH`, and no undeclared
+manual package installation. The environment was bootstrapped exclusively from
+the canonical repository dependency state and then executed the complete
+sequence:
+
+```text
+Fresh Environment
+      ↓
+Canonical Bootstrap
+      ↓
+Canonical CI Validation
+      ↓
+Canonical CI Package Build
+      ↓
+Structural Validation
+      ↓
+Functional Validation
+      ↓
+Valid Canonical Artifacts
+Canonical CI Validation passed dependency freshness, dependency consistency,
+Ruff, MyPy, Pytest, and builtin plugin compliance. The subsequent CI-profile
+package build succeeded and produced exactly one wheel and one source
+distribution with no unexpected direct outputs. Python package structural
+validation and wheel functional validation both reported `VALID`, and all
+required Build Evidence checks passed.
+
+The acceptance run began without package-cache dependence, used no global
+packages or repository-local virtual environment, and left the live repository
+unchanged. The deterministic `git status --short` digest was identical before
+and after the audit and `git diff --check` remained clean.
 
 ---
 
 # Clean Environment Acceptance
 
-FamilyOS should eventually demonstrate:
+FamilyOS demonstrates:
 
-```text id="uf48td"
+```text
 Fresh Environment
       ↓
 Documented Setup
@@ -714,10 +788,6 @@ Declared Dependencies
 Canonical Build
       ↓
 Valid Artifact
-```
-
----
-
 # Level 11 — Dependency Management
 
 ## Objective

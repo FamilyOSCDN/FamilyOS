@@ -30,10 +30,12 @@ def test_success_invokes_standard_frontend_and_reports_package_outputs(
         command: tuple[str, ...],
         *,
         cwd: Path,
+        env: dict[str, str],
         capture_output: bool,
         check: bool,
         text: bool,
     ) -> subprocess.CompletedProcess[str]:
+        assert env["PYTHONNOUSERSITE"] == "1"
         assert capture_output
         assert not check
         assert text
@@ -70,6 +72,54 @@ def test_success_invokes_standard_frontend_and_reports_package_outputs(
     assert "twine" not in calls[0][0]
     assert "--wheel" not in calls[0][0]
     assert "--sdist" not in calls[0][0]
+
+
+def test_build_uses_sanitized_environment(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    removed_variables = (
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "PYTHONSTARTUP",
+        "PYTHONUSERBASE",
+        "VIRTUAL_ENV",
+        "__PYVENV_LAUNCHER__",
+        "TWINE_USERNAME",
+        "TWINE_PASSWORD",
+        "UV_PUBLISH_USERNAME",
+        "UV_PUBLISH_PASSWORD",
+        "UV_PUBLISH_TOKEN",
+    )
+    for name in removed_variables:
+        monkeypatch.setenv(name, f"inherited-{name.lower()}")
+    monkeypatch.setenv("PYTHONNOUSERSITE", "0")
+    monkeypatch.setenv("FAMILYOS_SAFE_BUILD_VARIABLE", "preserved")
+    environments: list[dict[str, str]] = []
+
+    def succeed(
+        command: tuple[str, ...],
+        *,
+        env: dict[str, str],
+        **kwargs: object,
+    ) -> subprocess.CompletedProcess[str]:
+        environments.append(env)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", succeed)
+
+    result = PythonPackageBuilder("/controlled/python").build(
+        project_root=tmp_path,
+        output_dir=tmp_path / "packages",
+    )
+
+    assert result.status is PackageBuildStatus.SUCCEEDED
+    assert len(environments) == 1
+    environment = environments[0]
+    for name in removed_variables:
+        assert name not in environment
+    assert environment["PYTHONNOUSERSITE"] == "1"
+    assert environment["FAMILYOS_SAFE_BUILD_VARIABLE"] == "preserved"
 
 
 def test_constraints_path_is_absolute_and_independent_of_caller_cwd(

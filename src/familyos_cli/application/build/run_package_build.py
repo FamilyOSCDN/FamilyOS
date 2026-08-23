@@ -44,6 +44,9 @@ from familyos_cli.application.build.discover_package_artifacts import (
 from familyos_cli.application.build.environment_state_provider import (
     EnvironmentStateProvider,
 )
+from familyos_cli.application.build.environment_validator import (
+    EnvironmentValidator,
+)
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
@@ -88,6 +91,7 @@ class RunPackageBuildUseCase:
         dependency_state_provider: DependencyStateProvider | None = None,
         toolchain_state_provider: ToolchainStateProvider | None = None,
         environment_state_provider: EnvironmentStateProvider | None = None,
+        environment_validator: EnvironmentValidator | None = None,
         build_input_validator: BuildInputValidator | None = None,
         repository_layout_validator: RepositoryLayoutValidator | None = None,
         toolchain_policy_provider: ToolchainPolicyProvider | None = None,
@@ -108,6 +112,9 @@ class RunPackageBuildUseCase:
         )
         self._environment_state_provider = (
             environment_state_provider or EnvironmentStateProvider()
+        )
+        self._environment_validator = (
+            environment_validator or EnvironmentValidator()
         )
         self._build_input_validator = build_input_validator
         self._repository_layout_validator = (
@@ -221,6 +228,38 @@ class RunPackageBuildUseCase:
                 build_id=build_id,
             )
 
+        try:
+            environment_state = self._environment_state_provider.capture()
+        except ValueError as error:
+            source_state = self._source_state_provider.observe(
+                project_root=self._project_root,
+            )
+
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(str(error)),
+                source_state=source_state,
+                build_id=build_id,
+            )
+
+        environment_validation = self._environment_validator.validate(
+            state=environment_state,
+        )
+
+        if not environment_validation.successful:
+            source_state = self._source_state_provider.observe(
+                project_root=self._project_root,
+            )
+
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(
+                    environment_validation.diagnostic,
+                ),
+                source_state=source_state,
+                build_id=build_id,
+            )
+
         build_context = BuildContextResolver(
             self._source_state_provider,
             self._project_root,
@@ -234,6 +273,7 @@ class RunPackageBuildUseCase:
             target=target,
             functional_validation=validate_functionally,
             toolchain_state=toolchain_state,
+            environment_state=environment_state,
             runtime_version=runtime_version,
         )
 

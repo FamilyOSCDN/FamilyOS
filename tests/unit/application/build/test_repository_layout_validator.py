@@ -7,6 +7,9 @@ from pathlib import Path
 import pytest
 
 from familyos_cli.application.build.repository_layout import RepositoryLayout
+from familyos_cli.application.build.repository_layout_validation import (
+    RepositoryLayoutValidationResult,
+)
 from familyos_cli.application.build.repository_layout_validator import (
     RepositoryLayoutValidator,
 )
@@ -15,7 +18,7 @@ from familyos_cli.application.build.repository_layout_validator import (
 def _validate(
     project_root: Path,
     output_dir: Path,
-):
+) -> RepositoryLayoutValidationResult:
     return RepositoryLayoutValidator().validate_output_dir(
         layout=RepositoryLayout.from_project_root(project_root),
         output_dir=output_dir,
