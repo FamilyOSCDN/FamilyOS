@@ -70,7 +70,16 @@ def _write_canonical_dependency_inputs(
         'dependencies = ["typer>=0.16"]\n'
         "\n"
         "[project.optional-dependencies]\n"
-        'dev = ["pytest>=8.4", "pip-tools==7.6.1"]\n',
+        'dev = [\n'
+        '    "build>=1.5",\n'
+        '    "pytest>=8.4",\n'
+        '    "ruff>=0.12",\n'
+        '    "mypy>=1.17",\n'
+        '    "pip-tools==7.6.1",\n'
+        ']\n'
+        "\n"
+        "[tool.mypy]\n"
+        'python_version = "3.13"\n',
         encoding="utf-8",
     )
 
@@ -769,8 +778,8 @@ def test_toolchain_state_is_captured_before_package_execution(
     ).execute(Path("dist"))
 
     assert events == [
-        "source-state",
         "toolchain-state",
+        "source-state",
         "build",
     ]
     assert result.build_context is not None
@@ -1143,3 +1152,220 @@ def test_canonical_dist_output_passes_repository_layout_gate(
 
     assert result.build_context is not None
     assert result.build_context.output_dir == output_dir
+
+
+def test_unsupported_runtime_prevents_package_execution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import familyos_cli.application.build.run_package_build as run_module
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+
+    monkeypatch.setattr(
+        run_module.platform,
+        "python_version",
+        lambda: "3.14.0",
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(Path("dist"))
+
+    assert result.successful is False
+    assert result.status is PackageBuildStatus.FAILED
+    assert builder.calls == []
+    assert result.build_context is None
+    assert result.diagnostic == (
+        "python 3.14.0 does not satisfy <3.14,>=3.13"
+    )
+
+
+def test_unsupported_build_tool_version_prevents_package_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.toolchain_state import (
+        ToolchainState,
+        ToolchainVersion,
+    )
+    from familyos_cli.application.build.toolchain_state_provider import (
+        ToolchainStateProvider,
+    )
+
+    class UnsupportedBuildToolchainProvider(ToolchainStateProvider):
+        def capture(self) -> ToolchainState:
+            return ToolchainState(
+                critical_versions=(
+                    ToolchainVersion("build", "1.4.9"),
+                    ToolchainVersion("pip-tools", "7.6.1"),
+                    ToolchainVersion("setuptools", "84.0.0"),
+                    ToolchainVersion("wheel", "0.48.0"),
+                ),
+            )
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        toolchain_state_provider=UnsupportedBuildToolchainProvider(),
+    ).execute(Path("dist"))
+
+    assert result.successful is False
+    assert result.status is PackageBuildStatus.FAILED
+    assert builder.calls == []
+    assert result.build_context is None
+    assert result.diagnostic == (
+        "build 1.4.9 does not satisfy >=1.5"
+    )
+
+
+def test_invalid_toolchain_policy_prevents_package_execution(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        "[build-system]\n"
+        'requires = ["setuptools>=75", "wheel"]\n'
+        'build-backend = "setuptools.build_meta"\n'
+        "\n"
+        "[project]\n"
+        'name = "familyos-cli-test"\n'
+        'version = "0.0.0"\n'
+        'requires-python = ">=3.13"\n'
+        'dependencies = ["typer>=0.16"]\n'
+        "\n"
+        "[project.optional-dependencies]\n"
+        'dev = ["pip-tools==7.6.1"]\n'
+        "\n"
+        "[tool.mypy]\n"
+        'python_version = "3.13"\n',
+        encoding="utf-8",
+    )
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(Path("dist"))
+
+    assert result.successful is False
+    assert result.status is PackageBuildStatus.FAILED
+    assert builder.calls == []
+    assert result.build_context is None
+    assert result.diagnostic == (
+        "required canonical toolchain declaration 'build' is missing"
+    )
+
+
+def test_compatible_toolchain_is_captured_once_and_reused_in_context(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.toolchain_state import (
+        ToolchainState,
+        ToolchainVersion,
+    )
+    from familyos_cli.application.build.toolchain_state_provider import (
+        ToolchainStateProvider,
+    )
+
+    observed_state = ToolchainState(
+        critical_versions=tuple(
+            ToolchainVersion(distribution, version)
+            for distribution, version in _TOOLCHAIN_VERSIONS.items()
+        ),
+    )
+
+    class RecordingToolchainProvider(ToolchainStateProvider):
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def capture(self) -> ToolchainState:
+            self.calls += 1
+            return observed_state
+
+    provider = RecordingToolchainProvider()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected test failure",
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        toolchain_state_provider=provider,
+    ).execute(Path("dist"))
+
+    assert provider.calls == 1
+    assert result.build_context is not None
+    assert result.build_context.toolchain_state is observed_state
+    assert builder.calls == [
+        (
+            tmp_path,
+            tmp_path / "dist",
+        )
+    ]
+
+
+def test_validated_runtime_is_reused_in_build_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import familyos_cli.application.build.run_package_build as run_module
+
+    monkeypatch.setattr(
+        run_module.platform,
+        "python_version",
+        lambda: "3.13.42",
+    )
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected test failure",
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(Path("dist"))
+
+    assert result.build_context is not None
+    assert result.build_context.runtime_version == "3.13.42"

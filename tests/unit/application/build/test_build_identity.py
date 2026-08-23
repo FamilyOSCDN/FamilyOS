@@ -108,6 +108,34 @@ class _FunctionalValidator(PythonWheelFunctionalValidatorPort):
         )
 
 
+def _write_toolchain_policy(project_root: Path) -> None:
+    (project_root / "pyproject.toml").write_text(
+        "[build-system]\n"
+        'requires = ["setuptools>=75", "wheel"]\n'
+        'build-backend = "setuptools.build_meta"\n'
+        "\n"
+        "[project]\n"
+        'name = "familyos-cli-test"\n'
+        'version = "0.0.0"\n'
+        'requires-python = ">=3.13"\n'
+        'dependencies = []\n'
+        "\n"
+        "[project.optional-dependencies]\n"
+        'dev = [\n'
+        '    "build>=1.5",\n'
+        '    "pytest>=8.4",\n'
+        '    "ruff>=0.12",\n'
+        '    "mypy>=1.17",\n'
+        '    "pip-tools==7.6.1",\n'
+        ']\n'
+        "\n"
+        "[tool.mypy]\n"
+        'python_version = "3.13"\n',
+        encoding="utf-8",
+    )
+
+
+
 def test_build_id_has_canonical_uuid_string_representation() -> None:
     build_id = BuildId(_FIRST_UUID)
 
@@ -136,6 +164,7 @@ def test_build_id_is_generated_before_source_observation_and_execution(
     tmp_path: Path,
 ) -> None:
     events: list[str] = []
+    _write_toolchain_policy(tmp_path)
 
     def uuid_factory() -> UUID:
         events.append("build-id")
@@ -163,6 +192,7 @@ def test_failed_build_preserves_generated_build_id(
     tmp_path: Path,
 ) -> None:
     expected_build_id = BuildId(_FIRST_UUID)
+    _write_toolchain_policy(tmp_path)
 
     result = RunPackageBuildUseCase(
         builder=_FailingBuilder(),

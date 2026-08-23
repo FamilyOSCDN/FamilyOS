@@ -124,10 +124,39 @@ class _FunctionalValidator(PythonWheelFunctionalValidatorPort):
         )
 
 
+def _write_toolchain_policy(project_root: Path) -> None:
+    (project_root / "pyproject.toml").write_text(
+        "[build-system]\n"
+        'requires = ["setuptools>=75", "wheel"]\n'
+        'build-backend = "setuptools.build_meta"\n'
+        "\n"
+        "[project]\n"
+        'name = "familyos-cli-test"\n'
+        'version = "0.0.0"\n'
+        'requires-python = ">=3.13"\n'
+        'dependencies = []\n'
+        "\n"
+        "[project.optional-dependencies]\n"
+        'dev = [\n'
+        '    "build>=1.5",\n'
+        '    "pytest>=8.4",\n'
+        '    "ruff>=0.12",\n'
+        '    "mypy>=1.17",\n'
+        '    "pip-tools==7.6.1",\n'
+        ']\n'
+        "\n"
+        "[tool.mypy]\n"
+        'python_version = "3.13"\n',
+        encoding="utf-8",
+    )
+
+
+
 def test_environment_state_is_captured_before_package_execution(
     tmp_path: Path,
 ) -> None:
     events: list[str] = []
+    _write_toolchain_policy(tmp_path)
 
     result = RunPackageBuildUseCase(
         builder=_Builder(events),
@@ -142,9 +171,9 @@ def test_environment_state_is_captured_before_package_execution(
     ).execute(Path("dist"))
 
     assert events == [
+        "toolchain-state",
         "source-state",
         "dependency-state",
-        "toolchain-state",
         "environment-state",
         "build",
     ]

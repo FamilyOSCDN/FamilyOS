@@ -264,3 +264,39 @@ def test_environment_state_is_resolved_before_context_is_returned(
     assert context.dependency_state.lock_digest == "b" * 64
     assert context.toolchain_state is _TOOLCHAIN_STATE
     assert context.environment_state is _ENVIRONMENT_STATE
+
+
+def test_reuses_preobserved_toolchain_state_without_recapturing(
+    tmp_path: Path,
+) -> None:
+    toolchain_provider = _ToolchainStateProvider()
+
+    context = _resolver(
+        tmp_path,
+        toolchain_provider=toolchain_provider,
+    ).resolve(
+        Path("dist"),
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        toolchain_state=_TOOLCHAIN_STATE,
+    )
+
+    assert context.toolchain_state is _TOOLCHAIN_STATE
+    assert toolchain_provider.calls == 0
+
+
+def test_reuses_preobserved_runtime_version(
+    tmp_path: Path,
+) -> None:
+    context = _resolver(tmp_path).resolve(
+        Path("dist"),
+        build_id=_BUILD_ID,
+        profile=BuildProfile.CI,
+        target=BuildTarget.FAMILYOS_CLI_PACKAGE,
+        functional_validation=False,
+        runtime_version="3.13.99",
+    )
+
+    assert context.runtime_version == "3.13.99"

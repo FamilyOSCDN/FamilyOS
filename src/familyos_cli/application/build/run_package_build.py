@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import platform
 from pathlib import Path
 
 from familyos_cli.application.build.artifact_discovery import (
@@ -51,8 +52,14 @@ from familyos_cli.application.build.repository_layout import RepositoryLayout
 from familyos_cli.application.build.repository_layout_validator import (
     RepositoryLayoutValidator,
 )
+from familyos_cli.application.build.toolchain_policy_provider import (
+    ToolchainPolicyProvider,
+)
 from familyos_cli.application.build.toolchain_state_provider import (
     ToolchainStateProvider,
+)
+from familyos_cli.application.build.toolchain_validator import (
+    ToolchainValidator,
 )
 from familyos_cli.application.build.validate_python_package_artifacts import (
     ValidatePythonPackageArtifactsUseCase,
@@ -83,6 +90,8 @@ class RunPackageBuildUseCase:
         environment_state_provider: EnvironmentStateProvider | None = None,
         build_input_validator: BuildInputValidator | None = None,
         repository_layout_validator: RepositoryLayoutValidator | None = None,
+        toolchain_policy_provider: ToolchainPolicyProvider | None = None,
+        toolchain_validator: ToolchainValidator | None = None,
     ) -> None:
         self._builder = builder
         self._discoverer = discoverer
@@ -103,6 +112,12 @@ class RunPackageBuildUseCase:
         self._build_input_validator = build_input_validator
         self._repository_layout_validator = (
             repository_layout_validator or RepositoryLayoutValidator()
+        )
+        self._toolchain_policy_provider = (
+            toolchain_policy_provider or ToolchainPolicyProvider()
+        )
+        self._toolchain_validator = (
+            toolchain_validator or ToolchainValidator()
         )
 
     def execute(
@@ -165,6 +180,47 @@ class RunPackageBuildUseCase:
                 build_id=build_id,
             )
 
+        try:
+            toolchain_policy = self._toolchain_policy_provider.resolve(
+                project_root=self._project_root,
+            )
+            runtime_version = platform.python_version()
+            toolchain_state = self._toolchain_state_provider.capture()
+        except ValueError as error:
+            source_state = self._source_state_provider.observe(
+                project_root=self._project_root,
+            )
+
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(str(error)),
+                source_state=source_state,
+                build_id=build_id,
+            )
+
+        toolchain_validation = self._toolchain_validator.validate(
+            runtime_version=runtime_version,
+            toolchain_state=toolchain_state,
+            runtime_requirement=toolchain_policy.runtime_requirement,
+            distribution_requirements=(
+                toolchain_policy.requirements_by_distribution
+            ),
+        )
+
+        if not toolchain_validation.successful:
+            source_state = self._source_state_provider.observe(
+                project_root=self._project_root,
+            )
+
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(
+                    toolchain_validation.diagnostic,
+                ),
+                source_state=source_state,
+                build_id=build_id,
+            )
+
         build_context = BuildContextResolver(
             self._source_state_provider,
             self._project_root,
@@ -177,6 +233,8 @@ class RunPackageBuildUseCase:
             profile=profile,
             target=target,
             functional_validation=validate_functionally,
+            toolchain_state=toolchain_state,
+            runtime_version=runtime_version,
         )
 
         source_state = build_context.source_state

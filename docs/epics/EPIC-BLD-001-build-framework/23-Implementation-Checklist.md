@@ -604,22 +604,72 @@ Make required build tooling explicit and verifiable.
 
 ### Checklist
 
-* [ ] Confirm canonical Python runtime requirement.
-* [ ] Define supported runtime versions.
-* [ ] Define canonical runtime for release-candidate builds if required.
-* [ ] Identify package build frontend.
-* [ ] Identify package build backend.
-* [ ] Identify Ruff version strategy.
-* [ ] Identify MyPy version strategy.
-* [ ] Identify Pytest version strategy.
-* [ ] Identify any required generators.
-* [ ] Document tool acquisition.
-* [ ] Validate critical tool availability.
-* [ ] Validate unsupported tool versions.
-* [ ] Ensure local and CI use compatible tooling.
-* [ ] Eliminate canonical dependence on undocumented global tools.
-* [ ] Add toolchain inspection capability if useful.
-* [ ] Add tests for toolchain validation logic.
+* [x] Confirm canonical Python runtime requirement.
+* [x] Define supported runtime versions.
+* [x] Define canonical runtime for release-candidate builds if required.
+* [x] Identify package build frontend.
+* [x] Identify package build backend.
+* [x] Identify Ruff version strategy.
+* [x] Identify MyPy version strategy.
+* [x] Identify Pytest version strategy.
+* [x] Identify any required generators.
+* [x] Document tool acquisition.
+* [x] Validate critical tool availability.
+* [x] Validate unsupported tool versions.
+* [x] Ensure local and CI use compatible tooling.
+* [x] Eliminate canonical dependence on undocumented global tools.
+* [x] Add toolchain inspection capability if useful.
+* [x] Add tests for toolchain validation logic.
+
+Implementation evidence: the canonical package compatibility contract remains
+`project.requires-python = ">=3.13"`, while the controlled development, CI, and
+dependency-generation runtime is Python 3.13.x. The canonical minor runtime is
+derived from repository configuration and validated as compatible with the
+package-level Python requirement.
+
+The package build frontend is PyPA `build`, invoked through the current Python
+interpreter as `python -m build`. The backend is `setuptools.build_meta`, with
+build-system requirements declared in `pyproject.toml`. The generated
+dependency state pins the exact resolved versions used by the controlled
+development and CI environment.
+
+Ruff, MyPy, and Pytest compatibility requirements are declared in the
+development dependency extra and their exact controlled versions are captured
+by `requirements.txt`. Canonical validation executes those tools through the
+same Python interpreter with `python -m ruff`, `python -m mypy`, and
+`python -m pytest`, avoiding undocumented dependence on globally installed
+executables.
+
+`pip-tools` is the canonical dependency generator. Its requirement is declared
+in `pyproject.toml`, its executing version is validated by the dependency
+generation workflow, and dependency compilation is restricted to the
+repository-controlled Python 3.13 minor runtime.
+
+`ToolchainStateProvider` observes the installed critical package-build
+toolchain in deterministic order. `ToolchainPolicyProvider` resolves the
+repository-owned compatibility policy from `pyproject.toml`.
+`ToolchainValidator` compares the observed runtime and tool versions with that
+policy using PEP 440 version semantics and produces deterministic validation
+findings.
+
+Unsupported runtimes, unavailable required tool distributions, malformed
+versions, malformed compatibility requirements, and incompatible tool
+versions fail before package transformation. The exact validated
+`ToolchainState` and runtime version are reused when resolving `BuildContext`;
+toolchain state is captured once rather than observed independently before and
+during context resolution.
+
+The canonical local bootstrap installs the exactly pinned `requirements.txt`
+state and then installs FamilyOS without dependency resolution. The canonical
+GitHub Actions workflow uses Python 3.13 and the same locked bootstrap before
+invoking the repository-owned validation command, keeping local and CI tooling
+compatible.
+
+Build Context and CLI rendering expose the effective runtime version and
+critical toolchain distribution versions for inspection and evidence.
+Toolchain policy, policy resolution, state observation, compatibility
+validation, fail-fast integration, single-capture reuse, and runtime reuse are
+covered by focused automated tests.
 
 ---
 

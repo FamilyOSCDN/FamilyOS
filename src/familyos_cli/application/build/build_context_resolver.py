@@ -18,6 +18,7 @@ from familyos_cli.application.build.dependency_state_provider import (
 from familyos_cli.application.build.environment_state_provider import (
     EnvironmentStateProvider,
 )
+from familyos_cli.application.build.toolchain_state import ToolchainState
 from familyos_cli.application.build.toolchain_state_provider import (
     ToolchainStateProvider,
 )
@@ -57,6 +58,8 @@ class BuildContextResolver:
         profile: BuildProfile,
         target: BuildTarget,
         functional_validation: bool,
+        toolchain_state: ToolchainState | None = None,
+        runtime_version: str | None = None,
     ) -> BuildContext:
         """Resolve the immutable context before significant execution."""
 
@@ -74,19 +77,29 @@ class BuildContextResolver:
             project_root=self._project_root,
         )
 
-        toolchain_state = self._toolchain_state_provider.capture()
+        effective_toolchain_state = (
+            toolchain_state
+            if toolchain_state is not None
+            else self._toolchain_state_provider.capture()
+        )
 
         environment_state = self._environment_state_provider.capture()
+
+        effective_runtime_version = (
+            runtime_version
+            if runtime_version is not None
+            else platform.python_version()
+        )
 
         return BuildContext(
             build_id=build_id,
             source_state=source_state,
             dependency_state=dependency_state,
-            toolchain_state=toolchain_state,
+            toolchain_state=effective_toolchain_state,
             environment_state=environment_state,
             profile=profile,
             target=target,
-            runtime_version=platform.python_version(),
+            runtime_version=effective_runtime_version,
             effective_configuration=BuildEffectiveConfiguration(
                 functional_validation=functional_validation,
             ),
