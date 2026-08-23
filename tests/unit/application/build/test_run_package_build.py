@@ -929,3 +929,217 @@ def test_stale_generated_dependency_input_prevents_package_execution(
         "generated dependency input requirements.txt is stale; "
         "regenerate requirements.txt"
     )
+
+
+@pytest.mark.parametrize(
+    ("output_dir", "diagnostic"),
+    (
+        (
+            Path("."),
+            "build output directory must not be the repository root",
+        ),
+        (
+            Path("src"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("src/generated"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("src/familyos_cli/dist"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("tests"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("tests/build-output"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("docs"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("docs/generated"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("scripts"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("scripts/output"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path(".github"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path(".github/artifacts"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("specifications"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("specifications/generated"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("templates"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("templates/packages"),
+            (
+                "build output directory must not overlap "
+                "authoritative repository content"
+            ),
+        ),
+        (
+            Path("pyproject.toml"),
+            (
+                "build output directory must not replace "
+                "authoritative repository files"
+            ),
+        ),
+        (
+            Path("requirements.txt"),
+            (
+                "build output directory must not replace "
+                "authoritative repository files"
+            ),
+        ),
+    ),
+)
+def test_unsafe_repository_output_prevents_package_execution(
+    tmp_path: Path,
+    output_dir: Path,
+    diagnostic: str,
+) -> None:
+    from familyos_cli.application.build.build_input_validator import (
+        BuildInputValidator,
+    )
+
+    (tmp_path / "src").mkdir(exist_ok=True)
+    (tmp_path / "tests").mkdir(exist_ok=True)
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=BuildInputValidator(),
+    ).execute(output_dir)
+
+    assert result.successful is False
+    assert result.status is PackageBuildStatus.FAILED
+    assert builder.calls == []
+
+    assert result.build_context is None
+    assert result.discovery is None
+    assert result.validation is None
+    assert result.functional_validation is None
+
+    assert result.diagnostic == diagnostic
+
+
+def test_canonical_dist_output_passes_repository_layout_gate(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_input_validator import (
+        BuildInputValidator,
+    )
+
+    (tmp_path / "src").mkdir(exist_ok=True)
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=BuildInputValidator(),
+    ).execute(Path("dist"))
+
+    assert result.successful is True
+    assert builder.calls == [
+        (
+            tmp_path,
+            output_dir,
+        )
+    ]
+
+    assert result.build_context is not None
+    assert result.build_context.output_dir == output_dir

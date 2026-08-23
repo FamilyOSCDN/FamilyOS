@@ -47,6 +47,10 @@ from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
 )
+from familyos_cli.application.build.repository_layout import RepositoryLayout
+from familyos_cli.application.build.repository_layout_validator import (
+    RepositoryLayoutValidator,
+)
 from familyos_cli.application.build.toolchain_state_provider import (
     ToolchainStateProvider,
 )
@@ -78,6 +82,7 @@ class RunPackageBuildUseCase:
         toolchain_state_provider: ToolchainStateProvider | None = None,
         environment_state_provider: EnvironmentStateProvider | None = None,
         build_input_validator: BuildInputValidator | None = None,
+        repository_layout_validator: RepositoryLayoutValidator | None = None,
     ) -> None:
         self._builder = builder
         self._discoverer = discoverer
@@ -96,6 +101,9 @@ class RunPackageBuildUseCase:
             environment_state_provider or EnvironmentStateProvider()
         )
         self._build_input_validator = build_input_validator
+        self._repository_layout_validator = (
+            repository_layout_validator or RepositoryLayoutValidator()
+        )
 
     def execute(
         self,
@@ -125,12 +133,37 @@ class RunPackageBuildUseCase:
 
                 return CanonicalPackageBuildResult(
                     status=PackageBuildStatus.FAILED,
-                    execution=self._failed_input_execution(
+                    execution=self._failed_pre_execution(
                         input_validation.diagnostic,
                     ),
                     source_state=source_state,
                     build_id=build_id,
                 )
+
+        repository_layout = RepositoryLayout.from_project_root(
+            self._project_root,
+        )
+
+        layout_validation = (
+            self._repository_layout_validator.validate_output_dir(
+                layout=repository_layout,
+                output_dir=output_dir,
+            )
+        )
+
+        if not layout_validation.successful:
+            source_state = self._source_state_provider.observe(
+                project_root=self._project_root,
+            )
+
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(
+                    layout_validation.diagnostic,
+                ),
+                source_state=source_state,
+                build_id=build_id,
+            )
 
         build_context = BuildContextResolver(
             self._source_state_provider,
@@ -247,10 +280,10 @@ class RunPackageBuildUseCase:
         )
 
     @staticmethod
-    def _failed_input_execution(
+    def _failed_pre_execution(
         diagnostic: str | None,
     ) -> PackageBuildResult:
-        """Represent execution blocked by canonical input validation."""
+        """Represent execution blocked by canonical pre-build validation."""
 
         return PackageBuildResult(
             status=PackageBuildStatus.FAILED,

@@ -533,18 +533,66 @@ Ensure project structure supports deterministic build discovery.
 
 ### Checklist
 
-* [ ] Define repository-root detection.
-* [ ] Avoid developer-specific absolute paths.
-* [ ] Define canonical source paths.
-* [ ] Define canonical build configuration location.
-* [ ] Define canonical artifact output location.
-* [ ] Define canonical temporary/staging location if required.
-* [ ] Define generated-content ownership.
-* [ ] Separate generated content from authoritative source.
-* [ ] Prevent build artifacts from being written into source directories.
-* [ ] Ensure output directories can be safely cleaned.
-* [ ] Review `.gitignore` for derived build state.
-* [ ] Add structural validation where high-value.
+* [x] Define repository-root detection.
+* [x] Avoid developer-specific absolute paths.
+* [x] Define canonical source paths.
+* [x] Define canonical build configuration location.
+* [x] Define canonical artifact output location.
+* [x] Define canonical temporary/staging location if required.
+* [x] Define generated-content ownership.
+* [x] Separate generated content from authoritative source.
+* [x] Prevent build artifacts from being written into source directories.
+* [x] Ensure output directories can be safely cleaned.
+* [x] Review `.gitignore` for derived build state.
+* [x] Add structural validation where high-value.
+
+Implementation evidence: `RepositoryLayout` derives canonical repository
+structure exclusively from the configured project root. It identifies the
+authoritative source, test, documentation, script, automation, specification,
+template, project-configuration, and dependency-lock locations, while
+separately identifying derived build-output locations.
+
+`GitSourceStateProvider` accepts source-state authority only when the supplied
+project root resolves to the exact Git repository root. Nested paths inside an
+ancestor repository are rejected as repository authority. Repository paths are
+derived from the project root rather than developer-specific absolute paths.
+
+The canonical package output remains `dist/`. The CLI exposes `Path("dist")` as
+a repository-relative interface default, while `RepositoryLayout` resolves the
+canonical repository location as `<project-root>/dist`. Structural tests prove
+that relative and absolute representations resolve to the same output
+authority. Explicit safe output directories outside authoritative repository
+content remain supported.
+
+`RepositoryLayoutValidator` rejects the repository root itself, authoritative
+repository directories and their descendants, and authoritative root files as
+package-output destinations. `RunPackageBuildUseCase` performs this structural
+validation before Build Context resolution and before `PackageBuilderPort`
+execution, so unsafe destinations fail without package transformation.
+
+Generated dependency ownership is explicit:
+`pyproject.toml` is the dependency declaration authority,
+`scripts/compile_dependencies.py` generates `requirements.txt`, and the
+embedded dependency-input SHA-256 contract detects stale generated dependency
+state. Generated dependency state therefore remains controlled without being
+confused with its authoritative declaration.
+
+Temporary wheel functional validation uses an operating-system-managed
+`TemporaryDirectory` and explicitly rejects a temporary root that resolves
+inside the repository checkout. No persistent repository-local staging
+directory is required by the current canonical package-build pipeline.
+
+Root `dist/`, root `build/`, generated `*.egg-info/`, and known tool caches are
+classified as derived state and ignored by Git. The documented safe local
+cleanup procedure removes only explicitly identified derived state and warns
+against generalizing cleanup to authoritative or tracked repository content.
+
+Focused repository-layout and validator tests cover canonical path derivation,
+immutability, absence of developer-specific absolute paths, safe relative and
+external outputs, repository-root rejection, authoritative directory and file
+protection, and relative-output resolution. Package-build integration tests
+prove the same structural boundary prevents builder execution for unsafe
+destinations.
 
 ---
 
