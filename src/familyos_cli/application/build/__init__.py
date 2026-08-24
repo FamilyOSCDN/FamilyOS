@@ -48,6 +48,11 @@ from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_evidence_factory import (
     BuildEvidenceFactory,
 )
+from familyos_cli.application.build.build_execution_observation import (
+    BuildExecutionObservation,
+    BuildExecutionStage,
+    BuildExecutionStageStatus,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
 from familyos_cli.application.build.dependency_state import DependencyState
@@ -137,6 +142,9 @@ __all__ = [
     "BuildArtifactIdentitiesUseCase",
     "BuildArtifactIntegritiesUseCase",
     "BuildArtifactManifestUseCase",
+    "BuildExecutionObservation",
+    "BuildExecutionStage",
+    "BuildExecutionStageStatus",
     "BuildContext",
     "BuildContextResolver",
     "BuildEffectiveConfiguration",

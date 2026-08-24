@@ -1066,7 +1066,7 @@ Implement predictable and observable transformation from validated context to ca
 
 ### Checklist
 
-* [ ] Define build execution stages.
+* [x] Define build execution stages.
 * [ ] Define workspace initialization.
 * [ ] Define staging behavior.
 * [ ] Define generation stages where needed.
@@ -1081,7 +1081,7 @@ Implement predictable and observable transformation from validated context to ca
 * [ ] Define failure cleanup.
 * [ ] Define cancellation semantics if required.
 * [ ] Define retry policy for transient failures only.
-* [ ] Add execution-stage logging.
+* [x] Add execution-stage logging.
 * [x] Add execution-stage tests.
 
 Implementation evidence: the first canonical package-build slice implements
@@ -1132,6 +1132,43 @@ than being closed by documentation inference.
 No production code, test behavior, artifact semantics, validation semantics,
 Build Evidence semantics, release behavior, or publication behavior changes in
 Level 13.2.
+
+## Level 13.3 — Canonical Execution Observability
+
+Status: IMPLEMENTED AND VALIDATED.
+
+The canonical package-build result now carries immutable ordered execution
+observations.
+
+The implemented model defines thirteen canonical execution stages covering
+validated inputs through optional wheel functional validation.
+
+Each reached stage records its canonical identifier, terminal `SUCCEEDED` or
+`FAILED` status, elapsed monotonic duration, and an optional diagnostic.
+
+Successful execution without requested functional validation records twelve
+ordered observations. Requested functional validation adds
+`FUNCTIONALLY_VALIDATE_WHEEL` as the thirteenth and final stage when reached.
+
+Mandatory failures remain fail-fast. The failing stage is recorded as `FAILED`,
+and later dependent stages are not reported as executed.
+
+The CLI renders the application-owned execution observations in canonical
+order, including stage identifier, terminal status, duration, and diagnostic
+when available.
+
+This closes the Level 13 checklist items:
+
+* Define build execution stages.
+* Add execution-stage logging.
+
+Workspace initialization, staging, generation-stage definition, execution
+finalization, partial-output handling, cleanup, cancellation, and retry policy
+remain open and are not implied by this observability slice.
+
+Level 13.3 does not introduce Build Evidence, artifact trust, release,
+publication, retry, cancellation, or general-purpose distributed tracing
+semantics.
 
 ---
 

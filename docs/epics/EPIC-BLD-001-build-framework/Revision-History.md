@@ -2080,6 +2080,73 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.3 — Canonical Execution Observability — 2026-08-24
+
+This revision implements canonical execution-stage observability for the
+application-owned FamilyOS package-build orchestration.
+
+The canonical execution model now defines thirteen explicit stages spanning
+validated inputs through optional wheel functional validation.
+
+The implemented stages are:
+
+```text
+VALIDATE_INPUTS
+VALIDATE_REPOSITORY_LAYOUT
+VALIDATE_TOOLCHAIN
+VALIDATE_ENVIRONMENT
+RESOLVE_BUILD_CONTEXT
+VALIDATE_EFFECTIVE_CONFIGURATION
+PACKAGE
+DISCOVER_ARTIFACTS
+VALIDATE_ARTIFACTS
+ESTABLISH_ARTIFACT_IDENTITY
+ESTABLISH_ARTIFACT_INTEGRITY
+BUILD_ARTIFACT_MANIFEST
+FUNCTIONALLY_VALIDATE_WHEEL
+```
+
+Each reached stage produces an immutable `BuildExecutionObservation` containing
+its canonical stage identifier, terminal `SUCCEEDED` or `FAILED` status,
+elapsed monotonic duration, and an optional diagnostic.
+
+Execution observations are preserved in orchestration order on
+`CanonicalPackageBuildResult`.
+
+Successful package builds without requested functional validation record twelve
+stages. When functional validation is requested and reached,
+`FUNCTIONALLY_VALIDATE_WHEEL` is recorded as the thirteenth and final stage.
+
+Mandatory failures remain fail-fast. The failing stage is retained with
+`FAILED`, and later dependent stages are not reported as executed.
+
+The canonical CLI renders the application-owned execution observations in
+order, including stage identifier, status, duration, and diagnostic when
+available.
+
+Unit coverage validates the immutable observation model, canonical result
+compatibility, ordered successful execution, package-stage failure propagation,
+optional functional validation, and CLI rendering.
+
+This revision closes the Level 13 checklist items:
+
+* Define build execution stages.
+* Add execution-stage logging.
+
+Workspace initialization, staging, generation-stage definition, execution
+finalization, partial-output handling, cleanup, cancellation, and retry policy
+remain open.
+
+This revision does not introduce stage start or end timestamps, per-stage tool
+invocation records, retry history, cancellation history, Build Evidence
+semantics, artifact trust semantics, release behavior, publication behavior, or
+a general-purpose distributed execution trace.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

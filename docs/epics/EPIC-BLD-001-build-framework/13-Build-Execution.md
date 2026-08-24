@@ -302,8 +302,11 @@ Optional Wheel Functional Validation
 Canonical Package-Build Result
 ```
 
-This is an orchestration sequence, not yet a canonical execution-stage event
-model.
+This orchestration sequence is now represented by canonical immutable
+execution-stage observations owned by the application layer.
+
+Each stage observation records the canonical stage identifier, terminal status,
+elapsed monotonic duration, and an optional diagnostic.
 
 Mandatory validation or execution failure prevents later dependent operations
 from being reported as a successful build.
@@ -326,12 +329,38 @@ source distribution in the resolved output directory.
 
 Artifact Discovery owns that classification after packaging execution.
 
-The current implementation does not expose canonical execution-stage records,
-stage identifiers, stage timestamps, stage durations, per-stage tool
-invocations, retry history, cancellation state, or a structured execution
-trace.
+The current implementation exposes ordered canonical execution-stage records
+through the package-build result.
 
-Those concerns remain subsequent Canonical Execution Observability work.
+The implemented stage vocabulary is:
+
+```text
+VALIDATE_INPUTS
+VALIDATE_REPOSITORY_LAYOUT
+VALIDATE_TOOLCHAIN
+VALIDATE_ENVIRONMENT
+RESOLVE_BUILD_CONTEXT
+VALIDATE_EFFECTIVE_CONFIGURATION
+PACKAGE
+DISCOVER_ARTIFACTS
+VALIDATE_ARTIFACTS
+ESTABLISH_ARTIFACT_IDENTITY
+ESTABLISH_ARTIFACT_INTEGRITY
+BUILD_ARTIFACT_MANIFEST
+FUNCTIONALLY_VALIDATE_WHEEL
+```
+
+`FUNCTIONALLY_VALIDATE_WHEEL` is present only when functional validation is
+requested and reached.
+
+Execution observations preserve orchestration order. A mandatory failure
+records the failing stage and prevents later dependent stages from being
+reported as executed.
+
+The current implementation does not define stage start or end timestamps,
+per-stage tool invocation records, retry history, cancellation state, or a
+general-purpose structured execution trace beyond this ordered terminal-stage
+history.
 
 ---
 
@@ -382,11 +411,15 @@ critical toolchain versions, output configuration, evidence configuration,
 candidate outputs, validation outcomes, and failure diagnostics where
 available.
 
-This console reporting does not constitute canonical execution-stage
-observability.
+It also renders the ordered execution-stage observations already established by
+the application result.
 
-It exposes already-established state and results rather than a structured
-history of execution stages.
+For each reached stage, the CLI exposes the canonical stage identifier,
+terminal status, elapsed duration, and diagnostic when one exists.
+
+The CLI remains a presentation surface for application-owned observations. It
+does not independently establish execution-stage state or Build Evidence
+semantics.
 
 ---
 
@@ -1242,32 +1275,67 @@ Remote mutable state weakens reproducibility.
 
 # Execution Observability
 
-This section defines the target execution-observability model.
+The canonical package-build implementation now exposes ordered immutable
+execution-stage observations through its application result.
 
-The current implementation already exposes Build ID, target, profile,
-effective-context information, candidate outputs, validation outcomes, and
-failure diagnostics through its canonical result and CLI surfaces.
+Each reached stage records:
 
-It does not yet implement a canonical execution-stage event or trace model.
+* canonical stage identifier;
+* terminal status;
+* elapsed monotonic duration;
+* optional diagnostic.
 
-Accordingly, dimensions such as current stage, stage duration, per-stage tool
-invocation, and failure-stage identity remain requirements for subsequent
-Canonical Execution Observability work rather than claims about current
-implementation state.
+The terminal statuses are:
 
-Build execution must expose enough information to understand progress and failure.
+```text
+SUCCEEDED
+FAILED
+```
+
+Observations preserve canonical orchestration order.
+
+Successful execution without requested functional validation records twelve
+stages from `VALIDATE_INPUTS` through `BUILD_ARTIFACT_MANIFEST`.
+
+When functional validation is requested and reached,
+`FUNCTIONALLY_VALIDATE_WHEEL` is recorded as the thirteenth and final stage.
+
+Mandatory failure is fail-fast. The failing stage is recorded with `FAILED`,
+including its diagnostic when available, and later dependent stages are not
+reported as executed.
+
+The CLI renders this ordered observation history without becoming the owner of
+the underlying execution state.
+
+This implementation closes the current Level 13 requirements to define build
+execution stages and add execution-stage logging.
+
+The current execution-observability contract remains deliberately bounded. It
+does not yet provide:
+
+* stage start or end timestamps;
+* per-stage tool invocation records;
+* retry history;
+* cancellation history;
+* a general-purpose event stream or distributed execution trace.
+
+Those capabilities remain separate future concerns and are not implied by the
+current terminal-stage observation model.
+
+Build execution must expose enough information to understand progress and
+failure.
 
 Useful dimensions include:
 
 * build ID;
 * target;
 * profile;
-* current stage;
+* reached execution stages;
+* terminal stage status;
 * stage duration;
-* tool invocation;
 * artifact count;
 * warnings;
-* failure stage.
+* failure stage and diagnostic.
 
 ---
 

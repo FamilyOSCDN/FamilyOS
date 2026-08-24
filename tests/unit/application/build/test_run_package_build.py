@@ -1858,3 +1858,265 @@ def test_optional_functional_validation_remains_explicit_and_optional(
         (tmp_path, tmp_path / "dist"),
         (tmp_path, tmp_path / "dist"),
     ]
+
+
+def test_package_execution_observation_records_success_duration(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+
+    clock_values = iter(
+        (
+            10.0,
+            10.01,
+            20.0,
+            20.02,
+            30.0,
+            30.03,
+            40.0,
+            40.04,
+            50.0,
+            50.05,
+            60.0,
+            60.06,
+            70.0,
+            70.07,
+            80.0,
+            80.08,
+            90.0,
+            90.09,
+            100.0,
+            100.10,
+            110.0,
+            110.11,
+            120.0,
+            120.12,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        monotonic_clock=lambda: next(clock_values),
+    ).execute(output_dir)
+
+    assert result.successful is True
+
+    expected_stages = (
+        BuildExecutionStage.VALIDATE_INPUTS,
+        BuildExecutionStage.VALIDATE_REPOSITORY_LAYOUT,
+        BuildExecutionStage.VALIDATE_TOOLCHAIN,
+        BuildExecutionStage.VALIDATE_ENVIRONMENT,
+        BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
+        BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
+        BuildExecutionStage.PACKAGE,
+        BuildExecutionStage.DISCOVER_ARTIFACTS,
+        BuildExecutionStage.VALIDATE_ARTIFACTS,
+        BuildExecutionStage.ESTABLISH_ARTIFACT_IDENTITY,
+        BuildExecutionStage.ESTABLISH_ARTIFACT_INTEGRITY,
+        BuildExecutionStage.BUILD_ARTIFACT_MANIFEST,
+    )
+
+    assert tuple(
+        observation.stage
+        for observation in result.execution_observations
+    ) == expected_stages
+
+    assert len(result.execution_observations) == 12
+
+    for observation in result.execution_observations:
+        assert observation.status is BuildExecutionStageStatus.SUCCEEDED
+        assert observation.duration_seconds > 0
+        assert observation.diagnostic is None
+
+    assert (
+        BuildExecutionStage.FUNCTIONALLY_VALIDATE_WHEEL
+        not in expected_stages
+    )
+
+
+def test_package_execution_observation_records_failure_duration_and_diagnostic(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            exit_code=1,
+            diagnostic="package frontend failed",
+        )
+    )
+
+    clock_values = iter(
+        (
+            10.0,
+            10.01,
+            20.0,
+            20.02,
+            30.0,
+            30.03,
+            40.0,
+            40.04,
+            50.0,
+            50.05,
+            60.0,
+            60.06,
+            70.0,
+            70.50,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        monotonic_clock=lambda: next(clock_values),
+    ).execute(output_dir)
+
+    assert result.successful is False
+
+    assert tuple(
+        observation.stage
+        for observation in result.execution_observations
+    ) == (
+        BuildExecutionStage.VALIDATE_INPUTS,
+        BuildExecutionStage.VALIDATE_REPOSITORY_LAYOUT,
+        BuildExecutionStage.VALIDATE_TOOLCHAIN,
+        BuildExecutionStage.VALIDATE_ENVIRONMENT,
+        BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
+        BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
+        BuildExecutionStage.PACKAGE,
+    )
+
+    *successful_observations, package = result.execution_observations
+
+    assert all(
+        observation.status is BuildExecutionStageStatus.SUCCEEDED
+        for observation in successful_observations
+    )
+
+    assert package.stage is BuildExecutionStage.PACKAGE
+    assert package.status is BuildExecutionStageStatus.FAILED
+    assert package.duration_seconds == pytest.approx(0.50)
+    assert package.diagnostic == "package frontend failed"
+
+    assert BuildExecutionStage.DISCOVER_ARTIFACTS not in tuple(
+        observation.stage
+        for observation in result.execution_observations
+    )
+
+
+def test_functional_validation_execution_observation_is_recorded_last(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+
+    clock_values = iter(
+        (
+            10.0,
+            10.01,
+            20.0,
+            20.02,
+            30.0,
+            30.03,
+            40.0,
+            40.04,
+            50.0,
+            50.05,
+            60.0,
+            60.06,
+            70.0,
+            70.07,
+            80.0,
+            80.08,
+            90.0,
+            90.09,
+            100.0,
+            100.10,
+            110.0,
+            110.11,
+            120.0,
+            120.12,
+            130.0,
+            130.13,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        monotonic_clock=lambda: next(clock_values),
+    ).execute(
+        output_dir,
+        validate_functionally=True,
+    )
+
+    assert result.successful is True
+    assert len(result.execution_observations) == 13
+
+    final_observation = result.execution_observations[-1]
+
+    assert (
+        final_observation.stage
+        is BuildExecutionStage.FUNCTIONALLY_VALIDATE_WHEEL
+    )
+    assert (
+        final_observation.status
+        is BuildExecutionStageStatus.SUCCEEDED
+    )
+    assert final_observation.duration_seconds == pytest.approx(0.13)
+    assert final_observation.diagnostic is None

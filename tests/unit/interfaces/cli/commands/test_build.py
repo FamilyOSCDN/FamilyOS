@@ -91,6 +91,7 @@ def _package_result(*, successful: bool) -> Any:
         candidates=(),
         validation=None,
         functional_validation=None,
+        execution_observations=(),
         diagnostic=None if successful else "package build failed",
     )
 
@@ -568,3 +569,93 @@ def test_build_renders_non_sensitive_build_context(
     assert "Evidence Requested: False" in stdout
     assert "Evidence Output: not requested" in stdout
     assert "Functional Validation Requested: False" in stdout
+
+
+def test_build_renders_execution_observations_in_order(
+    monkeypatch: Any,
+    capsys: Any,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionObservation,
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    result = _package_result(successful=True)
+    result.execution_observations = (
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.VALIDATE_INPUTS,
+            status=BuildExecutionStageStatus.SUCCEEDED,
+            duration_seconds=0.01,
+        ),
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.PACKAGE,
+            status=BuildExecutionStageStatus.SUCCEEDED,
+            duration_seconds=0.25,
+        ),
+    )
+
+    context = _CommandContext(result)
+    monkeypatch.setattr(
+        build_command,
+        "CommandContext",
+        lambda: context,
+    )
+
+    exit_code = build_command.run_package_build(
+        Path("dist"),
+        functional_validation=False,
+    )
+
+    stdout = capsys.readouterr().out
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert "Execution Stages:" in stdout
+
+    first = "- validate-inputs: SUCCEEDED (0.010000s)"
+    second = "- package: SUCCEEDED (0.250000s)"
+
+    assert first in stdout
+    assert second in stdout
+    assert stdout.index(first) < stdout.index(second)
+
+
+def test_build_renders_failed_execution_observation_diagnostic(
+    monkeypatch: Any,
+    capsys: Any,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionObservation,
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    result = _package_result(successful=False)
+    result.execution_observations = (
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.PACKAGE,
+            status=BuildExecutionStageStatus.FAILED,
+            duration_seconds=0.5,
+            diagnostic="package frontend failed",
+        ),
+    )
+
+    context = _CommandContext(result)
+    monkeypatch.setattr(
+        build_command,
+        "CommandContext",
+        lambda: context,
+    )
+
+    exit_code = build_command.run_package_build(
+        Path("dist"),
+        functional_validation=False,
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == build_command.EXIT_FAILURE
+    assert (
+        "- package: FAILED (0.500000s) — package frontend failed"
+        in captured.out
+    )

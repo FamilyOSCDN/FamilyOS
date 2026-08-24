@@ -12,6 +12,9 @@ from familyos_cli.application.build.artifact_integrity import ArtifactIntegrity
 from familyos_cli.application.build.artifact_manifest import ArtifactManifest
 from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_context import BuildContext
+from familyos_cli.application.build.build_execution_observation import (
+    BuildExecutionObservation,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
@@ -95,6 +98,7 @@ class CanonicalPackageBuildResult:
     source_state: SourceState
     build_context: BuildContext | None = None
     build_id: BuildId = field(default_factory=BuildId.generate)
+    execution_observations: tuple[BuildExecutionObservation, ...] = ()
     artifact_identities: tuple[ArtifactIdentity, ...] = ()
     artifact_integrities: tuple[ArtifactIntegrity, ...] = ()
     artifact_manifest: ArtifactManifest | None = None
