@@ -5,7 +5,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from familyos_cli.application.testing import PytestExecutionResult
+from familyos_cli.application.testing.pytest_result_normalizer import (
+    PytestExecutionResult,
+)
 
 
 class PytestRunnerPort(ABC):
