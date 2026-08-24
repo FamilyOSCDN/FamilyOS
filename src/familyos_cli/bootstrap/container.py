@@ -50,6 +50,7 @@ from familyos_cli.application.specifications import (
     DomainSpecificationLoaderService,
     SpecificationService,
 )
+from familyos_cli.application.testing import PytestResultNormalizer
 from familyos_cli.application.use_cases.check_plugin_compliance import (
     CheckPluginComplianceUseCase,
 )
@@ -71,6 +72,9 @@ from familyos_cli.application.use_cases.resolve_plugins import (
 from familyos_cli.application.validation import RunCiValidationUseCase
 from familyos_cli.application.validation.builtin_plugin_compliance_gate import (
     BuiltinPluginComplianceGate,
+)
+from familyos_cli.application.validation.pytest_validation_gate import (
+    PytestValidationGate,
 )
 from familyos_cli.application.validation.subprocess_gate import (
     SubprocessValidationGate,
@@ -99,6 +103,7 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 from familyos_cli.infrastructure.specifications import (
     YamlDomainSpecificationLoader,
 )
+from familyos_cli.infrastructure.testing import PytestRunner
 from familyos_cli.plugins.ecosystem.compliance.compliance_engine import (
     ComplianceEngine,
 )
@@ -267,10 +272,12 @@ class ApplicationContainer:
                     command=(python, "-m", "mypy", "src", "tests"),
                     cwd=project_root,
                 ),
-                SubprocessValidationGate(
-                    gate_id="pytest",
-                    command=(python, "-m", "pytest", "-q"),
-                    cwd=project_root,
+                PytestValidationGate(
+                    runner=PytestRunner(
+                        python_executable=python,
+                    ),
+                    normalizer=PytestResultNormalizer(),
+                    project_root=project_root,
                 ),
                 BuiltinPluginComplianceGate(
                     use_case=compliance_use_case,
