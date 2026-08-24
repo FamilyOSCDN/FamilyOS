@@ -1079,8 +1079,8 @@ Implement predictable and observable transformation from validated context to ca
 * [x] Ensure execution does not unexpectedly mutate authoritative source.
 * [x] Define partial-output handling.
 * [x] Define failure cleanup.
-* [ ] Define cancellation semantics if required.
-* [ ] Define retry policy for transient failures only.
+* [x] Define cancellation semantics if required.
+* [x] Define retry policy for transient failures only.
 * [x] Add execution-stage logging.
 * [x] Add execution-stage tests.
 
@@ -1559,6 +1559,93 @@ The following concerns remain open:
 
 Level 13.10 does not introduce Build Evidence, artifact trust, release,
 publication, cancellation, retry, or distributed tracing semantics.
+
+---
+
+## Level 13.11 — Canonical Cancellation Semantics
+
+Status: DEFINED AND DEFERRED BY DESIGN.
+
+The current canonical package-build implementation is synchronous and does not
+expose a runtime cancellation boundary.
+
+The current slice therefore does not introduce:
+
+* a cancellation token or cancellation request API;
+* asynchronous package-build execution;
+* managed child-process termination;
+* explicit `SIGINT` or `SIGTERM` orchestration;
+* a runtime `CANCELLED` value in `PackageBuildStatus`.
+
+`CANCELLED` remains a reserved lifecycle state.
+
+The canonical runtime deliberately does not synthesize a `CANCELLED` build
+result when it cannot reliably observe and control cancellation.
+
+Host-level interruption semantics therefore remain outside the current
+canonical package-build result model.
+
+Future runtime cancellation support must provide an explicit execution boundary
+capable of:
+
+* observing cancellation requests;
+* controlling the active child process;
+* preserving diagnostics;
+* preserving partial-output semantics;
+* applying deterministic workspace cleanup;
+* producing a non-successful deterministic terminal result.
+
+This closes the Level 13 checklist item:
+
+* Define cancellation semantics if required.
+
+The following concern remains open:
+
+* Define retry policy for transient failures only.
+
+Level 13.11 introduces no runtime production-code change.
+
+---
+
+## Level 13.12 — Canonical Retry Policy
+
+Status: DEFINED AND DEFERRED BY DESIGN.
+
+The current canonical package-build runtime performs no automatic retries.
+
+Automatic retry is permitted only when a future execution boundary can
+explicitly and reliably classify a failure as transient.
+
+The current runtime has no canonical failure-classification model capable of
+making that distinction.
+
+Therefore:
+
+* deterministic failures are not retried;
+* unknown or unclassified failures are not retried;
+* `PackageBuildStatus.ERROR` does not imply retryability;
+* `PackageBuildStatus.FAILED` does not imply retryability;
+* the current package-build execution performs exactly one packaging attempt.
+
+Potential future retry support must introduce explicit transient-failure
+classification before automatic retry is allowed.
+
+A future retry mechanism must also provide:
+
+* a finite deterministic attempt limit;
+* observable attempt counts;
+* preserved diagnostics from failed attempts;
+* preserved partial-output semantics;
+* consistent workspace cleanup;
+* deterministic terminal-result semantics.
+
+This closes the Level 13 checklist item:
+
+* Define retry policy for transient failures only.
+
+No Level 13 Build Execution checklist items remain open.
+
+Level 13.12 introduces no production runtime-code change.
 
 ---
 

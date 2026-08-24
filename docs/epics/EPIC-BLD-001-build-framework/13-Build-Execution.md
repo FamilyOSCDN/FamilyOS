@@ -1224,50 +1224,182 @@ Execution may be cancelled because of:
 
 Cancellation must produce a non-successful final state.
 
+The current canonical package-build implementation is synchronous and does not
+yet expose a runtime cancellation boundary.
+
+In particular, the current implementation does not provide:
+
+* a cancellation token or cancellation request API;
+* managed asynchronous package execution;
+* explicit `SIGINT` or `SIGTERM` handling;
+* child-process termination orchestration;
+* a runtime `CANCELLED` package-build status.
+
+`CANCELLED` therefore remains a reserved lifecycle state rather than a
+currently emitted `PackageBuildStatus`.
+
+Introducing a runtime cancellation state before an execution boundary can
+actually observe and control cancellation would create a state that the
+canonical build cannot reliably produce.
+
+Cancellation semantics are consequently defined for the current slice as:
+
+```text
+Cancellation requested outside canonical runtime
+                    |
+                    v
+       Host/runtime interruption semantics
+
+Canonical runtime cancellation boundary absent
+                    |
+                    v
+       No synthetic CANCELLED build result
+```
+
+A future cancellation implementation must introduce an explicit execution
+boundary capable of observing cancellation, controlling the active child
+process, preserving diagnostics, and producing a deterministic terminal
+result.
+
 ---
 
 # Cancellation Safety
 
-Cancellation should avoid leaving an artifact in a state that appears valid when execution was incomplete.
+Cancellation must not leave an incomplete build appearing successful or
+trusted.
+
+When runtime cancellation support is introduced, it must preserve the same
+safety principles already applied to canonical failure handling:
+
+* incomplete execution must remain non-successful;
+* candidate outputs must not gain trust because cancellation occurred;
+* workspace cleanup must be deterministic once the active workspace is known;
+* process-level partial outputs must remain observable according to the
+  canonical partial-output policy;
+* cancellation must not be silently normalized into success.
+
+The current synchronous implementation deliberately does not synthesize a
+`CANCELLED` result when no canonical cancellation boundary exists.
 
 ---
-
 # Retry Philosophy
 
 Retries must be used cautiously.
 
-Automatically retrying a deterministic source or configuration failure wastes time and can hide defects.
+Automatically retrying a deterministic source, configuration, validation, or
+packaging failure wastes time and can hide defects.
 
-Retries are more appropriate for explicitly transient infrastructure failures.
+Retries are appropriate only for failures that an execution boundary can
+reliably classify as transient.
+
+The current canonical package-build runtime does not provide such a
+classification boundary.
+
+It therefore performs no automatic retries.
+
+---
+
+# Canonical Retry Policy
+
+The current canonical retry policy is:
+
+```text
+Build attempt
+     |
+     v
+Terminal result
+     |
+     +-- explicitly classified transient failure
+     |        |
+     |        v
+     |   Future retry policy may apply
+     |
+     +-- deterministic failure
+     |        |
+     |        v
+     |   No retry
+     |
+     +-- unknown or unclassified failure
+              |
+              v
+          No retry
+```
+
+A failure must not become retryable merely because it produces
+`PackageBuildStatus.ERROR`.
+
+Likewise, a non-zero packaging subprocess exit must not be retried merely
+because it produces `PackageBuildStatus.FAILED`.
+
+Status and retry classification are separate concerns.
+
+The current implementation has no canonical failure-classification model that
+can distinguish transient infrastructure failure from deterministic failure
+with sufficient reliability.
+
+Unknown or unclassified failures are therefore non-retryable by default.
 
 ---
 
 # Retry Classification
 
-Potentially retryable failures may include:
+Potentially retryable failures may include, once explicitly and reliably
+classified:
 
 * temporary network interruption;
 * transient registry unavailability;
-* temporary CI infrastructure problem.
+* temporary CI infrastructure failure;
+* temporary remote-service unavailability.
 
-Non-retryable failures generally include:
+Non-retryable failures include deterministic failures such as:
 
 * invalid configuration;
 * failed tests;
-* missing source;
+* missing authoritative source;
 * incompatible dependencies;
-* packaging errors.
+* deterministic packaging errors;
+* artifact-validation failures;
+* functional-validation failures.
+
+These examples do not themselves create runtime retry behavior.
+
+A future retry implementation must introduce an explicit classification
+boundary before automatic retry is permitted.
+
+---
+
+# Retry Safety
+
+A future retry mechanism must:
+
+* retry only failures explicitly classified as transient;
+* use a finite and deterministic attempt limit;
+* avoid retrying deterministic failures;
+* preserve diagnostics from failed attempts;
+* preserve partial-output semantics;
+* apply workspace cleanup consistently between attempts where required;
+* avoid granting artifact trust because a later attempt succeeds;
+* make retry activity observable;
+* preserve the canonical final result semantics.
+
+Retry must never silently convert an unexplained failure into apparent
+reliability.
 
 ---
 
 # Retry Transparency
 
-Retries should be visible in diagnostics.
+Retries must be visible in diagnostics and execution evidence.
 
-The final result should not hide the fact that earlier attempts failed.
+The final result must not hide the fact that earlier attempts failed.
+
+If retry support is introduced, attempt count, classification reason, and
+terminal outcome must remain observable.
+
+The current canonical package-build runtime performs exactly one packaging
+attempt and therefore emits no retry metadata.
 
 ---
-
 # Idempotence
 
 Where practical, repeated execution of the same build request should not create uncontrolled cumulative effects.

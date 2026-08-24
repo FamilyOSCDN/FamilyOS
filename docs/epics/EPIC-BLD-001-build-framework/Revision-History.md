@@ -2515,6 +2515,86 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.11 — Canonical Cancellation Semantics — 2026-08-24
+
+This revision defines the cancellation semantics of the current canonical
+package-build slice.
+
+The current implementation is synchronous and exposes no runtime cancellation
+boundary.
+
+No cancellation token, asynchronous execution model, managed child-process
+termination, explicit signal orchestration, or runtime `CANCELLED`
+`PackageBuildStatus` is introduced.
+
+`CANCELLED` remains a reserved lifecycle state.
+
+The canonical runtime deliberately does not synthesize a cancellation result
+when it cannot reliably observe and control cancellation.
+
+Host-level interruption therefore remains outside the current canonical
+package-build result model.
+
+A future runtime cancellation implementation must introduce an explicit
+execution boundary capable of observing cancellation, controlling the active
+child process, preserving diagnostics and partial-output semantics, applying
+deterministic workspace cleanup, and producing a deterministic non-successful
+terminal result.
+
+This revision closes the Level 13 checklist item:
+
+* Define cancellation semantics if required.
+
+The following Level 13 concern remains open:
+
+* Define retry policy for transient failures only.
+
+No production runtime code is changed by Level 13.11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
+## Level 13.12 — Canonical Retry Policy — 2026-08-24
+
+This revision defines the retry policy of the current canonical package-build
+runtime.
+
+The current runtime performs exactly one packaging attempt and does not
+automatically retry failed or errored execution.
+
+Automatic retry is reserved for future failures that an explicit execution
+boundary can reliably classify as transient.
+
+The current implementation contains no canonical failure-classification model
+that can safely make that distinction.
+
+Accordingly:
+
+* deterministic failures are non-retryable;
+* unknown or unclassified failures are non-retryable by default;
+* `PackageBuildStatus.ERROR` does not imply retryability;
+* `PackageBuildStatus.FAILED` does not imply retryability.
+
+Future retry support must introduce explicit transient-failure classification,
+finite attempt limits, observable retry activity, preserved diagnostics,
+partial-output semantics, consistent workspace cleanup, and deterministic
+terminal-result behavior.
+
+This revision closes the final open Level 13 checklist item:
+
+* Define retry policy for transient failures only.
+
+All Level 13 Build Execution checklist items are now closed.
+
+No production runtime code is changed by Level 13.12.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text
