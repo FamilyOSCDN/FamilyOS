@@ -137,4 +137,3 @@ def pytest_configure(config: pytest.Config) -> None:
         plugin,
         "familyos-structured-result",
     )
-
