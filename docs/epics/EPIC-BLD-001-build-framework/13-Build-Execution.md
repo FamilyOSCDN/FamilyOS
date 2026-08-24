@@ -725,6 +725,34 @@ Generation SHOULD be:
 * attributable to a known generator;
 * validated where necessary.
 
+For the current canonical FamilyOS CLI package build, no dedicated generation
+stage is required before package assembly.
+
+The authoritative package inputs required by that build are already
+materialized before canonical execution. The generated dependency lock
+`requirements.txt` is treated as a controlled build input and its freshness
+against the canonical dependency declarations in `pyproject.toml` is validated
+by the build-input validation boundary.
+
+The existing FamilyOS generation subsystem is not part of the current
+canonical package-build execution path. Project, domain, documentation, schema,
+metadata, or other future build targets may require explicit generation stages,
+but such stages must be introduced only when the corresponding target actually
+depends on generated content.
+
+The absence of a generation stage for the current package target is therefore
+an explicit execution decision rather than an implicit omission.
+
+A future target that requires generation MUST define:
+
+* the authoritative source inputs;
+* the responsible generator;
+* the generated destination;
+* ordering relative to staging and transformation;
+* freshness or regeneration semantics;
+* validation requirements;
+* failure propagation behavior.
+
 ---
 
 # Source Mutation

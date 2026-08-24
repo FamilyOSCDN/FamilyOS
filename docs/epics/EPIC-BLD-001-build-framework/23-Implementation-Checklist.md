@@ -1069,7 +1069,7 @@ Implement predictable and observable transformation from validated context to ca
 * [x] Define build execution stages.
 * [x] Define workspace initialization.
 * [x] Define staging behavior.
-* [ ] Define generation stages where needed.
+* [x] Define generation stages where needed.
 * [ ] Define package assembly.
 * [x] Define packaging execution.
 * [x] Define output collection.
@@ -1291,6 +1291,53 @@ The following concerns remain open:
 
 Level 13.5 does not introduce Build Evidence, artifact trust, release,
 publication, cleanup, cancellation, retry, or distributed tracing semantics.
+
+---
+
+## Level 13.6 — Canonical Generation Requirement Resolution
+
+Status: DEFINED AND VALIDATED.
+
+The current canonical FamilyOS CLI package build does not require a dedicated
+generation stage before package assembly.
+
+The package-build input set is already materialized before execution. The
+generated dependency lock `requirements.txt` participates as a controlled build
+input, and its freshness against `pyproject.toml` is validated by canonical
+build-input validation before staging.
+
+The repository contains a broader FamilyOS generation subsystem for project,
+domain, documentation, and other generation workflows. That subsystem is not
+coupled to the current canonical package-build orchestration and is therefore
+not inserted into the package-build stage sequence merely to satisfy the
+framework vocabulary.
+
+No new `GENERATE` execution stage is introduced for the current package target.
+
+Generation remains target-dependent. A future build target that requires
+generated source, schemas, manifests, metadata, documentation, resources, or
+other derived package inputs must introduce explicit generation semantics,
+including generator identity, source inputs, destination, ordering, freshness,
+validation, and failure propagation.
+
+This closes the Level 13 checklist item:
+
+* Define generation stages where needed.
+
+The following concerns remain open:
+
+* Define package assembly.
+* Define execution finalization.
+* Define partial-output handling.
+* Define failure cleanup.
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+Level 13.6 introduces no production-code behavior and does not change the
+current fifteen-stage execution vocabulary.
+
+It does not introduce Build Evidence, artifact trust, release, publication,
+cleanup, cancellation, retry, or distributed tracing semantics.
 
 ---
 

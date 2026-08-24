@@ -2273,6 +2273,55 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.6 — Canonical Generation Requirement Resolution — 2026-08-24
+
+This revision resolves generation-stage requirements for the current canonical
+FamilyOS CLI package-build target.
+
+The current package build does not require a dedicated generation stage before
+package assembly.
+
+Its authoritative package inputs are already materialized before canonical
+execution. The generated dependency lock `requirements.txt` is governed as a
+controlled build input, and its freshness against canonical dependency
+declarations in `pyproject.toml` is validated before staging.
+
+The broader FamilyOS repository contains dedicated project, domain,
+documentation, and artifact-generation capabilities. Audit confirms that those
+generation subsystems are not coupled to the current canonical package-build
+orchestration.
+
+No `GENERATE` execution stage is therefore introduced merely to satisfy a
+generic lifecycle vocabulary.
+
+The absence of a generation stage for the current package target is an explicit
+target-specific execution decision.
+
+Future build targets that require generated source, schemas, manifests,
+metadata, documentation, resources, or other derived package inputs must
+define explicit generation semantics, including generator identity,
+authoritative source inputs, destination, ordering, freshness or regeneration
+behavior, validation, and failure propagation.
+
+This revision closes the Level 13 checklist item:
+
+* Define generation stages where needed.
+
+The canonical execution vocabulary remains unchanged at fifteen stages through
+optional wheel functional validation.
+
+Package assembly, execution finalization, partial-output handling, failure
+cleanup, cancellation semantics, and retry policy remain open.
+
+This revision introduces no production-code behavior and does not introduce
+Build Evidence, artifact trust, release, publication, cleanup, cancellation,
+retry, or distributed tracing semantics.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text
