@@ -33,6 +33,9 @@ from familyos_cli.application.build.build_execution_observation import (
     BuildExecutionStageStatus,
 )
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
+from familyos_cli.application.build.build_input_stager import (
+    BuildInputStager,
+)
 from familyos_cli.application.build.build_input_validator import (
     BuildInputValidator,
 )
@@ -106,6 +109,7 @@ class RunPackageBuildUseCase:
         environment_state_provider: EnvironmentStateProvider | None = None,
         environment_validator: EnvironmentValidator | None = None,
         build_workspace_initializer: BuildWorkspaceInitializer | None = None,
+        build_input_stager: BuildInputStager | None = None,
         build_input_validator: BuildInputValidator | None = None,
         repository_layout_validator: RepositoryLayoutValidator | None = None,
         toolchain_policy_provider: ToolchainPolicyProvider | None = None,
@@ -136,6 +140,9 @@ class RunPackageBuildUseCase:
         )
         self._build_workspace_initializer = (
             build_workspace_initializer or BuildWorkspaceInitializer()
+        )
+        self._build_input_stager = (
+            build_input_stager or BuildInputStager()
         )
         self._build_input_validator = (
             build_input_validator or BuildInputValidator()
@@ -362,7 +369,7 @@ class RunPackageBuildUseCase:
 
         workspace_started = self._monotonic_clock()
         try:
-            self._build_workspace_initializer.initialize(
+            workspace = self._build_workspace_initializer.initialize(
                 build_id=build_id,
                 temporary_directory=Path(
                     environment_state.temporary_directory
@@ -456,6 +463,39 @@ class RunPackageBuildUseCase:
                 build_id=build_id,
                 execution_observations=tuple(execution_observations),
             )
+
+        staging_started = self._monotonic_clock()
+        try:
+            self._build_input_stager.stage(
+                project_root=self._project_root,
+                workspace=workspace,
+            )
+        except OSError as error:
+            execution_observations.append(
+                self._execution_observation(
+                    stage=BuildExecutionStage.STAGE_BUILD_INPUTS,
+                    started_at=staging_started,
+                    successful=False,
+                    diagnostic=str(error),
+                )
+            )
+
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(str(error)),
+                source_state=source_state,
+                build_context=build_context,
+                build_id=build_id,
+                execution_observations=tuple(execution_observations),
+            )
+
+        execution_observations.append(
+            self._execution_observation(
+                stage=BuildExecutionStage.STAGE_BUILD_INPUTS,
+                started_at=staging_started,
+                successful=True,
+            )
+        )
 
         package_started = self._monotonic_clock()
         execution = self._builder.build(

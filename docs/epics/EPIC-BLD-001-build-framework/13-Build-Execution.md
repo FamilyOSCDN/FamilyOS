@@ -342,6 +342,7 @@ VALIDATE_ENVIRONMENT
 INITIALIZE_WORKSPACE
 RESOLVE_BUILD_CONTEXT
 VALIDATE_EFFECTIVE_CONFIGURATION
+STAGE_BUILD_INPUTS
 PACKAGE
 DISCOVER_ARTIFACTS
 VALIDATE_ARTIFACTS
@@ -611,15 +612,46 @@ This helps detect dependence on:
 
 # Workspace Preparation
 
-Preparation may include:
+The canonical package-build implementation now stages authoritative build
+inputs after successful effective-configuration validation and before package
+execution.
 
-* creating directories;
-* cleaning prior outputs;
-* initializing manifests;
-* materializing effective configuration;
-* preparing generation targets.
+`BuildInputStager` materializes the authoritative package-build input set
+beneath the Build-ID-scoped workspace:
 
-Preparation should not silently alter authoritative source.
+```text
+<workspace-root>/
+├── staging/
+│   └── project/
+└── intermediate/
+```
+
+The staged project is represented by the immutable `StagedBuildInputs` model.
+
+The current canonical staging set materializes the package project inputs
+required by the FamilyOS CLI build contract, including root packaging files
+and the `src/familyos_cli` package tree, while excluding unrelated repository
+state and Python cache state.
+
+Staging is explicit and fail-fast. It is represented by the canonical
+`STAGE_BUILD_INPUTS` execution stage.
+
+If staging fails, the stage is recorded as `FAILED`, its diagnostic is
+retained, and package execution and all later dependent stages are not
+executed.
+
+The current staging contract establishes an isolated materialized snapshot
+for subsequent build work. It does not yet make that staged snapshot the
+source consumed by the canonical Python package builder.
+
+The Python package builder therefore continues to consume authoritative
+`project_root` directly and continues to write candidate distributions to
+the canonical output directory.
+
+This distinction is intentional. Level 13.5 defines staging behavior without
+claiming implementation of package assembly from staged inputs.
+
+Preparation must not silently alter authoritative source.
 
 ---
 
@@ -1331,11 +1363,11 @@ FAILED
 
 Observations preserve canonical orchestration order.
 
-Successful execution without requested functional validation records twelve
+Successful execution without requested functional validation records fourteen
 stages from `VALIDATE_INPUTS` through `BUILD_ARTIFACT_MANIFEST`.
 
 When functional validation is requested and reached,
-`FUNCTIONALLY_VALIDATE_WHEEL` is recorded as the thirteenth and final stage.
+`FUNCTIONALLY_VALIDATE_WHEEL` is recorded as the fifteenth and final stage.
 
 Mandatory failure is fail-fast. The failing stage is recorded with `FAILED`,
 including its diagnostic when available, and later dependent stages are not

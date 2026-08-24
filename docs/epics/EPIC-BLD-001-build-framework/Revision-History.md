@@ -2208,6 +2208,71 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.5 — Canonical Build Input Staging — 2026-08-24
+
+This revision introduces canonical build-input staging for the
+application-owned FamilyOS package-build orchestration.
+
+After successful effective-configuration validation and before package
+execution, FamilyOS now materializes the canonical package-build input set
+inside the Build-ID-scoped workspace.
+
+The staged project layout is:
+
+```text
+<workspace-root>/
+├── staging/
+│   └── project/
+└── intermediate/
+```
+
+`BuildInputStager` owns staging from authoritative project source.
+
+The immutable `StagedBuildInputs` model represents the staged project root.
+
+The current staging contract materializes the root packaging inputs and the
+`src/familyos_cli` package tree required by the FamilyOS CLI package build,
+while excluding unrelated repository state and Python cache state.
+
+Canonical staging is represented explicitly by the `STAGE_BUILD_INPUTS`
+execution stage.
+
+The canonical execution-stage vocabulary now contains fifteen stages through
+optional wheel functional validation, with `STAGE_BUILD_INPUTS` inserted
+between `VALIDATE_EFFECTIVE_CONFIGURATION` and `PACKAGE`.
+
+Successful execution without requested functional validation therefore
+records fourteen ordered stage observations. Requested functional validation
+adds `FUNCTIONALLY_VALIDATE_WHEEL` as the fifteenth and final stage when
+reached.
+
+Staging failure is fail-fast. A failed `STAGE_BUILD_INPUTS` observation
+retains its diagnostic and prevents package execution, Artifact Discovery,
+package validation, artifact identity establishment, artifact integrity
+establishment, manifest construction, and functional validation.
+
+Staging does not mutate authoritative project source.
+
+The canonical Python package builder intentionally remains unchanged and
+continues to consume authoritative `project_root` directly. The staged
+project is therefore not yet the effective PyPA package source.
+
+This revision closes the Level 13 checklist item:
+
+* Define staging behavior.
+
+Generation-stage definition, package assembly, execution finalization,
+partial-output handling, failure cleanup, cancellation semantics, and retry
+policy remain open.
+
+This revision does not introduce Build Evidence, artifact trust, release,
+publication, cleanup, cancellation, retry, or distributed tracing semantics.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

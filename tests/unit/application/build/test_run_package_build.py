@@ -35,9 +35,13 @@ from familyos_cli.application.build import (
     WheelFunctionalValidationStage,
 )
 from familyos_cli.application.build.build_id import BuildId
+from familyos_cli.application.build.build_input_stager import (
+    BuildInputStager,
+)
 from familyos_cli.application.build.build_profile_definition import (
     BuildProfileDefinition,
 )
+from familyos_cli.application.build.build_staging import StagedBuildInputs
 from familyos_cli.application.build.build_workspace import BuildWorkspace
 from familyos_cli.application.build.build_workspace_initializer import (
     BuildWorkspaceInitializer,
@@ -111,6 +115,22 @@ def _write_canonical_dependency_inputs(
         encoding="utf-8",
     )
 
+    (project_root / "README.md").write_text(
+        "# FamilyOS CLI Test\n",
+        encoding="utf-8",
+    )
+    (project_root / "LICENSE").write_text(
+        "Test license\n",
+        encoding="utf-8",
+    )
+
+    package_root = project_root / "src" / "familyos_cli"
+    package_root.mkdir(parents=True, exist_ok=True)
+    (package_root / "__init__.py").write_text(
+        '"""Canonical test package."""\n',
+        encoding="utf-8",
+    )
+
 
 @pytest.fixture(autouse=True)
 def _canonical_build_inputs(
@@ -171,10 +191,48 @@ class _RecordingBuildWorkspaceInitializer(
             / str(build_id)
         )
 
+        staging_dir = root / "staging"
+        intermediate_dir = root / "intermediate"
+
+        staging_dir.mkdir(parents=True)
+        intermediate_dir.mkdir()
+
         return BuildWorkspace(
             root=root,
-            staging_dir=root / "staging",
-            intermediate_dir=root / "intermediate",
+            staging_dir=staging_dir,
+            intermediate_dir=intermediate_dir,
+        )
+
+
+class _RecordingBuildInputStager(BuildInputStager):
+    def __init__(
+        self,
+        *,
+        error: OSError | None = None,
+        events: list[str] | None = None,
+    ) -> None:
+        self.error = error
+        self.events = events
+        self.calls: list[tuple[Path, BuildWorkspace]] = []
+
+    def stage(
+        self,
+        *,
+        project_root: Path,
+        workspace: BuildWorkspace,
+    ) -> StagedBuildInputs:
+        self.calls.append((project_root, workspace))
+
+        if self.events is not None:
+            self.events.append("stage-build-inputs")
+
+        if self.error is not None:
+            raise self.error
+
+        return StagedBuildInputs(
+            project_root=(
+                workspace.staging_dir / "project"
+            ).resolve(),
         )
 
 
@@ -1951,6 +2009,8 @@ def test_package_execution_observation_records_success_duration(
             120.12,
             130.0,
             130.13,
+            140.0,
+            140.14,
         )
     )
 
@@ -1974,6 +2034,7 @@ def test_package_execution_observation_records_success_duration(
         BuildExecutionStage.INITIALIZE_WORKSPACE,
         BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
         BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
+        BuildExecutionStage.STAGE_BUILD_INPUTS,
         BuildExecutionStage.PACKAGE,
         BuildExecutionStage.DISCOVER_ARTIFACTS,
         BuildExecutionStage.VALIDATE_ARTIFACTS,
@@ -1987,7 +2048,7 @@ def test_package_execution_observation_records_success_duration(
         for observation in result.execution_observations
     ) == expected_stages
 
-    assert len(result.execution_observations) == 13
+    assert len(result.execution_observations) == 14
 
     for observation in result.execution_observations:
         assert observation.status is BuildExecutionStageStatus.SUCCEEDED
@@ -2037,6 +2098,8 @@ def test_package_execution_observation_records_failure_duration_and_diagnostic(
             70.07,
             80.0,
             80.50,
+            90.0,
+            90.50,
         )
     )
 
@@ -2063,6 +2126,7 @@ def test_package_execution_observation_records_failure_duration_and_diagnostic(
         BuildExecutionStage.INITIALIZE_WORKSPACE,
         BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
         BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
+        BuildExecutionStage.STAGE_BUILD_INPUTS,
         BuildExecutionStage.PACKAGE,
     )
 
@@ -2137,6 +2201,8 @@ def test_functional_validation_execution_observation_is_recorded_last(
             130.13,
             140.0,
             140.14,
+            150.0,
+            150.15,
         )
     )
 
@@ -2154,7 +2220,7 @@ def test_functional_validation_execution_observation_is_recorded_last(
     )
 
     assert result.successful is True
-    assert len(result.execution_observations) == 14
+    assert len(result.execution_observations) == 15
 
     final_observation = result.execution_observations[-1]
 
@@ -2166,7 +2232,7 @@ def test_functional_validation_execution_observation_is_recorded_last(
         final_observation.status
         is BuildExecutionStageStatus.SUCCEEDED
     )
-    assert final_observation.duration_seconds == pytest.approx(0.14)
+    assert final_observation.duration_seconds == pytest.approx(0.15)
     assert final_observation.diagnostic is None
 
 
@@ -2282,3 +2348,179 @@ def test_workspace_initialization_failure_is_fail_fast_before_packaging(
     assert BuildExecutionStage.RESOLVE_BUILD_CONTEXT not in reached_stages
     assert BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION not in reached_stages
     assert BuildExecutionStage.PACKAGE not in reached_stages
+
+
+def test_build_input_staging_receives_authoritative_root_and_workspace(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+    workspace_initializer = _RecordingBuildWorkspaceInitializer()
+    stager = _RecordingBuildInputStager()
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_initializer=workspace_initializer,
+        build_input_stager=stager,
+    ).execute(output_dir)
+
+    assert result.successful is True
+    assert len(workspace_initializer.calls) == 1
+    assert len(stager.calls) == 1
+
+    staged_project_root, workspace = stager.calls[0]
+
+    assert staged_project_root == tmp_path
+    assert workspace.root.parent.name == "familyos-build"
+    assert workspace.staging_dir == workspace.root / "staging"
+    assert workspace.intermediate_dir == workspace.root / "intermediate"
+
+    # Level 13.5 defines staging behavior without yet changing
+    # the authoritative package-builder source.
+    assert builder.calls == [
+        (
+            tmp_path,
+            output_dir,
+        )
+    ]
+
+
+def test_build_input_staging_occurs_after_effective_configuration_and_before_package(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build import BuildExecutionStage
+
+    events: list[str] = []
+
+    class _OrderedBuilder(_PackageBuilder):
+        def build(
+            self,
+            *,
+            project_root: Path,
+            output_dir: Path,
+        ) -> PackageBuildResult:
+            events.append("package")
+            return super().build(
+                project_root=project_root,
+                output_dir=output_dir,
+            )
+
+    builder = _OrderedBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected package failure",
+        )
+    )
+    effective_validator = _RecordingEffectiveConfigurationValidator(
+        events=events,
+    )
+    stager = _RecordingBuildInputStager(events=events)
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        effective_configuration_validator=effective_validator,
+        build_input_stager=stager,
+    ).execute(Path("dist"))
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.diagnostic == "expected package failure"
+
+    assert events == [
+        "effective-configuration",
+        "stage-build-inputs",
+        "package",
+    ]
+
+    reached_stages = tuple(
+        observation.stage
+        for observation in result.execution_observations
+    )
+
+    effective_index = reached_stages.index(
+        BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION
+    )
+    staging_index = reached_stages.index(
+        BuildExecutionStage.STAGE_BUILD_INPUTS
+    )
+    package_index = reached_stages.index(
+        BuildExecutionStage.PACKAGE
+    )
+
+    assert effective_index < staging_index < package_index
+
+
+def test_build_input_staging_failure_is_fail_fast(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+    stager = _RecordingBuildInputStager(
+        error=OSError("canonical staging failed"),
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_stager=stager,
+    ).execute(Path("dist"))
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.diagnostic == "canonical staging failed"
+
+    assert len(stager.calls) == 1
+    assert builder.calls == []
+
+    final_observation = result.execution_observations[-1]
+
+    assert (
+        final_observation.stage
+        is BuildExecutionStage.STAGE_BUILD_INPUTS
+    )
+    assert (
+        final_observation.status
+        is BuildExecutionStageStatus.FAILED
+    )
+    assert final_observation.diagnostic == "canonical staging failed"
+
+    reached_stages = tuple(
+        observation.stage
+        for observation in result.execution_observations
+    )
+
+    assert BuildExecutionStage.PACKAGE not in reached_stages
+    assert BuildExecutionStage.DISCOVER_ARTIFACTS not in reached_stages
+    assert BuildExecutionStage.VALIDATE_ARTIFACTS not in reached_stages

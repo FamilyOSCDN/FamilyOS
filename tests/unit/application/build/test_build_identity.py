@@ -139,7 +139,22 @@ def _write_toolchain_policy(project_root: Path) -> None:
         'python_version = "3.13"\n',
         encoding="utf-8",
     )
-    (project_root / "src").mkdir()
+    (project_root / "README.md").write_text(
+        "# FamilyOS CLI Test\n",
+        encoding="utf-8",
+    )
+    (project_root / "LICENSE").write_text(
+        "Test license\n",
+        encoding="utf-8",
+    )
+
+    package_root = project_root / "src" / "familyos_cli"
+    package_root.mkdir(parents=True)
+    (package_root / "__init__.py").write_text(
+        '"""Test package."""\n',
+        encoding="utf-8",
+    )
+
     digest = dependency_input_digest(project_root / "pyproject.toml")
     (project_root / "requirements.txt").write_text(
         f"{DEPENDENCY_DIGEST_PREFIX}{digest}\n"

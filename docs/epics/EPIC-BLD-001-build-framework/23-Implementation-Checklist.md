@@ -1068,7 +1068,7 @@ Implement predictable and observable transformation from validated context to ca
 
 * [x] Define build execution stages.
 * [x] Define workspace initialization.
-* [ ] Define staging behavior.
+* [x] Define staging behavior.
 * [ ] Define generation stages where needed.
 * [ ] Define package assembly.
 * [x] Define packaging execution.
@@ -1226,6 +1226,71 @@ The existence of the `staging` directory does not by itself define staging behav
 
 Level 13.4 does not introduce Build Evidence, artifact trust, release,
 publication, retry, cancellation, cleanup, or distributed tracing semantics.
+
+---
+
+## Level 13.5 — Canonical Build Input Staging
+
+Status: IMPLEMENTED AND VALIDATED.
+
+The canonical package-build orchestration now stages authoritative package
+inputs after successful effective-configuration validation and before package
+execution.
+
+`BuildInputStager` materializes the canonical package-build input set beneath
+the Build-ID-scoped workspace:
+
+```text
+<workspace-root>/
+├── staging/
+│   └── project/
+└── intermediate/
+```
+
+The immutable `StagedBuildInputs` model represents the staged project root.
+
+The canonical staging contract materializes the root packaging inputs and the
+`src/familyos_cli` package tree required by the FamilyOS CLI package build,
+while excluding unrelated repository state and Python cache state.
+
+Staging is represented explicitly by the canonical `STAGE_BUILD_INPUTS`
+execution stage.
+
+The current canonical execution vocabulary therefore contains fifteen stages
+through optional wheel functional validation.
+
+Successful execution without requested functional validation records fourteen
+ordered observations. Requested functional validation adds
+`FUNCTIONALLY_VALIDATE_WHEEL` as the fifteenth and final stage when reached.
+
+Staging failure is fail-fast. A failed `STAGE_BUILD_INPUTS` observation retains
+its diagnostic and prevents package execution, Artifact Discovery, artifact
+validation, identity establishment, integrity establishment, manifest
+construction, and functional validation.
+
+Staging does not mutate authoritative project source.
+
+The canonical Python package builder intentionally continues to consume
+authoritative `project_root` directly. Level 13.5 therefore defines staging
+behavior without claiming implementation of package assembly from staged
+inputs.
+
+This closes the Level 13 checklist item:
+
+* Define staging behavior.
+
+The following concerns remain open:
+
+* Define generation stages where needed.
+* Define package assembly.
+* Define execution finalization.
+* Define partial-output handling.
+* Define failure cleanup.
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+Level 13.5 does not introduce Build Evidence, artifact trust, release,
+publication, cleanup, cancellation, retry, or distributed tracing semantics.
 
 ---
 

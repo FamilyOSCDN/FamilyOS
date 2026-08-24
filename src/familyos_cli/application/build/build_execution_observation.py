@@ -16,6 +16,7 @@ class BuildExecutionStage(StrEnum):
     INITIALIZE_WORKSPACE = "initialize-workspace"
     RESOLVE_BUILD_CONTEXT = "resolve-build-context"
     VALIDATE_EFFECTIVE_CONFIGURATION = "validate-effective-configuration"
+    STAGE_BUILD_INPUTS = "stage-build-inputs"
     PACKAGE = "package"
     DISCOVER_ARTIFACTS = "discover-artifacts"
     VALIDATE_ARTIFACTS = "validate-artifacts"
