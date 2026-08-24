@@ -42,6 +42,9 @@ from familyos_cli.application.build.build_profile_registry import (
 from familyos_cli.application.build.build_target_registry import (
     get_build_target_definition,
 )
+from familyos_cli.application.build.build_workspace_initializer import (
+    BuildWorkspaceInitializer,
+)
 from familyos_cli.application.build.dependency_state_provider import (
     DependencyStateProvider,
 )
@@ -102,6 +105,7 @@ class RunPackageBuildUseCase:
         toolchain_state_provider: ToolchainStateProvider | None = None,
         environment_state_provider: EnvironmentStateProvider | None = None,
         environment_validator: EnvironmentValidator | None = None,
+        build_workspace_initializer: BuildWorkspaceInitializer | None = None,
         build_input_validator: BuildInputValidator | None = None,
         repository_layout_validator: RepositoryLayoutValidator | None = None,
         toolchain_policy_provider: ToolchainPolicyProvider | None = None,
@@ -129,6 +133,9 @@ class RunPackageBuildUseCase:
         )
         self._environment_validator = (
             environment_validator or EnvironmentValidator()
+        )
+        self._build_workspace_initializer = (
+            build_workspace_initializer or BuildWorkspaceInitializer()
         )
         self._build_input_validator = (
             build_input_validator or BuildInputValidator()
@@ -352,6 +359,44 @@ class RunPackageBuildUseCase:
                 build_id=build_id,
                 execution_observations=tuple(execution_observations),
             )
+
+        workspace_started = self._monotonic_clock()
+        try:
+            self._build_workspace_initializer.initialize(
+                build_id=build_id,
+                temporary_directory=Path(
+                    environment_state.temporary_directory
+                ),
+            )
+        except OSError as error:
+            execution_observations.append(
+                self._execution_observation(
+                    stage=BuildExecutionStage.INITIALIZE_WORKSPACE,
+                    started_at=workspace_started,
+                    successful=False,
+                    diagnostic=str(error),
+                )
+            )
+
+            source_state = self._source_state_provider.observe(
+                project_root=self._project_root,
+            )
+
+            return CanonicalPackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                execution=self._failed_pre_execution(str(error)),
+                source_state=source_state,
+                build_id=build_id,
+                execution_observations=tuple(execution_observations),
+            )
+
+        execution_observations.append(
+            self._execution_observation(
+                stage=BuildExecutionStage.INITIALIZE_WORKSPACE,
+                started_at=workspace_started,
+                successful=True,
+            )
+        )
 
         context_started = self._monotonic_clock()
         build_context = BuildContextResolver(

@@ -55,6 +55,10 @@ from familyos_cli.application.build.build_execution_observation import (
 )
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
+from familyos_cli.application.build.build_workspace import BuildWorkspace
+from familyos_cli.application.build.build_workspace_initializer import (
+    BuildWorkspaceInitializer,
+)
 from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.dependency_state_provider import (
     DependencyStateProvider,
@@ -145,6 +149,8 @@ __all__ = [
     "BuildExecutionObservation",
     "BuildExecutionStage",
     "BuildExecutionStageStatus",
+    "BuildWorkspace",
+    "BuildWorkspaceInitializer",
     "BuildContext",
     "BuildContextResolver",
     "BuildEffectiveConfiguration",

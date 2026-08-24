@@ -34,8 +34,13 @@ from familyos_cli.application.build import (
     WheelFunctionalValidationFinding,
     WheelFunctionalValidationStage,
 )
+from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_profile_definition import (
     BuildProfileDefinition,
+)
+from familyos_cli.application.build.build_workspace import BuildWorkspace
+from familyos_cli.application.build.build_workspace_initializer import (
+    BuildWorkspaceInitializer,
 )
 from familyos_cli.application.build.repository_layout_validation import (
     RepositoryLayoutValidationResult,
@@ -136,6 +141,41 @@ class _SourceStateProvider(SourceStateProviderPort):
         if self.events is not None:
             self.events.append("source-state")
         return self.source_state
+
+
+class _RecordingBuildWorkspaceInitializer(
+    BuildWorkspaceInitializer,
+):
+    def __init__(
+        self,
+        *,
+        error: OSError | None = None,
+    ) -> None:
+        self.error = error
+        self.calls: list[tuple[BuildId, Path]] = []
+
+    def initialize(
+        self,
+        *,
+        build_id: BuildId,
+        temporary_directory: Path,
+    ) -> BuildWorkspace:
+        self.calls.append((build_id, temporary_directory))
+
+        if self.error is not None:
+            raise self.error
+
+        root = (
+            temporary_directory.resolve()
+            / "familyos-build"
+            / str(build_id)
+        )
+
+        return BuildWorkspace(
+            root=root,
+            staging_dir=root / "staging",
+            intermediate_dir=root / "intermediate",
+        )
 
 
 class _PackageBuilder(PackageBuilderPort):
@@ -1909,6 +1949,8 @@ def test_package_execution_observation_records_success_duration(
             110.11,
             120.0,
             120.12,
+            130.0,
+            130.13,
         )
     )
 
@@ -1929,6 +1971,7 @@ def test_package_execution_observation_records_success_duration(
         BuildExecutionStage.VALIDATE_REPOSITORY_LAYOUT,
         BuildExecutionStage.VALIDATE_TOOLCHAIN,
         BuildExecutionStage.VALIDATE_ENVIRONMENT,
+        BuildExecutionStage.INITIALIZE_WORKSPACE,
         BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
         BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
         BuildExecutionStage.PACKAGE,
@@ -1944,7 +1987,7 @@ def test_package_execution_observation_records_success_duration(
         for observation in result.execution_observations
     ) == expected_stages
 
-    assert len(result.execution_observations) == 12
+    assert len(result.execution_observations) == 13
 
     for observation in result.execution_observations:
         assert observation.status is BuildExecutionStageStatus.SUCCEEDED
@@ -1991,7 +2034,9 @@ def test_package_execution_observation_records_failure_duration_and_diagnostic(
             60.0,
             60.06,
             70.0,
-            70.50,
+            70.07,
+            80.0,
+            80.50,
         )
     )
 
@@ -2015,6 +2060,7 @@ def test_package_execution_observation_records_failure_duration_and_diagnostic(
         BuildExecutionStage.VALIDATE_REPOSITORY_LAYOUT,
         BuildExecutionStage.VALIDATE_TOOLCHAIN,
         BuildExecutionStage.VALIDATE_ENVIRONMENT,
+        BuildExecutionStage.INITIALIZE_WORKSPACE,
         BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
         BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
         BuildExecutionStage.PACKAGE,
@@ -2089,6 +2135,8 @@ def test_functional_validation_execution_observation_is_recorded_last(
             120.12,
             130.0,
             130.13,
+            140.0,
+            140.14,
         )
     )
 
@@ -2106,7 +2154,7 @@ def test_functional_validation_execution_observation_is_recorded_last(
     )
 
     assert result.successful is True
-    assert len(result.execution_observations) == 13
+    assert len(result.execution_observations) == 14
 
     final_observation = result.execution_observations[-1]
 
@@ -2118,5 +2166,119 @@ def test_functional_validation_execution_observation_is_recorded_last(
         final_observation.status
         is BuildExecutionStageStatus.SUCCEEDED
     )
-    assert final_observation.duration_seconds == pytest.approx(0.13)
+    assert final_observation.duration_seconds == pytest.approx(0.14)
     assert final_observation.diagnostic is None
+
+
+def test_workspace_initialization_receives_build_id_and_environment_temp_dir(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.environment_state import EnvironmentState
+    from familyos_cli.application.build.environment_state_provider import (
+        EnvironmentStateProvider,
+    )
+
+    class _EnvironmentStateProvider(EnvironmentStateProvider):
+        def capture(self) -> EnvironmentState:
+            return EnvironmentState(
+                operating_system="test-os",
+                operating_system_release="1",
+                machine_architecture="test-machine",
+                virtual_environment_active=True,
+                temporary_directory=str(tmp_path / "canonical-temp"),
+            )
+
+    canonical_temp = tmp_path / "canonical-temp"
+    canonical_temp.mkdir()
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+    workspace_initializer = _RecordingBuildWorkspaceInitializer()
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        environment_state_provider=_EnvironmentStateProvider(),
+        build_workspace_initializer=workspace_initializer,
+    ).execute(output_dir)
+
+    assert result.successful is True
+    assert len(workspace_initializer.calls) == 1
+
+    observed_build_id, observed_temporary_directory = (
+        workspace_initializer.calls[0]
+    )
+
+    assert observed_build_id == result.build_id
+    assert observed_temporary_directory == canonical_temp
+
+
+def test_workspace_initialization_failure_is_fail_fast_before_packaging(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+    discoverer = _RecordingDiscoverer()
+    validator = _RecordingValidator()
+    functional_validator = _RecordingFunctionalValidator()
+    workspace_initializer = _RecordingBuildWorkspaceInitializer(
+        error=OSError("workspace initialization failed"),
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        discoverer,
+        validator,
+        functional_validator,
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_initializer=workspace_initializer,
+    ).execute(tmp_path / "dist")
+
+    assert result.successful is False
+    assert result.execution.diagnostic == "workspace initialization failed"
+
+    assert len(workspace_initializer.calls) == 1
+    assert builder.calls == []
+    assert discoverer.called is False
+    assert validator.calls == []
+    assert functional_validator.calls == []
+
+    final_observation = result.execution_observations[-1]
+
+    assert final_observation.stage is BuildExecutionStage.INITIALIZE_WORKSPACE
+    assert final_observation.status is BuildExecutionStageStatus.FAILED
+    assert final_observation.diagnostic == "workspace initialization failed"
+
+    reached_stages = tuple(
+        observation.stage
+        for observation in result.execution_observations
+    )
+
+    assert BuildExecutionStage.RESOLVE_BUILD_CONTEXT not in reached_stages
+    assert BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION not in reached_stages
+    assert BuildExecutionStage.PACKAGE not in reached_stages

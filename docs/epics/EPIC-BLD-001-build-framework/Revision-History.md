@@ -2147,6 +2147,67 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.4 — Canonical Build Workspace Initialization — 2026-08-24
+
+This revision introduces canonical Build Workspace initialization for the
+application-owned package-build orchestration.
+
+After successful environment validation and before Build Context resolution,
+FamilyOS now initializes an isolated workspace derived from the validated
+temporary-directory capability and canonical Build ID.
+
+The canonical workspace layout is:
+
+```text
+<temporary-directory>/
+└── familyos-build/
+    └── <build-id>/
+        ├── staging/
+        └── intermediate/
+```
+
+The immutable `BuildWorkspace` model represents that layout.
+
+`BuildWorkspaceInitializer` owns filesystem initialization and rejects reuse
+of an existing Build-ID workspace.
+
+The canonical execution-stage vocabulary now contains fourteen stages through
+optional wheel functional validation, with `INITIALIZE_WORKSPACE` inserted
+between `VALIDATE_ENVIRONMENT` and `RESOLVE_BUILD_CONTEXT`.
+
+Successful execution without functional validation therefore records thirteen
+ordered stage observations. Requested functional validation adds
+`FUNCTIONALLY_VALIDATE_WHEEL` as the fourteenth and final stage when reached.
+
+Workspace initialization failures remain fail-fast. The failed
+`INITIALIZE_WORKSPACE` observation retains its diagnostic and prevents Build
+Context resolution, effective-configuration validation, packaging, Artifact
+Discovery, and later dependent operations.
+
+The workspace initializer receives the Build ID generated for the canonical
+execution and reuses the temporary directory already captured and validated in
+the canonical `EnvironmentState`.
+
+The Python package builder remains intentionally unchanged: authoritative
+`project_root` remains the PyPA build source and candidate distributions remain
+written to the canonical output directory.
+
+This revision closes the Level 13 checklist item:
+
+* Define workspace initialization.
+
+Staging behavior, generation stages, package assembly, execution finalization,
+partial-output handling, failure cleanup, cancellation semantics, and retry
+policy remain open.
+
+The presence of a `staging` directory establishes workspace structure only and
+does not claim implementation of staging behavior.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

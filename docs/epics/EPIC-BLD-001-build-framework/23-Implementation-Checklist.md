@@ -1067,7 +1067,7 @@ Implement predictable and observable transformation from validated context to ca
 ### Checklist
 
 * [x] Define build execution stages.
-* [ ] Define workspace initialization.
+* [x] Define workspace initialization.
 * [ ] Define staging behavior.
 * [ ] Define generation stages where needed.
 * [ ] Define package assembly.
@@ -1169,6 +1169,63 @@ remain open and are not implied by this observability slice.
 Level 13.3 does not introduce Build Evidence, artifact trust, release,
 publication, retry, cancellation, or general-purpose distributed tracing
 semantics.
+
+## Level 13.4 — Canonical Build Workspace Initialization
+
+Status: IMPLEMENTED AND VALIDATED.
+
+The canonical package-build orchestration now initializes an isolated,
+Build-ID-scoped filesystem workspace after successful environment validation
+and before Build Context resolution.
+
+The workspace root is derived from the validated environment temporary
+directory:
+
+```text
+<temporary-directory>/
+└── familyos-build/
+    └── <build-id>/
+        ├── staging/
+        └── intermediate/
+```
+
+The immutable `BuildWorkspace` model represents the canonical workspace layout.
+
+`BuildWorkspaceInitializer` creates the workspace from the canonical Build ID
+and the already-captured validated environment temporary directory.
+
+Workspace initialization is represented by the canonical
+`INITIALIZE_WORKSPACE` execution stage.
+
+Initialization failure is fail-fast. An operating-system failure records
+`INITIALIZE_WORKSPACE` as `FAILED`, preserves its diagnostic, and prevents
+Build Context resolution, effective-configuration validation, packaging,
+Artifact Discovery, and later dependent operations.
+
+The canonical Python package builder continues to consume authoritative
+`project_root` directly and continues to write package candidates to the
+canonical output directory. Level 13.4 does not copy authoritative source into
+the workspace and does not change PyPA or setuptools package-assembly behavior.
+
+This closes the Level 13 checklist item:
+
+* Define workspace initialization.
+
+The following concerns remain open:
+
+* Define staging behavior.
+* Define generation stages where needed.
+* Define package assembly.
+* Define execution finalization.
+* Define partial-output handling.
+* Define failure cleanup.
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+The existence of the `staging` directory does not by itself define staging behavior.
+
+Level 13.4 does not introduce Build Evidence, artifact trust, release,
+publication, retry, cancellation, cleanup, or distributed tracing semantics.
 
 ---
 

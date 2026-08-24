@@ -9,6 +9,7 @@ from familyos_cli.application.build import (
     BuildId,
     BuildIdGenerator,
     DiscoverPackageArtifactsUseCase,
+    EnvironmentStateProvider,
     PackageBuildResult,
     PackageBuildStatus,
     RunPackageBuildUseCase,
@@ -191,6 +192,9 @@ def test_build_id_is_generated_before_source_observation_and_execution(
         build_id_generator=BuildIdGenerator(uuid_factory),
         dependency_state_provider=_DependencyStateProvider(),
         toolchain_state_provider=_ToolchainStateProvider(),
+        environment_state_provider=EnvironmentStateProvider(
+            temporary_directory_provider=lambda: str(tmp_path),
+        ),
     ).execute(Path("dist"))
 
     assert events == ["build-id", "source-state", "build"]
@@ -215,6 +219,9 @@ def test_failed_build_preserves_generated_build_id(
         build_id_generator=BuildIdGenerator(lambda: _FIRST_UUID),
         dependency_state_provider=_DependencyStateProvider(),
         toolchain_state_provider=_ToolchainStateProvider(),
+        environment_state_provider=EnvironmentStateProvider(
+            temporary_directory_provider=lambda: str(tmp_path),
+        ),
     ).execute(Path("dist"))
 
     assert result.status is PackageBuildStatus.FAILED

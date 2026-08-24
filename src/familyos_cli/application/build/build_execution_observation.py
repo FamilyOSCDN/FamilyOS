@@ -13,6 +13,7 @@ class BuildExecutionStage(StrEnum):
     VALIDATE_REPOSITORY_LAYOUT = "validate-repository-layout"
     VALIDATE_TOOLCHAIN = "validate-toolchain"
     VALIDATE_ENVIRONMENT = "validate-environment"
+    INITIALIZE_WORKSPACE = "initialize-workspace"
     RESOLVE_BUILD_CONTEXT = "resolve-build-context"
     VALIDATE_EFFECTIVE_CONFIGURATION = "validate-effective-configuration"
     PACKAGE = "package"

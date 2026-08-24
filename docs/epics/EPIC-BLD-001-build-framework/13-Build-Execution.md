@@ -339,6 +339,7 @@ VALIDATE_INPUTS
 VALIDATE_REPOSITORY_LAYOUT
 VALIDATE_TOOLCHAIN
 VALIDATE_ENVIRONMENT
+INITIALIZE_WORKSPACE
 RESOLVE_BUILD_CONTEXT
 VALIDATE_EFFECTIVE_CONFIGURATION
 PACKAGE
@@ -532,16 +533,52 @@ Mid-build mutation weakens traceability.
 
 Execution occurs inside a workspace.
 
-A workspace may contain:
+The canonical package-build implementation now initializes an isolated
+build-owned workspace before Build Context resolution.
 
-* source access;
-* staging directories;
-* generated files;
-* temporary files;
-* intermediate outputs;
-* candidate artifacts.
+The workspace root is derived from the validated environment temporary
+directory and the canonical Build ID:
 
-The workspace should remain structurally separated from authoritative source where practical.
+```text
+<temporary-directory>/
+└── familyos-build/
+    └── <build-id>/
+        ├── staging/
+        └── intermediate/
+```
+
+The workspace is represented by the immutable application-owned
+`BuildWorkspace` model.
+
+Workspace initialization is owned by `BuildWorkspaceInitializer`.
+
+The initializer receives the canonical Build ID and validated environment
+temporary directory, derives the workspace paths, and creates the required
+directories.
+
+The workspace is therefore:
+
+* outside authoritative project source;
+* namespaced by Build ID;
+* isolated from unrelated build executions;
+* writable and disposable;
+* initialized before Build Context resolution and packaging.
+
+The `staging` and `intermediate` directories establish canonical workspace
+structure only.
+
+Level 13.4 does not yet define staging operations, generation behavior,
+execution finalization, partial-output handling, cleanup, cancellation, or
+retry semantics.
+
+Workspace initialization is represented explicitly by the canonical
+`INITIALIZE_WORKSPACE` execution stage.
+
+Initialization failure is fail-fast. If workspace creation raises an operating
+system error, the stage is recorded as `FAILED`, its diagnostic is retained,
+and Build Context resolution and all later dependent stages are not executed.
+
+The workspace must not become an unofficial source of truth.
 
 ---
 
