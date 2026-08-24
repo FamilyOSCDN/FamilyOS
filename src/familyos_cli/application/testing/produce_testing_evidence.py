@@ -7,6 +7,9 @@ from pathlib import Path
 from familyos_cli.application.ports.testing.testing_clock import (
     TestingClockPort,
 )
+from familyos_cli.application.ports.testing.testing_evidence_producer import (
+    TestingEvidenceProducerPort,
+)
 from familyos_cli.application.ports.testing.testing_source_state_provider import (
     TestingSourceStateProviderPort,
 )
@@ -20,7 +23,7 @@ from familyos_cli.application.testing.testing_evidence_factory import (
 )
 
 
-class ProduceTestingEvidenceUseCase:
+class ProduceTestingEvidenceUseCase(TestingEvidenceProducerPort):
     """Orchestrate canonical Testing Evidence production."""
 
     def __init__(
