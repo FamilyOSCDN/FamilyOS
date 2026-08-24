@@ -43,6 +43,9 @@ from familyos_cli.application.build.build_profile_definition import (
 )
 from familyos_cli.application.build.build_staging import StagedBuildInputs
 from familyos_cli.application.build.build_workspace import BuildWorkspace
+from familyos_cli.application.build.build_workspace_cleaner import (
+    BuildWorkspaceCleaner,
+)
 from familyos_cli.application.build.build_workspace_initializer import (
     BuildWorkspaceInitializer,
 )
@@ -202,6 +205,18 @@ class _RecordingBuildWorkspaceInitializer(
             staging_dir=staging_dir,
             intermediate_dir=intermediate_dir,
         )
+
+
+class _RecordingBuildWorkspaceCleaner(BuildWorkspaceCleaner):
+    def __init__(self) -> None:
+        self.calls: list[BuildWorkspace] = []
+
+    def clean(
+        self,
+        *,
+        workspace: BuildWorkspace,
+    ) -> None:
+        self.calls.append(workspace)
 
 
 class _RecordingBuildInputStager(BuildInputStager):
@@ -2755,3 +2770,270 @@ def test_failed_package_execution_preserves_partial_outputs_without_discovery(
         BuildExecutionStage.PACKAGE,
         BuildExecutionStage.FINALIZE_EXECUTION,
     )
+
+def test_failed_package_execution_cleans_build_workspace(
+    tmp_path: Path,
+) -> None:
+    cleaner = _RecordingBuildWorkspaceCleaner()
+    workspace_initializer = _RecordingBuildWorkspaceInitializer()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                diagnostic="package failed",
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_initializer=workspace_initializer,
+        build_workspace_cleaner=cleaner,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert len(workspace_initializer.calls) == 1
+    assert len(cleaner.calls) == 1
+
+
+def test_errored_package_execution_cleans_build_workspace(
+    tmp_path: Path,
+) -> None:
+    cleaner = _RecordingBuildWorkspaceCleaner()
+    workspace_initializer = _RecordingBuildWorkspaceInitializer()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.ERROR,
+                diagnostic="package errored",
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_initializer=workspace_initializer,
+        build_workspace_cleaner=cleaner,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.ERROR
+
+    assert len(workspace_initializer.calls) == 1
+    assert len(cleaner.calls) == 1
+
+
+def test_successful_package_execution_preserves_build_workspace(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    cleaner = _RecordingBuildWorkspaceCleaner()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_cleaner=cleaner,
+    ).execute(output_dir)
+
+    assert result.status is PackageBuildStatus.SUCCEEDED
+    assert cleaner.calls == []
+
+
+def test_failure_cleanup_preserves_partial_outputs(
+    tmp_path: Path,
+) -> None:
+    partial = tmp_path / "dist" / "familyos_cli-0.1.0.tar.gz"
+
+    cleaner = _RecordingBuildWorkspaceCleaner()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                outputs=(partial,),
+                diagnostic="package failed",
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_cleaner=cleaner,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.execution.outputs == (partial,)
+    assert len(cleaner.calls) == 1
+
+
+def test_effective_configuration_failure_cleans_build_workspace(
+    tmp_path: Path,
+) -> None:
+    cleaner = _RecordingBuildWorkspaceCleaner()
+    workspace_initializer = _RecordingBuildWorkspaceInitializer()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_initializer=workspace_initializer,
+        build_workspace_cleaner=cleaner,
+        effective_configuration_validator=_RecordingEffectiveConfigurationValidator(
+            result=EffectiveConfigurationValidationResult(
+                status=EffectiveConfigurationValidationStatus.FAILED,
+                findings=(
+                    EffectiveConfigurationValidationFinding(
+                        component="profile",
+                        diagnostic=(
+                            "resolved effective configuration is inconsistent"
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert len(workspace_initializer.calls) == 1
+    assert len(cleaner.calls) == 1
+
+
+def test_staging_failure_cleans_build_workspace(
+    tmp_path: Path,
+) -> None:
+    cleaner = _RecordingBuildWorkspaceCleaner()
+    stager = _RecordingBuildInputStager(
+        error=OSError("canonical staging failed"),
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_cleaner=cleaner,
+        build_input_stager=stager,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert len(cleaner.calls) == 1
+
+
+def test_artifact_validation_failure_cleans_build_workspace(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    cleaner = _RecordingBuildWorkspaceCleaner()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(
+            PythonPackageStructuralValidationResult(
+                status=PackageStructuralValidationStatus.INVALID,
+                candidate_results=(
+                    CandidatePackageValidationResult(
+                        candidate=DiscoveredArtifact(
+                            wheel,
+                            ArtifactClass.PYTHON_WHEEL,
+                        ),
+                        status=PackageStructuralValidationStatus.INVALID,
+                        diagnostics=("wheel is corrupt",),
+                    ),
+                ),
+            )
+        ),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_cleaner=cleaner,
+    ).execute(output_dir)
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert len(cleaner.calls) == 1
+
+
+def test_functional_validation_failure_cleans_build_workspace(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    cleaner = _RecordingBuildWorkspaceCleaner()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(
+            status=PackageFunctionalValidationStatus.INVALID,
+            finding=WheelFunctionalValidationFinding(
+                WheelFunctionalValidationStage.CLI_SMOKE,
+                "installed console entry point failed",
+            ),
+        ),
+        _SourceStateProvider(),
+        tmp_path,
+        build_workspace_cleaner=cleaner,
+    ).execute(
+        output_dir,
+        validate_functionally=True,
+    )
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert len(cleaner.calls) == 1

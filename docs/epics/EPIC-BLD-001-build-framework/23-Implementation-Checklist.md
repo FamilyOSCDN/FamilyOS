@@ -1078,7 +1078,7 @@ Implement predictable and observable transformation from validated context to ca
 * [x] Prevent ignored subprocess failures.
 * [x] Ensure execution does not unexpectedly mutate authoritative source.
 * [x] Define partial-output handling.
-* [ ] Define failure cleanup.
+* [x] Define failure cleanup.
 * [ ] Define cancellation semantics if required.
 * [ ] Define retry policy for transient failures only.
 * [x] Add execution-stage logging.
@@ -1499,6 +1499,66 @@ policy.
 
 It does not introduce Build Evidence, artifact trust, release, publication,
 cancellation, retry, or distributed tracing semantics.
+
+---
+
+## Level 13.10 — Canonical Failure Cleanup
+
+Status: IMPLEMENTED AND VALIDATED.
+
+Canonical package-build execution now removes Build-ID-scoped internal
+workspace state after terminal non-successful execution.
+
+`BuildWorkspaceCleaner` removes the complete canonical workspace rooted at:
+
+    <temporary-root>/familyos-build/<build-id>/
+
+Cleanup is invoked only after successful workspace initialization and only when
+the terminal `CanonicalPackageBuildResult` is non-successful.
+
+All current post-workspace terminal paths pass the active `BuildWorkspace` to
+the centralized `_finalize_result()` boundary.
+
+The cleanup policy preserves:
+
+* the original build status;
+* the original failure diagnostic;
+* execution observations;
+* `PackageBuildResult.outputs`;
+* the canonical package output directory.
+
+Process-level partial outputs therefore remain governed by Level 13.9 and are
+not deleted by failure cleanup.
+
+Successful builds preserve their workspace.
+
+Failures that occur before workspace initialization do not invoke cleanup.
+
+Application validation covers:
+
+* failed package execution cleanup;
+* errored package execution cleanup;
+* successful workspace retention;
+* partial-output preservation;
+* effective-configuration failure cleanup;
+* staging failure cleanup;
+* artifact-validation failure cleanup;
+* functional-validation failure cleanup.
+
+Dedicated workspace-cleaner validation confirms complete workspace removal and
+idempotence when the workspace is already absent.
+
+This closes the Level 13 checklist item:
+
+* Define failure cleanup.
+
+The following concerns remain open:
+
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+Level 13.10 does not introduce Build Evidence, artifact trust, release,
+publication, cancellation, retry, or distributed tracing semantics.
 
 ---
 

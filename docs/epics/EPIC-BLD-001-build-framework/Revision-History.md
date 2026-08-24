@@ -2452,6 +2452,69 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.10 — Canonical Failure Cleanup — 2026-08-24
+
+This revision introduces canonical failure cleanup for Build-ID-scoped internal
+package-build workspaces.
+
+`BuildWorkspaceCleaner` removes the complete canonical workspace rooted at:
+
+    <temporary-root>/familyos-build/<build-id>/
+
+Cleanup is applied only after successful workspace initialization and only for
+terminal non-successful canonical build results.
+
+All current post-workspace terminal paths propagate the active
+`BuildWorkspace` to the centralized `_finalize_result()` boundary.
+
+The cleanup contract preserves:
+
+* the original build status;
+* the original failure diagnostic;
+* execution observations;
+* `PackageBuildResult.outputs`;
+* the canonical package output directory.
+
+Level 13.9 partial-output semantics therefore remain intact. Process-level
+outputs created or modified before unsuccessful package termination are not
+deleted by workspace cleanup.
+
+Successful builds do not invoke failure cleanup.
+
+Failures that occur before workspace initialization do not invoke cleanup
+because no canonical workspace exists.
+
+Application validation covers:
+
+* failed package execution cleanup;
+* errored package execution cleanup;
+* successful workspace retention;
+* partial-output preservation;
+* effective-configuration failure cleanup;
+* staging failure cleanup;
+* artifact-validation failure cleanup;
+* functional-validation failure cleanup.
+
+Dedicated `BuildWorkspaceCleaner` validation confirms complete workspace
+removal and idempotence when the workspace is already absent.
+
+This revision closes the Level 13 checklist item:
+
+* Define failure cleanup.
+
+The following Level 13 concerns remain open:
+
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+This revision does not introduce Build Evidence, artifact trust, release,
+publication, cancellation, retry, or distributed tracing semantics.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

@@ -1142,14 +1142,74 @@ policy.
 
 # Cleanup After Failure
 
-Cleanup policy should balance:
+Canonical package-build execution now applies explicit failure cleanup to the
+Build-ID-scoped internal workspace.
 
-* diagnostic value;
-* workspace hygiene;
-* security;
-* CI storage cost.
+Once `INITIALIZE_WORKSPACE` has completed successfully, every terminal
+non-successful build result is finalized with the current `BuildWorkspace`.
 
-Sensitive temporary state should not remain unnecessarily.
+Before `FINALIZE_EXECUTION`, the centralized finalization boundary removes the
+workspace through `BuildWorkspaceCleaner`.
+
+The failure-cleanup flow is:
+
+    Last Failed Or Errored Business Stage
+            ↓
+    Preserve Build Result And Diagnostics
+            ↓
+    Preserve Process-Level Partial Outputs
+            ↓
+    Remove BuildWorkspace.root
+            ↓
+    FINALIZE_EXECUTION
+            ↓
+    CanonicalPackageBuildResult
+
+`BuildWorkspaceCleaner` removes the complete canonical workspace:
+
+    <temporary-root>/familyos-build/<build-id>/
+
+including:
+
+* `staging/`;
+* `intermediate/`;
+* staged project inputs;
+* other non-authoritative internal workspace state.
+
+Cleanup is applied only when:
+
+* a canonical workspace was successfully created; and
+* the terminal canonical build result is not successful.
+
+Failures that occur before workspace initialization do not invoke workspace
+cleanup because no canonical workspace exists yet.
+
+Successful builds do not trigger failure cleanup.
+
+Failure cleanup deliberately does not remove the canonical package output
+directory.
+
+Therefore `PackageBuildResult.outputs` produced before failed or errored
+package termination remain available as process-level partial outputs under the
+Level 13.9 contract.
+
+The cleanup boundary therefore preserves the distinction:
+
+    Internal Build Workspace
+            → removable after failure
+
+    Package Output Directory
+            → preserved for partial-output diagnostics
+
+Cleanup does not overwrite the original failure status or diagnostic.
+
+The failed business stage remains observable immediately before terminal
+finalization.
+
+Cleanup is idempotent with respect to an already absent workspace.
+
+This policy does not introduce artifact trust, release, publication,
+cancellation, retry, or distributed tracing semantics.
 
 ---
 

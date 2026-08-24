@@ -46,6 +46,10 @@ from familyos_cli.application.build.build_profile_registry import (
 from familyos_cli.application.build.build_target_registry import (
     get_build_target_definition,
 )
+from familyos_cli.application.build.build_workspace import BuildWorkspace
+from familyos_cli.application.build.build_workspace_cleaner import (
+    BuildWorkspaceCleaner,
+)
 from familyos_cli.application.build.build_workspace_initializer import (
     BuildWorkspaceInitializer,
 )
@@ -110,6 +114,7 @@ class RunPackageBuildUseCase:
         environment_state_provider: EnvironmentStateProvider | None = None,
         environment_validator: EnvironmentValidator | None = None,
         build_workspace_initializer: BuildWorkspaceInitializer | None = None,
+        build_workspace_cleaner: BuildWorkspaceCleaner | None = None,
         build_input_stager: BuildInputStager | None = None,
         build_input_validator: BuildInputValidator | None = None,
         repository_layout_validator: RepositoryLayoutValidator | None = None,
@@ -141,6 +146,9 @@ class RunPackageBuildUseCase:
         )
         self._build_workspace_initializer = (
             build_workspace_initializer or BuildWorkspaceInitializer()
+        )
+        self._build_workspace_cleaner = (
+            build_workspace_cleaner or BuildWorkspaceCleaner()
         )
         self._build_input_stager = (
             build_input_stager or BuildInputStager()
@@ -487,6 +495,7 @@ class RunPackageBuildUseCase:
                     execution_observations=tuple(execution_observations),
                 ),
                 execution_observations,
+                workspace=workspace,
             )
 
         staging_started = self._monotonic_clock()
@@ -515,6 +524,7 @@ class RunPackageBuildUseCase:
                     execution_observations=tuple(execution_observations),
                 ),
                 execution_observations,
+                workspace=workspace,
             )
 
         execution_observations.append(
@@ -550,6 +560,7 @@ class RunPackageBuildUseCase:
                     execution_observations=tuple(execution_observations),
                 ),
                 execution_observations,
+                workspace=workspace,
             )
 
         discovery_started = self._monotonic_clock()
@@ -578,6 +589,7 @@ class RunPackageBuildUseCase:
                     discovery=discovery,
                 ),
                 execution_observations,
+                workspace=workspace,
             )
 
         validation_started = self._monotonic_clock()
@@ -604,6 +616,7 @@ class RunPackageBuildUseCase:
                     validation=validation,
                 ),
                 execution_observations,
+                workspace=workspace,
             )
 
         identity_started = self._monotonic_clock()
@@ -662,6 +675,7 @@ class RunPackageBuildUseCase:
                     validation=validation,
                 ),
                 execution_observations,
+                workspace=workspace,
             )
 
         wheel = next(
@@ -701,16 +715,24 @@ class RunPackageBuildUseCase:
                 functional_validation=functional_validation,
             ),
             execution_observations,
+            workspace=workspace,
         )
 
     def _finalize_result(
         self,
         result: CanonicalPackageBuildResult,
         execution_observations: list[BuildExecutionObservation],
+        *,
+        workspace: BuildWorkspace | None = None,
     ) -> CanonicalPackageBuildResult:
         """Finalize one canonical package-build terminal result."""
 
         finalization_started = self._monotonic_clock()
+
+        if workspace is not None and not result.successful:
+            self._build_workspace_cleaner.clean(
+                workspace=workspace,
+            )
 
         execution_observations.append(
             self._execution_observation(
