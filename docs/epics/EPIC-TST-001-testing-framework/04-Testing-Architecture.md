@@ -257,6 +257,82 @@ This enables other FamilyOS frameworks to consume testing results without depend
 
 ---
 
+# Current Canonical Result Implementation
+
+The current Testing Framework implementation provides a concrete structured
+pytest execution and normalization path.
+
+The implemented flow is:
+
+```text
+pytest
+   │
+   ▼
+PytestRunner
+   │
+   ▼
+PytestExecutionResult
+   │
+   ▼
+PytestResultNormalizer
+   │
+   ▼
+TestExecutionResult
+   │
+   ▼
+PytestValidationGate
+   │
+   ▼
+GateResult
+```
+
+`PytestExecutionResult` is runner-specific structured execution state.
+
+It records:
+
+* pytest exit code;
+* discovered test count;
+* executed test count;
+* passed test count;
+* failed test count;
+* skipped test count;
+* execution error count;
+* total execution duration;
+* an optional diagnostic.
+
+`PytestResultNormalizer` converts that runner-specific state into the
+runner-independent `TestExecutionResult`.
+
+The current canonical aggregate execution states are:
+
+```text
+PASSED
+FAILED
+ERROR
+```
+
+The normalization boundary deliberately prevents consumers such as canonical
+CI validation from depending directly on pytest-specific result semantics.
+
+The current `PytestValidationGate` consumes the canonical result and translates
+its status into canonical CI gate status while preserving the native pytest
+exit code and available diagnostic.
+
+This is the current implemented result-normalization boundary.
+
+It does not yet constitute the complete Testing Evidence model described by
+the Evidence Production Layer.
+
+In particular, the current canonical result does not yet establish a governed
+evidence identity containing source revision, execution identity, environment,
+effective configuration, tool version, timestamp, or artifact references.
+
+Those concerns remain part of the subsequent Testing Evidence boundary and
+must not be inferred merely from the existence of structured canonical test
+results.
+
+---
+
 # Evidence Production Layer
 
 Normalized test results become testing evidence.

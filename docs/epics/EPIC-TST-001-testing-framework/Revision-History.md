@@ -311,6 +311,91 @@ Plugin-specific testing practices must remain compatible with framework-wide pri
 
 ---
 
+## 1.0.1 — Canonical Pytest Result Pipeline — 2026-08-24
+
+Status: IMPLEMENTED AND VALIDATED.
+
+This revision records the first concrete canonical Testing Framework result
+pipeline implemented in FamilyOS.
+
+The implementation introduces:
+
+* immutable canonical aggregate test-execution result models;
+* explicit aggregate `PASSED`, `FAILED`, and `ERROR` semantics;
+* structured pytest-native execution results;
+* normalization from pytest-specific results into runner-independent canonical
+  Testing results;
+* a `PytestRunnerPort` application boundary;
+* subprocess-backed structured pytest execution;
+* pytest hook-based collection of execution outcomes;
+* deterministic consolidation of setup, call, and teardown phases;
+* preservation of discovered, executed, passed, failed, skipped, and error
+  counts;
+* preservation of total execution duration and available diagnostics;
+* canonical translation of Testing results into the CI pytest validation gate.
+
+The runtime path is:
+
+```text
+pytest
+   |
+   v
+PytestRunner
+   |
+   v
+PytestExecutionResult
+   |
+   v
+PytestResultNormalizer
+   |
+   v
+TestExecutionResult
+   |
+   v
+PytestValidationGate
+   |
+   v
+GateResult
+```
+
+The canonical CI validation pipeline now consumes this Testing-owned result
+boundary instead of invoking pytest through the generic subprocess validation
+gate.
+
+Validation confirmed:
+
+* canonical result model invariants;
+* pytest result normalization;
+* structured passing, failing, skipped, setup-error, and teardown-error
+  execution;
+* preservation of pytest exit codes;
+* repository-wide pytest selection;
+* Testing-to-Validation gate status translation;
+* CI gate ordering preservation;
+* real canonical `familyos validation ci` execution;
+* JSON CI output reporting the pytest gate as passed with exit code `0`;
+* regression coverage across Testing, Validation, Bootstrap, and CLI CI
+  validation.
+
+This revision reconciles the Testing Architecture with the implemented
+result-normalization boundary and closes only checklist requirements directly
+demonstrated by the current runtime.
+
+The following capabilities remain explicitly outside this revision:
+
+* canonical Testing Evidence identity;
+* source-revision-bound testing evidence;
+* per-test canonical result identity;
+* structured failure reports with assertion details and stack traces;
+* governed machine-readable reporting artifacts;
+* stale-evidence detection;
+* gate-decision traceability;
+* broader execution-profile implementation;
+* full Testing Framework completion.
+
+Framework version `1.0.0` remains unchanged.
+
+---
 # Future Revisions
 
 Future revisions may include:

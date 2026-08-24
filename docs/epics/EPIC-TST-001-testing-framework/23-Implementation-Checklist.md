@@ -445,12 +445,12 @@ Documentation alone is not sufficient for implementation-oriented items.
 
 # 27. Reporting
 
-* [ ] Test execution produces a concise summary.
-* [ ] Passed tests are counted.
-* [ ] Failed tests are counted.
-* [ ] Skipped tests are counted.
-* [ ] Execution errors are visible.
-* [ ] Total execution duration is reported.
+* [x] Test execution produces a concise summary.
+* [x] Passed tests are counted.
+* [x] Failed tests are counted.
+* [x] Skipped tests are counted.
+* [x] Execution errors are visible.
+* [x] Total execution duration is reported.
 * [ ] Failure reports identify the failing test.
 * [ ] Failure reports contain useful assertion details.
 * [ ] Failure reports expose relevant stack traces.
@@ -645,14 +645,14 @@ Documentation alone is not sufficient for implementation-oriented items.
 
 # 44. Testing Gates
 
-* [ ] Testing gate architecture is implemented where required.
+* [x] Testing gate architecture is implemented where required.
 * [ ] Gate inputs are explicitly defined.
 * [ ] Mandatory evidence is distinguishable from informational evidence.
-* [ ] Gate PASS semantics are defined.
-* [ ] Gate FAIL semantics are defined.
+* [x] Gate PASS semantics are defined.
+* [x] Gate FAIL semantics are defined.
 * [ ] Missing evidence cannot result in PASS.
 * [ ] Stale evidence cannot satisfy current validation.
-* [ ] Gate failures provide useful diagnostics.
+* [x] Gate failures provide useful diagnostics.
 * [ ] Gate decisions are traceable.
 
 ---
@@ -795,13 +795,77 @@ Documentation alone is not sufficient for implementation-oriented items.
 * [ ] Shared test helpers have tests where justified.
 * [ ] Shared fixtures are validated.
 * [ ] Custom test-selection logic is tested where implemented.
-* [ ] Gate evaluation logic is tested where implemented.
-* [ ] Reporting-processing logic is tested where implemented.
+* [x] Gate evaluation logic is tested where implemented.
+* [x] Reporting-processing logic is tested where implemented.
 * [ ] CI helper scripts are tested or otherwise validated.
 * [ ] Testing infrastructure changes trigger sufficient regression validation.
 
 ---
 
+## Canonical Pytest Result Pipeline — Implementation Evidence
+
+Status: IMPLEMENTED AND VALIDATED.
+
+The current Testing Framework now provides a concrete canonical pytest result
+pipeline.
+
+Implementation evidence includes:
+
+```text
+pytest
+   |
+   v
+PytestRunner
+   |
+   v
+PytestExecutionResult
+   |
+   v
+PytestResultNormalizer
+   |
+   v
+TestExecutionResult
+   |
+   v
+PytestValidationGate
+   |
+   v
+Canonical CI Validation
+```
+
+The implemented contracts establish:
+
+* structured pytest execution through a Testing-owned infrastructure adapter;
+* canonical runner-independent aggregate result semantics;
+* explicit passed, failed, skipped, error, discovered, and executed counts;
+* aggregate execution duration;
+* available diagnostic propagation;
+* pytest-to-canonical status normalization;
+* canonical Testing-to-Validation gate translation;
+* repository-wide pytest execution in canonical CI validation.
+
+The implementation is validated by dedicated unit tests for:
+
+* canonical result invariants;
+* pytest result normalization;
+* structured pytest execution;
+* setup and teardown failure classification;
+* skip handling;
+* gate PASS, FAIL, and ERROR translation;
+* repository-wide test-selection preservation.
+
+Real canonical CI validation also confirms that the structured pytest gate
+participates in the existing six-gate CI order and produces a successful
+machine-facing CI gate result.
+
+This evidence supports only the checklist items explicitly marked implemented
+in the current revision.
+
+It does not establish complete Testing Evidence, per-test structured reporting,
+stale-evidence protection, full reporting observability, or completion of the
+Testing Framework as a whole.
+
+---
 # 58. Security and Privacy Validation
 
 * [ ] Tests do not expose repository secrets.
