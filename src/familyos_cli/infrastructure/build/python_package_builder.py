@@ -53,24 +53,32 @@ class PythonPackageBuilder(PackageBuilderPort):
                 text=True,
             )
         except Exception as error:  # noqa: BLE001 - infrastructure boundary
+            outputs = self._changed_outputs(
+                previous_outputs,
+                output_dir,
+            )
             return PackageBuildResult(
                 status=PackageBuildStatus.ERROR,
+                outputs=outputs,
                 diagnostic=self._normalize_diagnostic(str(error), project_root),
             )
 
         if completed.returncode != 0:
             diagnostic = completed.stderr.strip() or completed.stdout.strip()
+            outputs = self._changed_outputs(
+                previous_outputs,
+                output_dir,
+            )
             return PackageBuildResult(
                 status=PackageBuildStatus.FAILED,
+                outputs=outputs,
                 exit_code=completed.returncode,
                 diagnostic=self._normalize_diagnostic(diagnostic, project_root),
             )
 
-        current_outputs = self._snapshot_outputs(output_dir)
-        outputs = tuple(
-            path
-            for path, state in current_outputs.items()
-            if previous_outputs.get(path) != state
+        outputs = self._changed_outputs(
+            previous_outputs,
+            output_dir,
         )
         return PackageBuildResult(
             status=PackageBuildStatus.SUCCEEDED,
@@ -106,6 +114,20 @@ class PythonPackageBuilder(PackageBuilderPort):
         if not normalized:
             return "Package build failed without diagnostic output."
         return normalized[-_MAX_DIAGNOSTIC_CHARACTERS:]
+
+    def _changed_outputs(
+        self,
+        previous_outputs: dict[Path, tuple[int, int, bytes]],
+        output_dir: Path,
+    ) -> tuple[Path, ...]:
+        """Return direct outputs created or changed by this invocation."""
+
+        current_outputs = self._snapshot_outputs(output_dir)
+        return tuple(
+            path
+            for path, state in current_outputs.items()
+            if previous_outputs.get(path) != state
+        )
 
     def _snapshot_outputs(
         self,

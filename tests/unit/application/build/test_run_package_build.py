@@ -2712,3 +2712,46 @@ def test_execution_finalization_is_terminal_after_failed_package_execution(
         final_observation.status
         is BuildExecutionStageStatus.SUCCEEDED
     )
+
+def test_failed_package_execution_preserves_partial_outputs_without_discovery(
+    tmp_path: Path,
+) -> None:
+    partial = tmp_path / "dist" / "familyos_cli-0.1.0.tar.gz"
+
+    execution = PackageBuildResult(
+        status=PackageBuildStatus.FAILED,
+        outputs=(partial,),
+        exit_code=1,
+        diagnostic="package frontend failed",
+    )
+
+    discoverer = _RecordingDiscoverer()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(execution),
+        discoverer,
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.execution.outputs == (partial,)
+    assert result.discovery is None
+    assert result.candidates == ()
+    assert discoverer.called is False
+
+    stages = tuple(
+        observation.stage
+        for observation in result.execution_observations
+    )
+
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+    )
+
+    assert stages[-2:] == (
+        BuildExecutionStage.PACKAGE,
+        BuildExecutionStage.FINALIZE_EXECUTION,
+    )

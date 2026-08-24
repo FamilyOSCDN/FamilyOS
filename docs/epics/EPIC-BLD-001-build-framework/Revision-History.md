@@ -2413,6 +2413,45 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.9 — Canonical Partial-Output Handling — 2026-08-24
+
+This revision introduces canonical observation and propagation of package
+outputs created or modified before unsuccessful package termination.
+
+`PythonPackageBuilder` now computes changed direct outputs for all package
+execution outcomes: `SUCCEEDED`, `FAILED`, and `ERROR`.
+
+Failed and errored package results therefore retain filesystem consequences in
+`PackageBuildResult.outputs`.
+
+These outputs remain process-level partial outputs.
+
+They are not promoted to canonical artifact candidates because Artifact
+Discovery is not executed after unsuccessful package execution.
+
+The application-level contract preserves partial outputs through
+`CanonicalPackageBuildResult.execution.outputs` while leaving `discovery`
+unset and `candidates` empty.
+
+Unit validation confirms new or changed partial outputs are retained while
+unchanged stale outputs are excluded.
+
+Integration validation confirms a real failed Python package build can preserve
+its generated source distribution in the failed `PackageBuildResult`.
+
+This revision closes the Level 13 checklist item:
+
+* Define partial-output handling.
+
+Failure cleanup, cancellation semantics, and retry policy remain open.
+
+No partial output is deleted by Level 13.9.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

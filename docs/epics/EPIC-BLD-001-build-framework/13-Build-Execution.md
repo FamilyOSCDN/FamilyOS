@@ -1079,15 +1079,64 @@ More detailed exit-code models may be introduced if useful.
 
 # Partial Outputs
 
-A failed build may leave partial outputs.
+A failed or errored package-build invocation may create or modify files before
+the package frontend terminates unsuccessfully.
 
-Partial outputs MUST NOT automatically be considered trusted artifacts.
+Canonical package execution now observes these filesystem consequences.
 
-They should be:
+`PythonPackageBuilder` snapshots direct files in the canonical output directory
+before package execution and compares that state with the filesystem state
+after execution.
 
-* clearly classified;
-* removed where appropriate;
-* retained only for diagnostics when useful.
+This comparison is performed for all package-execution outcomes:
+
+* `SUCCEEDED`;
+* `FAILED`;
+* `ERROR`.
+
+Files created or changed by the invocation are returned through
+`PackageBuildResult.outputs`.
+
+For failed or errored package execution, these outputs are partial process-level
+outputs only.
+
+They are not automatically promoted to canonical artifact candidates.
+
+The failure path is:
+
+    Package Execution
+            ↓
+    FAILED / ERROR
+            ↓
+    Observe Created Or Changed Outputs
+            ↓
+    PackageBuildResult.outputs
+            ↓
+    CanonicalPackageBuildResult.execution.outputs
+            ↓
+    FINALIZE_EXECUTION
+
+Artifact Discovery is not executed after failed or errored package execution.
+
+Therefore:
+
+    Partial Process Output
+            ≠
+    Discovered Candidate Artifact
+
+`CanonicalPackageBuildResult.candidates` remains empty when package execution
+fails before Artifact Discovery.
+
+Unchanged pre-existing files in the output directory are excluded from the
+partial-output set.
+
+Partial-output handling does not assign artifact identity, integrity, manifest,
+validation, trust, or release semantics.
+
+It also does not delete partial outputs.
+
+Retention or removal after failure belongs to the separate failure-cleanup
+policy.
 
 ---
 

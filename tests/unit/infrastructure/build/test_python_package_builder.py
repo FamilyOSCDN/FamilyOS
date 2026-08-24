@@ -258,22 +258,39 @@ def test_same_size_same_mtime_content_replacement_is_reported(
     assert result.outputs == (replaced,)
 
 
+
 def test_nonzero_subprocess_result_is_normalized_failure(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     project_root = tmp_path / "project"
     output_dir = tmp_path / "packages"
+    output_dir.mkdir()
 
-    monkeypatch.setattr(
-        subprocess,
-        "run",
-        lambda command, **kwargs: subprocess.CompletedProcess(
+    stale = output_dir / "stale.whl"
+    stale.write_text("unchanged", encoding="utf-8")
+
+    partial = output_dir / "familyos_cli-0.1.0.tar.gz"
+
+    def fail(
+        command: tuple[str, ...],
+        **kwargs: object,
+    ) -> subprocess.CompletedProcess[str]:
+        partial.write_text(
+            "partial package output",
+            encoding="utf-8",
+        )
+        return subprocess.CompletedProcess(
             command,
             7,
             "",
             f"failure in {project_root}",
-        ),
+        )
+
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        fail,
     )
 
     result = PythonPackageBuilder("/controlled/python").build(
@@ -283,7 +300,8 @@ def test_nonzero_subprocess_result_is_normalized_failure(
 
     assert result.status is PackageBuildStatus.FAILED
     assert result.exit_code == 7
-    assert result.outputs == ()
+    assert result.outputs == (partial,)
+    assert stale not in result.outputs
     assert result.diagnostic == "failure in ."
 
 
@@ -291,17 +309,37 @@ def test_subprocess_launch_problem_is_execution_error(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def fail(*args: object, **kwargs: object) -> None:
+    output_dir = tmp_path / "packages"
+    output_dir.mkdir()
+
+    stale = output_dir / "stale.whl"
+    stale.write_text("unchanged", encoding="utf-8")
+
+    partial = output_dir / "backend.log"
+
+    def fail(
+        *args: object,
+        **kwargs: object,
+    ) -> None:
+        partial.write_text(
+            "partial frontend state",
+            encoding="utf-8",
+        )
         raise OSError("frontend unavailable")
 
-    monkeypatch.setattr(subprocess, "run", fail)
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        fail,
+    )
 
     result = PythonPackageBuilder("/controlled/python").build(
         project_root=tmp_path,
-        output_dir=tmp_path / "packages",
+        output_dir=output_dir,
     )
 
     assert result.status is PackageBuildStatus.ERROR
     assert result.exit_code is None
-    assert result.outputs == ()
+    assert result.outputs == (partial,)
+    assert stale not in result.outputs
     assert result.diagnostic == "frontend unavailable"

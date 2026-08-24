@@ -346,6 +346,7 @@ def test_canonical_build_depends_on_the_generated_sdist(tmp_path: Path) -> None:
 
     sdist = canonical_output / "familyos_cli-0.1.0.tar.gz"
     assert sdist.is_file()
+    assert canonical_result.outputs == (sdist,)
     with tarfile.open(sdist, mode="r:gz") as sdist_archive:
         member_names = set(sdist_archive.getnames())
     assert not any(

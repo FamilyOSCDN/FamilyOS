@@ -1077,7 +1077,7 @@ Implement predictable and observable transformation from validated context to ca
 * [x] Propagate mandatory stage failures.
 * [x] Prevent ignored subprocess failures.
 * [x] Ensure execution does not unexpectedly mutate authoritative source.
-* [ ] Define partial-output handling.
+* [x] Define partial-output handling.
 * [ ] Define failure cleanup.
 * [ ] Define cancellation semantics if required.
 * [ ] Define retry policy for transient failures only.
@@ -1442,6 +1442,63 @@ workspace, staging state, intermediate state, or partial candidate outputs.
 
 Level 13.8 does not introduce Build Evidence, artifact trust, release,
 publication, cancellation, retry, or distributed tracing semantics.
+
+---
+
+## Level 13.9 — Canonical Partial-Output Handling
+
+Status: IMPLEMENTED AND VALIDATED.
+
+Canonical Python package execution now preserves process-level outputs created
+or modified before unsuccessful package termination.
+
+`PythonPackageBuilder` compares direct output-directory state before and after
+execution for `SUCCEEDED`, `FAILED`, and `ERROR` outcomes.
+
+Created or modified files are returned through `PackageBuildResult.outputs`.
+
+On failed or errored package execution, these files remain partial
+process-level outputs only.
+
+Artifact Discovery is not executed after unsuccessful package execution.
+Partial outputs are therefore not promoted to canonical candidate artifacts.
+
+The application-level contract preserves:
+
+    PackageBuildResult.outputs
+            ↓
+    CanonicalPackageBuildResult.execution.outputs
+
+while:
+
+    discovery = None
+    candidates = ()
+
+Application and integration validation confirm:
+
+* new outputs produced before a non-zero frontend result are preserved;
+* outputs produced before a frontend execution error are preserved;
+* unchanged pre-existing output files are excluded;
+* real failed package execution preserves its generated source distribution;
+* failed package execution does not invoke Artifact Discovery;
+* partial outputs are not promoted to candidate artifacts;
+* terminal execution still ends through `FINALIZE_EXECUTION`.
+
+This closes the Level 13 checklist item:
+
+* Define partial-output handling.
+
+The following concerns remain open:
+
+* Define failure cleanup.
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+Level 13.9 does not remove partial outputs and introduces no failure-cleanup
+policy.
+
+It does not introduce Build Evidence, artifact trust, release, publication,
+cancellation, retry, or distributed tracing semantics.
 
 ---
 
