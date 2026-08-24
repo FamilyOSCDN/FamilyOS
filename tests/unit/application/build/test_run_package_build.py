@@ -365,7 +365,11 @@ def test_use_case_delegates_explicit_paths_to_packaging_port(
 
     assert result.execution is expected
     assert result.successful
-    assert builder.calls == [(project_root, output_dir)]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == output_dir
 
 
 def test_use_case_resolves_relative_output_from_project_root(
@@ -393,7 +397,11 @@ def test_use_case_resolves_relative_output_from_project_root(
         project_root,
     ).execute(Path("dist"))
 
-    assert builder.calls == [(project_root, project_root / "dist")]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == project_root / "dist"
     assert result.discovery is not None
     assert result.discovery.output_dir == output_dir
 
@@ -995,7 +1003,11 @@ def test_use_case_validates_build_inputs_before_execution(
 
     assert result.successful is True
     assert events == ["source-state", "package-build"]
-    assert builder.calls == [(tmp_path, output_dir)]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == output_dir
     assert result.build_context is not None
     assert result.build_context.build_id == result.build_id
 
@@ -1294,12 +1306,11 @@ def test_canonical_dist_output_passes_repository_layout_gate(
     ).execute(Path("dist"))
 
     assert result.successful is True
-    assert builder.calls == [
-        (
-            tmp_path,
-            output_dir,
-        )
-    ]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == output_dir
 
     assert result.build_context is not None
     assert result.build_context.output_dir == output_dir
@@ -1491,12 +1502,11 @@ def test_compatible_toolchain_is_captured_once_and_reused_in_context(
     assert provider.calls == 1
     assert result.build_context is not None
     assert result.build_context.toolchain_state is observed_state
-    assert builder.calls == [
-        (
-            tmp_path,
-            tmp_path / "dist",
-        )
-    ]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == tmp_path / "dist"
 
 
 def test_validated_runtime_is_reused_in_build_context(
@@ -1627,12 +1637,11 @@ def test_environment_state_is_captured_once_and_reused_in_build_context(
     assert provider.calls == 1
     assert result.build_context is not None
     assert result.build_context.environment_state is observed_state
-    assert builder.calls == [
-        (
-            tmp_path,
-            tmp_path / "dist",
-        )
-    ]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == tmp_path / "dist"
 
 
 def test_effective_configuration_validation_precedes_package_execution(
@@ -1694,7 +1703,11 @@ def test_effective_configuration_validation_precedes_package_execution(
     assert layout_validation.successful is True
     assert evidence_layout_validation.successful is True
     assert source_state_provider.calls == [tmp_path]
-    assert builder.calls == [(tmp_path, validated_context.output_dir)]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == validated_context.output_dir
 
 
 def test_invalid_effective_configuration_prevents_package_execution(
@@ -1858,7 +1871,11 @@ def test_required_evidence_profile_accepts_explicit_destination(
     assert result.diagnostic == "expected test failure"
     assert result.build_context is not None
     assert result.build_context.evidence_output == evidence_output
-    assert builder.calls == [(tmp_path, tmp_path / "dist")]
+    assert len(builder.calls) == 1
+    package_root, package_output_dir = builder.calls[0]
+    assert package_root.name == "project"
+    assert package_root.parent.name == "staging"
+    assert package_output_dir == tmp_path / "dist"
 
 
 @pytest.mark.parametrize(
@@ -1952,10 +1969,11 @@ def test_optional_functional_validation_remains_explicit_and_optional(
         requested_result.build_context.effective_configuration.functional_validation
         is True
     )
-    assert builder.calls == [
-        (tmp_path, tmp_path / "dist"),
-        (tmp_path, tmp_path / "dist"),
-    ]
+    assert len(builder.calls) == 2
+    for package_root, package_output_dir in builder.calls:
+        assert package_root.name == "project"
+        assert package_root.parent.name == "staging"
+        assert package_output_dir == tmp_path / "dist"
 
 
 def test_package_execution_observation_records_success_duration(
@@ -2392,11 +2410,13 @@ def test_build_input_staging_receives_authoritative_root_and_workspace(
     assert workspace.staging_dir == workspace.root / "staging"
     assert workspace.intermediate_dir == workspace.root / "intermediate"
 
-    # Level 13.5 defines staging behavior without yet changing
-    # the authoritative package-builder source.
+    staged_package_root = (
+        workspace.staging_dir / "project"
+    ).resolve()
+
     assert builder.calls == [
         (
-            tmp_path,
+            staged_package_root,
             output_dir,
         )
     ]
@@ -2524,3 +2544,92 @@ def test_build_input_staging_failure_is_fail_fast(
     assert BuildExecutionStage.PACKAGE not in reached_stages
     assert BuildExecutionStage.DISCOVER_ARTIFACTS not in reached_stages
     assert BuildExecutionStage.VALIDATE_ARTIFACTS not in reached_stages
+
+def test_package_execution_consumes_staged_project_root(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+    stager = _RecordingBuildInputStager()
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_stager=stager,
+    ).execute(output_dir)
+
+    assert result.successful is True
+    assert len(stager.calls) == 1
+
+    _, workspace = stager.calls[0]
+    staged_project_root = (
+        workspace.staging_dir / "project"
+    ).resolve()
+
+    assert builder.calls == [
+        (
+            staged_project_root,
+            output_dir,
+        )
+    ]
+    assert staged_project_root != tmp_path
+
+
+def test_package_execution_preserves_canonical_output_directory_when_using_staged_root(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+    stager = _RecordingBuildInputStager()
+
+    RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_stager=stager,
+    ).execute(Path("dist"))
+
+    assert len(stager.calls) == 1
+
+    _, workspace = stager.calls[0]
+    staged_project_root = (
+        workspace.staging_dir / "project"
+    ).resolve()
+
+    assert builder.calls == [
+        (
+            staged_project_root,
+            (tmp_path / "dist").resolve(),
+        )
+    ]

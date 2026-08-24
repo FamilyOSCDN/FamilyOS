@@ -791,6 +791,30 @@ The transformation must:
 
 Package assembly determines which source and resource content enters the resulting artifact.
 
+For the current canonical FamilyOS CLI package target, package assembly now consumes the isolated project snapshot produced by `BuildInputStager`.
+
+After successful `STAGE_BUILD_INPUTS`, the `PACKAGE` stage passes `StagedBuildInputs.project_root` to the canonical `PythonPackageBuilder` instead of passing authoritative `project_root` directly.
+
+The effective package source is therefore:
+
+```text
+Authoritative Project
+        ↓
+BuildInputStager
+        ↓
+<workspace-root>/staging/project
+        ↓
+PythonPackageBuilder
+```
+
+The canonical output directory remains independent from the staged project root. Candidate wheel and source-distribution artifacts continue to be written to the resolved canonical build output directory.
+
+Real PyPA validation confirms that the staged project contains the complete input set required by the current package target and can produce exactly one wheel and one source distribution through the standard Python build frontend.
+
+Package assembly therefore no longer consumes authoritative project source directly.
+
+The current contract remains intentionally target-specific. Future build targets must define their own authoritative assembly inputs and staging requirements.
+
 Assembly must prevent accidental inclusion of:
 
 * secrets;

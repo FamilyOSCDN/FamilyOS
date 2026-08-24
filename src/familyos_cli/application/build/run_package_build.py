@@ -466,7 +466,7 @@ class RunPackageBuildUseCase:
 
         staging_started = self._monotonic_clock()
         try:
-            self._build_input_stager.stage(
+            staged_build_inputs = self._build_input_stager.stage(
                 project_root=self._project_root,
                 workspace=workspace,
             )
@@ -499,7 +499,7 @@ class RunPackageBuildUseCase:
 
         package_started = self._monotonic_clock()
         execution = self._builder.build(
-            project_root=self._project_root,
+            project_root=staged_build_inputs.project_root,
             output_dir=build_context.output_dir,
         )
         execution_observations.append(

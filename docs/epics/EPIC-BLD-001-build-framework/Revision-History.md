@@ -2322,6 +2322,30 @@ Framework version `1.0.0` and immutable historical publication tag
 
 ---
 
+## Level 13.7 — Canonical Package Assembly — 2026-08-24
+
+This revision makes the isolated staged project the effective package source for the canonical FamilyOS CLI package build.
+
+After successful canonical input staging, the `PACKAGE` execution stage now passes `StagedBuildInputs.project_root` to `PythonPackageBuilder` rather than authoritative `project_root`.
+
+The resolved canonical output directory remains unchanged and independent from the temporary Build-ID-scoped workspace.
+
+Application tests validate staged-root consumption and output-directory preservation.
+
+Real PyPA validation from the staged snapshot succeeds with exactly one wheel and one source distribution while leaving tracked authoritative project source unchanged.
+
+This revision closes the Level 13 checklist item:
+
+* Define package assembly.
+
+The canonical execution vocabulary remains unchanged at fifteen stages through optional wheel functional validation.
+
+Execution finalization, partial-output handling, failure cleanup, cancellation semantics, and retry policy remain open.
+
+Framework version `1.0.0` and immutable historical publication tag `v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

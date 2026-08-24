@@ -1070,7 +1070,7 @@ Implement predictable and observable transformation from validated context to ca
 * [x] Define workspace initialization.
 * [x] Define staging behavior.
 * [x] Define generation stages where needed.
-* [ ] Define package assembly.
+* [x] Define package assembly.
 * [x] Define packaging execution.
 * [x] Define output collection.
 * [ ] Define execution finalization.
@@ -1338,6 +1338,50 @@ current fifteen-stage execution vocabulary.
 
 It does not introduce Build Evidence, artifact trust, release, publication,
 cleanup, cancellation, retry, or distributed tracing semantics.
+
+---
+
+## Level 13.7 — Canonical Package Assembly
+
+Status: IMPLEMENTED AND VALIDATED.
+
+The canonical FamilyOS CLI package build now consumes the isolated project snapshot produced by `BuildInputStager`.
+
+After successful `STAGE_BUILD_INPUTS`, package execution passes `StagedBuildInputs.project_root` to the canonical Python package builder rather than authoritative `project_root`.
+
+The canonical assembly flow is:
+
+```text
+Authoritative Project
+        ↓
+BuildInputStager
+        ↓
+<workspace-root>/staging/project
+        ↓
+PythonPackageBuilder
+        ↓
+Canonical Output Directory
+```
+
+The output-directory contract is unchanged. Candidate wheel and source-distribution artifacts remain outside the temporary workspace in the resolved canonical output directory.
+
+Application validation confirms staged project-root consumption and preservation of the canonical output directory.
+
+Real PyPA validation from the staged snapshot succeeds and produces exactly one wheel and one source distribution without mutating tracked authoritative project source.
+
+This closes the Level 13 checklist item:
+
+* Define package assembly.
+
+The following concerns remain open:
+
+* Define execution finalization.
+* Define partial-output handling.
+* Define failure cleanup.
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+Level 13.7 does not introduce Build Evidence, artifact trust, release, publication, cleanup, cancellation, retry, or distributed tracing semantics.
 
 ---
 
