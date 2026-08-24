@@ -24,6 +24,7 @@ class BuildExecutionStage(StrEnum):
     ESTABLISH_ARTIFACT_INTEGRITY = "establish-artifact-integrity"
     BUILD_ARTIFACT_MANIFEST = "build-artifact-manifest"
     FUNCTIONALLY_VALIDATE_WHEEL = "functionally-validate-wheel"
+    FINALIZE_EXECUTION = "finalize-execution"
 
 
 class BuildExecutionStageStatus(StrEnum):

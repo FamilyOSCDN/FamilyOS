@@ -2346,6 +2346,73 @@ Framework version `1.0.0` and immutable historical publication tag `v4.7.0-build
 
 ---
 
+## Level 13.8 — Canonical Execution Finalization — 2026-08-24
+
+This revision introduces the canonical terminal finalization boundary for
+FamilyOS package-build execution.
+
+`BuildExecutionStage` now contains sixteen canonical stages, with
+`FINALIZE_EXECUTION` as the terminal stage.
+
+All fourteen current terminal return paths in
+`RunPackageBuildUseCase.execute()` are routed through the centralized
+`_finalize_result()` boundary.
+
+The terminal execution flow is:
+
+    Last Reached Business Stage
+            ↓
+    FINALIZE_EXECUTION
+            ↓
+    CanonicalPackageBuildResult
+
+Finalization records successful establishment of the terminal execution result
+without overwriting or reinterpreting the underlying build outcome.
+
+A failed business stage therefore remains failed and retains its diagnostic,
+while the subsequent `FINALIZE_EXECUTION` observation is recorded as
+`SUCCEEDED`.
+
+Successful execution without requested functional validation records fifteen
+ordered observations.
+
+Successful execution with functional validation records sixteen ordered
+observations, with `FUNCTIONALLY_VALIDATE_WHEEL` immediately preceding
+`FINALIZE_EXECUTION`.
+
+Application validation covers:
+
+* successful terminal finalization;
+* functional-validation terminal ordering;
+* failed package execution finalization;
+* deterministic stage-duration observation;
+* workspace-initialization failure preservation;
+* build-input-staging failure preservation;
+* centralized routing of all fourteen current terminal returns.
+
+This revision closes the Level 13 checklist item:
+
+* Define execution finalization.
+
+The following Level 13 concerns remain open:
+
+* Define partial-output handling.
+* Define failure cleanup.
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+Finalization remains explicitly separate from cleanup. The Build-ID-scoped
+workspace, staging state, intermediate state, and partial candidate outputs are
+not deleted by Level 13.8.
+
+This revision does not introduce Build Evidence, artifact trust, release,
+publication, cancellation, retry, or distributed tracing semantics.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+---
+
 # Current Revision State
 
 ```text

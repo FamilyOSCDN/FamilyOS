@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import platform
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 from time import perf_counter
 
@@ -199,14 +200,17 @@ class RunPackageBuildUseCase:
                 project_root=self._project_root,
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(
-                    input_validation.diagnostic,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(
+                        input_validation.diagnostic,
+                    ),
+                    source_state=source_state,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
                 ),
-                source_state=source_state,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+                execution_observations,
             )
 
         repository_layout = RepositoryLayout.from_project_root(
@@ -234,14 +238,17 @@ class RunPackageBuildUseCase:
                 project_root=self._project_root,
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(
-                    layout_validation.diagnostic,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(
+                        layout_validation.diagnostic,
+                    ),
+                    source_state=source_state,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
                 ),
-                source_state=source_state,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+                execution_observations,
             )
 
         evidence_layout_validation = (
@@ -273,12 +280,15 @@ class RunPackageBuildUseCase:
                 project_root=self._project_root,
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(str(error)),
-                source_state=source_state,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(str(error)),
+                    source_state=source_state,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                ),
+                execution_observations,
             )
 
         toolchain_validation = self._toolchain_validator.validate(
@@ -304,14 +314,17 @@ class RunPackageBuildUseCase:
                 project_root=self._project_root,
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(
-                    toolchain_validation.diagnostic,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(
+                        toolchain_validation.diagnostic,
+                    ),
+                    source_state=source_state,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
                 ),
-                source_state=source_state,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+                execution_observations,
             )
 
         environment_started = self._monotonic_clock()
@@ -331,12 +344,15 @@ class RunPackageBuildUseCase:
                 project_root=self._project_root,
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(str(error)),
-                source_state=source_state,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(str(error)),
+                    source_state=source_state,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                ),
+                execution_observations,
             )
 
         environment_validation = self._environment_validator.validate(
@@ -357,14 +373,17 @@ class RunPackageBuildUseCase:
                 project_root=self._project_root,
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(
-                    environment_validation.diagnostic,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(
+                        environment_validation.diagnostic,
+                    ),
+                    source_state=source_state,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
                 ),
-                source_state=source_state,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+                execution_observations,
             )
 
         workspace_started = self._monotonic_clock()
@@ -389,12 +408,15 @@ class RunPackageBuildUseCase:
                 project_root=self._project_root,
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(str(error)),
-                source_state=source_state,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(str(error)),
+                    source_state=source_state,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                ),
+                execution_observations,
             )
 
         execution_observations.append(
@@ -453,15 +475,18 @@ class RunPackageBuildUseCase:
         )
 
         if not effective_configuration_validation.successful:
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(
-                    effective_configuration_validation.diagnostic,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(
+                        effective_configuration_validation.diagnostic,
+                    ),
+                    source_state=source_state,
+                    build_context=build_context,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
                 ),
-                source_state=source_state,
-                build_context=build_context,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+                execution_observations,
             )
 
         staging_started = self._monotonic_clock()
@@ -480,13 +505,16 @@ class RunPackageBuildUseCase:
                 )
             )
 
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=self._failed_pre_execution(str(error)),
-                source_state=source_state,
-                build_context=build_context,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=self._failed_pre_execution(str(error)),
+                    source_state=source_state,
+                    build_context=build_context,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                ),
+                execution_observations,
             )
 
         execution_observations.append(
@@ -512,13 +540,16 @@ class RunPackageBuildUseCase:
         )
 
         if not execution.successful:
-            return CanonicalPackageBuildResult(
-                status=execution.status,
-                execution=execution,
-                source_state=source_state,
-                build_context=build_context,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=execution.status,
+                    execution=execution,
+                    source_state=source_state,
+                    build_context=build_context,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                ),
+                execution_observations,
             )
 
         discovery_started = self._monotonic_clock()
@@ -536,14 +567,17 @@ class RunPackageBuildUseCase:
         )
 
         if not discovery.successful:
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=execution,
-                source_state=source_state,
-                build_context=build_context,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
-                discovery=discovery,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=execution,
+                    source_state=source_state,
+                    build_context=build_context,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                    discovery=discovery,
+                ),
+                execution_observations,
             )
 
         validation_started = self._monotonic_clock()
@@ -558,15 +592,18 @@ class RunPackageBuildUseCase:
         )
 
         if not validation.successful:
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.FAILED,
-                execution=execution,
-                source_state=source_state,
-                build_context=build_context,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
-                discovery=discovery,
-                validation=validation,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.FAILED,
+                    execution=execution,
+                    source_state=source_state,
+                    build_context=build_context,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                    discovery=discovery,
+                    validation=validation,
+                ),
+                execution_observations,
             )
 
         identity_started = self._monotonic_clock()
@@ -610,18 +647,21 @@ class RunPackageBuildUseCase:
         )
 
         if not validate_functionally:
-            return CanonicalPackageBuildResult(
-                status=PackageBuildStatus.SUCCEEDED,
-                execution=execution,
-                source_state=source_state,
-                build_context=build_context,
-                build_id=build_id,
-                execution_observations=tuple(execution_observations),
-                artifact_identities=artifact_identities,
-                artifact_integrities=artifact_integrities,
-                artifact_manifest=artifact_manifest,
-                discovery=discovery,
-                validation=validation,
+            return self._finalize_result(
+                CanonicalPackageBuildResult(
+                    status=PackageBuildStatus.SUCCEEDED,
+                    execution=execution,
+                    source_state=source_state,
+                    build_context=build_context,
+                    build_id=build_id,
+                    execution_observations=tuple(execution_observations),
+                    artifact_identities=artifact_identities,
+                    artifact_integrities=artifact_integrities,
+                    artifact_manifest=artifact_manifest,
+                    discovery=discovery,
+                    validation=validation,
+                ),
+                execution_observations,
             )
 
         wheel = next(
@@ -641,23 +681,48 @@ class RunPackageBuildUseCase:
             )
         )
 
-        return CanonicalPackageBuildResult(
-            status=(
-                PackageBuildStatus.SUCCEEDED
-                if functional_validation.successful
-                else PackageBuildStatus.FAILED
+        return self._finalize_result(
+            CanonicalPackageBuildResult(
+                status=(
+                    PackageBuildStatus.SUCCEEDED
+                    if functional_validation.successful
+                    else PackageBuildStatus.FAILED
+                ),
+                execution=execution,
+                source_state=source_state,
+                build_context=build_context,
+                build_id=build_id,
+                execution_observations=tuple(execution_observations),
+                artifact_identities=artifact_identities,
+                artifact_integrities=artifact_integrities,
+                artifact_manifest=artifact_manifest,
+                discovery=discovery,
+                validation=validation,
+                functional_validation=functional_validation,
             ),
-            execution=execution,
-            source_state=source_state,
-            build_context=build_context,
-            build_id=build_id,
+            execution_observations,
+        )
+
+    def _finalize_result(
+        self,
+        result: CanonicalPackageBuildResult,
+        execution_observations: list[BuildExecutionObservation],
+    ) -> CanonicalPackageBuildResult:
+        """Finalize one canonical package-build terminal result."""
+
+        finalization_started = self._monotonic_clock()
+
+        execution_observations.append(
+            self._execution_observation(
+                stage=BuildExecutionStage.FINALIZE_EXECUTION,
+                started_at=finalization_started,
+                successful=True,
+            )
+        )
+
+        return replace(
+            result,
             execution_observations=tuple(execution_observations),
-            artifact_identities=artifact_identities,
-            artifact_integrities=artifact_integrities,
-            artifact_manifest=artifact_manifest,
-            discovery=discovery,
-            validation=validation,
-            functional_validation=functional_validation,
         )
 
     def _execution_observation(

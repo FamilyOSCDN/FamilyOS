@@ -1073,7 +1073,7 @@ Implement predictable and observable transformation from validated context to ca
 * [x] Define package assembly.
 * [x] Define packaging execution.
 * [x] Define output collection.
-* [ ] Define execution finalization.
+* [x] Define execution finalization.
 * [x] Propagate mandatory stage failures.
 * [x] Prevent ignored subprocess failures.
 * [x] Ensure execution does not unexpectedly mutate authoritative source.
@@ -1382,6 +1382,66 @@ The following concerns remain open:
 * Define retry policy for transient failures only.
 
 Level 13.7 does not introduce Build Evidence, artifact trust, release, publication, cleanup, cancellation, retry, or distributed tracing semantics.
+
+---
+
+## Level 13.8 — Canonical Execution Finalization
+
+Status: IMPLEMENTED AND VALIDATED.
+
+Canonical package-build execution now terminates through one centralized
+finalization boundary.
+
+`BuildExecutionStage` contains sixteen canonical stages, with
+`FINALIZE_EXECUTION` as the terminal stage.
+
+All fourteen current terminal return paths in
+`RunPackageBuildUseCase.execute()` are routed through `_finalize_result()`.
+
+The terminal execution flow is:
+
+    Last Reached Business Stage
+            ↓
+    FINALIZE_EXECUTION
+            ↓
+    CanonicalPackageBuildResult
+
+Finalization is independent from the underlying build outcome.
+
+A failed business stage remains failed and retains its diagnostic, while
+`FINALIZE_EXECUTION` records successful establishment of the terminal result.
+
+Successful execution without requested functional validation records fifteen
+ordered observations.
+
+Successful execution with functional validation records sixteen ordered
+observations, with `FUNCTIONALLY_VALIDATE_WHEEL` immediately preceding
+`FINALIZE_EXECUTION`.
+
+Application validation confirms terminal finalization for successful,
+functionally validated, and failed package execution paths.
+
+Workspace-initialization and build-input-staging failures remain fail-fast,
+with their failed observations preserved immediately before finalization.
+
+All current terminal returns use the centralized finalization boundary.
+
+This closes the Level 13 checklist item:
+
+* Define execution finalization.
+
+The following concerns remain open:
+
+* Define partial-output handling.
+* Define failure cleanup.
+* Define cancellation semantics if required.
+* Define retry policy for transient failures only.
+
+Finalization does not perform cleanup and does not delete the Build-ID-scoped
+workspace, staging state, intermediate state, or partial candidate outputs.
+
+Level 13.8 does not introduce Build Evidence, artifact trust, release,
+publication, cancellation, retry, or distributed tracing semantics.
 
 ---
 

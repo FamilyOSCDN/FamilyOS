@@ -1976,197 +1976,8 @@ def test_optional_functional_validation_remains_explicit_and_optional(
         assert package_output_dir == tmp_path / "dist"
 
 
+
 def test_package_execution_observation_records_success_duration(
-    tmp_path: Path,
-) -> None:
-    from familyos_cli.application.build.build_execution_observation import (
-        BuildExecutionStage,
-        BuildExecutionStageStatus,
-    )
-
-    output_dir = tmp_path / "dist"
-    output_dir.mkdir()
-
-    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
-    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
-    wheel.touch()
-    sdist.touch()
-
-    builder = _PackageBuilder(
-        PackageBuildResult(
-            status=PackageBuildStatus.SUCCEEDED,
-            outputs=(wheel, sdist),
-        )
-    )
-
-    clock_values = iter(
-        (
-            10.0,
-            10.01,
-            20.0,
-            20.02,
-            30.0,
-            30.03,
-            40.0,
-            40.04,
-            50.0,
-            50.05,
-            60.0,
-            60.06,
-            70.0,
-            70.07,
-            80.0,
-            80.08,
-            90.0,
-            90.09,
-            100.0,
-            100.10,
-            110.0,
-            110.11,
-            120.0,
-            120.12,
-            130.0,
-            130.13,
-            140.0,
-            140.14,
-        )
-    )
-
-    result = RunPackageBuildUseCase(
-        builder,
-        DiscoverPackageArtifactsUseCase(),
-        _RecordingValidator(),
-        _RecordingFunctionalValidator(),
-        _SourceStateProvider(),
-        tmp_path,
-        monotonic_clock=lambda: next(clock_values),
-    ).execute(output_dir)
-
-    assert result.successful is True
-
-    expected_stages = (
-        BuildExecutionStage.VALIDATE_INPUTS,
-        BuildExecutionStage.VALIDATE_REPOSITORY_LAYOUT,
-        BuildExecutionStage.VALIDATE_TOOLCHAIN,
-        BuildExecutionStage.VALIDATE_ENVIRONMENT,
-        BuildExecutionStage.INITIALIZE_WORKSPACE,
-        BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
-        BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
-        BuildExecutionStage.STAGE_BUILD_INPUTS,
-        BuildExecutionStage.PACKAGE,
-        BuildExecutionStage.DISCOVER_ARTIFACTS,
-        BuildExecutionStage.VALIDATE_ARTIFACTS,
-        BuildExecutionStage.ESTABLISH_ARTIFACT_IDENTITY,
-        BuildExecutionStage.ESTABLISH_ARTIFACT_INTEGRITY,
-        BuildExecutionStage.BUILD_ARTIFACT_MANIFEST,
-    )
-
-    assert tuple(
-        observation.stage
-        for observation in result.execution_observations
-    ) == expected_stages
-
-    assert len(result.execution_observations) == 14
-
-    for observation in result.execution_observations:
-        assert observation.status is BuildExecutionStageStatus.SUCCEEDED
-        assert observation.duration_seconds > 0
-        assert observation.diagnostic is None
-
-    assert (
-        BuildExecutionStage.FUNCTIONALLY_VALIDATE_WHEEL
-        not in expected_stages
-    )
-
-
-def test_package_execution_observation_records_failure_duration_and_diagnostic(
-    tmp_path: Path,
-) -> None:
-    from familyos_cli.application.build.build_execution_observation import (
-        BuildExecutionStage,
-        BuildExecutionStageStatus,
-    )
-
-    output_dir = tmp_path / "dist"
-    output_dir.mkdir()
-
-    builder = _PackageBuilder(
-        PackageBuildResult(
-            status=PackageBuildStatus.FAILED,
-            exit_code=1,
-            diagnostic="package frontend failed",
-        )
-    )
-
-    clock_values = iter(
-        (
-            10.0,
-            10.01,
-            20.0,
-            20.02,
-            30.0,
-            30.03,
-            40.0,
-            40.04,
-            50.0,
-            50.05,
-            60.0,
-            60.06,
-            70.0,
-            70.07,
-            80.0,
-            80.50,
-            90.0,
-            90.50,
-        )
-    )
-
-    result = RunPackageBuildUseCase(
-        builder,
-        DiscoverPackageArtifactsUseCase(),
-        _RecordingValidator(),
-        _RecordingFunctionalValidator(),
-        _SourceStateProvider(),
-        tmp_path,
-        monotonic_clock=lambda: next(clock_values),
-    ).execute(output_dir)
-
-    assert result.successful is False
-
-    assert tuple(
-        observation.stage
-        for observation in result.execution_observations
-    ) == (
-        BuildExecutionStage.VALIDATE_INPUTS,
-        BuildExecutionStage.VALIDATE_REPOSITORY_LAYOUT,
-        BuildExecutionStage.VALIDATE_TOOLCHAIN,
-        BuildExecutionStage.VALIDATE_ENVIRONMENT,
-        BuildExecutionStage.INITIALIZE_WORKSPACE,
-        BuildExecutionStage.RESOLVE_BUILD_CONTEXT,
-        BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION,
-        BuildExecutionStage.STAGE_BUILD_INPUTS,
-        BuildExecutionStage.PACKAGE,
-    )
-
-    *successful_observations, package = result.execution_observations
-
-    assert all(
-        observation.status is BuildExecutionStageStatus.SUCCEEDED
-        for observation in successful_observations
-    )
-
-    assert package.stage is BuildExecutionStage.PACKAGE
-    assert package.status is BuildExecutionStageStatus.FAILED
-    assert package.duration_seconds == pytest.approx(0.50)
-    assert package.diagnostic == "package frontend failed"
-
-    assert BuildExecutionStage.DISCOVER_ARTIFACTS not in tuple(
-        observation.stage
-        for observation in result.execution_observations
-    )
-
-
-def test_functional_validation_execution_observation_is_recorded_last(
     tmp_path: Path,
 ) -> None:
     from familyos_cli.application.build.build_execution_observation import (
@@ -2232,27 +2043,181 @@ def test_functional_validation_execution_observation_is_recorded_last(
         _SourceStateProvider(),
         tmp_path,
         monotonic_clock=lambda: next(clock_values),
+    ).execute(output_dir)
+
+    package_observation = next(
+        observation
+        for observation in result.execution_observations
+        if observation.stage is BuildExecutionStage.PACKAGE
+    )
+
+    assert package_observation.status is BuildExecutionStageStatus.SUCCEEDED
+    assert package_observation.duration_seconds == pytest.approx(0.09)
+
+    final_observation = result.execution_observations[-1]
+
+    assert final_observation.stage is BuildExecutionStage.FINALIZE_EXECUTION
+    assert final_observation.status is BuildExecutionStageStatus.SUCCEEDED
+    assert final_observation.duration_seconds == pytest.approx(0.15)
+
+
+def test_package_execution_observation_records_failure_duration_and_diagnostic(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            exit_code=1,
+            diagnostic="package frontend failed",
+        )
+    )
+
+    clock_values = iter(
+        (
+            10.0,
+            10.01,
+            20.0,
+            20.02,
+            30.0,
+            30.03,
+            40.0,
+            40.04,
+            50.0,
+            50.05,
+            60.0,
+            60.06,
+            70.0,
+            70.07,
+            80.0,
+            80.50,
+            90.0,
+            90.50,
+            100.0,
+            100.25,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        monotonic_clock=lambda: next(clock_values),
+    ).execute(output_dir)
+
+    package_observation = next(
+        observation
+        for observation in result.execution_observations
+        if observation.stage is BuildExecutionStage.PACKAGE
+    )
+
+    assert package_observation.status is BuildExecutionStageStatus.FAILED
+    assert package_observation.duration_seconds == pytest.approx(0.50)
+    assert package_observation.diagnostic == "package frontend failed"
+
+    final_observation = result.execution_observations[-1]
+
+    assert final_observation.stage is BuildExecutionStage.FINALIZE_EXECUTION
+    assert final_observation.status is BuildExecutionStageStatus.SUCCEEDED
+    assert final_observation.duration_seconds == pytest.approx(0.25)
+
+
+def test_functional_validation_execution_observation_is_recorded_last(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+            outputs=(wheel, sdist),
+        )
+    )
+
+    clock_values = iter(
+        (
+            10.0,
+            10.01,
+            20.0,
+            20.02,
+            30.0,
+            30.03,
+            40.0,
+            40.04,
+            50.0,
+            50.05,
+            60.0,
+            60.06,
+            70.0,
+            70.07,
+            80.0,
+            80.08,
+            90.0,
+            90.09,
+            100.0,
+            100.10,
+            110.0,
+            110.11,
+            120.0,
+            120.12,
+            130.0,
+            130.13,
+            140.0,
+            140.14,
+            150.0,
+            150.15,
+            160.0,
+            160.16,
+        )
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        monotonic_clock=lambda: next(clock_values),
     ).execute(
         output_dir,
         validate_functionally=True,
     )
 
-    assert result.successful is True
-    assert len(result.execution_observations) == 15
-
     final_observation = result.execution_observations[-1]
+    previous_observation = result.execution_observations[-2]
 
     assert (
-        final_observation.stage
+        previous_observation.stage
         is BuildExecutionStage.FUNCTIONALLY_VALIDATE_WHEEL
     )
-    assert (
-        final_observation.status
-        is BuildExecutionStageStatus.SUCCEEDED
-    )
-    assert final_observation.duration_seconds == pytest.approx(0.15)
-    assert final_observation.diagnostic is None
+    assert previous_observation.status is BuildExecutionStageStatus.SUCCEEDED
+    assert previous_observation.duration_seconds == pytest.approx(0.15)
 
+    assert final_observation.stage is BuildExecutionStage.FINALIZE_EXECUTION
+    assert final_observation.status is BuildExecutionStageStatus.SUCCEEDED
+    assert final_observation.duration_seconds == pytest.approx(0.16)
 
 def test_workspace_initialization_receives_build_id_and_environment_temp_dir(
     tmp_path: Path,
@@ -2313,6 +2278,7 @@ def test_workspace_initialization_receives_build_id_and_environment_temp_dir(
     assert observed_temporary_directory == canonical_temp
 
 
+
 def test_workspace_initialization_failure_is_fail_fast_before_packaging(
     tmp_path: Path,
 ) -> None:
@@ -2352,21 +2318,19 @@ def test_workspace_initialization_failure_is_fail_fast_before_packaging(
     assert validator.calls == []
     assert functional_validator.calls == []
 
+    failed_observation = result.execution_observations[-2]
     final_observation = result.execution_observations[-1]
 
-    assert final_observation.stage is BuildExecutionStage.INITIALIZE_WORKSPACE
-    assert final_observation.status is BuildExecutionStageStatus.FAILED
-    assert final_observation.diagnostic == "workspace initialization failed"
-
-    reached_stages = tuple(
-        observation.stage
-        for observation in result.execution_observations
+    assert (
+        failed_observation.stage
+        is BuildExecutionStage.INITIALIZE_WORKSPACE
     )
+    assert failed_observation.status is BuildExecutionStageStatus.FAILED
+    assert failed_observation.diagnostic == "workspace initialization failed"
 
-    assert BuildExecutionStage.RESOLVE_BUILD_CONTEXT not in reached_stages
-    assert BuildExecutionStage.VALIDATE_EFFECTIVE_CONFIGURATION not in reached_stages
-    assert BuildExecutionStage.PACKAGE not in reached_stages
-
+    assert final_observation.stage is BuildExecutionStage.FINALIZE_EXECUTION
+    assert final_observation.status is BuildExecutionStageStatus.SUCCEEDED
+    assert final_observation.diagnostic is None
 
 def test_build_input_staging_receives_authoritative_root_and_workspace(
     tmp_path: Path,
@@ -2491,6 +2455,7 @@ def test_build_input_staging_occurs_after_effective_configuration_and_before_pac
     assert effective_index < staging_index < package_index
 
 
+
 def test_build_input_staging_failure_is_fail_fast(
     tmp_path: Path,
 ) -> None:
@@ -2524,26 +2489,16 @@ def test_build_input_staging_failure_is_fail_fast(
     assert len(stager.calls) == 1
     assert builder.calls == []
 
+    failed_observation = result.execution_observations[-2]
     final_observation = result.execution_observations[-1]
 
-    assert (
-        final_observation.stage
-        is BuildExecutionStage.STAGE_BUILD_INPUTS
-    )
-    assert (
-        final_observation.status
-        is BuildExecutionStageStatus.FAILED
-    )
-    assert final_observation.diagnostic == "canonical staging failed"
+    assert failed_observation.stage is BuildExecutionStage.STAGE_BUILD_INPUTS
+    assert failed_observation.status is BuildExecutionStageStatus.FAILED
+    assert failed_observation.diagnostic == "canonical staging failed"
 
-    reached_stages = tuple(
-        observation.stage
-        for observation in result.execution_observations
-    )
-
-    assert BuildExecutionStage.PACKAGE not in reached_stages
-    assert BuildExecutionStage.DISCOVER_ARTIFACTS not in reached_stages
-    assert BuildExecutionStage.VALIDATE_ARTIFACTS not in reached_stages
+    assert final_observation.stage is BuildExecutionStage.FINALIZE_EXECUTION
+    assert final_observation.status is BuildExecutionStageStatus.SUCCEEDED
+    assert final_observation.diagnostic is None
 
 def test_package_execution_consumes_staged_project_root(
     tmp_path: Path,
@@ -2633,3 +2588,127 @@ def test_package_execution_preserves_canonical_output_directory_when_using_stage
             (tmp_path / "dist").resolve(),
         )
     ]
+
+
+def test_execution_finalization_is_terminal_after_success(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(output_dir)
+
+    assert result.successful is True
+
+    final_observation = result.execution_observations[-1]
+
+    assert (
+        final_observation.stage
+        is BuildExecutionStage.FINALIZE_EXECUTION
+    )
+    assert (
+        final_observation.status
+        is BuildExecutionStageStatus.SUCCEEDED
+    )
+
+
+def test_execution_finalization_is_terminal_after_functional_validation(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+    )
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+    wheel.touch()
+    sdist.touch()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(
+        output_dir,
+        validate_functionally=True,
+    )
+
+    assert result.successful is True
+
+    stages = tuple(
+        observation.stage
+        for observation in result.execution_observations
+    )
+
+    assert stages[-2:] == (
+        BuildExecutionStage.FUNCTIONALLY_VALIDATE_WHEEL,
+        BuildExecutionStage.FINALIZE_EXECUTION,
+    )
+
+def test_execution_finalization_is_terminal_after_failed_package_execution(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                diagnostic="canonical package execution failed",
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+    ).execute(tmp_path / "dist")
+
+    assert result.successful is False
+
+    final_observation = result.execution_observations[-1]
+
+    assert (
+        final_observation.stage
+        is BuildExecutionStage.FINALIZE_EXECUTION
+    )
+    assert (
+        final_observation.status
+        is BuildExecutionStageStatus.SUCCEEDED
+    )

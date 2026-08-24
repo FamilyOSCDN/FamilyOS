@@ -350,6 +350,7 @@ ESTABLISH_ARTIFACT_IDENTITY
 ESTABLISH_ARTIFACT_INTEGRITY
 BUILD_ARTIFACT_MANIFEST
 FUNCTIONALLY_VALIDATE_WHEEL
+FINALIZE_EXECUTION
 ```
 
 `FUNCTIONALLY_VALIDATE_WHEEL` is present only when functional validation is
@@ -1666,6 +1667,61 @@ Integrity data calculated before later mutation would be invalid.
 
 ---
 
+# Execution Finalization
+
+Canonical package-build execution has an explicit terminal finalization
+boundary.
+
+Every terminal path from `RunPackageBuildUseCase.execute()` passes through the
+centralized `_finalize_result()` boundary before returning its
+`CanonicalPackageBuildResult`.
+
+Finalization records `FINALIZE_EXECUTION` after the last business stage reached
+by the build.
+
+The canonical terminal pattern is:
+
+    Last Reached Business Stage
+            ↓
+    FINALIZE_EXECUTION
+            ↓
+    CanonicalPackageBuildResult
+
+`FINALIZE_EXECUTION` records successful establishment of the terminal execution
+result. It does not overwrite or reinterpret the underlying build outcome.
+
+A failed package execution therefore remains failed:
+
+    PACKAGE [FAILED]
+            ↓
+    FINALIZE_EXECUTION [SUCCEEDED]
+            ↓
+    CanonicalPackageBuildResult [FAILED]
+
+The failed business stage retains its diagnostic and the canonical build result
+remains failed.
+
+All current terminal paths are routed through this common finalization
+boundary.
+
+The canonical execution vocabulary contains sixteen stages through
+`FINALIZE_EXECUTION`.
+
+Successful execution without requested functional validation records fifteen
+ordered observations, ending with `FINALIZE_EXECUTION`.
+
+Successful execution with functional validation records sixteen ordered
+observations, with `FUNCTIONALLY_VALIDATE_WHEEL` immediately preceding
+`FINALIZE_EXECUTION`.
+
+Finalization is intentionally distinct from cleanup. It does not delete the
+Build-ID-scoped workspace, staging state, intermediate state, or partial
+candidate outputs. It does not introduce cancellation or retry semantics.
+
+Those concerns remain separate Build Execution policies.
+
+---
+
 # Build Result
 
 Execution should produce a structured conceptual result.
@@ -2135,21 +2191,29 @@ Receive Request
       ↓
 Validate Preconditions
       ↓
-Initialize
+Initialize Workspace
       ↓
-Prepare Workspace
+Resolve Build Context
       ↓
-Generate
-      ↓
-Transform
+Prepare Staged Inputs
       ↓
 Package
       ↓
-Collect Candidate Outputs
+Discover Candidate Outputs
+      ↓
+Validate Candidate Outputs
+      ↓
+Establish Artifact Identity
+      ↓
+Establish Artifact Integrity
+      ↓
+Build Artifact Manifest
+      ↓
+Functionally Validate Wheel (when requested)
       ↓
 Finalize Execution
       ↓
-Pass Candidate Artifacts To Validation
+Return Canonical Build Result
 ```
 
 This model makes execution an explicit transformation stage within the larger Build Lifecycle.
