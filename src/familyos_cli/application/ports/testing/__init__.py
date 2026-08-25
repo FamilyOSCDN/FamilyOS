@@ -9,6 +9,9 @@ from familyos_cli.application.ports.testing.testing_clock import (
 from familyos_cli.application.ports.testing.testing_evidence_producer import (
     TestingEvidenceProducerPort,
 )
+from familyos_cli.application.ports.testing.testing_execution import (
+    TestingExecutionPort,
+)
 from familyos_cli.application.ports.testing.testing_source_state_provider import (
     TestingSourceStateProviderPort,
 )
@@ -16,6 +19,7 @@ from familyos_cli.application.ports.testing.testing_source_state_provider import
 __all__ = [
     "PytestRunnerPort",
     "TestingClockPort",
+    "TestingExecutionPort",
     "TestingEvidenceProducerPort",
     "TestingSourceStateProviderPort",
 ]

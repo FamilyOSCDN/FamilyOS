@@ -10,6 +10,9 @@ from familyos_cli.application.ports.testing.pytest_runner import (
 from familyos_cli.application.ports.testing.testing_evidence_producer import (
     TestingEvidenceProducerPort,
 )
+from familyos_cli.application.ports.testing.testing_execution import (
+    TestingExecutionPort,
+)
 from familyos_cli.application.testing.pytest_result_normalizer import (
     PytestResultNormalizer,
 )
@@ -18,7 +21,7 @@ from familyos_cli.application.testing.testing_evidence import (
 )
 
 
-class ExecutePytestWithEvidenceUseCase:
+class ExecutePytestWithEvidenceUseCase(TestingExecutionPort):
     """Execute pytest, normalize its result, and produce Testing Evidence."""
 
     def __init__(
@@ -52,4 +55,5 @@ class ExecutePytestWithEvidenceUseCase:
         return self._evidence_producer.execute(
             project_root=project_root,
             result=canonical_result,
+            native_exit_code=native_result.exit_code,
         )

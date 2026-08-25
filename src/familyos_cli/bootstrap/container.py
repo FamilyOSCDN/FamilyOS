@@ -50,7 +50,13 @@ from familyos_cli.application.specifications import (
     DomainSpecificationLoaderService,
     SpecificationService,
 )
-from familyos_cli.application.testing import PytestResultNormalizer
+from familyos_cli.application.testing import (
+    ProduceTestingEvidenceUseCase,
+    PytestResultNormalizer,
+)
+from familyos_cli.application.testing.execute_pytest_with_evidence import (
+    ExecutePytestWithEvidenceUseCase,
+)
 from familyos_cli.application.use_cases.check_plugin_compliance import (
     CheckPluginComplianceUseCase,
 )
@@ -103,7 +109,11 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 from familyos_cli.infrastructure.specifications import (
     YamlDomainSpecificationLoader,
 )
-from familyos_cli.infrastructure.testing import PytestRunner
+from familyos_cli.infrastructure.testing import (
+    GitTestingSourceStateProvider,
+    PytestRunner,
+    SystemTestingClock,
+)
 from familyos_cli.plugins.ecosystem.compliance.compliance_engine import (
     ComplianceEngine,
 )
@@ -273,10 +283,18 @@ class ApplicationContainer:
                     cwd=project_root,
                 ),
                 PytestValidationGate(
-                    runner=PytestRunner(
-                        python_executable=python,
+                    execution=ExecutePytestWithEvidenceUseCase(
+                        runner=PytestRunner(
+                            python_executable=python,
+                        ),
+                        normalizer=PytestResultNormalizer(),
+                        evidence_producer=ProduceTestingEvidenceUseCase(
+                            source_state_provider=(
+                                GitTestingSourceStateProvider()
+                            ),
+                            clock=SystemTestingClock(),
+                        ),
                     ),
-                    normalizer=PytestResultNormalizer(),
                     project_root=project_root,
                 ),
                 BuiltinPluginComplianceGate(

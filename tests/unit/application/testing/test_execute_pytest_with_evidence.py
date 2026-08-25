@@ -57,15 +57,18 @@ class _EvidenceProducer(TestingEvidenceProducerPort):
     def __init__(self) -> None:
         self.project_root: Path | None = None
         self.result: CanonicalExecutionResult | None = None
+        self.native_exit_code: int | None = None
 
     def execute(
         self,
         *,
         project_root: Path,
         result: CanonicalExecutionResult,
+        native_exit_code: int | None = None,
     ) -> CanonicalTestingEvidence:
         self.project_root = project_root
         self.result = result
+        self.native_exit_code = native_exit_code
 
         raise RuntimeError("evidence boundary reached")
 
@@ -101,6 +104,7 @@ def test_execute_pytest_normalizes_before_producing_evidence(
     assert producer.result.summary.discovered == 3
     assert producer.result.summary.executed == 3
     assert producer.result.summary.passed == 3
+    assert producer.native_exit_code == 0
 
 
 def test_execute_pytest_preserves_selected_test_paths(

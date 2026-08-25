@@ -19,6 +19,7 @@ class TestingEvidence:
     source_revision: str
     result: TestExecutionResult
     captured_at: datetime
+    native_exit_code: int | None = None
 
     def __post_init__(self) -> None:
         """Reject incomplete canonical testing evidence."""
@@ -34,4 +35,12 @@ class TestingEvidence:
         ):
             raise ValueError(
                 "Testing Evidence timestamp must be timezone-aware"
+            )
+
+        if (
+            self.native_exit_code is not None
+            and self.native_exit_code < 0
+        ):
+            raise ValueError(
+                "Testing Evidence native exit code must be non-negative"
             )

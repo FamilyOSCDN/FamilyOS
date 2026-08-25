@@ -1,13 +1,14 @@
-"""Testing Framework-backed canonical pytest validation gate."""
+"""Testing Evidence-backed canonical pytest validation gate."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
 
-from familyos_cli.application.ports.testing import PytestRunnerPort
-from familyos_cli.application.testing import (
-    PytestResultNormalizer,
+from familyos_cli.application.ports.testing.testing_execution import (
+    TestingExecutionPort,
+)
+from familyos_cli.application.testing.test_execution_result import (
     TestExecutionStatus,
 )
 from familyos_cli.application.validation.ci_validation import (
@@ -18,10 +19,9 @@ from familyos_cli.application.validation.ci_validation import (
 
 @dataclass(frozen=True, slots=True)
 class PytestValidationGate:
-    """Translate canonical Testing results into CI validation evidence."""
+    """Translate canonical Testing Evidence into CI validation evidence."""
 
-    runner: PytestRunnerPort
-    normalizer: PytestResultNormalizer
+    execution: TestingExecutionPort
     project_root: Path
 
     @property
@@ -31,16 +31,14 @@ class PytestValidationGate:
         return "pytest"
 
     def execute(self) -> GateResult:
-        """Execute repository-wide pytest and return canonical gate evidence."""
+        """Execute canonical Testing and translate its evidence."""
 
-        native_result = self.runner.run(
+        evidence = self.execution.execute(
             project_root=self.project_root,
             test_paths=(),
         )
 
-        canonical_result = self.normalizer.normalize(
-            native_result,
-        )
+        canonical_result = evidence.result
 
         status = {
             TestExecutionStatus.PASSED: ValidationStatus.PASSED,
@@ -51,6 +49,6 @@ class PytestValidationGate:
         return GateResult(
             gate_id=self.gate_id,
             status=status,
-            exit_code=native_result.exit_code,
+            exit_code=evidence.native_exit_code,
             diagnostic=canonical_result.diagnostic,
         )

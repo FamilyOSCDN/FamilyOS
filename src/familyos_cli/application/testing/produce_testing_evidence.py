@@ -44,6 +44,7 @@ class ProduceTestingEvidenceUseCase(TestingEvidenceProducerPort):
         *,
         project_root: Path,
         result: TestExecutionResult,
+        native_exit_code: int | None = None,
     ) -> TestingEvidence:
         """Produce evidence for one established canonical test result."""
 
@@ -58,4 +59,5 @@ class ProduceTestingEvidenceUseCase(TestingEvidenceProducerPort):
             source_state=source_state,
             result=result,
             captured_at=captured_at,
+            native_exit_code=native_exit_code,
         )

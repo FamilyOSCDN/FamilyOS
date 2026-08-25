@@ -20,6 +20,7 @@ class TestingEvidenceProducerPort(ABC):
         *,
         project_root: Path,
         result: TestExecutionResult,
+        native_exit_code: int | None = None,
     ) -> TestingEvidence:
         """Produce canonical Testing Evidence for one execution."""
 

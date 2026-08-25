@@ -24,6 +24,7 @@ class TestingEvidenceFactory:
         source_state: TestingSourceState,
         result: TestExecutionResult,
         captured_at: datetime,
+        native_exit_code: int | None = None,
     ) -> TestingEvidence:
         """Build canonical evidence from one established test execution."""
 
@@ -37,4 +38,5 @@ class TestingEvidenceFactory:
             source_revision=source_state.revision,
             result=result,
             captured_at=captured_at,
+            native_exit_code=native_exit_code,
         )
