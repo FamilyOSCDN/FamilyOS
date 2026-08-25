@@ -2540,14 +2540,40 @@ Preserve exact artifact identity across automation stages.
 
 ### Checklist
 
-* [ ] Build artifact once.
-* [ ] Calculate digest.
-* [ ] Upload same artifact.
-* [ ] Download artifact in validation or release preparation stage.
-* [ ] Recalculate digest.
-* [ ] Compare digest.
-* [ ] Reject changed artifact.
-* [ ] Avoid rebuilding between build and validation jobs.
+* [x] Build artifact once.
+* [x] Calculate digest.
+* [x] Upload same artifact.
+* [x] Download artifact in validation or release preparation stage.
+* [x] Recalculate digest.
+* [x] Compare digest.
+* [x] Reject changed artifact.
+* [x] Avoid rebuilding between build and validation jobs.
+
+### Implementation Evidence
+
+* The canonical `validate` job performs the package build once and
+  uploads the resulting `dist/` candidates without rebuilding them.
+* Canonical Build Evidence records SHA-256 artifact integrity metadata
+  for the produced package candidates.
+* `familyos-package-candidates` transfers the exact candidate bytes
+  from the canonical build job to the downstream
+  `artifact-validation` job.
+* `familyos-build-evidence` transfers the corresponding canonical
+  Build Evidence separately from the candidate bytes.
+* The downstream artifact-validation stage recalculates SHA-256
+  digests from the downloaded candidate bytes and compares them with
+  the canonical integrity records.
+* Missing, unexpected, or digest-mismatched artifacts cause downstream
+  integrity validation to fail.
+* The downstream artifact-validation job contains no package build
+  operation and therefore validates transferred artifacts rather than
+  silently rebuilding them.
+* Structural and behavioral CI contracts cover producer/consumer
+  identity, evidence separation, action pinning, no-rebuild semantics,
+  successful identical-byte verification, and rejection of mutated,
+  missing, or unexpected artifacts.
+
+Level 30 — Artifact Transfer Across CI Jobs is complete at 8/8.
 
 ---
 

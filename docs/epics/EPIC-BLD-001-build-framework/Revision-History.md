@@ -2734,3 +2734,26 @@ CI Caching at 8/8.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 30 — Artifact Transfer Across CI Jobs
+
+Implemented exact artifact identity preservation across canonical CI
+automation stages.
+
+The canonical build job now uploads both the package candidates and
+their canonical Build Evidence. A distinct downstream
+`artifact-validation` job downloads those authorities without
+rebuilding the package.
+
+The downstream stage recalculates SHA-256 digests from the transferred
+candidate bytes and compares them with the integrity records contained
+in canonical Build Evidence. Missing, unexpected, and changed
+artifacts are rejected.
+
+Behavioral contracts additionally execute the downstream verifier
+against identical, mutated, missing, and unexpected artifact scenarios
+to prove the transfer-integrity semantics independently of workflow
+structure.
+
+This completes Level 30 at 8/8 while preserving the security and
+caching contracts established by Levels 28 and 29.

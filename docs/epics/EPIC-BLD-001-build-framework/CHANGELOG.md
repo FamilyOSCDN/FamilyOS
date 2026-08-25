@@ -1617,3 +1617,34 @@ Level 29 — CI Caching is complete at 8/8.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 30 — Artifact Transfer Across CI Jobs
+
+Completed canonical artifact transfer across CI jobs.
+
+### Added
+
+* Added a distinct downstream `artifact-validation` CI job.
+* Added canonical package-candidate transfer through
+  `familyos-package-candidates`.
+* Added canonical Build Evidence transfer through
+  `familyos-build-evidence`.
+* Added downstream SHA-256 integrity verification against canonical
+  Build Evidence.
+* Added rejection of missing, unexpected, and digest-mismatched
+  transferred artifacts.
+* Added structural and behavioral artifact-transfer CI contracts.
+* Added explicit no-downstream-rebuild enforcement.
+
+### Validation
+
+* Canonical package artifacts are built once in the producer job.
+* Downstream validation consumes the transferred artifact bytes.
+* Canonical Build Evidence remains separate from package candidates.
+* Identical transferred bytes pass integrity verification.
+* Mutated, missing, and unexpected artifacts fail integrity
+  verification.
+* External artifact-transfer actions remain pinned to commit SHA.
+* Levels 28 and 29 CI policy contracts remain green.
+
+Level 30 — Artifact Transfer Across CI Jobs is complete.
