@@ -34,6 +34,7 @@ from familyos_cli.application.build.effective_build_configuration_view import (
 from familyos_cli.application.build.source_state_validator import (
     SourceStateValidator,
 )
+from familyos_cli.application.validation import GateResult
 from familyos_cli.interfaces.cli.context import CommandContext
 from familyos_cli.interfaces.cli.rendering.build_evidence_json import (
     BuildEvidenceJsonRenderer,
@@ -59,6 +60,7 @@ def run_package_build(
     functional_validation: bool,
     profile: BuildProfile = BuildProfile.DEVELOPMENT,
     evidence_output: Path | None = None,
+    testing_validation_gate: GateResult | None = None,
 ) -> int:
     """Execute and render the canonical package build."""
 
@@ -174,25 +176,14 @@ def run_package_build(
                 )
             )
 
-            ci_validation = CommandContext().run_ci_validation.execute()
-
-            pytest_gate = next(
-                (
-                    gate
-                    for gate in ci_validation.gates
-                    if gate.gate_id == "pytest"
-                ),
-                None,
-            )
-
-            if pytest_gate is None:
+            if testing_validation_gate is None:
                 raise RuntimeError(
                     "release-candidate build lacks canonical "
                     "pytest validation authority"
                 )
 
             testing_checks = check_factory.from_testing_validation(
-                pytest_gate
+                testing_validation_gate
             )
 
             checks = (

@@ -158,6 +158,23 @@ def _default_ci_validation_result() -> Any:
     )
 
 
+def _default_testing_validation_gate() -> Any:
+    ci_validation = _default_ci_validation_result()
+
+    pytest_gate = next(
+        (
+            gate
+            for gate in ci_validation.gates
+            if gate.gate_id == "pytest"
+        ),
+        None,
+    )
+
+    assert pytest_gate is not None
+
+    return pytest_gate
+
+
 def _package_result(*, successful: bool) -> Any:
     return SimpleNamespace(
         successful=successful,
@@ -580,11 +597,18 @@ def test_evidence_validation_profile_matches_build_profile(
         captured=captured,
     )
 
+    testing_validation_gate = (
+        _default_testing_validation_gate()
+        if build_profile is BuildProfile.RELEASE_CANDIDATE
+        else None
+    )
+
     exit_code = build_command.run_package_build(
         tmp_path / "dist",
         functional_validation=False,
         profile=build_profile,
         evidence_output=tmp_path / "build-evidence.json",
+        testing_validation_gate=testing_validation_gate,
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1048,6 +1072,7 @@ def test_release_candidate_evidence_includes_source_validation_checks(
         functional_validation=False,
         profile=BuildProfile.RELEASE_CANDIDATE,
         evidence_output=evidence_output,
+        testing_validation_gate=_default_testing_validation_gate(),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1166,6 +1191,7 @@ def test_release_candidate_evidence_assembles_complete_existing_validation_autho
         functional_validation=False,
         profile=BuildProfile.RELEASE_CANDIDATE,
         evidence_output=evidence_output,
+        testing_validation_gate=_default_testing_validation_gate(),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1268,6 +1294,7 @@ def test_release_candidate_evidence_consumes_retained_pre_build_validation_autho
         functional_validation=False,
         profile=BuildProfile.RELEASE_CANDIDATE,
         evidence_output=evidence_output,
+        testing_validation_gate=_default_testing_validation_gate(),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1345,7 +1372,7 @@ def test_release_candidate_evidence_consumes_retained_pre_build_validation_autho
     assert testing_evidence_check.diagnostic is None
 
 
-def test_release_candidate_evidence_consumes_canonical_pytest_gate(
+def test_release_candidate_evidence_consumes_supplied_canonical_pytest_gate(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
@@ -1360,7 +1387,6 @@ def test_release_candidate_evidence_consumes_canonical_pytest_gate(
         TestingEvidence,
     )
     from familyos_cli.application.validation.ci_validation import (
-        CiValidationResult,
         GateResult,
         ValidationStatus,
     )
@@ -1368,7 +1394,7 @@ def test_release_candidate_evidence_consumes_canonical_pytest_gate(
     result = _package_result(successful=True)
     captured: dict[str, Any] = {}
 
-    base_context = _install_evidence_fakes(
+    context = _install_evidence_fakes(
         monkeypatch,
         package_result=result,
         captured=captured,
@@ -1411,43 +1437,18 @@ def test_release_candidate_evidence_consumes_canonical_pytest_gate(
         exit_code=0,
         testing_evidence=evidence,
     )
-    ci_result = CiValidationResult(
-        gates=(pytest_gate,),
-    )
-
-    class RunCiValidation:
-        def __init__(self) -> None:
-            self.calls = 0
-
-        def execute(self) -> CiValidationResult:
-            self.calls += 1
-            return ci_result
-
-    run_ci_validation = RunCiValidation()
-
-    class TestingAwareContext:
-        def __init__(self) -> None:
-            self.run_package_build = base_context.run_package_build
-            self.run_ci_validation = run_ci_validation
-
-    monkeypatch.setattr(
-        build_command,
-        "CommandContext",
-        TestingAwareContext,
-    )
-
-    evidence_output = tmp_path / "build-evidence.json"
 
     exit_code = build_command.run_package_build(
         tmp_path / "dist",
         functional_validation=False,
         profile=BuildProfile.RELEASE_CANDIDATE,
-        evidence_output=evidence_output,
+        evidence_output=tmp_path / "build-evidence.json",
+        testing_validation_gate=pytest_gate,
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
-    assert run_ci_validation.calls == 1
 
+    assert context.run_ci_validation.calls == 0
     assert captured["testing_validation_gate"] is pytest_gate
     assert (
         captured["testing_validation_gate"].testing_evidence
@@ -1465,50 +1466,17 @@ def test_release_candidate_evidence_consumes_canonical_pytest_gate(
     assert testing_check.diagnostic is None
 
 
-def test_release_candidate_evidence_requires_canonical_pytest_gate(
+def test_release_candidate_evidence_requires_supplied_testing_authority(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
-    from familyos_cli.application.validation.ci_validation import (
-        CiValidationResult,
-        GateResult,
-        ValidationStatus,
-    )
-
     result = _package_result(successful=True)
     captured: dict[str, Any] = {}
 
-    base_context = _install_evidence_fakes(
+    context = _install_evidence_fakes(
         monkeypatch,
         package_result=result,
         captured=captured,
-    )
-
-    ci_result = CiValidationResult(
-        gates=(
-            GateResult(
-                gate_id="ruff",
-                status=ValidationStatus.PASSED,
-                exit_code=0,
-            ),
-        ),
-    )
-
-    class RunCiValidation:
-        def execute(self) -> CiValidationResult:
-            return ci_result
-
-    run_ci_validation = RunCiValidation()
-
-    class TestingAwareContext:
-        def __init__(self) -> None:
-            self.run_package_build = base_context.run_package_build
-            self.run_ci_validation = run_ci_validation
-
-    monkeypatch.setattr(
-        build_command,
-        "CommandContext",
-        TestingAwareContext,
     )
 
     with pytest.raises(
@@ -1524,3 +1492,5 @@ def test_release_candidate_evidence_requires_canonical_pytest_gate(
             profile=BuildProfile.RELEASE_CANDIDATE,
             evidence_output=tmp_path / "build-evidence.json",
         )
+
+    assert context.run_ci_validation.calls == 0
