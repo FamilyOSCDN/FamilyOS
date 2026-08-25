@@ -2179,14 +2179,63 @@ Expose Build Evidence to EPIC-QLT-001.
 
 ### Checklist
 
-* [ ] Identify build-specific quality signals.
-* [ ] Expose validation results.
-* [ ] Expose artifact validation status.
-* [ ] Expose reproducibility evidence when available.
-* [ ] Define build quality-gate inputs.
-* [ ] Avoid defining independent competing quality policy.
-* [ ] Document ownership boundaries.
-* [ ] Integrate quality-gate failure with CI where applicable.
+* [x] Identify build-specific quality signals.
+* [x] Expose validation results.
+* [x] Expose artifact validation status.
+* [x] Expose reproducibility evidence when available.
+* [x] Define build quality-gate inputs.
+* [x] Avoid defining independent competing quality policy.
+* [x] Document ownership boundaries.
+* [x] Integrate quality-gate failure with CI where applicable.
+
+### Implementation evidence
+
+The Build Framework exposes build-specific quality signals through canonical
+Build Validation and Build Evidence rather than defining an independent
+Quality Framework.
+
+Canonical Build Evidence records the source state, dependency state, critical
+toolchain state, environment state, effective configuration, aggregate Build
+Validation result, artifact manifest, and artifact integrity records. Its
+deterministic JSON representation exposes these authorities for downstream
+quality evaluation and automation.
+
+Build Validation exposes individual validation checks with explicit check
+identity, domain, requirement, status, and diagnostic information. Artifact
+validation state is represented through the artifact and functional-artifact
+validation domains and through the structural validation status recorded in
+artifact-manifest entries.
+
+Reproducibility-related evidence is exposed when currently available through
+captured source, dependency, toolchain, environment, configuration, artifact
+identity, manifest, and digest authorities. Level 21 does not claim
+byte-for-byte reproducibility and does not introduce a synthetic
+reproducibility decision. Stronger reproducibility assessment remains governed
+by the dedicated reproducibility maturity levels.
+
+Build quality-gate inputs are therefore the canonical Build Validation result
+and the structured evidence authorities supporting it. Existing canonical
+validation gates such as Ruff, MyPy, Pytest, dependency validation, build
+validation, and artifact validation remain owned by their respective
+frameworks and validation authorities. Build consumes or projects those
+results where required instead of redefining their quality policy.
+
+EPIC-QLT-001 remains responsible for cross-cutting quality rules, evidence
+interpretation, quality-gate policy, and quality decisions. EPIC-BLD-001
+remains responsible for producing reproducible build artifacts, enforcing
+build-specific validation, and exposing trustworthy Build Evidence. Testing,
+Quality, Compliance, Release, and other framework authorities retain their
+existing ownership boundaries.
+
+CI executes the canonical mandatory validation gates and fails when required
+validation fails. The canonical package build, Build Evidence collection,
+artifact transfer verification, artifact validation, and release-handoff
+preparation therefore remain downstream of successful authoritative
+validation rather than establishing a competing quality decision path.
+
+No independent Quality Framework, quality-rule engine, or competing
+cross-framework quality policy is introduced into the Build application
+layer.
 
 ---
 
