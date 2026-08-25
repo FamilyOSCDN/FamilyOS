@@ -2243,18 +2243,57 @@ layer.
 
 ## Objective
 
-Ensure official plugin builds can consume EPIC-PLUGIN-002 compliance results.
+Integrate EPIC-PLUGIN-002 compliance authority without duplicating
+plugin-compliance ownership inside the Build Framework.
 
 ### Checklist
 
-* [ ] Identify plugin build targets.
-* [ ] Validate plugin metadata before packaging.
-* [ ] Invoke required compliance checks.
-* [ ] Capture compliance result.
-* [ ] Block trusted plugin artifact creation on blocking compliance findings.
-* [ ] Preserve compliance evidence.
-* [ ] Ensure Build Framework does not redefine compliance rules.
-* [ ] Add representative official-plugin build tests.
+* [x] Consume canonical builtin-plugin compliance authority.
+* [x] Preserve EPIC-PLUGIN-002 ownership of compliance rules.
+* [x] Require the canonical `official` compliance profile.
+* [x] Reject successful compliance gates without plugin results.
+* [x] Fail Build Validation when mandatory plugin compliance fails.
+* [x] Preserve plugin-compliance authority across CI Validation Evidence.
+* [x] Preserve plugin-compliance results in Build Validation and Build Evidence.
+* [x] Avoid introducing a separate plugin build target without architectural need.
+
+### Implementation evidence
+
+Plugin compliance execution, rules, profiles, validators, findings, and
+compliance decisions remain owned by EPIC-PLUGIN-002. The Build Framework
+does not import or execute the compliance engine directly.
+
+Release-candidate builds consume the canonical
+`builtin-plugin-compliance` gate from supplied CI Validation Evidence.
+The gate must use the canonical `official` profile. A successful gate
+must also contain plugin evaluation results; an empty successful result
+is rejected as insufficient compliance authority.
+
+Build Validation projects the consumed compliance gate into the required
+`official-plugin-compliance` check under the canonical `COMPLIANCE`
+validation domain. Failed or errored compliance authority therefore
+blocks release-candidate Build Validation without transferring
+compliance execution ownership into the Build Framework.
+
+Canonical CI Validation JSON preserves `profile_id`, plugin summaries,
+plugin status, diagnostics, and rule outcomes across the renderer/loader
+boundary. This allows release-candidate builds to consume the same
+compliance authority produced by CI rather than reconstructing or
+re-executing it.
+
+The resulting `official-plugin-compliance` validation check is preserved
+alongside `release-readiness-testing` and the other canonical Build
+Validation authorities in Build Evidence.
+
+The canonical Build target remains `FAMILYOS_CLI_PACKAGE`. Builtin
+plugins are packaged and validated as components of that package, so
+Level 22 does not introduce an artificial plugin-specific build target.
+
+Repository-wide validation for this level completed with Ruff passing,
+MyPy passing on 1338 source files, 1742 Pytest tests passing, and 114
+targeted Level 22 contracts passing. Architectural guards confirmed zero
+direct compliance-engine imports and zero compliance execution authority
+inside the Build application layer.
 
 ---
 

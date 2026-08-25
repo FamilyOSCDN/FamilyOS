@@ -18,6 +18,8 @@ from familyos_cli.application.validation import (
     CI_VALIDATION_SCHEMA_VERSION,
     CiValidationResult,
     GateResult,
+    PluginRuleSummary,
+    PluginValidationSummary,
     ValidationStatus,
 )
 
@@ -129,12 +131,134 @@ class CiValidationJsonLoader:
             )
         )
 
+        profile_id = payload.get("profile_id")
+
+        if profile_id is not None and (
+            not isinstance(profile_id, str)
+            or not profile_id
+        ):
+            raise ValueError(
+                "CI validation gate profile_id "
+                "must be a non-empty string or null"
+            )
+
+        plugins_payload = payload.get("plugins")
+
+        if profile_id is None:
+            if plugins_payload is not None:
+                raise ValueError(
+                    "CI validation gate plugins require profile_id"
+                )
+            plugins: tuple[PluginValidationSummary, ...] = ()
+        else:
+            if not isinstance(plugins_payload, list):
+                raise ValueError(
+                    "CI validation gate plugins are required "
+                    "when profile_id is present"
+                )
+
+            plugins = tuple(
+                self._load_plugin_summary(plugin)
+                for plugin in plugins_payload
+            )
+
         return GateResult(
             gate_id=gate_id,
             status=status,
             exit_code=exit_code,
             diagnostic=diagnostic,
+            profile_id=profile_id,
+            plugins=plugins,
             testing_evidence=testing_evidence,
+        )
+
+    def _load_plugin_summary(
+        self,
+        payload: Any,
+    ) -> PluginValidationSummary:
+        if not isinstance(payload, dict):
+            raise ValueError(
+                "CI validation plugin summary must be an object"
+            )
+
+        plugin_id = self._required_string(
+            payload,
+            "plugin_id",
+            diagnostic="CI validation plugin_id is required",
+        )
+
+        plugin_version = self._required_string(
+            payload,
+            "plugin_version",
+            diagnostic="CI validation plugin_version is required",
+        )
+
+        plugin_status = self._required_string(
+            payload,
+            "status",
+            diagnostic="CI validation plugin status is required",
+        )
+
+        diagnostic = payload.get("diagnostic")
+
+        if diagnostic is not None and not isinstance(
+            diagnostic,
+            str,
+        ):
+            raise ValueError(
+                "CI validation plugin diagnostic "
+                "must be a string or null"
+            )
+
+        rule_outcomes_payload = payload.get("rule_outcomes")
+
+        if not isinstance(rule_outcomes_payload, list):
+            raise ValueError(
+                "CI validation plugin rule_outcomes are required"
+            )
+
+        rule_outcomes = tuple(
+            self._load_plugin_rule_summary(rule)
+            for rule in rule_outcomes_payload
+        )
+
+        return PluginValidationSummary(
+            plugin_id=plugin_id,
+            plugin_version=plugin_version,
+            status=plugin_status,
+            rule_outcomes=rule_outcomes,
+            diagnostic=diagnostic,
+        )
+
+    def _load_plugin_rule_summary(
+        self,
+        payload: Any,
+    ) -> PluginRuleSummary:
+        if not isinstance(payload, dict):
+            raise ValueError(
+                "CI validation plugin rule outcome must be an object"
+            )
+
+        return PluginRuleSummary(
+            rule_id=self._required_string(
+                payload,
+                "rule_id",
+                diagnostic="CI validation plugin rule_id is required",
+            ),
+            outcome=self._required_string(
+                payload,
+                "outcome",
+                diagnostic=(
+                    "CI validation plugin rule outcome is required"
+                ),
+            ),
+            severity=self._required_string(
+                payload,
+                "severity",
+                diagnostic=(
+                    "CI validation plugin rule severity is required"
+                ),
+            ),
         )
 
     def _load_testing_evidence(

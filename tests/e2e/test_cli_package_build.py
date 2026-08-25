@@ -542,7 +542,7 @@ def test_real_familyos_ci_build_evidence_captures_dependency_state_and_profile(
 def test_real_release_candidate_build_consumes_fresh_validation_evidence(
     tmp_path: Path,
 ) -> None:
-    """RC build consumes external fresh canonical pytest authority."""
+    """RC build consumes canonical testing and compliance authority."""
     import subprocess
     from datetime import UTC, datetime
     from uuid import uuid4
@@ -557,6 +557,8 @@ def test_real_release_candidate_build_consumes_fresh_validation_evidence(
     from familyos_cli.application.validation import (
         CiValidationResult,
         GateResult,
+        PluginRuleSummary,
+        PluginValidationSummary,
         ValidationStatus,
     )
     from familyos_cli.interfaces.cli.rendering.ci_validation_json import (
@@ -663,6 +665,27 @@ def test_real_release_candidate_build_consumes_fresh_validation_evidence(
                 status=ValidationStatus.PASSED,
                 exit_code=0,
                 testing_evidence=testing_evidence,
+            ),
+            GateResult(
+                gate_id="builtin-plugin-compliance",
+                status=ValidationStatus.PASSED,
+                exit_code=0,
+                profile_id="official",
+                plugins=(
+                    PluginValidationSummary(
+                        plugin_id="familyos.security",
+                        plugin_version="1.0.0",
+                        status="compliant",
+                        rule_outcomes=(
+                            PluginRuleSummary(
+                                rule_id="metadata.version-format",
+                                outcome="passed",
+                                severity="error",
+                            ),
+                        ),
+                        diagnostic=None,
+                    ),
+                ),
             ),
         ),
     )

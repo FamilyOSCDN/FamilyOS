@@ -43,6 +43,7 @@ class BuildValidationDomain(StrEnum):
     TOOLCHAIN = "toolchain"
     ENVIRONMENT = "environment"
     TESTING = "testing"
+    COMPLIANCE = "compliance"
     EXECUTION = "execution"
     ARTIFACT = "artifact"
     METADATA = "metadata"

@@ -235,3 +235,202 @@ def test_renderer_loader_round_trip_preserves_pytest_authority() -> None:
     assert evidence.result.status is testing_evidence.result.status
     assert evidence.result.summary == testing_evidence.result.summary
     assert evidence.result.diagnostic == testing_evidence.result.diagnostic
+
+
+def _compliance_payload() -> dict[str, object]:
+    return {
+        "schema_version": CI_VALIDATION_SCHEMA_VERSION,
+        "profile": "ci",
+        "status": "passed",
+        "gates": [
+            {
+                "id": "builtin-plugin-compliance",
+                "status": "passed",
+                "exit_code": 0,
+                "diagnostic": None,
+                "profile_id": "official",
+                "plugins": [
+                    {
+                        "plugin_id": "familyos.security",
+                        "plugin_version": "1.0.0",
+                        "status": "compliant",
+                        "diagnostic": None,
+                        "rule_outcomes": [
+                            {
+                                "rule_id": "metadata.version-format",
+                                "outcome": "passed",
+                                "severity": "error",
+                            },
+                            {
+                                "rule_id": "structure.package-layout",
+                                "outcome": "passed",
+                                "severity": "error",
+                            },
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+
+
+def test_loader_reconstructs_canonical_plugin_compliance_authority() -> None:
+    result = CiValidationJsonLoader().load(
+        json.dumps(_compliance_payload())
+    )
+
+    assert len(result.gates) == 1
+
+    gate = result.gates[0]
+
+    assert gate.gate_id == "builtin-plugin-compliance"
+    assert gate.status is ValidationStatus.PASSED
+    assert gate.exit_code == 0
+    assert gate.diagnostic is None
+    assert gate.profile_id == "official"
+
+    assert len(gate.plugins) == 1
+
+    plugin = gate.plugins[0]
+
+    assert plugin.plugin_id == "familyos.security"
+    assert plugin.plugin_version == "1.0.0"
+    assert plugin.status == "compliant"
+    assert plugin.diagnostic is None
+
+    assert len(plugin.rule_outcomes) == 2
+
+    first_rule = plugin.rule_outcomes[0]
+
+    assert first_rule.rule_id == "metadata.version-format"
+    assert first_rule.outcome == "passed"
+    assert first_rule.severity == "error"
+
+
+def test_renderer_loader_round_trip_preserves_plugin_compliance_authority() -> None:
+    from familyos_cli.application.validation import (
+        CiValidationResult,
+        GateResult,
+        PluginRuleSummary,
+        PluginValidationSummary,
+    )
+    from familyos_cli.interfaces.cli.rendering.ci_validation_json import (
+        CiValidationJsonRenderer,
+    )
+
+    original = CiValidationResult(
+        gates=(
+            GateResult(
+                gate_id="builtin-plugin-compliance",
+                status=ValidationStatus.PASSED,
+                exit_code=0,
+                profile_id="official",
+                plugins=(
+                    PluginValidationSummary(
+                        plugin_id="familyos.security",
+                        plugin_version="1.0.0",
+                        status="compliant",
+                        diagnostic=None,
+                        rule_outcomes=(
+                            PluginRuleSummary(
+                                rule_id="metadata.version-format",
+                                outcome="passed",
+                                severity="error",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    rendered = CiValidationJsonRenderer().render(original)
+    reconstructed = CiValidationJsonLoader().load(rendered)
+
+    assert reconstructed == original
+
+
+def test_loader_rejects_plugins_without_profile_id() -> None:
+    payload = _compliance_payload()
+
+    gates = payload["gates"]
+    assert isinstance(gates, list)
+
+    gate = gates[0]
+    assert isinstance(gate, dict)
+
+    del gate["profile_id"]
+
+    with pytest.raises(
+        ValueError,
+        match="plugins require profile_id",
+    ):
+        CiValidationJsonLoader().load(
+            json.dumps(payload)
+        )
+
+
+def test_loader_rejects_profile_without_plugins() -> None:
+    payload = _compliance_payload()
+
+    gates = payload["gates"]
+    assert isinstance(gates, list)
+
+    gate = gates[0]
+    assert isinstance(gate, dict)
+
+    del gate["plugins"]
+
+    with pytest.raises(
+        ValueError,
+        match="plugins are required when profile_id is present",
+    ):
+        CiValidationJsonLoader().load(
+            json.dumps(payload)
+        )
+
+
+def test_loader_rejects_invalid_plugin_summary() -> None:
+    payload = _compliance_payload()
+
+    gates = payload["gates"]
+    assert isinstance(gates, list)
+
+    gate = gates[0]
+    assert isinstance(gate, dict)
+
+    gate["plugins"] = ["not-an-object"]
+
+    with pytest.raises(
+        ValueError,
+        match="plugin summary must be an object",
+    ):
+        CiValidationJsonLoader().load(
+            json.dumps(payload)
+        )
+
+
+def test_loader_rejects_invalid_plugin_rule_outcome() -> None:
+    payload = _compliance_payload()
+
+    gates = payload["gates"]
+    assert isinstance(gates, list)
+
+    gate = gates[0]
+    assert isinstance(gate, dict)
+
+    plugins = gate["plugins"]
+    assert isinstance(plugins, list)
+
+    plugin = plugins[0]
+    assert isinstance(plugin, dict)
+
+    plugin["rule_outcomes"] = ["not-an-object"]
+
+    with pytest.raises(
+        ValueError,
+        match="plugin rule outcome must be an object",
+    ):
+        CiValidationJsonLoader().load(
+            json.dumps(payload)
+        )

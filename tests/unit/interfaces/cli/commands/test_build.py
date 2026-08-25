@@ -159,6 +159,30 @@ def _default_ci_validation_result() -> Any:
                 exit_code=0,
                 testing_evidence=testing_evidence,
             ),
+            _default_plugin_compliance_validation_gate(),
+        ),
+    )
+
+
+def _default_plugin_compliance_validation_gate() -> Any:
+    from familyos_cli.application.validation import (
+        GateResult,
+        PluginValidationSummary,
+        ValidationStatus,
+    )
+
+    return GateResult(
+        gate_id="builtin-plugin-compliance",
+        status=ValidationStatus.PASSED,
+        exit_code=0,
+        profile_id="official",
+        plugins=(
+            PluginValidationSummary(
+                plugin_id="familyos.security",
+                plugin_version="1.0.0",
+                status="compliant",
+                rule_outcomes=(),
+            ),
         ),
     )
 
@@ -322,6 +346,27 @@ def _install_evidence_fakes(
                 BuildValidationCheckResult(
                     check_id="release-readiness-testing",
                     domain=BuildValidationDomain.TESTING,
+                    requirement=BuildValidationRequirement.REQUIRED,
+                    status=BuildValidationStatus.PASSED,
+                ),
+            )
+
+        def from_plugin_compliance_validation(
+            self,
+            gate: Any,
+        ) -> tuple[Any, ...]:
+            captured["plugin_compliance_validation_gate"] = gate
+            from familyos_cli.application.build.build_validation import (
+                BuildValidationCheckResult,
+                BuildValidationDomain,
+                BuildValidationRequirement,
+                BuildValidationStatus,
+            )
+
+            return (
+                BuildValidationCheckResult(
+                    check_id="official-plugin-compliance",
+                    domain=BuildValidationDomain.COMPLIANCE,
                     requirement=BuildValidationRequirement.REQUIRED,
                     status=BuildValidationStatus.PASSED,
                 ),
@@ -618,6 +663,11 @@ def test_evidence_validation_profile_matches_build_profile(
         if build_profile is BuildProfile.RELEASE_CANDIDATE
         else None
     )
+    plugin_compliance_validation_gate = (
+        _default_plugin_compliance_validation_gate()
+        if build_profile is BuildProfile.RELEASE_CANDIDATE
+        else None
+    )
 
     exit_code = build_command.run_package_build(
         tmp_path / "dist",
@@ -625,6 +675,9 @@ def test_evidence_validation_profile_matches_build_profile(
         profile=build_profile,
         evidence_output=tmp_path / "build-evidence.json",
         testing_validation_gate=testing_validation_gate,
+        plugin_compliance_validation_gate=(
+            plugin_compliance_validation_gate
+        ),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1089,6 +1142,7 @@ def test_release_candidate_evidence_includes_source_validation_checks(
         profile=BuildProfile.RELEASE_CANDIDATE,
         evidence_output=evidence_output,
         testing_validation_gate=_default_testing_validation_gate(),
+        plugin_compliance_validation_gate=_default_plugin_compliance_validation_gate(),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1102,7 +1156,7 @@ def test_release_candidate_evidence_includes_source_validation_checks(
         BuildValidationProfile.RELEASE_CANDIDATE
     )
 
-    assert captured["validation_checks"][:-1] == (
+    assert captured["validation_checks"][:-2] == (
         "package-checks",
         "source-checks",
         "input-checks",
@@ -1111,7 +1165,10 @@ def test_release_candidate_evidence_includes_source_validation_checks(
         "environment-checks",
     )
 
-    testing_check = captured["validation_checks"][-1]
+    testing_check = captured["validation_checks"][-2]
+    compliance_check = captured["validation_checks"][-1]
+
+    assert compliance_check.check_id == "official-plugin-compliance"
 
     assert testing_check.check_id == "release-readiness-testing"
     assert testing_check.domain is BuildValidationDomain.TESTING
@@ -1125,7 +1182,7 @@ def test_release_candidate_evidence_includes_source_validation_checks(
         captured["evidence_validation_result"].checks
     )
 
-    assert evidence_checks[:-1] == (
+    assert evidence_checks[:-2] == (
         "package-checks",
         "source-checks",
         "input-checks",
@@ -1134,7 +1191,13 @@ def test_release_candidate_evidence_includes_source_validation_checks(
         "environment-checks",
     )
 
-    testing_evidence_check = evidence_checks[-1]
+    testing_evidence_check = evidence_checks[-2]
+    compliance_evidence_check = evidence_checks[-1]
+
+    assert (
+        compliance_evidence_check.check_id
+        == "official-plugin-compliance"
+    )
 
     assert (
         testing_evidence_check.check_id
@@ -1208,6 +1271,7 @@ def test_release_candidate_evidence_assembles_complete_existing_validation_autho
         profile=BuildProfile.RELEASE_CANDIDATE,
         evidence_output=evidence_output,
         testing_validation_gate=_default_testing_validation_gate(),
+        plugin_compliance_validation_gate=_default_plugin_compliance_validation_gate(),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1216,7 +1280,7 @@ def test_release_candidate_evidence_assembles_complete_existing_validation_autho
         BuildValidationProfile.RELEASE_CANDIDATE
     )
 
-    assert captured["validation_checks"][:-1] == (
+    assert captured["validation_checks"][:-2] == (
         "package-checks",
         "source-checks",
         "input-checks",
@@ -1225,7 +1289,10 @@ def test_release_candidate_evidence_assembles_complete_existing_validation_autho
         "environment-checks",
     )
 
-    testing_check = captured["validation_checks"][-1]
+    testing_check = captured["validation_checks"][-2]
+    compliance_check = captured["validation_checks"][-1]
+
+    assert compliance_check.check_id == "official-plugin-compliance"
 
     assert testing_check.check_id == "release-readiness-testing"
     assert testing_check.domain is BuildValidationDomain.TESTING
@@ -1311,6 +1378,7 @@ def test_release_candidate_evidence_consumes_retained_pre_build_validation_autho
         profile=BuildProfile.RELEASE_CANDIDATE,
         evidence_output=evidence_output,
         testing_validation_gate=_default_testing_validation_gate(),
+        plugin_compliance_validation_gate=_default_plugin_compliance_validation_gate(),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1335,7 +1403,7 @@ def test_release_candidate_evidence_consumes_retained_pre_build_validation_autho
     )
     assert captured["environment_validation_kwargs"] == {}
 
-    assert captured["validation_checks"][:-1] == (
+    assert captured["validation_checks"][:-2] == (
         "package-checks",
         "source-checks",
         "input-checks",
@@ -1344,7 +1412,10 @@ def test_release_candidate_evidence_consumes_retained_pre_build_validation_autho
         "environment-checks",
     )
 
-    testing_check = captured["validation_checks"][-1]
+    testing_check = captured["validation_checks"][-2]
+    compliance_check = captured["validation_checks"][-1]
+
+    assert compliance_check.check_id == "official-plugin-compliance"
 
     assert testing_check.check_id == "release-readiness-testing"
     assert testing_check.domain is BuildValidationDomain.TESTING
@@ -1358,7 +1429,7 @@ def test_release_candidate_evidence_consumes_retained_pre_build_validation_autho
         captured["evidence_validation_result"].checks
     )
 
-    assert evidence_checks[:-1] == (
+    assert evidence_checks[:-2] == (
         "package-checks",
         "source-checks",
         "input-checks",
@@ -1367,7 +1438,13 @@ def test_release_candidate_evidence_consumes_retained_pre_build_validation_autho
         "environment-checks",
     )
 
-    testing_evidence_check = evidence_checks[-1]
+    testing_evidence_check = evidence_checks[-2]
+    compliance_evidence_check = evidence_checks[-1]
+
+    assert (
+        compliance_evidence_check.check_id
+        == "official-plugin-compliance"
+    )
 
     assert (
         testing_evidence_check.check_id
@@ -1460,6 +1537,9 @@ def test_release_candidate_evidence_consumes_supplied_canonical_pytest_gate(
         profile=BuildProfile.RELEASE_CANDIDATE,
         evidence_output=tmp_path / "build-evidence.json",
         testing_validation_gate=pytest_gate,
+        plugin_compliance_validation_gate=(
+            _default_plugin_compliance_validation_gate()
+        ),
     )
 
     assert exit_code == build_command.EXIT_SUCCESS
@@ -1471,9 +1551,11 @@ def test_release_candidate_evidence_consumes_supplied_canonical_pytest_gate(
         is evidence
     )
 
-    testing_check = captured["validation_checks"][-1]
+    testing_check = captured["validation_checks"][-2]
+    compliance_check = captured["validation_checks"][-1]
 
     assert testing_check.check_id == "release-readiness-testing"
+    assert compliance_check.check_id == "official-plugin-compliance"
     assert testing_check.domain is BuildValidationDomain.TESTING
     assert testing_check.requirement is (
         BuildValidationRequirement.REQUIRED
@@ -1585,6 +1667,7 @@ def test_release_candidate_cli_loads_testing_authority_from_validation_evidence(
                         exit_code=0,
                         testing_evidence=evidence,
                     ),
+                    _default_plugin_compliance_validation_gate(),
                 ),
             )
         ),
@@ -1620,12 +1703,16 @@ def test_release_candidate_cli_loads_testing_authority_from_validation_evidence(
         profile: BuildProfile,
         evidence_output: Path | None,
         testing_validation_gate: GateResult | None = None,
+        plugin_compliance_validation_gate: GateResult | None = None,
     ) -> int:
         captured["output_dir"] = output_dir
         captured["functional_validation"] = functional_validation
         captured["profile"] = profile
         captured["evidence_output"] = evidence_output
         captured["testing_validation_gate"] = testing_validation_gate
+        captured["plugin_compliance_validation_gate"] = (
+            plugin_compliance_validation_gate
+        )
         return build_command.EXIT_SUCCESS
 
     monkeypatch.setattr(
@@ -1665,6 +1752,14 @@ def test_release_candidate_cli_loads_testing_authority_from_validation_evidence(
         "0123456789abcdef0123456789abcdef01234567"
     )
     assert gate.testing_evidence.source_dirty is False
+
+    compliance_gate = captured["plugin_compliance_validation_gate"]
+
+    assert compliance_gate is not None
+    assert compliance_gate.gate_id == "builtin-plugin-compliance"
+    assert compliance_gate.status is ValidationStatus.PASSED
+    assert compliance_gate.profile_id == "official"
+    assert compliance_gate.plugins
 
 
 def test_release_candidate_cli_rejects_validation_evidence_without_pytest_gate(

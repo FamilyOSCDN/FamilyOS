@@ -343,6 +343,49 @@ class BuildValidationCheckFactory:
             ),
         )
 
+    def from_plugin_compliance_validation(
+        self,
+        gate: GateResult,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Project canonical official-plugin compliance authority."""
+
+        if gate.gate_id != "builtin-plugin-compliance":
+            raise ValueError(
+                "plugin compliance requires canonical "
+                "builtin-plugin-compliance gate"
+            )
+
+        if gate.profile_id != "official":
+            raise ValueError(
+                "plugin compliance requires canonical official profile"
+            )
+
+        if gate.status is ValidationStatus.PASSED and not gate.plugins:
+            raise ValueError(
+                "successful plugin compliance requires plugin results"
+            )
+
+        successful = gate.status is ValidationStatus.PASSED
+
+        return (
+            BuildValidationCheckResult(
+                check_id="official-plugin-compliance",
+                domain=BuildValidationDomain.COMPLIANCE,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if successful
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if successful
+                    else gate.diagnostic
+                    or "Canonical official-plugin compliance failed"
+                ),
+            ),
+        )
+
     def from_dependency_validation(
         self,
         gates: tuple[GateResult, ...],

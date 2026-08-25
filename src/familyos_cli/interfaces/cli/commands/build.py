@@ -78,6 +78,7 @@ def run_package_build(
     profile: BuildProfile = BuildProfile.DEVELOPMENT,
     evidence_output: Path | None = None,
     testing_validation_gate: GateResult | None = None,
+    plugin_compliance_validation_gate: GateResult | None = None,
 ) -> int:
     """Execute and render the canonical package build."""
 
@@ -205,6 +206,18 @@ def run_package_build(
                 testing_validation_gate
             )
 
+            if plugin_compliance_validation_gate is None:
+                raise RuntimeError(
+                    "release-candidate build lacks canonical "
+                    "official plugin compliance authority"
+                )
+
+            compliance_checks = (
+                check_factory.from_plugin_compliance_validation(
+                    plugin_compliance_validation_gate
+                )
+            )
+
             checks = (
                 checks
                 + source_checks
@@ -213,6 +226,7 @@ def run_package_build(
                 + toolchain_checks
                 + environment_checks
                 + testing_checks
+                + compliance_checks
             )
 
         validation_result = BuildValidationOrchestrator().execute(
@@ -418,6 +432,7 @@ def build(
     """Build the FamilyOS wheel and source distribution without publishing."""
 
     testing_validation_gate = None
+    plugin_compliance_validation_gate = None
 
     if validation_evidence is not None:
         validation_result = CiValidationJsonLoader().load(
@@ -433,6 +448,15 @@ def build(
             None,
         )
 
+        plugin_compliance_validation_gate = next(
+            (
+                gate
+                for gate in validation_result.gates
+                if gate.gate_id == "builtin-plugin-compliance"
+            ),
+            None,
+        )
+
         if (
             profile is BuildProfile.RELEASE_CANDIDATE
             and testing_validation_gate is None
@@ -440,6 +464,16 @@ def build(
             typer.echo(
                 "release-candidate build lacks canonical "
                 "pytest validation authority"
+            )
+            raise typer.Exit(code=EXIT_FAILURE)
+
+        if (
+            profile is BuildProfile.RELEASE_CANDIDATE
+            and plugin_compliance_validation_gate is None
+        ):
+            typer.echo(
+                "release-candidate build lacks canonical "
+                "official plugin compliance authority"
             )
             raise typer.Exit(code=EXIT_FAILURE)
 
@@ -490,6 +524,9 @@ def build(
         profile=profile,
         evidence_output=evidence_output,
         testing_validation_gate=testing_validation_gate,
+        plugin_compliance_validation_gate=(
+            plugin_compliance_validation_gate
+        ),
     )
 
     if exit_code != EXIT_SUCCESS:

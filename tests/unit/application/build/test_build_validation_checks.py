@@ -1447,3 +1447,200 @@ def test_testing_validation_failure_does_not_require_successful_evidence() -> No
     assert check.requirement is BuildValidationRequirement.REQUIRED
     assert check.status is BuildValidationStatus.FAILED
     assert check.diagnostic == "canonical pytest suite failed"
+
+
+def test_plugin_compliance_validation_projects_passing_official_gate() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationDomain,
+        BuildValidationRequirement,
+        BuildValidationStatus,
+    )
+    from familyos_cli.application.build.build_validation_checks import (
+        BuildValidationCheckFactory,
+    )
+    from familyos_cli.application.validation import (
+        GateResult,
+        PluginValidationSummary,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="builtin-plugin-compliance",
+        status=ValidationStatus.PASSED,
+        profile_id="official",
+        plugins=(
+            PluginValidationSummary(
+                plugin_id="familyos.security",
+                plugin_version="1.0.0",
+                status="compliant",
+                rule_outcomes=(),
+            ),
+        ),
+    )
+
+    checks = BuildValidationCheckFactory().from_plugin_compliance_validation(
+        gate
+    )
+
+    assert len(checks) == 1
+
+    check = checks[0]
+
+    assert check.check_id == "official-plugin-compliance"
+    assert check.domain is BuildValidationDomain.COMPLIANCE
+    assert check.requirement is BuildValidationRequirement.REQUIRED
+    assert check.status is BuildValidationStatus.PASSED
+    assert check.diagnostic is None
+
+
+def test_plugin_compliance_validation_projects_failed_gate() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationStatus,
+    )
+    from familyos_cli.application.build.build_validation_checks import (
+        BuildValidationCheckFactory,
+    )
+    from familyos_cli.application.validation import (
+        GateResult,
+        PluginValidationSummary,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="builtin-plugin-compliance",
+        status=ValidationStatus.FAILED,
+        diagnostic="familyos.security is non-compliant",
+        profile_id="official",
+        plugins=(
+            PluginValidationSummary(
+                plugin_id="familyos.security",
+                plugin_version="1.0.0",
+                status="non_compliant",
+                rule_outcomes=(),
+            ),
+        ),
+    )
+
+    check = (
+        BuildValidationCheckFactory()
+        .from_plugin_compliance_validation(gate)[0]
+    )
+
+    assert check.status is BuildValidationStatus.FAILED
+    assert check.diagnostic == "familyos.security is non-compliant"
+
+
+def test_plugin_compliance_validation_projects_error_gate() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationStatus,
+    )
+    from familyos_cli.application.build.build_validation_checks import (
+        BuildValidationCheckFactory,
+    )
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="builtin-plugin-compliance",
+        status=ValidationStatus.ERROR,
+        diagnostic="compliance evaluation failed",
+        profile_id="official",
+    )
+
+    check = (
+        BuildValidationCheckFactory()
+        .from_plugin_compliance_validation(gate)[0]
+    )
+
+    assert check.status is BuildValidationStatus.FAILED
+    assert check.diagnostic == "compliance evaluation failed"
+
+
+def test_plugin_compliance_validation_rejects_noncanonical_gate() -> None:
+    import pytest
+
+    from familyos_cli.application.build.build_validation_checks import (
+        BuildValidationCheckFactory,
+    )
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="pytest",
+        status=ValidationStatus.PASSED,
+        profile_id="official",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="requires canonical builtin-plugin-compliance gate",
+    ):
+        BuildValidationCheckFactory().from_plugin_compliance_validation(
+            gate
+        )
+
+
+def test_plugin_compliance_validation_rejects_nonofficial_profile() -> None:
+    import pytest
+
+    from familyos_cli.application.build.build_validation_checks import (
+        BuildValidationCheckFactory,
+    )
+    from familyos_cli.application.validation import (
+        GateResult,
+        PluginValidationSummary,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="builtin-plugin-compliance",
+        status=ValidationStatus.PASSED,
+        profile_id="development",
+        plugins=(
+            PluginValidationSummary(
+                plugin_id="familyos.security",
+                plugin_version="1.0.0",
+                status="compliant",
+                rule_outcomes=(),
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="requires canonical official profile",
+    ):
+        BuildValidationCheckFactory().from_plugin_compliance_validation(
+            gate
+        )
+
+
+def test_plugin_compliance_validation_rejects_empty_success() -> None:
+    import pytest
+
+    from familyos_cli.application.build.build_validation_checks import (
+        BuildValidationCheckFactory,
+    )
+    from familyos_cli.application.validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="builtin-plugin-compliance",
+        status=ValidationStatus.PASSED,
+        profile_id="official",
+        plugins=(),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="successful plugin compliance requires plugin results",
+    ):
+        BuildValidationCheckFactory().from_plugin_compliance_validation(
+            gate
+        )
