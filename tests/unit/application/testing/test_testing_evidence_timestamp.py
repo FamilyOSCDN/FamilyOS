@@ -62,6 +62,7 @@ def test_evidence_preserves_captured_timestamp() -> None:
     evidence = CanonicalTestingEvidence(
         execution_id=_execution_id(),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=_result(),
         captured_at=captured_at,
     )
@@ -77,6 +78,7 @@ def test_evidence_requires_timezone_aware_timestamp() -> None:
         CanonicalTestingEvidence(
             execution_id=_execution_id(),
             source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
             result=_result(),
             captured_at=datetime(2026, 8, 24, 19, 45),
         )
@@ -86,6 +88,7 @@ def test_evidence_timestamp_is_immutable() -> None:
     evidence = CanonicalTestingEvidence(
         execution_id=_execution_id(),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=_result(),
         captured_at=_captured_at(),
     )

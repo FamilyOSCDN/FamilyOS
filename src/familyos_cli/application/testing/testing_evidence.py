@@ -17,6 +17,7 @@ class TestingEvidence:
 
     execution_id: TestExecutionId
     source_revision: str
+    source_dirty: bool
     result: TestExecutionResult
     captured_at: datetime
     native_exit_code: int | None = None

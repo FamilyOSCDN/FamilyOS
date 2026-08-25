@@ -6,7 +6,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
 
-from familyos_cli.application.ports.testing import TestingExecutionPort
+from familyos_cli.application.ports.testing import (
+    TestingEvidenceFreshnessPort,
+    TestingExecutionPort,
+)
 from familyos_cli.application.testing import (
     TestExecutionId as CanonicalExecutionId,
 )
@@ -22,10 +25,23 @@ from familyos_cli.application.testing import (
 from familyos_cli.application.testing import (
     TestingEvidence as CanonicalTestingEvidence,
 )
+from familyos_cli.application.testing.testing_evidence_freshness import (
+    TestingEvidenceFreshness as CanonicalEvidenceFreshness,
+)
 from familyos_cli.application.validation import ValidationStatus
 from familyos_cli.application.validation.pytest_validation_gate import (
     PytestValidationGate,
 )
+
+
+class _AlwaysFresh(TestingEvidenceFreshnessPort):
+    def evaluate(
+        self,
+        *,
+        project_root: Path,
+        evidence: CanonicalTestingEvidence,
+    ) -> CanonicalEvidenceFreshness:
+        return CanonicalEvidenceFreshness.FRESH
 
 
 class _EvidenceExecution(TestingExecutionPort):
@@ -68,6 +84,7 @@ def _evidence(
             UUID("01234567-89ab-cdef-0123-456789abcdef")
         ),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=CanonicalExecutionResult(
             status=status,
             summary=summary,
@@ -93,6 +110,7 @@ def test_gate_consumes_testing_evidence_for_pass(
 
     gate = PytestValidationGate(
         execution=execution,
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     )
 
@@ -113,6 +131,7 @@ def test_gate_maps_failed_testing_evidence_to_failed_gate(
                 diagnostic="pytest failure",
             )
         ),
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     )
 
@@ -132,6 +151,7 @@ def test_gate_maps_error_testing_evidence_to_error_gate(
                 diagnostic="pytest execution error",
             )
         ),
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     )
 
@@ -151,6 +171,7 @@ def test_gate_preserves_native_pytest_exit_code(
             UUID("01234567-89ab-cdef-0123-456789abcdef")
         ),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=CanonicalExecutionResult(
             status=CanonicalExecutionStatus.ERROR,
             summary=CanonicalExecutionSummary(
@@ -177,6 +198,7 @@ def test_gate_preserves_native_pytest_exit_code(
 
     result = PytestValidationGate(
         execution=_EvidenceExecution(evidence),
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     ).execute()
 
@@ -194,6 +216,7 @@ def test_gate_result_retains_exact_testing_evidence(
 
     result = PytestValidationGate(
         execution=_EvidenceExecution(evidence),
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     ).execute()
 

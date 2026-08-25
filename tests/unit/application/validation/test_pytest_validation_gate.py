@@ -6,7 +6,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
 
-from familyos_cli.application.ports.testing import TestingExecutionPort
+from familyos_cli.application.ports.testing import (
+    TestingEvidenceFreshnessPort,
+    TestingExecutionPort,
+)
 from familyos_cli.application.testing import (
     TestExecutionId as CanonicalExecutionId,
 )
@@ -22,10 +25,23 @@ from familyos_cli.application.testing import (
 from familyos_cli.application.testing import (
     TestingEvidence as CanonicalTestingEvidence,
 )
+from familyos_cli.application.testing.testing_evidence_freshness import (
+    TestingEvidenceFreshness as CanonicalEvidenceFreshness,
+)
 from familyos_cli.application.validation import ValidationStatus
 from familyos_cli.application.validation.pytest_validation_gate import (
     PytestValidationGate,
 )
+
+
+class _AlwaysFresh(TestingEvidenceFreshnessPort):
+    def evaluate(
+        self,
+        *,
+        project_root: Path,
+        evidence: CanonicalTestingEvidence,
+    ) -> CanonicalEvidenceFreshness:
+        return CanonicalEvidenceFreshness.FRESH
 
 
 class _RecordingTestingExecution(TestingExecutionPort):
@@ -62,6 +78,7 @@ def _evidence(
             UUID("01234567-89ab-cdef-0123-456789abcdef")
         ),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=CanonicalExecutionResult(
             status=status,
             summary=CanonicalExecutionSummary(
@@ -100,6 +117,7 @@ def test_gate_has_canonical_pytest_identifier(
 
     gate = PytestValidationGate(
         execution=execution,
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     )
 
@@ -117,6 +135,7 @@ def test_passing_test_execution_produces_passing_gate(
                 passed=3,
             )
         ),
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     ).execute()
 
@@ -138,6 +157,7 @@ def test_failed_test_execution_produces_failed_gate(
                 diagnostic="one test failed",
             )
         ),
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     ).execute()
 
@@ -158,6 +178,7 @@ def test_pytest_execution_error_produces_error_gate(
                 diagnostic="pytest execution error",
             )
         ),
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     ).execute()
 
@@ -179,6 +200,7 @@ def test_gate_preserves_repository_wide_pytest_selection(
 
     PytestValidationGate(
         execution=execution,
+        freshness_authority=_AlwaysFresh(),
         project_root=tmp_path,
     ).execute()
 

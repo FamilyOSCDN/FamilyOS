@@ -39,6 +39,7 @@ def test_renderer_projects_testing_evidence_for_pytest_gate() -> None:
         source_revision=(
             "0123456789abcdef0123456789abcdef01234567"
         ),
+        source_dirty=False,
         result=CanonicalExecutionResult(
             status=CanonicalExecutionStatus.PASSED,
             summary=CanonicalExecutionSummary(

@@ -33,9 +33,15 @@ class TestingEvidenceFactory:
                 "testing source state does not contain a captured source revision"
             )
 
+        if source_state.dirty is None:
+            raise ValueError(
+                "testing source state does not contain a captured dirty state"
+            )
+
         return TestingEvidence(
             execution_id=execution_id,
             source_revision=source_state.revision,
+            source_dirty=source_state.dirty,
             result=result,
             captured_at=captured_at,
             native_exit_code=native_exit_code,

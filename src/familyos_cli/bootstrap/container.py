@@ -51,6 +51,7 @@ from familyos_cli.application.specifications import (
     SpecificationService,
 )
 from familyos_cli.application.testing import (
+    EvaluateTestingEvidenceFreshnessUseCase,
     ProduceTestingEvidenceUseCase,
     PytestResultNormalizer,
 )
@@ -294,6 +295,13 @@ class ApplicationContainer:
                             ),
                             clock=SystemTestingClock(),
                         ),
+                    ),
+                    freshness_authority=(
+                        EvaluateTestingEvidenceFreshnessUseCase(
+                            source_state_provider=(
+                                GitTestingSourceStateProvider()
+                            ),
+                        )
                     ),
                     project_root=project_root,
                 ),

@@ -137,3 +137,62 @@ def test_factory_does_not_reject_dirty_source_state() -> None:
     )
 
     assert evidence.source_revision == source_state.revision
+
+def test_factory_preserves_captured_source_dirty_state() -> None:
+    """Preserve working-tree state as part of Testing Evidence identity."""
+
+    source_state = CanonicalTestingSourceState(
+        revision="0123456789abcdef0123456789abcdef01234567",
+        dirty=True,
+    )
+
+    evidence = TestingEvidenceFactory().create(
+        execution_id=CanonicalExecutionId(
+            UUID("01234567-89ab-cdef-0123-456789abcdef")
+        ),
+        source_state=source_state,
+        result=_result(),
+        captured_at=datetime(
+            2026,
+            8,
+            25,
+            8,
+            0,
+            tzinfo=UTC,
+        ),
+    )
+
+    assert evidence.source_revision == source_state.revision
+    assert evidence.source_dirty is True
+
+
+def test_factory_requires_captured_source_dirty_state() -> None:
+    """Reject evidence creation when working-tree state is unknown."""
+
+    source_state = CanonicalTestingSourceState(
+        revision="0123456789abcdef0123456789abcdef01234567",
+        dirty=None,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "testing source state does not contain "
+            "a captured dirty state"
+        ),
+    ):
+        TestingEvidenceFactory().create(
+            execution_id=CanonicalExecutionId(
+                UUID("01234567-89ab-cdef-0123-456789abcdef")
+            ),
+            source_state=source_state,
+            result=_result(),
+            captured_at=datetime(
+                2026,
+                8,
+                25,
+                8,
+                0,
+                tzinfo=UTC,
+            ),
+        )

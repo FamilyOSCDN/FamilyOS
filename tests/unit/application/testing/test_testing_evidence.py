@@ -60,6 +60,7 @@ def test_evidence_preserves_execution_identity() -> None:
     evidence = CanonicalTestingEvidence(
         execution_id=_execution_id(),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=_result(),
         captured_at=_captured_at(),
     )
@@ -73,6 +74,7 @@ def test_evidence_preserves_source_revision() -> None:
     evidence = CanonicalTestingEvidence(
         execution_id=_execution_id(),
         source_revision=revision,
+        source_dirty=False,
         result=_result(),
         captured_at=_captured_at(),
     )
@@ -86,6 +88,7 @@ def test_evidence_preserves_canonical_result() -> None:
     evidence = CanonicalTestingEvidence(
         execution_id=_execution_id(),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=result,
         captured_at=_captured_at(),
     )
@@ -101,6 +104,7 @@ def test_evidence_requires_source_revision() -> None:
         CanonicalTestingEvidence(
             execution_id=_execution_id(),
             source_revision="",
+            source_dirty=False,
             result=_result(),
             captured_at=_captured_at(),
         )
@@ -110,6 +114,7 @@ def test_evidence_is_immutable() -> None:
     evidence = CanonicalTestingEvidence(
         execution_id=_execution_id(),
         source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
         result=_result(),
         captured_at=_captured_at(),
     )

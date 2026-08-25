@@ -34,6 +34,7 @@ def test_gate_result_can_retain_testing_evidence() -> None:
         source_revision=(
             "0123456789abcdef0123456789abcdef01234567"
         ),
+        source_dirty=False,
         result=CanonicalExecutionResult(
             status=CanonicalExecutionStatus.PASSED,
             summary=CanonicalExecutionSummary(

@@ -1,5 +1,8 @@
 """Canonical Testing Framework application models."""
 
+from familyos_cli.application.testing.evaluate_testing_evidence_freshness import (
+    EvaluateTestingEvidenceFreshnessUseCase,
+)
 from familyos_cli.application.testing.produce_testing_evidence import (
     ProduceTestingEvidenceUseCase,
 )
@@ -17,9 +20,14 @@ from familyos_cli.application.testing.testing_evidence import TestingEvidence
 from familyos_cli.application.testing.testing_evidence_factory import (
     TestingEvidenceFactory,
 )
+from familyos_cli.application.testing.testing_evidence_freshness import (
+    TestingEvidenceFreshness,
+    TestingEvidenceFreshnessEvaluator,
+)
 from familyos_cli.application.testing.testing_source_state import TestingSourceState
 
 __all__ = [
+    "EvaluateTestingEvidenceFreshnessUseCase",
     "ProduceTestingEvidenceUseCase",
     "PytestExecutionResult",
     "PytestResultNormalizer",
@@ -29,5 +37,7 @@ __all__ = [
     "TestExecutionSummary",
     "TestingEvidence",
     "TestingEvidenceFactory",
+    "TestingEvidenceFreshness",
+    "TestingEvidenceFreshnessEvaluator",
     "TestingSourceState",
 ]
