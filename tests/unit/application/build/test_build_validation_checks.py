@@ -25,6 +25,7 @@ from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.effective_build_configuration_view import (
     EffectiveBuildConfigurationView,
 )
+from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
@@ -34,6 +35,10 @@ from familyos_cli.application.build.package_validation import (
     PythonPackageStructuralValidationResult,
 )
 from familyos_cli.application.build.source_state import SourceState
+from familyos_cli.application.build.toolchain_state import (
+    ToolchainState,
+    ToolchainVersion,
+)
 
 _BUILD_ID = BuildId(
     UUID("01234567-89ab-4cde-8f01-23456789abcd")
@@ -50,6 +55,19 @@ _DEPENDENCY_STATE = DependencyState(
     lock_path=Path("/project/requirements.txt"),
     lock_digest="b" * 64,
 )
+
+_TOOLCHAIN_STATE = ToolchainState(
+    critical_versions=(
+        ToolchainVersion("build", "1.5.0"),
+    ),
+)
+
+_ENVIRONMENT_STATE = EnvironmentState(
+    operating_system="Darwin",
+    operating_system_release="24.6.0",
+    machine_architecture="arm64",
+)
+
 
 _EFFECTIVE_CONFIGURATION = EffectiveBuildConfigurationView(
     profile=BuildProfile.VALIDATION,
@@ -789,6 +807,8 @@ def test_evidence_validation_maps_coherent_build_evidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=BuildValidationResult(
             build_id=_BUILD_ID,
@@ -848,6 +868,8 @@ def test_evidence_validation_rejects_evidence_for_different_build() -> None:
         build_id=other_build_id,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=BuildValidationResult(
             build_id=other_build_id,

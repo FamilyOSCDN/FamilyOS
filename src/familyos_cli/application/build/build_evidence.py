@@ -15,7 +15,9 @@ from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.effective_build_configuration_view import (
     EffectiveBuildConfigurationView,
 )
+from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.source_state import SourceState
+from familyos_cli.application.build.toolchain_state import ToolchainState
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,6 +27,8 @@ class BuildEvidence:
     build_id: BuildId
     source_state: SourceState
     dependency_state: DependencyState
+    toolchain_state: ToolchainState
+    environment_state: EnvironmentState
     effective_configuration: EffectiveBuildConfigurationView
     validation_result: BuildValidationResult
     artifact_manifest: ArtifactManifest
@@ -104,6 +108,12 @@ class BuildEvidence:
             )
 
         return revision
+
+    @property
+    def source_dirty(self) -> bool | None:
+        """Return the captured source dirty state for this build."""
+
+        return self.source_state.dirty
 
     @property
     def profile(self) -> BuildValidationProfile:

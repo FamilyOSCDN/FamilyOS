@@ -29,10 +29,15 @@ from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.effective_build_configuration_view import (
     EffectiveBuildConfigurationView,
 )
+from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.package_validation import (
     PackageStructuralValidationStatus,
 )
 from familyos_cli.application.build.source_state import SourceState
+from familyos_cli.application.build.toolchain_state import (
+    ToolchainState,
+    ToolchainVersion,
+)
 
 _BUILD_ID = BuildId(
     UUID("01234567-89ab-4cde-8f01-23456789abcd")
@@ -52,6 +57,18 @@ _DEPENDENCY_STATE = DependencyState(
     declaration_digest="c" * 64,
     lock_path=Path("/project/requirements.txt"),
     lock_digest="d" * 64,
+)
+
+_TOOLCHAIN_STATE = ToolchainState(
+    critical_versions=(
+        ToolchainVersion("build", "1.5.0"),
+    ),
+)
+
+_ENVIRONMENT_STATE = EnvironmentState(
+    operating_system="Darwin",
+    operating_system_release="24.6.0",
+    machine_architecture="arm64",
 )
 
 _EFFECTIVE_CONFIGURATION = EffectiveBuildConfigurationView(
@@ -103,6 +120,8 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=_validation(),
         artifact_manifest=manifest,
@@ -123,6 +142,8 @@ def test_build_evidence_exposes_source_revision() -> None:
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=_validation(),
         artifact_manifest=_manifest(),
@@ -137,6 +158,8 @@ def test_build_evidence_exposes_validation_profile() -> None:
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
         validation_result=_validation(),
         artifact_manifest=_manifest(),
@@ -184,6 +207,8 @@ def test_build_evidence_requires_matching_validation_build_id() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=validation,
             artifact_manifest=_manifest(),
@@ -210,6 +235,8 @@ def test_build_evidence_requires_matching_configuration_profile() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
             effective_configuration=configuration,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
@@ -231,6 +258,8 @@ def test_build_evidence_requires_matching_manifest_build_id() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=manifest,
@@ -252,6 +281,8 @@ def test_build_evidence_requires_captured_source_revision() -> None:
             build_id=_BUILD_ID,
             source_state=source_state,
             dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
@@ -286,6 +317,8 @@ def test_build_evidence_rejects_integrity_from_different_build() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
@@ -320,8 +353,32 @@ def test_build_evidence_rejects_integrity_not_represented_by_manifest() -> None:
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(integrity,),
         )
+
+
+def test_build_evidence_exposes_captured_source_dirty_state() -> None:
+    source_state = SourceState(
+        revision="0123456789abcdef0123456789abcdef01234567",
+        dirty=True,
+    )
+
+    evidence = BuildEvidence(
+        build_id=_BUILD_ID,
+        source_state=source_state,
+        dependency_state=_DEPENDENCY_STATE,
+        toolchain_state=_TOOLCHAIN_STATE,
+        environment_state=_ENVIRONMENT_STATE,
+        effective_configuration=_EFFECTIVE_CONFIGURATION,
+        validation_result=_validation(),
+        artifact_manifest=_manifest(),
+        artifact_integrities=(),
+    )
+
+    assert evidence.source_revision == source_state.revision
+    assert evidence.source_dirty is True

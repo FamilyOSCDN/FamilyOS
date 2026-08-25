@@ -37,6 +37,35 @@ class BuildEvidenceJsonRenderer:
                     "sha256": evidence.dependency_state.lock_digest,
                 },
             },
+            "toolchain": {
+                "critical_versions": [
+                    {
+                        "distribution": version.distribution,
+                        "version": version.version,
+                    }
+                    for version in evidence.toolchain_state.critical_versions
+                ],
+            },
+            "environment": {
+                "operating_system": (
+                    evidence.environment_state.operating_system
+                ),
+                "operating_system_release": (
+                    evidence.environment_state.operating_system_release
+                ),
+                "machine_architecture": (
+                    evidence.environment_state.machine_architecture
+                ),
+                "virtual_environment_active": (
+                    evidence.environment_state.virtual_environment_active
+                ),
+                "temporary_directory": (
+                    evidence.environment_state.temporary_directory
+                ),
+                "filesystem_encoding": (
+                    evidence.environment_state.filesystem_encoding
+                ),
+            },
             "effective_configuration": {
                 "profile": evidence.effective_configuration.profile.value,
                 "target": evidence.effective_configuration.target.value,

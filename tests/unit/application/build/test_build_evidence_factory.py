@@ -231,3 +231,22 @@ def test_factory_requires_captured_source_revision() -> None:
             package_result,
             _validation_result(),
         )
+
+
+def test_factory_preserves_toolchain_and_environment_authorities() -> None:
+    package_result = _package_result()
+
+    evidence = BuildEvidenceFactory().from_package_build(
+        package_result,
+        _validation_result(),
+    )
+
+    assert package_result.build_context is not None
+    assert (
+        evidence.toolchain_state
+        is package_result.build_context.toolchain_state
+    )
+    assert (
+        evidence.environment_state
+        is package_result.build_context.environment_state
+    )

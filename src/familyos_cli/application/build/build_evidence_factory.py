@@ -56,6 +56,8 @@ class BuildEvidenceFactory:
             build_id=package_result.build_id,
             source_state=package_result.source_state,
             dependency_state=package_result.build_context.dependency_state,
+            toolchain_state=package_result.build_context.toolchain_state,
+            environment_state=package_result.build_context.environment_state,
             effective_configuration=effective_configuration,
             validation_result=validation_result,
             artifact_manifest=package_result.artifact_manifest,

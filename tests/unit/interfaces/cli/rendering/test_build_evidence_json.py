@@ -32,10 +32,15 @@ from familyos_cli.application.build.dependency_state import DependencyState
 from familyos_cli.application.build.effective_build_configuration_view import (
     EffectiveBuildConfigurationView,
 )
+from familyos_cli.application.build.environment_state import EnvironmentState
 from familyos_cli.application.build.package_validation import (
     PackageStructuralValidationStatus,
 )
 from familyos_cli.application.build.source_state import SourceState
+from familyos_cli.application.build.toolchain_state import (
+    ToolchainState,
+    ToolchainVersion,
+)
 from familyos_cli.interfaces.cli.rendering.build_evidence_json import (
     BuildEvidenceJsonRenderer,
 )
@@ -54,6 +59,22 @@ _DEPENDENCY_STATE = DependencyState(
     declaration_digest="c" * 64,
     lock_path=Path("/checkout/requirements.txt"),
     lock_digest="d" * 64,
+)
+
+
+_TOOLCHAIN_STATE = ToolchainState(
+    critical_versions=(
+        ToolchainVersion("build", "1.5.0"),
+        ToolchainVersion("pip-tools", "7.6.1"),
+        ToolchainVersion("setuptools", "84.0.0"),
+        ToolchainVersion("wheel", "0.48.0"),
+    ),
+)
+
+_ENVIRONMENT_STATE = EnvironmentState(
+    operating_system="Darwin",
+    operating_system_release="24.6.0",
+    machine_architecture="arm64",
 )
 
 _ARTIFACT_PATH = Path(
@@ -122,6 +143,8 @@ _EVIDENCE = BuildEvidence(
     build_id=_BUILD_ID,
     source_state=_SOURCE_STATE,
     dependency_state=_DEPENDENCY_STATE,
+    toolchain_state=_TOOLCHAIN_STATE,
+    environment_state=_ENVIRONMENT_STATE,
     effective_configuration=_EFFECTIVE_CONFIGURATION,
     validation_result=_VALIDATION,
     artifact_manifest=_MANIFEST,
