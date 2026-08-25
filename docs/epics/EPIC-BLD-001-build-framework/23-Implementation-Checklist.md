@@ -2585,15 +2585,42 @@ Prepare strong Build/Release integration.
 
 ### Checklist
 
-* [ ] Identify trusted artifact after Build Validation.
-* [ ] Preserve trusted artifact bytes.
-* [ ] Preserve digest.
-* [ ] Preserve Build ID.
-* [ ] Preserve validation evidence.
-* [ ] Provide explicit Release Handoff.
-* [ ] Ensure Release workflow consumes existing artifact.
-* [ ] Prevent downstream silent rebuild.
-* [ ] Verify artifact integrity before promotion.
+* [x] Identify trusted artifact after Build Validation.
+* [x] Preserve trusted artifact bytes.
+* [x] Preserve digest.
+* [x] Preserve Build ID.
+* [x] Preserve validation evidence.
+* [x] Provide explicit Release Handoff.
+* [x] Ensure Release workflow consumes existing artifact.
+* [x] Prevent downstream silent rebuild.
+* [x] Verify artifact integrity before promotion.
+
+### Implementation Evidence
+
+* `CanonicalBuildResult.release_handoff_eligible` identifies Build
+  results whose execution, Build Validation, Build ID, artifact manifest,
+  and evidence authorities are coherent and suitable for Release handoff.
+* `ReleaseHandoff` explicitly preserves the canonical Build ID,
+  artifact manifest, validation result, and Build Evidence reference
+  without recalculation or substitution.
+* Artifact paths and digest records are projected directly from the
+  canonical artifact manifest, preserving the identity and integrity
+  authorities established during Build.
+* `ReleaseHandoffConsumer` consumes the exact handoff object without
+  rebuilding artifacts, recalculating digests, or replacing Build
+  authorities.
+* Canonical CI performs the package build once in the producer job.
+* `artifact-validation` downloads those exact package candidates and
+  canonical Build Evidence, recalculates SHA-256 from the transferred
+  bytes, and rejects missing, unexpected, or changed artifacts.
+* The downstream `release-handoff` job depends on successful artifact
+  validation and downloads the same validated package candidates and
+  Build Evidence without rebuilding them.
+* Build remains responsible only for preparing the Release handoff;
+  publication, approval, promotion, and deployment authority remain
+  outside the Build Framework.
+
+Level 31 — Build-Once-Promote is complete at 9/9.
 
 ---
 

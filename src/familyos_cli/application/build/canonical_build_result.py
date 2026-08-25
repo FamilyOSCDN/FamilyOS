@@ -79,6 +79,31 @@ class CanonicalBuildResult:
         return self.package_result.artifact_manifest
 
     @property
+    def release_handoff_eligible(self) -> bool:
+        """Return whether established Build authorities permit handoff."""
+
+        if self.execution_status is not PackageBuildStatus.SUCCEEDED:
+            return False
+
+        validation_result = self.validation_result
+
+        if validation_result is None or not validation_result.successful:
+            return False
+
+        if validation_result.build_id != self.build_id:
+            return False
+
+        manifest = self.artifact_manifest
+
+        if manifest is None:
+            return False
+
+        if manifest.build_id != self.build_id:
+            return False
+
+        return self.evidence_reference is not None
+
+    @property
     def diagnostic(self) -> str | None:
         """Return the authoritative final build diagnostic."""
 

@@ -408,3 +408,62 @@ def test_transferred_integrity_verification_rejects_unexpected_artifact(
         expected_digest=hashlib.sha256(payload).hexdigest(),
         unexpected_artifact=True,
     )
+
+
+def test_ci_exposes_release_handoff_stage_without_rebuild() -> None:
+    workflow = _workflow()
+
+    jobs = workflow.get("jobs")
+    assert isinstance(jobs, dict)
+
+    handoff_job = jobs.get("release-handoff")
+    assert isinstance(handoff_job, dict)
+
+    assert handoff_job.get("needs") == "artifact-validation"
+
+    steps = handoff_job.get("steps")
+    assert isinstance(steps, list)
+
+    commands = [
+        step.get("run")
+        for step in steps
+        if isinstance(step.get("run"), str)
+    ]
+
+    for command in commands:
+        assert "familyos build" not in command
+        assert "python -m build" not in command
+
+
+def test_release_handoff_stage_consumes_existing_package_candidates() -> None:
+    step = _step_named(
+        "release-handoff",
+        "Download validated package candidates",
+    )
+
+    uses = step.get("uses")
+    assert isinstance(uses, str)
+    assert uses.startswith("actions/download-artifact@")
+
+    configuration = step.get("with")
+    assert isinstance(configuration, dict)
+
+    assert configuration.get("name") == (
+        "familyos-package-candidates"
+    )
+
+
+def test_release_handoff_stage_consumes_existing_build_evidence() -> None:
+    step = _step_named(
+        "release-handoff",
+        "Download validated Build Evidence",
+    )
+
+    uses = step.get("uses")
+    assert isinstance(uses, str)
+    assert uses.startswith("actions/download-artifact@")
+
+    configuration = step.get("with")
+    assert isinstance(configuration, dict)
+
+    assert configuration.get("name") == "familyos-build-evidence"

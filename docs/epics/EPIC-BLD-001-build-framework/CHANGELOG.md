@@ -1648,3 +1648,41 @@ Completed canonical artifact transfer across CI jobs.
 * Levels 28 and 29 CI policy contracts remain green.
 
 Level 30 — Artifact Transfer Across CI Jobs is complete.
+
+## Level 31 — Build-Once-Promote
+
+Completed canonical Build-to-Release handoff semantics.
+
+### Added
+
+* Added explicit Release handoff eligibility to the canonical Build
+  Result.
+* Added immutable `ReleaseHandoff` representation preserving Build ID,
+  artifact manifest, validation result, and Build Evidence reference.
+* Added artifact-path and digest projections derived directly from the
+  canonical artifact manifest.
+* Added a downstream handoff-consumption boundary that preserves the
+  exact established Build authorities.
+* Added a canonical CI `release-handoff` stage that consumes already
+  validated package candidates and Build Evidence without rebuilding.
+* Added structural contracts preventing silent downstream rebuild,
+  authority substitution, digest recalculation, and Build-owned release
+  publication.
+
+### Validation
+
+* Trusted artifact eligibility requires successful execution and Build
+  Validation with matching Build IDs.
+* Artifact manifest and validation authorities must belong to the same
+  canonical Build ID.
+* Trusted artifact paths and digests remain derived from the canonical
+  manifest.
+* Transferred artifacts are integrity-verified before the Release
+  handoff stage.
+* Release handoff consumes the existing package candidates and Build
+  Evidence.
+* No downstream package rebuild is permitted.
+* Build does not publish, approve, promote, authorize, or deploy a
+  release.
+
+Level 31 — Build-Once-Promote is complete at 9/9.

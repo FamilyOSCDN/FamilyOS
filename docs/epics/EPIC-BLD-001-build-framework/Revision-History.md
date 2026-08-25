@@ -2757,3 +2757,34 @@ structure.
 
 This completes Level 30 at 8/8 while preserving the security and
 caching contracts established by Levels 28 and 29.
+
+## Level 31 — Build-Once-Promote
+
+Implemented the canonical Build-to-Release handoff boundary while
+preserving separation of authority between Build and Release.
+
+Canonical Build results now expose explicit Release handoff eligibility
+only when execution succeeded, Build Validation passed, required
+evidence exists, and the validation and artifact manifest belong to the
+same Build ID.
+
+An immutable `ReleaseHandoff` preserves the canonical Build ID,
+artifact manifest and digests, Build Validation result, Build Evidence
+reference, and artifact paths without recalculation or substitution.
+The downstream handoff consumer preserves that established authority
+unchanged.
+
+Canonical CI now follows a build-once chain:
+
+`validate -> artifact-validation -> release-handoff`
+
+The artifact-validation stage verifies the transferred package bytes
+against canonical Build Evidence before the release-handoff stage can
+consume them. The release-handoff stage downloads those existing
+validated artifacts and evidence without rebuilding or publishing them.
+
+Build therefore prepares a trusted Release handoff but does not own
+release approval, promotion, publication, or deployment.
+
+This completes Level 31 — Build-Once-Promote at 9/9 and completes the
+implementation sequence through Level 31.
