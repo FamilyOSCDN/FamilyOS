@@ -2488,14 +2488,47 @@ Improve performance without changing semantics.
 
 ### Checklist
 
-* [ ] Identify safe dependency caches.
-* [ ] Define cache key inputs.
-* [ ] Include runtime state in cache identity where required.
-* [ ] Include dependency state in cache identity.
-* [ ] Ensure cache miss still produces correct build.
-* [ ] Ensure corrupted cache can be discarded.
-* [ ] Validate cache-free builds periodically.
-* [ ] Avoid cache dependence for authoritative state.
+* [x] Identify safe dependency caches.
+* [x] Define cache key inputs.
+* [x] Include runtime state in cache identity where required.
+* [x] Include dependency state in cache identity.
+* [x] Ensure cache miss still produces correct build.
+* [x] Ensure corrupted cache can be discarded.
+* [x] Validate cache-free builds periodically.
+* [x] Avoid cache dependence for authoritative state.
+
+Implementation evidence: canonical CI uses only the pip dependency cache exposed
+by the pinned Python setup action. The cache is scoped by the explicit Python
+runtime and by `requirements.txt` through `cache-dependency-path`, preserving
+runtime and canonical dependency state in cache identity.
+
+Dependency installation remains authoritative on every ordinary CI execution:
+`python -m pip install -r requirements.txt` still executes after cache
+restoration, and FamilyOS installation remains explicitly independent of a
+cached virtual environment through `--no-deps --no-build-isolation -e .`.
+
+Authoritative Build outputs and evidence are not used as dependency-cache
+inputs. Package candidates, Build Evidence, validation evidence, local virtual
+environments, and build-output directories therefore remain outside the
+canonical dependency-cache authority.
+
+A dedicated `cache-free-validation` job restores no dependency cache and
+installs locked dependencies with `--no-cache-dir`. It executes canonical CI
+validation and the canonical CI-profile package build from cache-free dependency
+state.
+
+The cache-free path runs periodically through the scheduled CI trigger and can
+also be invoked explicitly through `workflow_dispatch`. This provides a
+controlled recovery path for suspected or corrupted cache state without making
+cache clearing, cache retry, or cached state authoritative to Build semantics.
+
+The executable contract is protected by
+`tests/unit/interfaces/cli/test_ci_caching_policy.py`, covering safe cache
+selection, dependency/runtime cache identity, cache-miss correctness,
+authoritative-state separation, periodic cache-free validation, and explicit
+manual cache-free recovery.
+
+Level 29 — CI Caching is complete at 8/8.
 
 ---
 

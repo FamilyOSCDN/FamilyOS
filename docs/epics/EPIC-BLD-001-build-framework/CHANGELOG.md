@@ -1579,3 +1579,41 @@ Those capabilities remain outside ordinary Build execution and under downstream
 Release governance when implemented.
 
 Level 28 is complete at 9/9.
+
+---
+
+# CI Caching Completion — 2026-08-25
+
+Completed Level 29 — CI Caching.
+
+Canonical CI now uses the pip dependency cache exposed by the pinned Python
+setup action. Cache identity retains the explicit Python runtime and uses
+`requirements.txt` as the canonical dependency-state input through
+`cache-dependency-path`.
+
+Cache restoration does not replace authoritative dependency installation.
+Canonical CI continues to install the locked dependency set from
+`requirements.txt` and installs FamilyOS without dependency resolution or build
+isolation. Authoritative package candidates, Build Evidence, validation
+evidence, build-output directories, and local virtual environments are not
+treated as dependency-cache authority.
+
+A dedicated cache-free validation path now executes without restoring the pip
+dependency cache and installs locked dependencies with `--no-cache-dir`. It
+runs canonical CI validation and the canonical CI-profile package build from
+cache-free dependency state.
+
+The cache-free path is exercised periodically by a scheduled workflow trigger
+and can also be invoked explicitly through `workflow_dispatch`, providing a
+controlled recovery mechanism when cached state is suspected or must be
+discarded.
+
+A structural CI caching regression contract verifies safe cache selection,
+runtime and dependency cache identity, cache-miss correctness, separation from
+authoritative Build state, periodic cache-free execution, and explicit manual
+cache-free recovery.
+
+Level 29 — CI Caching is complete at 8/8.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
