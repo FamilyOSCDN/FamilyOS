@@ -173,16 +173,18 @@ jobs:
                       "invalid artifact integrity digest"
                   )
 
-              artifact_path = Path(raw_path)
+              evidence_artifact_path = Path(raw_path)
 
-              if (
-                  artifact_path.is_absolute()
-                  or artifact_path.parent != candidate_root
+              if evidence_artifact_path.name != raw_path and not (
+                  evidence_artifact_path.is_absolute()
+                  or evidence_artifact_path.parent.name == candidate_root.name
               ):
                   raise SystemExit(
-                      "artifact integrity path is outside dist: "
-                      f"{artifact_path}"
+                      "invalid artifact integrity path: "
+                      f"{evidence_artifact_path}"
                   )
+
+              artifact_path = candidate_root / evidence_artifact_path.name
 
               if artifact_path in expected:
                   raise SystemExit(
