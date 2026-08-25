@@ -2126,16 +2126,48 @@ Integrate EPIC-TST-001 without duplicating testing ownership.
 
 ### Checklist
 
-* [ ] Identify tests required before build.
-* [ ] Identify tests required after artifact creation.
-* [ ] Integrate existing Pytest suite.
-* [ ] Keep test configuration canonical.
-* [ ] Preserve unit-test ownership under Testing Framework.
-* [ ] Preserve integration-test ownership under Testing Framework.
-* [ ] Add package installation tests where required.
-* [ ] Add packaged CLI smoke tests where useful.
-* [ ] Ensure failed mandatory tests fail Build Validation.
-* [ ] Preserve test reports as evidence where needed.
+* [x] Identify tests required before build.
+* [x] Identify tests required after artifact creation.
+* [x] Integrate existing Pytest suite.
+* [x] Keep test configuration canonical.
+* [x] Preserve unit-test ownership under Testing Framework.
+* [x] Preserve integration-test ownership under Testing Framework.
+* [x] Add package installation tests where required.
+* [x] Add packaged CLI smoke tests where useful.
+* [x] Ensure failed mandatory tests fail Build Validation.
+* [x] Preserve test reports as evidence where needed.
+
+### Implementation evidence
+
+Testing execution and Testing Evidence remain owned by EPIC-TST-001.
+The Build Framework consumes canonical testing authority rather than
+introducing a second test-execution path.
+
+For release-candidate builds, the CLI consumes the canonical `pytest`
+gate from supplied CI Validation Evidence. A successful gate must carry
+canonical Testing Evidence, and that evidence must be fresh for the
+current project source state before the release-candidate package build
+is allowed to proceed. Missing, stale, or indeterminate testing
+authority blocks the release-candidate build.
+
+Build Validation projects the consumed canonical `pytest` gate into the
+required `release-readiness-testing` check. Failed or errored mandatory
+testing authority therefore fails Build Validation without transferring
+test execution ownership into the Build Framework.
+
+Tests required after artifact creation reuse the canonical package
+validation authority established by Level 16, including clean package
+installation, import smoke validation, and installed CLI smoke
+validation. Level 20 does not duplicate those post-artifact checks.
+
+Pytest configuration remains canonical under the Testing Framework.
+Unit-test and integration-test ownership likewise remain with
+EPIC-TST-001. Build consumes their canonical validation result and
+preserves the associated Testing Evidence through the validation and
+build evidence boundaries where required.
+
+No independent Pytest execution authority is introduced into the Build
+application layer.
 
 ---
 
