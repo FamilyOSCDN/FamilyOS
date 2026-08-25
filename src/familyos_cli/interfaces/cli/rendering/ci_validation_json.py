@@ -30,6 +30,31 @@ class CiValidationJsonRenderer:
             "exit_code": gate.exit_code,
             "diagnostic": gate.diagnostic,
         }
+        if gate.testing_evidence is not None:
+            evidence = gate.testing_evidence
+            result = evidence.result
+            summary = result.summary
+
+            payload["testing_evidence"] = {
+                "execution_id": str(evidence.execution_id),
+                "source_revision": evidence.source_revision,
+                "captured_at": evidence.captured_at.isoformat(),
+                "native_exit_code": evidence.native_exit_code,
+                "result": {
+                    "status": result.status.value,
+                    "summary": {
+                        "discovered": summary.discovered,
+                        "executed": summary.executed,
+                        "passed": summary.passed,
+                        "failed": summary.failed,
+                        "skipped": summary.skipped,
+                        "errors": summary.errors,
+                        "duration_seconds": summary.duration_seconds,
+                    },
+                    "diagnostic": result.diagnostic,
+                },
+            }
+
         if gate.profile_id is not None:
             payload["profile_id"] = gate.profile_id
             payload["plugins"] = [

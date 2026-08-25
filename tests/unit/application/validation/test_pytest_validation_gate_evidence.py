@@ -183,3 +183,21 @@ def test_gate_preserves_native_pytest_exit_code(
     assert result.status is ValidationStatus.ERROR
     assert result.exit_code == 5
     assert result.diagnostic == "no tests collected"
+
+
+def test_gate_result_retains_exact_testing_evidence(
+    tmp_path: Path,
+) -> None:
+    evidence = _evidence(
+        CanonicalExecutionStatus.PASSED,
+    )
+
+    result = PytestValidationGate(
+        execution=_EvidenceExecution(evidence),
+        project_root=tmp_path,
+    ).execute()
+
+    assert result.testing_evidence is evidence
+    assert result.testing_evidence.execution_id is evidence.execution_id
+    assert result.testing_evidence.source_revision == evidence.source_revision
+    assert result.testing_evidence.captured_at == evidence.captured_at

@@ -51,4 +51,5 @@ class PytestValidationGate:
             status=status,
             exit_code=evidence.native_exit_code,
             diagnostic=canonical_result.diagnostic,
+            testing_evidence=evidence,
         )

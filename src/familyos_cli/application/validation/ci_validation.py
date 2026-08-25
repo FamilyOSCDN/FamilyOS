@@ -6,6 +6,10 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Final
 
+from familyos_cli.application.testing.testing_evidence import (
+    TestingEvidence,
+)
+
 CI_VALIDATION_SCHEMA_VERSION: Final = "1.0.0"
 CI_VALIDATION_PROFILE: Final = "ci"
 MANDATORY_CI_GATE_IDS: Final = (
@@ -56,6 +60,7 @@ class GateResult:
     diagnostic: str | None = None
     profile_id: str | None = None
     plugins: tuple[PluginValidationSummary, ...] = ()
+    testing_evidence: TestingEvidence | None = None
 
 
 @dataclass(frozen=True, slots=True)
