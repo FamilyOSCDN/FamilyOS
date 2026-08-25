@@ -6,9 +6,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
-from familyos_cli.application.testing.produce_testing_evidence import (
-    ProduceTestingEvidenceUseCase,
-)
 
 from familyos_cli.application.ports.testing import (
     TestingClockPort,
@@ -25,6 +22,9 @@ from familyos_cli.application.testing import (
 )
 from familyos_cli.application.testing import (
     TestingSourceState as CanonicalTestingSourceState,
+)
+from familyos_cli.application.testing.produce_testing_evidence import (
+    ProduceTestingEvidenceUseCase,
 )
 
 

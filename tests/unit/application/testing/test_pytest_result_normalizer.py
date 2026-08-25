@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import pytest
+
 from familyos_cli.application.testing.pytest_result_normalizer import (
     PytestExecutionResult,
     PytestResultNormalizer,
 )
-
 from familyos_cli.application.testing.test_execution_result import (
     TestExecutionStatus as CanonicalExecutionStatus,
 )

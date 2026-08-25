@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from familyos_cli.application.build.build_workspace import BuildWorkspace
 from familyos_cli.application.build.build_workspace_cleaner import (
     BuildWorkspaceCleaner,
 )
-
-from familyos_cli.application.build.build_workspace import BuildWorkspace
 
 
 def _workspace(tmp_path: Path) -> BuildWorkspace:
