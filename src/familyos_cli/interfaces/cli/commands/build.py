@@ -31,6 +31,9 @@ from familyos_cli.application.build.canonical_build_result_finalizer import (
 from familyos_cli.application.build.effective_build_configuration_view import (
     EffectiveBuildConfigurationView,
 )
+from familyos_cli.application.build.source_state_validator import (
+    SourceStateValidator,
+)
 from familyos_cli.interfaces.cli.context import CommandContext
 from familyos_cli.interfaces.cli.rendering.build_evidence_json import (
     BuildEvidenceJsonRenderer,
@@ -92,10 +95,115 @@ def run_package_build(
             else BuildValidationRequirement.OPTIONAL
         )
 
-        checks = BuildValidationCheckFactory().from_package_build(
+        check_factory = BuildValidationCheckFactory()
+
+        checks = check_factory.from_package_build(
             result,
             functional_requirement=functional_requirement,
         )
+
+        if profile is BuildProfile.RELEASE_CANDIDATE:
+            source_validation = SourceStateValidator().validate(
+                result.source_state
+            )
+
+            source_checks = check_factory.from_source_validation(
+                revision_identified=(
+                    source_validation.revision_identified
+                ),
+                working_tree_clean=(
+                    source_validation.working_tree_clean
+                ),
+                revision_diagnostic=(
+                    source_validation.revision_diagnostic
+                ),
+                working_tree_diagnostic=(
+                    source_validation.working_tree_diagnostic
+                ),
+            )
+
+            input_validation = result.input_validation
+            configuration_validation = (
+                result.effective_configuration_validation
+            )
+            toolchain_validation = result.toolchain_validation
+            environment_validation = result.environment_validation
+
+            if input_validation is None:
+                raise RuntimeError(
+                    "release-candidate build lacks canonical "
+                    "input validation authority"
+                )
+
+            if configuration_validation is None:
+                raise RuntimeError(
+                    "release-candidate build lacks canonical "
+                    "effective-configuration validation authority"
+                )
+
+            if toolchain_validation is None:
+                raise RuntimeError(
+                    "release-candidate build lacks canonical "
+                    "toolchain validation authority"
+                )
+
+            if environment_validation is None:
+                raise RuntimeError(
+                    "release-candidate build lacks canonical "
+                    "environment validation authority"
+                )
+
+            input_checks = (
+                check_factory.from_input_validation_result(
+                    input_validation
+                )
+            )
+            configuration_checks = (
+                check_factory.from_configuration_validation_result(
+                    configuration_validation
+                )
+            )
+            toolchain_checks = (
+                check_factory.from_toolchain_validation_result(
+                    toolchain_validation
+                )
+            )
+            environment_checks = (
+                check_factory.from_environment_validation_result(
+                    environment_validation
+                )
+            )
+
+            ci_validation = CommandContext().run_ci_validation.execute()
+
+            pytest_gate = next(
+                (
+                    gate
+                    for gate in ci_validation.gates
+                    if gate.gate_id == "pytest"
+                ),
+                None,
+            )
+
+            if pytest_gate is None:
+                raise RuntimeError(
+                    "release-candidate build lacks canonical "
+                    "pytest validation authority"
+                )
+
+            testing_checks = check_factory.from_testing_validation(
+                pytest_gate
+            )
+
+            checks = (
+                checks
+                + source_checks
+                + input_checks
+                + configuration_checks
+                + toolchain_checks
+                + environment_checks
+                + testing_checks
+            )
 
         validation_result = BuildValidationOrchestrator().execute(
             build_id=result.build_id,

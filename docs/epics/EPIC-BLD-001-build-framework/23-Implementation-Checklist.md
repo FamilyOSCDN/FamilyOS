@@ -2649,19 +2649,19 @@ Implement the strongest Build Framework profile required before EPIC-REL-001 eva
 
 ### Checklist
 
-* [ ] Require identifiable source revision.
-* [ ] Require appropriate clean working-tree state.
-* [ ] Require canonical runtime.
-* [ ] Require controlled dependency resolution.
-* [ ] Require validated toolchain.
-* [ ] Require controlled environment.
-* [ ] Require complete source validation.
-* [ ] Require complete test suite applicable to release readiness.
-* [ ] Require artifact validation.
-* [ ] Require integrity digests.
-* [ ] Require Build Evidence.
-* [ ] Produce explicit release handoff.
-* [ ] Do not publish automatically from Build Framework.
+* [x] Require identifiable source revision.
+* [x] Require appropriate clean working-tree state.
+* [x] Require canonical runtime.
+* [x] Require controlled dependency resolution.
+* [x] Require validated toolchain.
+* [x] Require controlled environment.
+* [x] Require complete source validation.
+* [x] Require complete test suite applicable to release readiness.
+* [x] Require artifact validation.
+* [x] Require integrity digests.
+* [x] Require Build Evidence.
+* [x] Produce explicit release handoff.
+* [x] Do not publish automatically from Build Framework.
 
 ---
 

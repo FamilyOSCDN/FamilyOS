@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import platform
+from collections.abc import Mapping
 from pathlib import Path
 
 import pytest
@@ -34,14 +35,26 @@ from familyos_cli.application.build import (
     WheelFunctionalValidationFinding,
     WheelFunctionalValidationStage,
 )
+from familyos_cli.application.build.artifact_discovery import (
+    CanonicalPackageBuildResult,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_input_stager import (
     BuildInputStager,
+)
+from familyos_cli.application.build.build_input_validation import (
+    BuildInputValidationResult,
+)
+from familyos_cli.application.build.build_input_validator import (
+    BuildInputValidator,
 )
 from familyos_cli.application.build.build_profile_definition import (
     BuildProfileDefinition,
 )
 from familyos_cli.application.build.build_staging import StagedBuildInputs
+from familyos_cli.application.build.build_target_definition import (
+    BuildTargetDefinition,
+)
 from familyos_cli.application.build.build_workspace import BuildWorkspace
 from familyos_cli.application.build.build_workspace_cleaner import (
     BuildWorkspaceCleaner,
@@ -49,8 +62,22 @@ from familyos_cli.application.build.build_workspace_cleaner import (
 from familyos_cli.application.build.build_workspace_initializer import (
     BuildWorkspaceInitializer,
 )
+from familyos_cli.application.build.environment_state import EnvironmentState
+from familyos_cli.application.build.environment_validation import (
+    EnvironmentValidationResult,
+)
+from familyos_cli.application.build.environment_validator import (
+    EnvironmentValidator,
+)
 from familyos_cli.application.build.repository_layout_validation import (
     RepositoryLayoutValidationResult,
+)
+from familyos_cli.application.build.toolchain_state import ToolchainState
+from familyos_cli.application.build.toolchain_validation import (
+    ToolchainValidationResult,
+)
+from familyos_cli.application.build.toolchain_validator import (
+    ToolchainValidator,
 )
 from familyos_cli.application.ports.build import (
     PackageBuilderPort,
@@ -309,6 +336,63 @@ class _RecordingFunctionalValidator(PythonWheelFunctionalValidatorPort):
             findings=(self.finding,) if self.finding is not None else (),
         )
         return self.result
+
+
+class _RecordingBuildInputValidator(BuildInputValidator):
+    def __init__(self) -> None:
+        self.result: BuildInputValidationResult | None = None
+
+    def validate(
+        self,
+        *,
+        project_root: Path,
+        target_definition: BuildTargetDefinition,
+    ) -> BuildInputValidationResult:
+        result = super().validate(
+            project_root=project_root,
+            target_definition=target_definition,
+        )
+        self.result = result
+        return result
+
+
+class _RecordingToolchainValidator(ToolchainValidator):
+    def __init__(self) -> None:
+        self.result: ToolchainValidationResult | None = None
+
+    def validate(
+        self,
+        *,
+        runtime_version: str,
+        toolchain_state: ToolchainState,
+        runtime_requirement: str,
+        distribution_requirements: Mapping[str, str],
+    ) -> ToolchainValidationResult:
+        result = super().validate(
+            runtime_version=runtime_version,
+            toolchain_state=toolchain_state,
+            runtime_requirement=runtime_requirement,
+            distribution_requirements=distribution_requirements,
+        )
+        self.result = result
+        return result
+
+
+class _RecordingEnvironmentValidator(EnvironmentValidator):
+    def __init__(self) -> None:
+        self.result: EnvironmentValidationResult | None = None
+
+    def validate(
+        self,
+        *,
+        state: EnvironmentState,
+    ) -> EnvironmentValidationResult:
+        result = super().validate(
+            state=state,
+        )
+        self.result = result
+        return result
+
 
 
 class _RecordingEffectiveConfigurationValidator(
@@ -3037,3 +3121,804 @@ def test_functional_validation_failure_cleans_build_workspace(
 
     assert result.status is PackageBuildStatus.FAILED
     assert len(cleaner.calls) == 1
+
+
+@pytest.mark.parametrize(
+    ("source_state", "expected_diagnostic"),
+    (
+        (
+            SourceState(
+                revision=None,
+                dirty=False,
+            ),
+            "source revision is unavailable",
+        ),
+        (
+            SourceState(
+                revision="",
+                dirty=False,
+            ),
+            "source revision is unavailable",
+        ),
+        (
+            SourceState(
+                revision="0123456789abcdef0123456789abcdef01234567",
+                dirty=True,
+            ),
+            "source working tree is dirty",
+        ),
+        (
+            SourceState(
+                revision="0123456789abcdef0123456789abcdef01234567",
+                dirty=None,
+            ),
+            "source working tree state is unavailable",
+        ),
+    ),
+)
+def test_release_candidate_rejects_invalid_source_state_before_package(
+    tmp_path: Path,
+    source_state: SourceState,
+    expected_diagnostic: str,
+) -> None:
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.SUCCEEDED,
+        )
+    )
+    source_provider = _SourceStateProvider(
+        source_state=source_state,
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        source_provider,
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        profile=BuildProfile.RELEASE_CANDIDATE,
+        evidence_output=tmp_path / "build-evidence.json",
+    )
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.diagnostic == expected_diagnostic
+    assert result.build_context is not None
+    assert result.build_context.source_state is source_state
+    assert builder.calls == []
+    assert result.discovery is None
+    assert result.validation is None
+    assert result.artifact_manifest is None
+    assert result.artifact_integrities == ()
+
+
+def test_release_candidate_accepts_clean_identified_source_before_package(
+    tmp_path: Path,
+) -> None:
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected package execution",
+        )
+    )
+
+    source_state = SourceState(
+        revision="0123456789abcdef0123456789abcdef01234567",
+        dirty=False,
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(source_state=source_state),
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        profile=BuildProfile.RELEASE_CANDIDATE,
+        evidence_output=tmp_path / "build-evidence.json",
+    )
+
+    assert len(builder.calls) == 1
+    assert result.diagnostic == "expected package execution"
+    assert result.build_context is not None
+    assert result.build_context.source_state is source_state
+
+
+@pytest.mark.parametrize(
+    "profile",
+    (
+        BuildProfile.DEVELOPMENT,
+        BuildProfile.VALIDATION,
+        BuildProfile.CI,
+    ),
+)
+def test_non_release_candidate_profiles_do_not_apply_strict_source_policy(
+    tmp_path: Path,
+    profile: BuildProfile,
+) -> None:
+    builder = _PackageBuilder(
+        PackageBuildResult(
+            status=PackageBuildStatus.FAILED,
+            diagnostic="expected package execution",
+        )
+    )
+
+    evidence_output = (
+        tmp_path / "build-evidence.json"
+        if profile is BuildProfile.CI
+        else None
+    )
+
+    result = RunPackageBuildUseCase(
+        builder,
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(
+            source_state=SourceState(
+                revision=None,
+                dirty=None,
+            )
+        ),
+        tmp_path,
+    ).execute(
+        Path("dist"),
+        profile=profile,
+        evidence_output=evidence_output,
+    )
+
+    assert len(builder.calls) == 1
+    assert result.diagnostic == "expected package execution"
+
+
+def test_successful_build_retains_canonical_pre_build_validation_authorities(
+    tmp_path: Path,
+) -> None:
+    """Successful result retains validations established during execution."""
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+
+    wheel.touch()
+    sdist.touch()
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_configuration_validator = (
+        _RecordingEffectiveConfigurationValidator()
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=(
+            effective_configuration_validator
+        ),
+    ).execute(output_dir)
+
+    assert result.status is PackageBuildStatus.SUCCEEDED
+
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is toolchain_validator.result
+    assert result.environment_validation is environment_validator.result
+    assert (
+        result.effective_configuration_validation
+        is effective_configuration_validator.result
+    )
+
+
+def test_build_result_retains_exact_validation_authority_objects(
+    tmp_path: Path,
+) -> None:
+    """Canonical result must retain, not reconstruct, validation authority."""
+
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+
+    wheel.touch()
+    sdist.touch()
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_configuration_validator = (
+        _RecordingEffectiveConfigurationValidator()
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=(
+            effective_configuration_validator
+        ),
+    ).execute(output_dir)
+
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is toolchain_validator.result
+    assert result.environment_validation is environment_validator.result
+    assert (
+        result.effective_configuration_validation
+        is effective_configuration_validator.result
+    )
+
+
+def test_input_validation_failure_retains_input_validation_authority(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_input_validation import (
+        BuildInputValidationCheck,
+        BuildInputValidationResult,
+    )
+
+    class _FailingBuildInputValidator(_RecordingBuildInputValidator):
+        def validate(
+            self,
+            *args: object,
+            **kwargs: object,
+        ) -> BuildInputValidationResult:
+            del args, kwargs
+            result = BuildInputValidationResult(
+                checks=(
+                    BuildInputValidationCheck(
+                        input_name="pyproject.toml",
+                        successful=False,
+                        diagnostic="canonical input validation failed",
+                    ),
+                ),
+            )
+            self.result = result
+            return result
+
+    input_validator = _FailingBuildInputValidator()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert input_validator.result is not None
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is None
+    assert result.environment_validation is None
+    assert result.effective_configuration_validation is None
+
+
+def test_toolchain_validation_failure_retains_established_authorities(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.toolchain_validation import (
+        ToolchainValidationFinding,
+        ToolchainValidationResult,
+        ToolchainValidationStatus,
+    )
+
+    class _FailingToolchainValidator(_RecordingToolchainValidator):
+        def validate(
+            self,
+            *args: object,
+            **kwargs: object,
+        ) -> ToolchainValidationResult:
+            del args, kwargs
+            result = ToolchainValidationResult(
+                status=ToolchainValidationStatus.FAILED,
+                findings=(
+                    ToolchainValidationFinding(
+                        component="python",
+                        diagnostic="canonical toolchain validation failed",
+                    ),
+                ),
+            )
+            self.result = result
+            return result
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _FailingToolchainValidator()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert input_validator.result is not None
+    assert toolchain_validator.result is not None
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is toolchain_validator.result
+    assert result.environment_validation is None
+    assert result.effective_configuration_validation is None
+
+
+def test_environment_validation_failure_retains_established_authorities(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.environment_validation import (
+        EnvironmentValidationFinding,
+        EnvironmentValidationResult,
+        EnvironmentValidationStatus,
+    )
+
+    class _FailingEnvironmentValidator(_RecordingEnvironmentValidator):
+        def validate(
+            self,
+            *args: object,
+            **kwargs: object,
+        ) -> EnvironmentValidationResult:
+            del args, kwargs
+            result = EnvironmentValidationResult(
+                status=EnvironmentValidationStatus.FAILED,
+                findings=(
+                    EnvironmentValidationFinding(
+                        component="temporary-directory",
+                        diagnostic="canonical environment validation failed",
+                    ),
+                ),
+            )
+            self.result = result
+            return result
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _FailingEnvironmentValidator()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert input_validator.result is not None
+    assert toolchain_validator.result is not None
+    assert environment_validator.result is not None
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is toolchain_validator.result
+    assert result.environment_validation is environment_validator.result
+    assert result.effective_configuration_validation is None
+
+
+def test_effective_configuration_failure_retains_all_established_authorities(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.effective_configuration_validation import (
+        EffectiveConfigurationValidationFinding,
+        EffectiveConfigurationValidationResult,
+        EffectiveConfigurationValidationStatus,
+    )
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+
+    effective_validation = EffectiveConfigurationValidationResult(
+        status=EffectiveConfigurationValidationStatus.FAILED,
+        findings=(
+            EffectiveConfigurationValidationFinding(
+                component="profile",
+                diagnostic="effective configuration validation failed",
+            ),
+        ),
+    )
+    effective_validator = _RecordingEffectiveConfigurationValidator(
+        result=effective_validation,
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is toolchain_validator.result
+    assert result.environment_validation is environment_validator.result
+    assert (
+        result.effective_configuration_validation
+        is effective_validation
+    )
+
+
+def test_release_candidate_source_failure_retains_all_established_authorities(
+    tmp_path: Path,
+) -> None:
+    """RC source failure retains every authority established before it."""
+
+    from familyos_cli.application.build.source_state_validation import (
+        SourceStateValidationResult,
+    )
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_configuration_validator = (
+        _RecordingEffectiveConfigurationValidator()
+    )
+
+    from familyos_cli.application.build.source_state_validator import (
+        SourceStateValidator,
+    )
+
+    class _FailingSourceStateValidator(SourceStateValidator):
+        def validate(
+            self,
+            source_state: object,
+        ) -> SourceStateValidationResult:
+            del source_state
+            return SourceStateValidationResult(
+                revision_identified=True,
+                working_tree_clean=False,
+                revision_diagnostic=None,
+                working_tree_diagnostic="source working tree is dirty",
+            )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=(
+            effective_configuration_validator
+        ),
+        source_state_validator=_FailingSourceStateValidator(),
+    ).execute(
+        tmp_path / "dist",
+        profile=BuildProfile.RELEASE_CANDIDATE,
+    )
+
+    assert result.status is PackageBuildStatus.FAILED
+
+    assert input_validator.result is not None
+    assert toolchain_validator.result is not None
+    assert environment_validator.result is not None
+    assert effective_configuration_validator.result is not None
+
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is toolchain_validator.result
+    assert result.environment_validation is environment_validator.result
+    assert (
+        result.effective_configuration_validation
+        is effective_configuration_validator.result
+    )
+
+
+def _assert_pre_build_authorities_retained(
+    result: CanonicalPackageBuildResult,
+    *,
+    input_validator: _RecordingBuildInputValidator,
+    toolchain_validator: _RecordingToolchainValidator,
+    environment_validator: _RecordingEnvironmentValidator,
+    effective_configuration_validator: (
+        _RecordingEffectiveConfigurationValidator
+    ),
+) -> None:
+    """Assert that all established pre-build authorities are retained."""
+
+    assert result.input_validation is input_validator.result
+    assert result.toolchain_validation is toolchain_validator.result
+    assert result.environment_validation is environment_validator.result
+    assert (
+        result.effective_configuration_validation
+        is effective_configuration_validator.result
+    )
+
+
+def test_staging_failure_retains_all_pre_build_validation_authorities(
+    tmp_path: Path,
+) -> None:
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_validator = _RecordingEffectiveConfigurationValidator()
+
+    stager = _RecordingBuildInputStager(
+        error=OSError("canonical staging failed"),
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+        build_input_stager=stager,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+
+    _assert_pre_build_authorities_retained(
+        result,
+        input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    )
+
+
+def test_package_failure_retains_all_pre_build_validation_authorities(
+    tmp_path: Path,
+) -> None:
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_validator = _RecordingEffectiveConfigurationValidator()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.FAILED,
+                exit_code=1,
+                diagnostic="package frontend failed",
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+
+    _assert_pre_build_authorities_retained(
+        result,
+        input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    )
+
+
+def test_discovery_failure_retains_all_pre_build_validation_authorities(
+    tmp_path: Path,
+) -> None:
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_validator = _RecordingEffectiveConfigurationValidator()
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    ).execute(tmp_path / "dist")
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.discovery is not None
+    assert not result.discovery.successful
+
+    _assert_pre_build_authorities_retained(
+        result,
+        input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    )
+
+
+def test_structural_validation_failure_retains_all_pre_build_authorities(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+
+    wheel.touch()
+    sdist.touch()
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_validator = _RecordingEffectiveConfigurationValidator()
+
+    validation = PythonPackageStructuralValidationResult(
+        status=PackageStructuralValidationStatus.INVALID,
+        candidate_results=(
+            CandidatePackageValidationResult(
+                candidate=DiscoveredArtifact(
+                    wheel,
+                    ArtifactClass.PYTHON_WHEEL,
+                ),
+                status=PackageStructuralValidationStatus.INVALID,
+                diagnostics=("wheel is corrupt",),
+            ),
+        ),
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(validation),
+        _RecordingFunctionalValidator(),
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    ).execute(output_dir)
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.validation is validation
+
+    _assert_pre_build_authorities_retained(
+        result,
+        input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    )
+
+
+def test_functional_validation_result_retains_all_pre_build_authorities(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "dist"
+    output_dir.mkdir()
+
+    wheel = output_dir / "familyos_cli-0.1.0-py3-none-any.whl"
+    sdist = output_dir / "familyos_cli-0.1.0.tar.gz"
+
+    wheel.touch()
+    sdist.touch()
+
+    input_validator = _RecordingBuildInputValidator()
+    toolchain_validator = _RecordingToolchainValidator()
+    environment_validator = _RecordingEnvironmentValidator()
+    effective_validator = _RecordingEffectiveConfigurationValidator()
+
+    functional_validator = _RecordingFunctionalValidator(
+        status=PackageFunctionalValidationStatus.INVALID,
+        finding=WheelFunctionalValidationFinding(
+            WheelFunctionalValidationStage.CLI_SMOKE,
+            "installed console entry point failed",
+        ),
+    )
+
+    result = RunPackageBuildUseCase(
+        _PackageBuilder(
+            PackageBuildResult(
+                status=PackageBuildStatus.SUCCEEDED,
+                outputs=(wheel, sdist),
+            )
+        ),
+        DiscoverPackageArtifactsUseCase(),
+        _RecordingValidator(),
+        functional_validator,
+        _SourceStateProvider(),
+        tmp_path,
+        build_input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    ).execute(
+        output_dir,
+        validate_functionally=True,
+    )
+
+    assert result.status is PackageBuildStatus.FAILED
+    assert result.functional_validation is functional_validator.result
+
+    _assert_pre_build_authorities_retained(
+        result,
+        input_validator=input_validator,
+        toolchain_validator=toolchain_validator,
+        environment_validator=environment_validator,
+        effective_configuration_validator=effective_validator,
+    )

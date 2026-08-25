@@ -76,6 +76,9 @@ from familyos_cli.application.build.repository_layout import RepositoryLayout
 from familyos_cli.application.build.repository_layout_validator import (
     RepositoryLayoutValidator,
 )
+from familyos_cli.application.build.source_state_validator import (
+    SourceStateValidator,
+)
 from familyos_cli.application.build.toolchain_policy_provider import (
     ToolchainPolicyProvider,
 )
@@ -118,6 +121,7 @@ class RunPackageBuildUseCase:
         build_input_stager: BuildInputStager | None = None,
         build_input_validator: BuildInputValidator | None = None,
         repository_layout_validator: RepositoryLayoutValidator | None = None,
+        source_state_validator: SourceStateValidator | None = None,
         toolchain_policy_provider: ToolchainPolicyProvider | None = None,
         toolchain_validator: ToolchainValidator | None = None,
         effective_configuration_validator: (
@@ -158,6 +162,9 @@ class RunPackageBuildUseCase:
         )
         self._repository_layout_validator = (
             repository_layout_validator or RepositoryLayoutValidator()
+        )
+        self._source_state_validator = (
+            source_state_validator or SourceStateValidator()
         )
         self._toolchain_policy_provider = (
             toolchain_policy_provider or ToolchainPolicyProvider()
@@ -217,6 +224,7 @@ class RunPackageBuildUseCase:
                     source_state=source_state,
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
+                    input_validation=input_validation,
                 ),
                 execution_observations,
             )
@@ -331,6 +339,8 @@ class RunPackageBuildUseCase:
                     source_state=source_state,
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
                 ),
                 execution_observations,
             )
@@ -390,6 +400,9 @@ class RunPackageBuildUseCase:
                     source_state=source_state,
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
+                    environment_validation=environment_validation,
                 ),
                 execution_observations,
             )
@@ -493,10 +506,51 @@ class RunPackageBuildUseCase:
                     build_context=build_context,
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
+                    environment_validation=environment_validation,
+                    effective_configuration_validation=(
+                        effective_configuration_validation
+                    ),
                 ),
                 execution_observations,
                 workspace=workspace,
             )
+
+        if profile is BuildProfile.RELEASE_CANDIDATE:
+            source_validation = self._source_state_validator.validate(
+                source_state
+            )
+
+            if not source_validation.successful:
+                diagnostic = (
+                    source_validation.revision_diagnostic
+                    or source_validation.working_tree_diagnostic
+                    or "source state validation failed"
+                )
+
+                return self._finalize_result(
+                    CanonicalPackageBuildResult(
+                        status=PackageBuildStatus.FAILED,
+                        execution=self._failed_pre_execution(
+                            diagnostic,
+                        ),
+                        source_state=source_state,
+                        build_context=build_context,
+                        build_id=build_id,
+                        execution_observations=tuple(
+                            execution_observations
+                        ),
+                        input_validation=input_validation,
+                        toolchain_validation=toolchain_validation,
+                        environment_validation=environment_validation,
+                        effective_configuration_validation=(
+                            effective_configuration_validation
+                        ),
+                    ),
+                    execution_observations,
+                    workspace=workspace,
+                )
 
         staging_started = self._monotonic_clock()
         try:
@@ -522,6 +576,12 @@ class RunPackageBuildUseCase:
                     build_context=build_context,
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
+                    environment_validation=environment_validation,
+                    effective_configuration_validation=(
+                        effective_configuration_validation
+                    ),
                 ),
                 execution_observations,
                 workspace=workspace,
@@ -558,6 +618,12 @@ class RunPackageBuildUseCase:
                     build_context=build_context,
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
+                    environment_validation=environment_validation,
+                    effective_configuration_validation=(
+                        effective_configuration_validation
+                    ),
                 ),
                 execution_observations,
                 workspace=workspace,
@@ -587,6 +653,12 @@ class RunPackageBuildUseCase:
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
                     discovery=discovery,
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
+                    environment_validation=environment_validation,
+                    effective_configuration_validation=(
+                        effective_configuration_validation
+                    ),
                 ),
                 execution_observations,
                 workspace=workspace,
@@ -614,6 +686,12 @@ class RunPackageBuildUseCase:
                     execution_observations=tuple(execution_observations),
                     discovery=discovery,
                     validation=validation,
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
+                    environment_validation=environment_validation,
+                    effective_configuration_validation=(
+                        effective_configuration_validation
+                    ),
                 ),
                 execution_observations,
                 workspace=workspace,
@@ -668,6 +746,12 @@ class RunPackageBuildUseCase:
                     build_context=build_context,
                     build_id=build_id,
                     execution_observations=tuple(execution_observations),
+                    input_validation=input_validation,
+                    toolchain_validation=toolchain_validation,
+                    environment_validation=environment_validation,
+                    effective_configuration_validation=(
+                        effective_configuration_validation
+                    ),
                     artifact_identities=artifact_identities,
                     artifact_integrities=artifact_integrities,
                     artifact_manifest=artifact_manifest,
@@ -707,6 +791,12 @@ class RunPackageBuildUseCase:
                 build_context=build_context,
                 build_id=build_id,
                 execution_observations=tuple(execution_observations),
+                input_validation=input_validation,
+                toolchain_validation=toolchain_validation,
+                environment_validation=environment_validation,
+                effective_configuration_validation=(
+                    effective_configuration_validation
+                ),
                 artifact_identities=artifact_identities,
                 artifact_integrities=artifact_integrities,
                 artifact_manifest=artifact_manifest,

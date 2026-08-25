@@ -919,3 +919,531 @@ def test_evidence_validation_failure_blocks_build_validation() -> None:
 
     assert result.status is BuildValidationStatus.FAILED
     assert not result.successful
+
+
+def test_source_validation_maps_clean_identified_source() -> None:
+    checks = BuildValidationCheckFactory().from_source_validation(
+        revision_identified=True,
+        working_tree_clean=True,
+    )
+
+    assert len(checks) == 2
+
+    revision, working_tree = checks
+
+    assert revision.check_id == "source-revision"
+    assert revision.domain is BuildValidationDomain.SOURCE
+    assert revision.requirement is BuildValidationRequirement.REQUIRED
+    assert revision.status is BuildValidationStatus.PASSED
+    assert revision.diagnostic is None
+
+    assert working_tree.check_id == "source-working-tree"
+    assert working_tree.domain is BuildValidationDomain.SOURCE
+    assert working_tree.requirement is BuildValidationRequirement.REQUIRED
+    assert working_tree.status is BuildValidationStatus.PASSED
+    assert working_tree.diagnostic is None
+
+
+def test_source_validation_rejects_unidentified_revision() -> None:
+    checks = BuildValidationCheckFactory().from_source_validation(
+        revision_identified=False,
+        working_tree_clean=True,
+        revision_diagnostic="source revision is unavailable",
+    )
+
+    revision = checks[0]
+
+    assert revision.check_id == "source-revision"
+    assert revision.domain is BuildValidationDomain.SOURCE
+    assert revision.requirement is BuildValidationRequirement.REQUIRED
+    assert revision.status is BuildValidationStatus.FAILED
+    assert revision.diagnostic == "source revision is unavailable"
+
+
+def test_source_validation_rejects_dirty_working_tree() -> None:
+    checks = BuildValidationCheckFactory().from_source_validation(
+        revision_identified=True,
+        working_tree_clean=False,
+        working_tree_diagnostic="source working tree is dirty",
+    )
+
+    working_tree = checks[1]
+
+    assert working_tree.check_id == "source-working-tree"
+    assert working_tree.domain is BuildValidationDomain.SOURCE
+    assert working_tree.requirement is BuildValidationRequirement.REQUIRED
+    assert working_tree.status is BuildValidationStatus.FAILED
+    assert working_tree.diagnostic == "source working tree is dirty"
+
+
+def test_source_validation_failure_blocks_build_validation() -> None:
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationProfile,
+    )
+    from familyos_cli.application.build.build_validation_orchestrator import (
+        BuildValidationOrchestrator,
+    )
+
+    checks = BuildValidationCheckFactory().from_source_validation(
+        revision_identified=True,
+        working_tree_clean=False,
+        working_tree_diagnostic="source working tree is dirty",
+    )
+
+    result = BuildValidationOrchestrator().execute(
+        build_id=_BUILD_ID,
+        profile=BuildValidationProfile.RELEASE_CANDIDATE,
+        checks=checks,
+    )
+
+    assert result.status is BuildValidationStatus.FAILED
+    assert not result.successful
+
+
+def test_input_validation_consumes_canonical_authority() -> None:
+    from familyos_cli.application.build.build_input_validation import (
+        BuildInputValidationCheck,
+        BuildInputValidationResult,
+    )
+
+    authority = BuildInputValidationResult(
+        checks=(
+            BuildInputValidationCheck(
+                input_name="canonical-input",
+                successful=True,
+            ),
+        ),
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_input_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "canonical-input"
+    assert checks[0].domain is BuildValidationDomain.INPUT
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.PASSED
+    assert checks[0].diagnostic is None
+
+
+def test_configuration_validation_consumes_canonical_authority() -> None:
+    from familyos_cli.application.build.effective_configuration_validation import (
+        EffectiveConfigurationValidationResult,
+        EffectiveConfigurationValidationStatus,
+    )
+
+    authority = EffectiveConfigurationValidationResult(
+        status=EffectiveConfigurationValidationStatus.SUCCEEDED,
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_configuration_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "effective-configuration"
+    assert checks[0].domain is BuildValidationDomain.CONFIGURATION
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.PASSED
+    assert checks[0].diagnostic is None
+
+
+def test_toolchain_validation_consumes_canonical_authority() -> None:
+    from familyos_cli.application.build.toolchain_validation import (
+        ToolchainValidationResult,
+        ToolchainValidationStatus,
+    )
+
+    authority = ToolchainValidationResult(
+        status=ToolchainValidationStatus.SUCCEEDED,
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_toolchain_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "canonical-toolchain"
+    assert checks[0].domain is BuildValidationDomain.TOOLCHAIN
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.PASSED
+    assert checks[0].diagnostic is None
+
+
+def test_environment_validation_consumes_canonical_authority() -> None:
+    from familyos_cli.application.build.environment_validation import (
+        EnvironmentValidationResult,
+        EnvironmentValidationStatus,
+    )
+
+    authority = EnvironmentValidationResult(
+        status=EnvironmentValidationStatus.SUCCEEDED,
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_environment_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "canonical-environment"
+    assert checks[0].domain is BuildValidationDomain.ENVIRONMENT
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.PASSED
+    assert checks[0].diagnostic is None
+
+
+def test_input_validation_result_preserves_failed_check_diagnostic() -> None:
+    from familyos_cli.application.build.build_input_validation import (
+        BuildInputValidationCheck,
+        BuildInputValidationResult,
+    )
+
+    authority = BuildInputValidationResult(
+        checks=(
+            BuildInputValidationCheck(
+                input_name="requirements.txt",
+                successful=False,
+                diagnostic="required build input missing: requirements.txt",
+            ),
+        ),
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_input_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "requirements.txt"
+    assert checks[0].domain is BuildValidationDomain.INPUT
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert checks[0].diagnostic == (
+        "required build input missing: requirements.txt"
+    )
+
+
+def test_configuration_validation_result_preserves_failure_diagnostic() -> None:
+    from familyos_cli.application.build.effective_configuration_validation import (
+        EffectiveConfigurationValidationFinding,
+        EffectiveConfigurationValidationResult,
+        EffectiveConfigurationValidationStatus,
+    )
+
+    authority = EffectiveConfigurationValidationResult(
+        status=EffectiveConfigurationValidationStatus.FAILED,
+        findings=(
+            EffectiveConfigurationValidationFinding(
+                component="profile",
+                diagnostic="resolved profile is inconsistent",
+            ),
+            EffectiveConfigurationValidationFinding(
+                component="target",
+                diagnostic="resolved target is inconsistent",
+            ),
+        ),
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_configuration_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "effective-configuration"
+    assert checks[0].domain is BuildValidationDomain.CONFIGURATION
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert checks[0].diagnostic == (
+        "resolved profile is inconsistent; "
+        "resolved target is inconsistent"
+    )
+
+
+def test_toolchain_validation_result_preserves_failure_diagnostic() -> None:
+    from familyos_cli.application.build.toolchain_validation import (
+        ToolchainValidationFinding,
+        ToolchainValidationResult,
+        ToolchainValidationStatus,
+    )
+
+    authority = ToolchainValidationResult(
+        status=ToolchainValidationStatus.FAILED,
+        findings=(
+            ToolchainValidationFinding(
+                component="python",
+                diagnostic="Python 3.12.9 does not satisfy >=3.13",
+            ),
+            ToolchainValidationFinding(
+                component="build",
+                diagnostic="build 1.4.0 does not satisfy >=1.5",
+            ),
+        ),
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_toolchain_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "canonical-toolchain"
+    assert checks[0].domain is BuildValidationDomain.TOOLCHAIN
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert checks[0].diagnostic == (
+        "Python 3.12.9 does not satisfy >=3.13; "
+        "build 1.4.0 does not satisfy >=1.5"
+    )
+
+
+def test_environment_validation_result_preserves_failure_diagnostic() -> None:
+    from familyos_cli.application.build.environment_validation import (
+        EnvironmentValidationFinding,
+        EnvironmentValidationResult,
+        EnvironmentValidationStatus,
+    )
+
+    authority = EnvironmentValidationResult(
+        status=EnvironmentValidationStatus.FAILED,
+        findings=(
+            EnvironmentValidationFinding(
+                component="temporary-storage",
+                diagnostic="temporary storage is unavailable",
+            ),
+            EnvironmentValidationFinding(
+                component="filesystem",
+                diagnostic="required filesystem access is unavailable",
+            ),
+        ),
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_environment_validation_result(authority)
+    )
+
+    assert len(checks) == 1
+    assert checks[0].check_id == "canonical-environment"
+    assert checks[0].domain is BuildValidationDomain.ENVIRONMENT
+    assert checks[0].requirement is BuildValidationRequirement.REQUIRED
+    assert checks[0].status is BuildValidationStatus.FAILED
+    assert checks[0].diagnostic == (
+        "temporary storage is unavailable; "
+        "required filesystem access is unavailable"
+    )
+
+
+def test_testing_validation_consumes_passing_canonical_pytest_gate() -> None:
+    from datetime import UTC, datetime
+    from uuid import UUID
+
+    from familyos_cli.application.testing import (
+        TestExecutionId,
+        TestExecutionResult,
+        TestExecutionStatus,
+        TestExecutionSummary,
+        TestingEvidence,
+    )
+    from familyos_cli.application.validation.ci_validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    evidence = TestingEvidence(
+        execution_id=TestExecutionId(
+            UUID("01234567-89ab-cdef-0123-456789abcdef")
+        ),
+        source_revision="0123456789abcdef0123456789abcdef01234567",
+        source_dirty=False,
+        result=TestExecutionResult(
+            status=TestExecutionStatus.PASSED,
+            summary=TestExecutionSummary(
+                discovered=1,
+                executed=1,
+                passed=1,
+                failed=0,
+                skipped=0,
+                errors=0,
+                duration_seconds=0.1,
+            ),
+        ),
+        captured_at=datetime(
+            2026,
+            8,
+            25,
+            18,
+            30,
+            tzinfo=UTC,
+        ),
+        native_exit_code=0,
+    )
+
+    gate = GateResult(
+        gate_id="pytest",
+        status=ValidationStatus.PASSED,
+        exit_code=0,
+        testing_evidence=evidence,
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_testing_validation(gate)
+    )
+
+    assert len(checks) == 1
+
+    check = checks[0]
+
+    assert check.check_id == "release-readiness-testing"
+    assert check.domain is BuildValidationDomain.TESTING
+    assert check.requirement is BuildValidationRequirement.REQUIRED
+    assert check.status is BuildValidationStatus.PASSED
+    assert check.diagnostic is None
+
+
+def test_testing_validation_maps_failed_pytest_gate_to_required_failure() -> None:
+    from familyos_cli.application.validation.ci_validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="pytest",
+        status=ValidationStatus.FAILED,
+        exit_code=1,
+        diagnostic="canonical pytest suite failed",
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_testing_validation(gate)
+    )
+
+    assert len(checks) == 1
+
+    check = checks[0]
+
+    assert check.check_id == "release-readiness-testing"
+    assert check.domain is BuildValidationDomain.TESTING
+    assert check.requirement is BuildValidationRequirement.REQUIRED
+    assert check.status is BuildValidationStatus.FAILED
+    assert check.diagnostic == "canonical pytest suite failed"
+
+
+def test_testing_validation_maps_pytest_gate_error_to_required_failure() -> None:
+    from familyos_cli.application.validation.ci_validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="pytest",
+        status=ValidationStatus.ERROR,
+        exit_code=2,
+        diagnostic=(
+            "pytest testing evidence freshness cannot be established"
+        ),
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_testing_validation(gate)
+    )
+
+    assert len(checks) == 1
+
+    check = checks[0]
+
+    assert check.domain is BuildValidationDomain.TESTING
+    assert check.requirement is BuildValidationRequirement.REQUIRED
+    assert check.status is BuildValidationStatus.FAILED
+    assert check.diagnostic == (
+        "pytest testing evidence freshness cannot be established"
+    )
+
+
+def test_testing_validation_rejects_non_pytest_gate() -> None:
+    import pytest
+
+    from familyos_cli.application.validation.ci_validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="ruff",
+        status=ValidationStatus.PASSED,
+        exit_code=0,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="release-readiness testing requires canonical pytest gate",
+    ):
+        (
+            BuildValidationCheckFactory()
+            .from_testing_validation(gate)
+        )
+
+
+def test_testing_validation_requires_testing_evidence_for_passing_gate() -> None:
+    import pytest
+
+    from familyos_cli.application.validation.ci_validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="pytest",
+        status=ValidationStatus.PASSED,
+        exit_code=0,
+        testing_evidence=None,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "release-readiness testing requires canonical "
+            "Testing Evidence"
+        ),
+    ):
+        (
+            BuildValidationCheckFactory()
+            .from_testing_validation(gate)
+        )
+
+
+def test_testing_validation_failure_does_not_require_successful_evidence() -> None:
+    from familyos_cli.application.validation.ci_validation import (
+        GateResult,
+        ValidationStatus,
+    )
+
+    gate = GateResult(
+        gate_id="pytest",
+        status=ValidationStatus.FAILED,
+        exit_code=1,
+        diagnostic="canonical pytest suite failed",
+        testing_evidence=None,
+    )
+
+    checks = (
+        BuildValidationCheckFactory()
+        .from_testing_validation(gate)
+    )
+
+    assert len(checks) == 1
+
+    check = checks[0]
+
+    assert check.domain is BuildValidationDomain.TESTING
+    assert check.requirement is BuildValidationRequirement.REQUIRED
+    assert check.status is BuildValidationStatus.FAILED
+    assert check.diagnostic == "canonical pytest suite failed"

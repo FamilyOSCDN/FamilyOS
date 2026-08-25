@@ -37,10 +37,12 @@ class BuildValidationDomain(StrEnum):
     """Canonical validation domains owned or coordinated by Build Validation."""
 
     INPUT = "input"
+    SOURCE = "source"
     CONFIGURATION = "configuration"
     DEPENDENCY = "dependency"
     TOOLCHAIN = "toolchain"
     ENVIRONMENT = "environment"
+    TESTING = "testing"
     EXECUTION = "execution"
     ARTIFACT = "artifact"
     METADATA = "metadata"

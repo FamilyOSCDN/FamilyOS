@@ -16,11 +16,23 @@ from familyos_cli.application.build.build_execution_observation import (
     BuildExecutionObservation,
 )
 from familyos_cli.application.build.build_id import BuildId
+from familyos_cli.application.build.build_input_validation import (
+    BuildInputValidationResult,
+)
+from familyos_cli.application.build.effective_configuration_validation import (
+    EffectiveConfigurationValidationResult,
+)
+from familyos_cli.application.build.environment_validation import (
+    EnvironmentValidationResult,
+)
 from familyos_cli.application.build.package_build import (
     PackageBuildResult,
     PackageBuildStatus,
 )
 from familyos_cli.application.build.source_state import SourceState
+from familyos_cli.application.build.toolchain_validation import (
+    ToolchainValidationResult,
+)
 
 if TYPE_CHECKING:
     from familyos_cli.application.build.package_functional_validation import (
@@ -99,6 +111,12 @@ class CanonicalPackageBuildResult:
     build_context: BuildContext | None = None
     build_id: BuildId = field(default_factory=BuildId.generate)
     execution_observations: tuple[BuildExecutionObservation, ...] = ()
+    input_validation: BuildInputValidationResult | None = None
+    toolchain_validation: ToolchainValidationResult | None = None
+    environment_validation: EnvironmentValidationResult | None = None
+    effective_configuration_validation: (
+        EffectiveConfigurationValidationResult | None
+    ) = None
     artifact_identities: tuple[ArtifactIdentity, ...] = ()
     artifact_integrities: tuple[ArtifactIntegrity, ...] = ()
     artifact_manifest: ArtifactManifest | None = None

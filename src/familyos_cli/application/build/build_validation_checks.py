@@ -7,11 +7,23 @@ from familyos_cli.application.build.artifact_discovery import (
 )
 from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_id import BuildId
+from familyos_cli.application.build.build_input_validation import (
+    BuildInputValidationResult,
+)
 from familyos_cli.application.build.build_validation import (
     BuildValidationCheckResult,
     BuildValidationDomain,
     BuildValidationRequirement,
     BuildValidationStatus,
+)
+from familyos_cli.application.build.effective_configuration_validation import (
+    EffectiveConfigurationValidationResult,
+)
+from familyos_cli.application.build.environment_validation import (
+    EnvironmentValidationResult,
+)
+from familyos_cli.application.build.toolchain_validation import (
+    ToolchainValidationResult,
 )
 from familyos_cli.application.validation import (
     GateResult,
@@ -153,6 +165,183 @@ class BuildValidationCheckFactory:
         )
 
         return tuple(checks)
+
+    def from_source_validation(
+        self,
+        *,
+        revision_identified: bool,
+        working_tree_clean: bool,
+        revision_diagnostic: str | None = None,
+        working_tree_diagnostic: str | None = None,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Map explicit source-state observations to validation checks."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="source-revision",
+                domain=BuildValidationDomain.SOURCE,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if revision_identified
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if revision_identified
+                    else revision_diagnostic
+                ),
+            ),
+            BuildValidationCheckResult(
+                check_id="source-working-tree",
+                domain=BuildValidationDomain.SOURCE,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if working_tree_clean
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if working_tree_clean
+                    else working_tree_diagnostic
+                ),
+            ),
+        )
+
+    def from_input_validation_result(
+        self,
+        result: BuildInputValidationResult,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Project established canonical build-input validation authority."""
+
+        return tuple(
+            BuildValidationCheckResult(
+                check_id=check.input_name,
+                domain=BuildValidationDomain.INPUT,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if check.successful
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if check.successful
+                    else check.diagnostic
+                ),
+            )
+            for check in result.checks
+        )
+
+    def from_configuration_validation_result(
+        self,
+        result: EffectiveConfigurationValidationResult,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Project established effective-configuration authority."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="effective-configuration",
+                domain=BuildValidationDomain.CONFIGURATION,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if result.successful
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if result.successful
+                    else result.diagnostic
+                ),
+            ),
+        )
+
+    def from_toolchain_validation_result(
+        self,
+        result: ToolchainValidationResult,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Project established canonical toolchain authority."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="canonical-toolchain",
+                domain=BuildValidationDomain.TOOLCHAIN,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if result.successful
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if result.successful
+                    else result.diagnostic
+                ),
+            ),
+        )
+
+    def from_environment_validation_result(
+        self,
+        result: EnvironmentValidationResult,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Project established canonical environment authority."""
+
+        return (
+            BuildValidationCheckResult(
+                check_id="canonical-environment",
+                domain=BuildValidationDomain.ENVIRONMENT,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if result.successful
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if result.successful
+                    else result.diagnostic
+                ),
+            ),
+        )
+
+    def from_testing_validation(
+        self,
+        gate: GateResult,
+    ) -> tuple[BuildValidationCheckResult, ...]:
+        """Project canonical pytest gate authority into Build Validation."""
+
+        if gate.gate_id != "pytest":
+            raise ValueError(
+                "release-readiness testing requires canonical pytest gate"
+            )
+
+        successful = gate.status is ValidationStatus.PASSED
+
+        if successful and gate.testing_evidence is None:
+            raise ValueError(
+                "release-readiness testing requires canonical "
+                "Testing Evidence"
+            )
+
+        return (
+            BuildValidationCheckResult(
+                check_id="release-readiness-testing",
+                domain=BuildValidationDomain.TESTING,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=(
+                    BuildValidationStatus.PASSED
+                    if successful
+                    else BuildValidationStatus.FAILED
+                ),
+                diagnostic=(
+                    None
+                    if successful
+                    else gate.diagnostic
+                ),
+            ),
+        )
 
     def from_dependency_validation(
         self,

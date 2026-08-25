@@ -13,8 +13,10 @@ import familyos_cli.interfaces.cli.commands.build as build_command
 from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
+    BuildValidationDomain,
     BuildValidationProfile,
     BuildValidationRequirement,
+    BuildValidationStatus,
 )
 
 _BUILD_ID = BuildId(
@@ -71,9 +73,89 @@ class _RunPackageBuild:
         return self._result
 
 
-class _CommandContext:
+class _RunCiValidation:
     def __init__(self, result: Any) -> None:
+        self._result = result
+        self.calls = 0
+
+    def execute(self) -> Any:
+        self.calls += 1
+        return self._result
+
+
+class _CommandContext:
+    def __init__(
+        self,
+        result: Any,
+        *,
+        ci_validation_result: Any | None = None,
+    ) -> None:
         self.run_package_build = _RunPackageBuild(result)
+        self.run_ci_validation = _RunCiValidation(
+            ci_validation_result
+            if ci_validation_result is not None
+            else _default_ci_validation_result()
+        )
+
+
+def _default_ci_validation_result() -> Any:
+    from datetime import UTC, datetime
+    from uuid import UUID
+
+    from familyos_cli.application.testing import (
+        TestExecutionId,
+        TestExecutionResult,
+        TestExecutionStatus,
+        TestExecutionSummary,
+        TestingEvidence,
+    )
+    from familyos_cli.application.validation.ci_validation import (
+        CiValidationResult,
+        GateResult,
+        ValidationStatus,
+    )
+
+    testing_evidence = TestingEvidence(
+        execution_id=TestExecutionId(
+            UUID("01234567-89ab-cdef-0123-456789abcdef")
+        ),
+        source_revision=(
+            "0123456789abcdef0123456789abcdef01234567"
+        ),
+        source_dirty=False,
+        result=TestExecutionResult(
+            status=TestExecutionStatus.PASSED,
+            summary=TestExecutionSummary(
+                discovered=1,
+                executed=1,
+                passed=1,
+                failed=0,
+                skipped=0,
+                errors=0,
+                duration_seconds=0.1,
+            ),
+        ),
+        captured_at=datetime(
+            2026,
+            8,
+            25,
+            18,
+            30,
+            tzinfo=UTC,
+        ),
+        native_exit_code=0,
+    )
+
+    return CiValidationResult(
+        gates=(
+            GateResult(
+                gate_id="pytest",
+                status=ValidationStatus.PASSED,
+                exit_code=0,
+                testing_evidence=testing_evidence,
+            ),
+        ),
+    )
 
 
 def _package_result(*, successful: bool) -> Any:
@@ -91,6 +173,10 @@ def _package_result(*, successful: bool) -> Any:
         candidates=(),
         validation=None,
         functional_validation=None,
+        input_validation=object(),
+        effective_configuration_validation=object(),
+        toolchain_validation=object(),
+        environment_validation=object(),
         execution_observations=(),
         diagnostic=None if successful else "package build failed",
     )
@@ -120,6 +206,120 @@ def _install_evidence_fakes(
             captured["check_result"] = result
             captured["functional_requirement"] = functional_requirement
             return ("package-checks",)
+
+        def from_source_validation(
+            self,
+            *,
+            revision_identified: bool,
+            working_tree_clean: bool,
+            revision_diagnostic: str | None = None,
+            working_tree_diagnostic: str | None = None,
+        ) -> tuple[str, ...]:
+            captured["source_revision_identified"] = revision_identified
+            captured["source_working_tree_clean"] = working_tree_clean
+            captured["source_revision_diagnostic"] = revision_diagnostic
+            captured["source_working_tree_diagnostic"] = (
+                working_tree_diagnostic
+            )
+            return ("source-checks",)
+
+        def from_input_validation(
+            self,
+            *args: Any,
+            **kwargs: Any,
+        ) -> tuple[str, ...]:
+            captured["input_validation_args"] = args
+            captured["input_validation_kwargs"] = kwargs
+            return ("input-checks",)
+
+        def from_configuration_validation(
+            self,
+            *args: Any,
+            **kwargs: Any,
+        ) -> tuple[str, ...]:
+            captured["configuration_validation_args"] = args
+            captured["configuration_validation_kwargs"] = kwargs
+            return ("configuration-checks",)
+
+        def from_input_validation_result(
+            self,
+            result: Any,
+        ) -> tuple[str, ...]:
+            captured["input_validation_args"] = (result,)
+            captured["input_validation_kwargs"] = {}
+            return ("input-checks",)
+
+        def from_configuration_validation_result(
+            self,
+            result: Any,
+        ) -> tuple[str, ...]:
+            captured["configuration_validation_args"] = (result,)
+            captured["configuration_validation_kwargs"] = {}
+            return ("configuration-checks",)
+
+        def from_toolchain_validation_result(
+            self,
+            result: Any,
+        ) -> tuple[str, ...]:
+            captured["toolchain_validation_args"] = (result,)
+            captured["toolchain_validation_kwargs"] = {}
+            return ("toolchain-checks",)
+
+        def from_environment_validation_result(
+            self,
+            result: Any,
+        ) -> tuple[str, ...]:
+            captured["environment_validation_args"] = (result,)
+            captured["environment_validation_kwargs"] = {}
+            return ("environment-checks",)
+
+        def from_testing_validation(
+            self,
+            gate: Any,
+        ) -> tuple[Any, ...]:
+            captured["testing_validation_gate"] = gate
+            from familyos_cli.application.build.build_validation import (
+                BuildValidationCheckResult,
+                BuildValidationDomain,
+                BuildValidationRequirement,
+                BuildValidationStatus,
+            )
+
+            return (
+                BuildValidationCheckResult(
+                    check_id="release-readiness-testing",
+                    domain=BuildValidationDomain.TESTING,
+                    requirement=BuildValidationRequirement.REQUIRED,
+                    status=BuildValidationStatus.PASSED,
+                ),
+            )
+
+        def from_dependency_validation(
+            self,
+            *args: Any,
+            **kwargs: Any,
+        ) -> tuple[str, ...]:
+            captured["dependency_validation_args"] = args
+            captured["dependency_validation_kwargs"] = kwargs
+            return ("dependency-checks",)
+
+        def from_toolchain_validation(
+            self,
+            *args: Any,
+            **kwargs: Any,
+        ) -> tuple[str, ...]:
+            captured["toolchain_validation_args"] = args
+            captured["toolchain_validation_kwargs"] = kwargs
+            return ("toolchain-checks",)
+
+        def from_environment_validation(
+            self,
+            *args: Any,
+            **kwargs: Any,
+        ) -> tuple[str, ...]:
+            captured["environment_validation_args"] = args
+            captured["environment_validation_kwargs"] = kwargs
+            return ("environment-checks",)
 
     class Orchestrator:
         def execute(
@@ -827,3 +1027,500 @@ def test_successful_build_without_evidence_finalizes_canonical_result(
             None,
         )
     ]
+
+def test_release_candidate_evidence_includes_source_validation_checks(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        profile=BuildProfile.RELEASE_CANDIDATE,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+
+    assert captured["source_revision_identified"] is True
+    assert captured["source_working_tree_clean"] is True
+    assert captured["source_revision_diagnostic"] is None
+    assert captured["source_working_tree_diagnostic"] is None
+
+    assert captured["validation_profile"] is (
+        BuildValidationProfile.RELEASE_CANDIDATE
+    )
+
+    assert captured["validation_checks"][:-1] == (
+        "package-checks",
+        "source-checks",
+        "input-checks",
+        "configuration-checks",
+        "toolchain-checks",
+        "environment-checks",
+    )
+
+    testing_check = captured["validation_checks"][-1]
+
+    assert testing_check.check_id == "release-readiness-testing"
+    assert testing_check.domain is BuildValidationDomain.TESTING
+    assert testing_check.requirement is (
+        BuildValidationRequirement.REQUIRED
+    )
+    assert testing_check.status is BuildValidationStatus.PASSED
+    assert testing_check.diagnostic is None
+
+    evidence_checks = (
+        captured["evidence_validation_result"].checks
+    )
+
+    assert evidence_checks[:-1] == (
+        "package-checks",
+        "source-checks",
+        "input-checks",
+        "configuration-checks",
+        "toolchain-checks",
+        "environment-checks",
+    )
+
+    testing_evidence_check = evidence_checks[-1]
+
+    assert (
+        testing_evidence_check.check_id
+        == "release-readiness-testing"
+    )
+    assert (
+        testing_evidence_check.domain
+        is BuildValidationDomain.TESTING
+    )
+    assert (
+        testing_evidence_check.requirement
+        is BuildValidationRequirement.REQUIRED
+    )
+    assert (
+        testing_evidence_check.status
+        is BuildValidationStatus.PASSED
+    )
+    assert testing_evidence_check.diagnostic is None
+
+
+def test_non_release_candidate_evidence_does_not_add_strict_source_checks(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        profile=BuildProfile.VALIDATION,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+
+    assert "source_revision_identified" not in captured
+    assert "source_working_tree_clean" not in captured
+
+    assert captured["validation_checks"] == (
+        "package-checks",
+    )
+
+
+def test_release_candidate_evidence_assembles_complete_existing_validation_authorities(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        profile=BuildProfile.RELEASE_CANDIDATE,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+
+    assert captured["validation_profile"] is (
+        BuildValidationProfile.RELEASE_CANDIDATE
+    )
+
+    assert captured["validation_checks"][:-1] == (
+        "package-checks",
+        "source-checks",
+        "input-checks",
+        "configuration-checks",
+        "toolchain-checks",
+        "environment-checks",
+    )
+
+    testing_check = captured["validation_checks"][-1]
+
+    assert testing_check.check_id == "release-readiness-testing"
+    assert testing_check.domain is BuildValidationDomain.TESTING
+    assert testing_check.requirement is (
+        BuildValidationRequirement.REQUIRED
+    )
+    assert testing_check.status is BuildValidationStatus.PASSED
+    assert testing_check.diagnostic is None
+
+
+def test_non_release_candidate_evidence_does_not_use_rc_complete_validation_assembly(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        profile=BuildProfile.VALIDATION,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+
+    assert captured["validation_checks"] == (
+        "package-checks",
+    )
+
+def test_release_candidate_evidence_consumes_retained_pre_build_validation_authorities(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from types import SimpleNamespace
+
+    result = _package_result(successful=True)
+
+    input_validation = SimpleNamespace(
+        checks=("canonical-input-authority",),
+    )
+    configuration_validation = SimpleNamespace(
+        status=SimpleNamespace(value="succeeded"),
+        findings=(),
+    )
+    toolchain_validation = SimpleNamespace(
+        status=SimpleNamespace(value="succeeded"),
+        findings=(),
+    )
+    environment_validation = SimpleNamespace(
+        status=SimpleNamespace(value="succeeded"),
+        findings=(),
+    )
+
+    result.input_validation = input_validation
+    result.effective_configuration_validation = (
+        configuration_validation
+    )
+    result.toolchain_validation = toolchain_validation
+    result.environment_validation = environment_validation
+
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        profile=BuildProfile.RELEASE_CANDIDATE,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+
+    assert captured["input_validation_args"] == (
+        input_validation,
+    )
+    assert captured["input_validation_kwargs"] == {}
+
+    assert captured["configuration_validation_args"] == (
+        configuration_validation,
+    )
+    assert captured["configuration_validation_kwargs"] == {}
+
+    assert captured["toolchain_validation_args"] == (
+        toolchain_validation,
+    )
+    assert captured["toolchain_validation_kwargs"] == {}
+
+    assert captured["environment_validation_args"] == (
+        environment_validation,
+    )
+    assert captured["environment_validation_kwargs"] == {}
+
+    assert captured["validation_checks"][:-1] == (
+        "package-checks",
+        "source-checks",
+        "input-checks",
+        "configuration-checks",
+        "toolchain-checks",
+        "environment-checks",
+    )
+
+    testing_check = captured["validation_checks"][-1]
+
+    assert testing_check.check_id == "release-readiness-testing"
+    assert testing_check.domain is BuildValidationDomain.TESTING
+    assert testing_check.requirement is (
+        BuildValidationRequirement.REQUIRED
+    )
+    assert testing_check.status is BuildValidationStatus.PASSED
+    assert testing_check.diagnostic is None
+
+    evidence_checks = (
+        captured["evidence_validation_result"].checks
+    )
+
+    assert evidence_checks[:-1] == (
+        "package-checks",
+        "source-checks",
+        "input-checks",
+        "configuration-checks",
+        "toolchain-checks",
+        "environment-checks",
+    )
+
+    testing_evidence_check = evidence_checks[-1]
+
+    assert (
+        testing_evidence_check.check_id
+        == "release-readiness-testing"
+    )
+    assert (
+        testing_evidence_check.domain
+        is BuildValidationDomain.TESTING
+    )
+    assert (
+        testing_evidence_check.requirement
+        is BuildValidationRequirement.REQUIRED
+    )
+    assert (
+        testing_evidence_check.status
+        is BuildValidationStatus.PASSED
+    )
+    assert testing_evidence_check.diagnostic is None
+
+
+def test_release_candidate_evidence_consumes_canonical_pytest_gate(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from datetime import UTC, datetime
+    from uuid import UUID
+
+    from familyos_cli.application.testing import (
+        TestExecutionId,
+        TestExecutionResult,
+        TestExecutionStatus,
+        TestExecutionSummary,
+        TestingEvidence,
+    )
+    from familyos_cli.application.validation.ci_validation import (
+        CiValidationResult,
+        GateResult,
+        ValidationStatus,
+    )
+
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    base_context = _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    evidence = TestingEvidence(
+        execution_id=TestExecutionId(
+            UUID("01234567-89ab-cdef-0123-456789abcdef")
+        ),
+        source_revision=(
+            "0123456789abcdef0123456789abcdef01234567"
+        ),
+        source_dirty=False,
+        result=TestExecutionResult(
+            status=TestExecutionStatus.PASSED,
+            summary=TestExecutionSummary(
+                discovered=1,
+                executed=1,
+                passed=1,
+                failed=0,
+                skipped=0,
+                errors=0,
+                duration_seconds=0.1,
+            ),
+        ),
+        captured_at=datetime(
+            2026,
+            8,
+            25,
+            18,
+            30,
+            tzinfo=UTC,
+        ),
+        native_exit_code=0,
+    )
+
+    pytest_gate = GateResult(
+        gate_id="pytest",
+        status=ValidationStatus.PASSED,
+        exit_code=0,
+        testing_evidence=evidence,
+    )
+    ci_result = CiValidationResult(
+        gates=(pytest_gate,),
+    )
+
+    class RunCiValidation:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def execute(self) -> CiValidationResult:
+            self.calls += 1
+            return ci_result
+
+    run_ci_validation = RunCiValidation()
+
+    class TestingAwareContext:
+        def __init__(self) -> None:
+            self.run_package_build = base_context.run_package_build
+            self.run_ci_validation = run_ci_validation
+
+    monkeypatch.setattr(
+        build_command,
+        "CommandContext",
+        TestingAwareContext,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        profile=BuildProfile.RELEASE_CANDIDATE,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert run_ci_validation.calls == 1
+
+    assert captured["testing_validation_gate"] is pytest_gate
+    assert (
+        captured["testing_validation_gate"].testing_evidence
+        is evidence
+    )
+
+    testing_check = captured["validation_checks"][-1]
+
+    assert testing_check.check_id == "release-readiness-testing"
+    assert testing_check.domain is BuildValidationDomain.TESTING
+    assert testing_check.requirement is (
+        BuildValidationRequirement.REQUIRED
+    )
+    assert testing_check.status is BuildValidationStatus.PASSED
+    assert testing_check.diagnostic is None
+
+
+def test_release_candidate_evidence_requires_canonical_pytest_gate(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from familyos_cli.application.validation.ci_validation import (
+        CiValidationResult,
+        GateResult,
+        ValidationStatus,
+    )
+
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    base_context = _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    ci_result = CiValidationResult(
+        gates=(
+            GateResult(
+                gate_id="ruff",
+                status=ValidationStatus.PASSED,
+                exit_code=0,
+            ),
+        ),
+    )
+
+    class RunCiValidation:
+        def execute(self) -> CiValidationResult:
+            return ci_result
+
+    run_ci_validation = RunCiValidation()
+
+    class TestingAwareContext:
+        def __init__(self) -> None:
+            self.run_package_build = base_context.run_package_build
+            self.run_ci_validation = run_ci_validation
+
+    monkeypatch.setattr(
+        build_command,
+        "CommandContext",
+        TestingAwareContext,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "release-candidate build lacks canonical "
+            "pytest validation authority"
+        ),
+    ):
+        build_command.run_package_build(
+            tmp_path / "dist",
+            functional_validation=False,
+            profile=BuildProfile.RELEASE_CANDIDATE,
+            evidence_output=tmp_path / "build-evidence.json",
+        )
