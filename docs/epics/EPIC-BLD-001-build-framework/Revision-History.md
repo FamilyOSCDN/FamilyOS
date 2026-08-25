@@ -2664,3 +2664,35 @@ Future revisions SHALL preserve:
 * framework boundaries;
 * release handoff separation;
 * historical publication integrity.
+
+---
+
+## CI Permissions Security Contract Completion — 2026-08-25
+
+This incremental revision completes Level 28 — CI Permissions without adding
+privileged automation capability.
+
+The canonical GitHub Actions workflow continues to operate with explicit
+`contents: read` repository permission. It contains no repository-secret
+references, no release/publication credential, no privileged package,
+deployment, security-event, or OIDC-token permission, and no release,
+publication, signing, promotion, or deployment operation.
+
+The existing `pull_request` trigger remains non-privileged and
+`pull_request_target` is absent. Ordinary pull-request validation and package
+construction therefore receive no release credential authority.
+
+External GitHub Actions remain pinned to immutable commit SHAs. A new structural
+regression contract verifies these CI security assumptions and rejects future
+introduction of privileged token scopes, repository-secret references,
+`pull_request_target`, release/publication operations, or unpinned external
+actions in the canonical Build workflow.
+
+Build credentials and release credentials remain separated by explicit
+authority boundary: the canonical Build workflow currently requires no release
+credentials at all. Any future privileged Release automation remains owned and
+governed separately by the Release Framework.
+
+This revision closes the final five Level 28 checklist items and completes
+CI Permissions at 9/9. It introduces no Release workflow, publication,
+promotion, signing, provenance, deployment, or new secret capability.

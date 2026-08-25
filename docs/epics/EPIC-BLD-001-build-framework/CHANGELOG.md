@@ -1551,3 +1551,31 @@ Level 18 — Artifact Manifest is complete at 11/11.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+---
+
+# CI Permissions Security Contract Completion — 2026-08-25
+
+Completed Level 28 — CI Permissions.
+
+The canonical GitHub Actions Build workflow remains explicitly read-only with
+`contents: read` and requires no release, publication, signing, promotion,
+deployment, registry, production, or other privileged credential.
+
+No repository secrets are referenced by the canonical workflow. Pull-request
+automation uses the ordinary `pull_request` trigger rather than
+`pull_request_target`, so untrusted contribution validation and package-build
+execution do not inherit release credentials or privileged release authority.
+
+A structural CI security regression test now enforces the current contract:
+read-only repository permissions, absence of repository-secret references,
+absence of privileged token permissions, absence of release/publication
+operations, absence of `pull_request_target`, and immutable commit-SHA pinning
+for external GitHub Actions.
+
+This completion does not introduce a Release workflow, release credentials,
+publication capability, signing, promotion, deployment, or new CI secrets.
+Those capabilities remain outside ordinary Build execution and under downstream
+Release governance when implemented.
+
+Level 28 is complete at 9/9.

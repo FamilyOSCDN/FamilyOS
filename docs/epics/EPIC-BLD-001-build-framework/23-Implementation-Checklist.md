@@ -2444,13 +2444,39 @@ Apply least privilege to automation.
 
 * [x] Review default workflow permissions.
 * [x] Use read-only repository permissions where sufficient.
-* [ ] Separate build credentials from release credentials.
-* [ ] Prevent release credentials in pull-request builds.
-* [ ] Limit secret scope.
-* [ ] Prevent secrets from reaching untrusted execution contexts.
+* [x] Separate build credentials from release credentials.
+* [x] Prevent release credentials in pull-request builds.
+* [x] Limit secret scope.
+* [x] Prevent secrets from reaching untrusted execution contexts.
 * [x] Review third-party CI actions or integrations.
 * [x] Pin critical external automation dependencies where governance requires it.
-* [ ] Document CI security assumptions.
+* [x] Document CI security assumptions.
+
+Implementation evidence: the canonical GitHub Actions workflow explicitly uses
+repository permission `contents: read` and does not request write-capable
+repository, package, deployment, security-event, or OIDC token permissions.
+
+Ordinary canonical validation and package-build execution require no release,
+publication, signing, promotion, deployment, registry, or production
+credentials. The workflow contains no `${{ secrets.* }}` references and does
+not pass repository secrets into canonical build commands or action inputs.
+Build credentials and release credentials are therefore separated by absence:
+the Build workflow owns no release credential authority.
+
+The workflow supports ordinary `pull_request` execution but does not use
+`pull_request_target`. Pull-request builds consequently execute the same
+non-privileged validation and package-build path without release credentials.
+Any future privileged Release workflow must remain separately governed by the
+Release Framework and must not extend those credentials into ordinary Build or
+pull-request execution.
+
+External GitHub Actions used by canonical CI are reviewed and pinned to
+immutable commit SHAs. The executable CI security contract is protected by
+`tests/unit/interfaces/cli/test_ci_security_policy.py`, which rejects privileged
+token permissions, repository-secret references, `pull_request_target`,
+release/publication operations, and unpinned external actions.
+
+Level 28 — CI Permissions is complete.
 
 ---
 
