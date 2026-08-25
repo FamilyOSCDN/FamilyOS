@@ -5,12 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from familyos_cli.application.ports.testing.pytest_runner import (
     PytestRunnerPort,
 )
-from familyos_cli.infrastructure.testing.pytest_runner import PytestRunner
-
 from familyos_cli.application.testing import PytestExecutionResult
+from familyos_cli.infrastructure.testing.pytest_runner import PytestRunner
 
 
 def test_pytest_runner_implements_canonical_port() -> None:

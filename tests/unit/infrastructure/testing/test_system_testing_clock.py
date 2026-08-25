@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from familyos_cli.application.ports.testing import TestingClockPort
 from familyos_cli.infrastructure.testing.system_testing_clock import (
     SystemTestingClock,
 )
-
-from familyos_cli.application.ports.testing import TestingClockPort
 
 
 def test_system_clock_implements_testing_clock_port() -> None:

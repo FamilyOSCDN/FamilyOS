@@ -5,12 +5,11 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from familyos_cli.infrastructure.testing.git_testing_source_state_provider import (
-    GitTestingSourceStateProvider,
-)
-
 from familyos_cli.application.ports.testing import (
     TestingSourceStateProviderPort,
+)
+from familyos_cli.infrastructure.testing.git_testing_source_state_provider import (
+    GitTestingSourceStateProvider,
 )
 
 
