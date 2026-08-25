@@ -25,6 +25,9 @@ from familyos_cli.application.build.build_validation_checks import (
 from familyos_cli.application.build.build_validation_orchestrator import (
     BuildValidationOrchestrator,
 )
+from familyos_cli.application.build.canonical_build_result_finalizer import (
+    CanonicalBuildResultFinalizer,
+)
 from familyos_cli.application.build.effective_build_configuration_view import (
     EffectiveBuildConfigurationView,
 )
@@ -66,6 +69,11 @@ def run_package_build(
     _render_result(result)
 
     if not result.successful:
+        CanonicalBuildResultFinalizer().finalize(
+            package_result=result,
+            validation_result=None,
+            evidence_reference=None,
+        )
         return EXIT_FAILURE
 
     if evidence_output is not None:
@@ -109,6 +117,18 @@ def run_package_build(
         resolved_evidence_output.write_text(
             rendered,
             encoding="utf-8",
+        )
+
+        CanonicalBuildResultFinalizer().finalize(
+            package_result=result,
+            validation_result=validation_result,
+            evidence_reference=resolved_evidence_output,
+        )
+    else:
+        CanonicalBuildResultFinalizer().finalize(
+            package_result=result,
+            validation_result=None,
+            evidence_reference=None,
         )
 
     return EXIT_SUCCESS

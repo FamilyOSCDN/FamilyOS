@@ -659,3 +659,171 @@ def test_build_renders_failed_execution_observation_diagnostic(
         "- package: FAILED (0.500000s) — package frontend failed"
         in captured.out
     )
+
+
+def test_successful_build_finalizes_canonical_build_result(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    class Finalizer:
+        def finalize(
+            self,
+            *,
+            package_result: Any,
+            validation_result: Any,
+            evidence_reference: Path | None,
+        ) -> object:
+            captured["final_package_result"] = package_result
+            captured["final_validation_result"] = validation_result
+            captured["final_evidence_reference"] = evidence_reference
+            return object()
+
+    monkeypatch.setattr(
+        build_command,
+        "CanonicalBuildResultFinalizer",
+        Finalizer,
+        raising=False,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+    assert captured["final_package_result"] is result
+    assert (
+        captured["final_validation_result"]
+        is captured["evidence_validation_result"]
+    )
+    assert captured["final_evidence_reference"] == evidence_output
+
+
+def test_failed_build_finalizes_canonical_build_result(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=False)
+    captured: dict[str, Any] = {}
+
+    context = _install_evidence_fakes(
+        monkeypatch,
+        package_result=result,
+        captured=captured,
+    )
+
+    class Finalizer:
+        def finalize(
+            self,
+            *,
+            package_result: Any,
+            validation_result: Any,
+            evidence_reference: Path | None,
+        ) -> object:
+            captured["final_package_result"] = package_result
+            captured["final_validation_result"] = validation_result
+            captured["final_evidence_reference"] = evidence_reference
+            return object()
+
+    monkeypatch.setattr(
+        build_command,
+        "CanonicalBuildResultFinalizer",
+        Finalizer,
+    )
+
+    evidence_output = tmp_path / "build-evidence.json"
+
+    exit_code = build_command.run_package_build(
+        tmp_path / "dist",
+        functional_validation=False,
+        evidence_output=evidence_output,
+    )
+
+    assert exit_code == build_command.EXIT_FAILURE
+
+    assert captured["final_package_result"] is result
+    assert captured["final_validation_result"] is None
+    assert captured["final_evidence_reference"] is None
+
+    assert not evidence_output.exists()
+    assert "validation_profile" not in captured
+    assert "rendered_evidence" not in captured
+
+    assert context.run_package_build.calls == [
+        (
+            tmp_path / "dist",
+            False,
+            BuildProfile.DEVELOPMENT,
+            evidence_output,
+        )
+    ]
+
+
+def test_successful_build_without_evidence_finalizes_canonical_result(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    result = _package_result(successful=True)
+    captured: dict[str, Any] = {}
+
+    context = _CommandContext(result)
+
+    monkeypatch.setattr(
+        build_command,
+        "CommandContext",
+        lambda: context,
+    )
+
+    class Finalizer:
+        def finalize(
+            self,
+            *,
+            package_result: Any,
+            validation_result: Any,
+            evidence_reference: Path | None,
+        ) -> object:
+            captured["final_package_result"] = package_result
+            captured["final_validation_result"] = validation_result
+            captured["final_evidence_reference"] = evidence_reference
+            return object()
+
+    monkeypatch.setattr(
+        build_command,
+        "CanonicalBuildResultFinalizer",
+        Finalizer,
+    )
+
+    output_dir = tmp_path / "dist"
+
+    exit_code = build_command.run_package_build(
+        output_dir,
+        functional_validation=False,
+        evidence_output=None,
+    )
+
+    assert exit_code == build_command.EXIT_SUCCESS
+
+    assert captured["final_package_result"] is result
+    assert captured["final_validation_result"] is None
+    assert captured["final_evidence_reference"] is None
+
+    assert context.run_package_build.calls == [
+        (
+            output_dir,
+            False,
+            BuildProfile.DEVELOPMENT,
+            None,
+        )
+    ]

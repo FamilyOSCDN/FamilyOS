@@ -2253,17 +2253,30 @@ Provide one coherent final result for automation and diagnostics.
 
 ### Checklist
 
-* [ ] Define Build Result representation.
-* [ ] Include Build ID.
-* [ ] Include target.
-* [ ] Include profile.
-* [ ] Include execution status.
-* [ ] Include validation status.
-* [ ] Include artifact set.
-* [ ] Include evidence reference.
-* [ ] Include failure diagnostics.
-* [ ] Ensure failed builds still return useful structured information.
-* [ ] Add serialization if machine-readable automation requires it.
+* [x] Define Build Result representation.
+* [x] Include Build ID.
+* [x] Include target.
+* [x] Include profile.
+* [x] Include execution status.
+* [x] Include validation status.
+* [x] Include artifact set.
+* [x] Include evidence reference.
+* [x] Include failure diagnostics.
+* [x] Ensure failed builds still return useful structured information.
+* [x] Add serialization if machine-readable automation requires it.
+
+Implementation evidence: `CanonicalBuildResult` aggregates the established package
+build, optional Build Validation result, and optional Build Evidence reference
+without recalculating those authorities. It projects the canonical Build ID,
+target, profile, package execution status, validation status, artifact manifest,
+and final diagnostic. `CanonicalBuildResultFinalizer` assembles that result for
+all public `familyos build` exit paths: failed builds, successful builds with
+Build Evidence, and successful builds without Build Evidence. Failed builds
+therefore retain structured package diagnostics while leaving unavailable
+validation and evidence authorities explicitly absent. No separate
+`CanonicalBuildResult` serialization is currently required: machine-readable
+Build Evidence is already emitted through the canonical Build Evidence JSON
+contract, avoiding a redundant second result authority.
 
 ---
 
