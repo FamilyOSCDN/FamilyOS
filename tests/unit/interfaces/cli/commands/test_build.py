@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 from uuid import UUID
 
 import pytest
+from typer.testing import CliRunner
 
 import familyos_cli.interfaces.cli.commands.build as build_command
 from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
@@ -18,10 +20,13 @@ from familyos_cli.application.build.build_validation import (
     BuildValidationRequirement,
     BuildValidationStatus,
 )
+from familyos_cli.interfaces.cli.app import app
 
 _BUILD_ID = BuildId(
     UUID("01234567-89ab-4cde-8f01-23456789abcd")
 )
+
+runner = CliRunner()
 
 
 class _RunPackageBuild:
@@ -158,6 +163,17 @@ def _default_ci_validation_result() -> Any:
     )
 
 
+def _canonical_validation_evidence_json() -> str:
+    """Render canonical CI validation evidence for CLI boundary tests."""
+    from familyos_cli.interfaces.cli.rendering.ci_validation_json import (
+        CiValidationJsonRenderer,
+    )
+
+    return CiValidationJsonRenderer().render(
+        _default_ci_validation_result()
+    )
+
+
 def _default_testing_validation_gate() -> Any:
     ci_validation = _default_ci_validation_result()
 
@@ -210,7 +226,7 @@ def _install_evidence_fakes(
     monkeypatch.setattr(
         build_command,
         "CommandContext",
-        lambda: context,
+        lambda **_: context,
     )
 
     class CheckFactory:
@@ -823,7 +839,7 @@ def test_build_renders_execution_observations_in_order(
     monkeypatch.setattr(
         build_command,
         "CommandContext",
-        lambda: context,
+        lambda **_: context,
     )
 
     exit_code = build_command.run_package_build(
@@ -868,7 +884,7 @@ def test_build_renders_failed_execution_observation_diagnostic(
     monkeypatch.setattr(
         build_command,
         "CommandContext",
-        lambda: context,
+        lambda **_: context,
     )
 
     exit_code = build_command.run_package_build(
@@ -1007,7 +1023,7 @@ def test_successful_build_without_evidence_finalizes_canonical_result(
     monkeypatch.setattr(
         build_command,
         "CommandContext",
-        lambda: context,
+        lambda **_: context,
     )
 
     class Finalizer:
@@ -1494,3 +1510,395 @@ def test_release_candidate_evidence_requires_supplied_testing_authority(
         )
 
     assert context.run_ci_validation.calls == 0
+
+
+def test_release_candidate_cli_loads_testing_authority_from_validation_evidence(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+
+    from familyos_cli.application.build.build_context import BuildProfile
+    from familyos_cli.application.testing import (
+        TestExecutionId as CanonicalTestExecutionId,
+    )
+    from familyos_cli.application.testing import (
+        TestExecutionResult as CanonicalTestExecutionResult,
+    )
+    from familyos_cli.application.testing import (
+        TestExecutionStatus as CanonicalTestExecutionStatus,
+    )
+    from familyos_cli.application.testing import (
+        TestExecutionSummary as CanonicalTestExecutionSummary,
+    )
+    from familyos_cli.application.testing import (
+        TestingEvidence,
+    )
+    from familyos_cli.application.validation import (
+        CiValidationResult,
+        GateResult,
+        ValidationStatus,
+    )
+    from familyos_cli.interfaces.cli.rendering.ci_validation_json import (
+        CiValidationJsonRenderer,
+    )
+
+    evidence = TestingEvidence(
+        execution_id=CanonicalTestExecutionId(
+            UUID("01234567-89ab-cdef-0123-456789abcdef")
+        ),
+        source_revision=(
+            "0123456789abcdef0123456789abcdef01234567"
+        ),
+        source_dirty=False,
+        result=CanonicalTestExecutionResult(
+            status=CanonicalTestExecutionStatus.PASSED,
+            summary=CanonicalTestExecutionSummary(
+                discovered=1725,
+                executed=1725,
+                passed=1725,
+                failed=0,
+                skipped=0,
+                errors=0,
+                duration_seconds=42.5,
+            ),
+        ),
+        captured_at=datetime(
+            2026,
+            8,
+            25,
+            19,
+            30,
+            tzinfo=UTC,
+        ),
+        native_exit_code=0,
+    )
+
+    validation_evidence = tmp_path / "ci-validation.json"
+
+    validation_evidence.write_text(
+        CiValidationJsonRenderer().render(
+            CiValidationResult(
+                gates=(
+                    GateResult(
+                        gate_id="pytest",
+                        status=ValidationStatus.PASSED,
+                        exit_code=0,
+                        testing_evidence=evidence,
+                    ),
+                ),
+            )
+        ),
+        encoding="utf-8",
+    )
+
+    from familyos_cli.application.testing import (
+        TestingEvidenceFreshness,
+    )
+
+    class FreshnessAuthority:
+        def evaluate(
+            self,
+            *,
+            project_root: Path,
+            evidence: Any,
+        ) -> Any:
+            del project_root, evidence
+            return TestingEvidenceFreshness.FRESH
+
+    monkeypatch.setattr(
+        build_command,
+        "_testing_evidence_freshness_authority",
+        lambda **_: FreshnessAuthority(),
+    )
+
+    captured: dict[str, Any] = {}
+
+    def fake_run_package_build(
+        output_dir: Path,
+        *,
+        functional_validation: bool,
+        profile: BuildProfile,
+        evidence_output: Path | None,
+        testing_validation_gate: GateResult | None = None,
+    ) -> int:
+        captured["output_dir"] = output_dir
+        captured["functional_validation"] = functional_validation
+        captured["profile"] = profile
+        captured["evidence_output"] = evidence_output
+        captured["testing_validation_gate"] = testing_validation_gate
+        return build_command.EXIT_SUCCESS
+
+    monkeypatch.setattr(
+        build_command,
+        "run_package_build",
+        fake_run_package_build,
+    )
+
+    output_dir = tmp_path / "dist"
+    build_evidence = tmp_path / "build-evidence.json"
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--profile",
+            BuildProfile.RELEASE_CANDIDATE.value,
+            "--evidence-output",
+            str(build_evidence),
+            "--validation-evidence",
+            str(validation_evidence),
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+
+    gate = captured["testing_validation_gate"]
+
+    assert gate is not None
+    assert gate.gate_id == "pytest"
+    assert gate.status is ValidationStatus.PASSED
+    assert gate.testing_evidence is not None
+    assert gate.testing_evidence.source_revision == (
+        "0123456789abcdef0123456789abcdef01234567"
+    )
+    assert gate.testing_evidence.source_dirty is False
+
+
+def test_release_candidate_cli_rejects_validation_evidence_without_pytest_gate(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.build.build_context import BuildProfile
+    from familyos_cli.application.validation import (
+        CiValidationResult,
+        GateResult,
+        ValidationStatus,
+    )
+    from familyos_cli.interfaces.cli.rendering.ci_validation_json import (
+        CiValidationJsonRenderer,
+    )
+
+    validation_evidence = tmp_path / "ci-validation.json"
+
+    validation_evidence.write_text(
+        CiValidationJsonRenderer().render(
+            CiValidationResult(
+                gates=(
+                    GateResult(
+                        gate_id="ruff",
+                        status=ValidationStatus.PASSED,
+                        exit_code=0,
+                    ),
+                ),
+            )
+        ),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--output-dir",
+            str(tmp_path / "dist"),
+            "--profile",
+            BuildProfile.RELEASE_CANDIDATE.value,
+            "--evidence-output",
+            str(tmp_path / "build-evidence.json"),
+            "--validation-evidence",
+            str(validation_evidence),
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert (
+        "release-candidate build lacks canonical "
+        "pytest validation authority"
+    ) in result.output
+
+
+def test_release_candidate_cli_accepts_fresh_testing_evidence(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from familyos_cli.application.testing import (
+        TestingEvidenceFreshness,
+    )
+
+    validation_evidence = tmp_path / "ci-validation.json"
+    validation_evidence.write_text(
+        _canonical_validation_evidence_json(),
+        encoding="utf-8",
+    )
+
+    captured: dict[str, Any] = {}
+
+    class FreshnessAuthority:
+        def evaluate(
+            self,
+            *,
+            project_root: Path,
+            evidence: Any,
+        ) -> Any:
+            captured["project_root"] = project_root
+            captured["evidence"] = evidence
+            return TestingEvidenceFreshness.FRESH
+
+    monkeypatch.setattr(
+        build_command,
+        "_testing_evidence_freshness_authority",
+        lambda **_: FreshnessAuthority(),
+        raising=False,
+    )
+
+    monkeypatch.setattr(
+        build_command,
+        "run_package_build",
+        lambda *args, **kwargs: build_command.EXIT_SUCCESS,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--profile",
+            "release-candidate",
+            "--validation-evidence",
+            str(validation_evidence),
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    assert captured["evidence"].source_dirty is False
+
+
+def test_release_candidate_cli_rejects_stale_testing_evidence(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from familyos_cli.application.testing import (
+        TestingEvidenceFreshness,
+    )
+
+    validation_evidence = tmp_path / "ci-validation.json"
+    validation_evidence.write_text(
+        _canonical_validation_evidence_json(),
+        encoding="utf-8",
+    )
+
+    class StaleFreshnessAuthority:
+        def evaluate(
+            self,
+            *,
+            project_root: Path,
+            evidence: Any,
+        ) -> Any:
+            return TestingEvidenceFreshness.STALE
+
+    monkeypatch.setattr(
+        build_command,
+        "_testing_evidence_freshness_authority",
+        lambda **_: StaleFreshnessAuthority(),
+        raising=False,
+    )
+
+    build_called = False
+
+    def unexpected_build(
+        *args: Any,
+        **kwargs: Any,
+    ) -> int:
+        nonlocal build_called
+        build_called = True
+        return build_command.EXIT_SUCCESS
+
+    monkeypatch.setattr(
+        build_command,
+        "run_package_build",
+        unexpected_build,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--profile",
+            "release-candidate",
+            "--validation-evidence",
+            str(validation_evidence),
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == build_command.EXIT_FAILURE
+    assert "testing evidence is stale" in result.output.lower()
+    assert build_called is False
+
+
+def test_release_candidate_cli_rejects_unknown_testing_evidence_freshness(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from familyos_cli.application.testing import (
+        TestingEvidenceFreshness,
+    )
+
+    validation_evidence = tmp_path / "ci-validation.json"
+    validation_evidence.write_text(
+        _canonical_validation_evidence_json(),
+        encoding="utf-8",
+    )
+
+    class UnknownFreshnessAuthority:
+        def evaluate(
+            self,
+            *,
+            project_root: Path,
+            evidence: Any,
+        ) -> Any:
+            return TestingEvidenceFreshness.UNKNOWN
+
+    monkeypatch.setattr(
+        build_command,
+        "_testing_evidence_freshness_authority",
+        lambda **_: UnknownFreshnessAuthority(),
+        raising=False,
+    )
+
+    build_called = False
+
+    def unexpected_build(
+        *args: Any,
+        **kwargs: Any,
+    ) -> int:
+        nonlocal build_called
+        build_called = True
+        return build_command.EXIT_SUCCESS
+
+    monkeypatch.setattr(
+        build_command,
+        "run_package_build",
+        unexpected_build,
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "build",
+            "--profile",
+            "release-candidate",
+            "--validation-evidence",
+            str(validation_evidence),
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == build_command.EXIT_FAILURE
+    assert (
+        "testing evidence freshness cannot be established"
+        in result.output.lower()
+    )
+    assert build_called is False

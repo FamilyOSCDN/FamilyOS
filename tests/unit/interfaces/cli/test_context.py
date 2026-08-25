@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import Mock
 
 from familyos_cli.interfaces.cli.context import CommandContext
@@ -35,3 +36,12 @@ def test_should_expose_plugin_resolution_use_case_from_container() -> None:
     assert context.resolve_plugins is resolve_plugins
 
     container.resolve_plugins_use_case.assert_called_once_with()
+
+
+def test_command_context_propagates_explicit_project_root(
+    tmp_path: Path,
+) -> None:
+    """CLI composition preserves the explicitly selected repository root."""
+    context = CommandContext(project_root=tmp_path)
+
+    assert context.project_root == tmp_path.resolve()

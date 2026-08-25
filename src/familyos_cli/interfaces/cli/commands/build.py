@@ -34,10 +34,17 @@ from familyos_cli.application.build.effective_build_configuration_view import (
 from familyos_cli.application.build.source_state_validator import (
     SourceStateValidator,
 )
+from familyos_cli.application.testing import (
+    EvaluateTestingEvidenceFreshnessUseCase,
+    TestingEvidenceFreshness,
+)
 from familyos_cli.application.validation import GateResult
 from familyos_cli.interfaces.cli.context import CommandContext
 from familyos_cli.interfaces.cli.rendering.build_evidence_json import (
     BuildEvidenceJsonRenderer,
+)
+from familyos_cli.interfaces.cli.rendering.ci_validation_json_loader import (
+    CiValidationJsonLoader,
 )
 
 EXIT_SUCCESS = 0
@@ -54,6 +61,16 @@ _VALIDATION_PROFILE_BY_BUILD_PROFILE = {
 }
 
 
+def _testing_evidence_freshness_authority(
+    *,
+    project_root: Path,
+) -> EvaluateTestingEvidenceFreshnessUseCase:
+    """Return canonical Testing Evidence freshness authority."""
+    return CommandContext(
+        project_root=project_root,
+    ).testing_evidence_freshness
+
+
 def run_package_build(
     output_dir: Path,
     *,
@@ -64,7 +81,9 @@ def run_package_build(
 ) -> int:
     """Execute and render the canonical package build."""
 
-    result = CommandContext().run_package_build.execute(
+    result = CommandContext(
+        project_root=Path.cwd(),
+    ).run_package_build.execute(
         output_dir,
         validate_functionally=functional_validation,
         profile=profile,
@@ -384,14 +403,93 @@ def build(
             ),
         ),
     ] = None,
+    validation_evidence: Annotated[
+        Path | None,
+        typer.Option(
+            "--validation-evidence",
+            help=(
+                "Canonical CI validation evidence providing "
+                "release-candidate testing authority."
+            ),
+        ),
+    ] = None,
+
 ) -> None:
     """Build the FamilyOS wheel and source distribution without publishing."""
+
+    testing_validation_gate = None
+
+    if validation_evidence is not None:
+        validation_result = CiValidationJsonLoader().load(
+            validation_evidence.read_text(encoding="utf-8")
+        )
+
+        testing_validation_gate = next(
+            (
+                gate
+                for gate in validation_result.gates
+                if gate.gate_id == "pytest"
+            ),
+            None,
+        )
+
+        if (
+            profile is BuildProfile.RELEASE_CANDIDATE
+            and testing_validation_gate is None
+        ):
+            typer.echo(
+                "release-candidate build lacks canonical "
+                "pytest validation authority"
+            )
+            raise typer.Exit(code=EXIT_FAILURE)
+
+    if (
+        profile is BuildProfile.RELEASE_CANDIDATE
+        and testing_validation_gate is not None
+    ):
+        testing_evidence = testing_validation_gate.testing_evidence
+
+        if testing_evidence is None:
+            typer.echo(
+                "release-candidate build lacks canonical "
+                "pytest validation authority"
+            )
+            raise typer.Exit(code=EXIT_FAILURE)
+
+        testing_evidence_freshness = (
+            _testing_evidence_freshness_authority(
+                project_root=Path.cwd(),
+            ).evaluate(
+                project_root=Path.cwd(),
+                evidence=testing_evidence,
+            )
+        )
+
+        if (
+            testing_evidence_freshness
+            is TestingEvidenceFreshness.STALE
+        ):
+            typer.echo(
+                "release-candidate testing evidence is stale"
+            )
+            raise typer.Exit(code=EXIT_FAILURE)
+
+        if (
+            testing_evidence_freshness
+            is not TestingEvidenceFreshness.FRESH
+        ):
+            typer.echo(
+                "release-candidate testing evidence freshness "
+                "cannot be established"
+            )
+            raise typer.Exit(code=EXIT_FAILURE)
 
     exit_code = run_package_build(
         output_dir,
         functional_validation=functional_validation,
         profile=profile,
         evidence_output=evidence_output,
+        testing_validation_gate=testing_validation_gate,
     )
 
     if exit_code != EXIT_SUCCESS:

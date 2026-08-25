@@ -85,6 +85,7 @@ def test_renderer_projects_testing_evidence_for_pytest_gate() -> None:
         "source_revision": (
             "0123456789abcdef0123456789abcdef01234567"
         ),
+        "source_dirty": False,
         "captured_at": "2026-08-25T07:30:00+00:00",
         "native_exit_code": 0,
         "result": {

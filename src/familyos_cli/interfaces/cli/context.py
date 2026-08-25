@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from functools import cached_property
+from pathlib import Path
 
 from familyos_cli.application.build import RunPackageBuildUseCase
 from familyos_cli.application.generation.domain_generation_catalog_service import (
@@ -16,6 +17,9 @@ from familyos_cli.application.generation.recipe_catalog_service import (
 )
 from familyos_cli.application.specifications.domain_specification_loader_service import (
     DomainSpecificationLoaderService,
+)
+from familyos_cli.application.testing import (
+    EvaluateTestingEvidenceFreshnessUseCase,
 )
 from familyos_cli.application.use_cases.check_plugin_compliance import (
     CheckPluginComplianceUseCase,
@@ -45,14 +49,24 @@ class CommandContext:
     def __init__(
         self,
         container: ApplicationContainer | None = None,
+        project_root: Path | None = None,
     ) -> None:
         """Initialize CLI context."""
 
-        self._container = (
-            container
-            if container is not None
-            else ApplicationFactory.create()
-        )
+        if container is not None:
+            self._container = container
+        elif project_root is not None:
+            self._container = ApplicationContainer(
+                project_root=project_root,
+            )
+        else:
+            self._container = ApplicationFactory.create()
+
+    @property
+    def project_root(self) -> Path:
+        """Return the repository root selected by CLI composition."""
+
+        return self._container.project_root
 
     @cached_property
     def create_project(
@@ -125,6 +139,14 @@ class CommandContext:
         """Provide plugin compliance checking use case."""
 
         return self._container.check_plugin_compliance_use_case()
+
+    @cached_property
+    def testing_evidence_freshness(
+        self,
+    ) -> EvaluateTestingEvidenceFreshnessUseCase:
+        """Provide the canonical Testing Evidence freshness authority."""
+
+        return self._container.testing_evidence_freshness_use_case()
 
     @cached_property
     def run_ci_validation(self) -> RunCiValidationUseCase:

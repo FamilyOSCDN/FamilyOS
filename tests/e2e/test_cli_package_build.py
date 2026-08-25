@@ -72,7 +72,11 @@ def _install_context(
     result: CanonicalPackageBuildResult,
 ) -> _UseCase:
     use_case = _UseCase(result)
-    monkeypatch.setattr(build_command, "CommandContext", lambda: _Context(use_case))
+    monkeypatch.setattr(
+        build_command,
+        "CommandContext",
+        lambda **_: _Context(use_case),
+    )
     return use_case
 
 
@@ -493,16 +497,12 @@ def test_real_familyos_build_rejects_ci_profile_without_evidence(
     assert not output_dir.exists()
 
 
-@pytest.mark.parametrize(
-    "profile",
-    (BuildProfile.CI, BuildProfile.RELEASE_CANDIDATE),
-)
-def test_real_familyos_build_evidence_captures_dependency_state_and_profile(
+def test_real_familyos_ci_build_evidence_captures_dependency_state_and_profile(
     tmp_path: Path,
-    profile: BuildProfile,
 ) -> None:
-    output_dir = tmp_path / f"real-{profile.value}-package-output"
-    evidence_output = tmp_path / f"{profile.value}-build-evidence.json"
+    profile = BuildProfile.CI
+    output_dir = tmp_path / "real-ci-package-output"
+    evidence_output = tmp_path / "ci-build-evidence.json"
 
     result = runner.invoke(
         app,
@@ -537,3 +537,216 @@ def test_real_familyos_build_evidence_captures_dependency_state_and_profile(
     assert len(dependency_state["declaration"]["sha256"]) == 64
     assert len(dependency_state["lock"]["sha256"]) == 64
     assert str(Path.cwd()) not in json.dumps(dependency_state)
+
+
+def test_real_release_candidate_build_consumes_fresh_validation_evidence(
+    tmp_path: Path,
+) -> None:
+    """RC build consumes external fresh canonical pytest authority."""
+    import subprocess
+    from datetime import UTC, datetime
+    from uuid import uuid4
+
+    from familyos_cli.application.testing import (
+        TestExecutionId,
+        TestExecutionResult,
+        TestExecutionStatus,
+        TestExecutionSummary,
+        TestingEvidence,
+    )
+    from familyos_cli.application.validation import (
+        CiValidationResult,
+        GateResult,
+        ValidationStatus,
+    )
+    from familyos_cli.interfaces.cli.rendering.ci_validation_json import (
+        CiValidationJsonRenderer,
+    )
+
+    repository_root = Path.cwd()
+    materialized_root = tmp_path / "release-candidate-repository"
+
+    subprocess.run(
+        (
+            "rsync",
+            "-a",
+            "--exclude=.git",
+            "--exclude=.venv",
+            "--exclude=dist",
+            "--exclude=build",
+            "--exclude=*.egg-info",
+            f"{repository_root}/",
+            f"{materialized_root}/",
+        ),
+        check=True,
+    )
+
+    subprocess.run(
+        ("git", "init", "-q"),
+        cwd=materialized_root,
+        check=True,
+    )
+    subprocess.run(
+        (
+            "git",
+            "config",
+            "user.name",
+            "FamilyOS C6 E2E",
+        ),
+        cwd=materialized_root,
+        check=True,
+    )
+    subprocess.run(
+        (
+            "git",
+            "config",
+            "user.email",
+            "familyos-c6-e2e@example.invalid",
+        ),
+        cwd=materialized_root,
+        check=True,
+    )
+    subprocess.run(
+        ("git", "add", "-A"),
+        cwd=materialized_root,
+        check=True,
+    )
+    subprocess.run(
+        (
+            "git",
+            "commit",
+            "-q",
+            "-m",
+            "test: materialize release candidate source",
+        ),
+        cwd=materialized_root,
+        check=True,
+    )
+
+    revision = subprocess.run(
+        (
+            "git",
+            "rev-parse",
+            "--verify",
+            "HEAD^{commit}",
+        ),
+        cwd=materialized_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout.strip()
+
+    testing_evidence = TestingEvidence(
+        execution_id=TestExecutionId(uuid4()),
+        source_revision=revision,
+        source_dirty=False,
+        result=TestExecutionResult(
+            status=TestExecutionStatus.PASSED,
+            summary=TestExecutionSummary(
+                discovered=1,
+                executed=1,
+                passed=1,
+                failed=0,
+                skipped=0,
+                errors=0,
+                duration_seconds=0.001,
+            ),
+        ),
+        captured_at=datetime.now(UTC),
+        native_exit_code=0,
+    )
+
+    validation_result = CiValidationResult(
+        gates=(
+            GateResult(
+                gate_id="pytest",
+                status=ValidationStatus.PASSED,
+                exit_code=0,
+                testing_evidence=testing_evidence,
+            ),
+        ),
+    )
+
+    # Validation Evidence is deliberately external to the source tree
+    # whose revision it attests.
+    validation_evidence = tmp_path / "ci-validation.json"
+    validation_evidence.write_text(
+        CiValidationJsonRenderer().render(validation_result),
+        encoding="utf-8",
+    )
+
+    assert subprocess.run(
+        ("git", "status", "--porcelain"),
+        cwd=materialized_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout == ""
+
+    output_dir = tmp_path / "dist-rc"
+    build_evidence = tmp_path / "build-evidence.json"
+
+    completed = subprocess.run(
+        (
+            "familyos",
+            "build",
+            "--output-dir",
+            str(output_dir),
+            "--profile",
+            BuildProfile.RELEASE_CANDIDATE.value,
+            "--evidence-output",
+            str(build_evidence),
+            "--validation-evidence",
+            str(validation_evidence),
+        ),
+        cwd=materialized_root,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    source_status_after_build = subprocess.run(
+        (
+            "git",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+        ),
+        cwd=materialized_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout
+
+    source_diff_after_build = subprocess.run(
+        ("git", "diff", "--"),
+        cwd=materialized_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout
+
+    assert completed.returncode == 0, (
+        f"STDOUT:\n{completed.stdout}\n"
+        f"STDERR:\n{completed.stderr}\n"
+        f"GIT STATUS AFTER BUILD:\n"
+        f"{source_status_after_build}\n"
+        f"GIT DIFF AFTER BUILD:\n"
+        f"{source_diff_after_build}"
+    )
+
+    payload = json.loads(
+        build_evidence.read_text(encoding="utf-8")
+    )
+
+    assert payload["validation"]["profile"] == (
+        BuildProfile.RELEASE_CANDIDATE.value
+    )
+
+    assert subprocess.run(
+        ("git", "status", "--porcelain"),
+        cwd=materialized_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout == ""

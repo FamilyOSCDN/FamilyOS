@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from familyos_cli.application.use_cases.create_domain import (
     CreateDomainUseCase,
 )
@@ -15,3 +17,12 @@ def test_container_creates_domain_generation_use_case() -> None:
         use_case,
         CreateDomainUseCase,
     )
+
+
+def test_application_container_preserves_explicit_project_root(
+    tmp_path: Path,
+) -> None:
+    """Composition root preserves an explicitly selected repository root."""
+    container = ApplicationContainer(project_root=tmp_path)
+
+    assert container.project_root == tmp_path.resolve()

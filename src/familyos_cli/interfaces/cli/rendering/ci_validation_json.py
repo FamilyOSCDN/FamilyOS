@@ -38,6 +38,7 @@ class CiValidationJsonRenderer:
             payload["testing_evidence"] = {
                 "execution_id": str(evidence.execution_id),
                 "source_revision": evidence.source_revision,
+                "source_dirty": evidence.source_dirty,
                 "captured_at": evidence.captured_at.isoformat(),
                 "native_exit_code": evidence.native_exit_code,
                 "result": {

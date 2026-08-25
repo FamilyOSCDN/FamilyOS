@@ -160,8 +160,15 @@ class ApplicationContainer:
 
     def __init__(
         self,
+        project_root: Path | None = None,
     ) -> None:
         """Initialize application dependencies."""
+
+        self._project_root = (
+            project_root.resolve()
+            if project_root is not None
+            else Path(__file__).resolve().parents[3]
+        )
 
         self._runtime = RuntimeFactory.create()
 
@@ -254,10 +261,25 @@ class ApplicationContainer:
             plugins_root=self._builtin_plugins_root,
         )
 
+    @property
+    def project_root(self) -> Path:
+        """Return the canonical repository root for this composition."""
+
+        return self._project_root
+
+    def testing_evidence_freshness_use_case(
+        self,
+    ) -> EvaluateTestingEvidenceFreshnessUseCase:
+        """Create the canonical Testing Evidence freshness authority."""
+
+        return EvaluateTestingEvidenceFreshnessUseCase(
+            source_state_provider=GitTestingSourceStateProvider(),
+        )
+
     def run_ci_validation_use_case(self) -> RunCiValidationUseCase:
         """Create the provider-neutral canonical CI validation use case."""
 
-        project_root = Path(__file__).resolve().parents[3]
+        project_root = self._project_root
         python = sys.executable
         compliance_use_case = self.check_plugin_compliance_use_case()
 
@@ -297,11 +319,7 @@ class ApplicationContainer:
                         ),
                     ),
                     freshness_authority=(
-                        EvaluateTestingEvidenceFreshnessUseCase(
-                            source_state_provider=(
-                                GitTestingSourceStateProvider()
-                            ),
-                        )
+                        self.testing_evidence_freshness_use_case()
                     ),
                     project_root=project_root,
                 ),
@@ -316,7 +334,7 @@ class ApplicationContainer:
     def run_package_build_use_case(self) -> RunPackageBuildUseCase:
         """Create the provider-neutral canonical package-build use case."""
 
-        project_root = Path(__file__).resolve().parents[3]
+        project_root = self._project_root
         return RunPackageBuildUseCase(
             builder=PythonPackageBuilder(),
             discoverer=DiscoverPackageArtifactsUseCase(),
