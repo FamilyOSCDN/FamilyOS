@@ -2792,3 +2792,58 @@ Level 18 — Artifact Manifest is complete at 11/11.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Reproducibility Baseline Validation — 2026-08-26
+
+Level 40 reproducibility work introduced canonical wall-clock normalization at
+the Python package-builder execution boundary.
+
+`PythonPackageBuilder` now sets:
+
+```text
+SOURCE_DATE_EPOCH=315532800
+```
+
+The canonical value is applied whether the caller environment omits
+SOURCE_DATE_EPOCH or supplies another value.
+
+Focused tests verify both cases.
+
+Two consecutive canonical validation-profile builds were executed from
+equivalent controlled inputs.
+
+Observed results:
+
+the Python wheel was byte-for-byte identical;
+wheel size was identical at 481456 bytes;
+wheel SHA-256 was identical at
+dd817dd317062f411f564c635bb9ae8caaeda57762d3f0a602c777d761b8f42c;
+wheel archive-member timestamps were identical;
+the source distribution remained logically equivalent but not byte-for-byte
+identical;
+source-distribution variability remained confined to backend-generated
+archive metadata, including temporal metadata.
+
+A separate falsification experiment normalized all staged input mtimes and
+retained the same canonical SOURCE_DATE_EPOCH. The source distribution still
+contained backend-generated temporal metadata differences. This demonstrates
+that the remaining sdist variability is not caused by FamilyOS input staging.
+
+No custom archive rewriting is introduced at this maturity level.
+
+The Level 40 acceptance target remains:
+
+Equivalent Controlled Inputs
+            ↓
+Equivalent Logical Artifact
+
+Bit-for-bit identity remains a stronger maturity target.
+
+This evidence closes the Level 40 checklist items for removing unnecessary
+time-dependent artifact influence at the current FamilyOS package-builder
+boundary and comparing repeated builds.
+
+Level 40 currently stands at 5/11.
+
+Framework version 1.0.0 and immutable historical publication tag
+v4.7.0-build-framework remain unchanged.

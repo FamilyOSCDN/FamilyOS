@@ -13,6 +13,7 @@ from familyos_cli.application.build import PackageBuildResult, PackageBuildStatu
 from familyos_cli.application.ports.build import PackageBuilderPort
 
 _MAX_DIAGNOSTIC_CHARACTERS = 2000
+_CANONICAL_SOURCE_DATE_EPOCH = "315532800"
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,6 +106,7 @@ class PythonPackageBuilder(PackageBuilderPort):
         ):
             environment.pop(name, None)
         environment["PYTHONNOUSERSITE"] = "1"
+        environment["SOURCE_DATE_EPOCH"] = _CANONICAL_SOURCE_DATE_EPOCH
         return environment
 
     def _normalize_diagnostic(self, diagnostic: str, project_root: Path) -> str:

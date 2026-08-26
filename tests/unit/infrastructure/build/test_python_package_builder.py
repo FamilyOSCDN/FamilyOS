@@ -343,3 +343,59 @@ def test_subprocess_launch_problem_is_execution_error(
     assert result.outputs == (partial,)
     assert stale not in result.outputs
     assert result.diagnostic == "frontend unavailable"
+
+
+def test_build_uses_canonical_source_date_epoch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("SOURCE_DATE_EPOCH", raising=False)
+    environments: list[dict[str, str]] = []
+
+    def succeed(
+        command: tuple[str, ...],
+        *,
+        env: dict[str, str],
+        **kwargs: object,
+    ) -> subprocess.CompletedProcess[str]:
+        environments.append(env)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", succeed)
+
+    result = PythonPackageBuilder("/controlled/python").build(
+        project_root=tmp_path,
+        output_dir=tmp_path / "packages",
+    )
+
+    assert result.status is PackageBuildStatus.SUCCEEDED
+    assert len(environments) == 1
+    assert environments[0]["SOURCE_DATE_EPOCH"] == "315532800"
+
+
+def test_build_overrides_inherited_source_date_epoch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", "1787654321")
+    environments: list[dict[str, str]] = []
+
+    def succeed(
+        command: tuple[str, ...],
+        *,
+        env: dict[str, str],
+        **kwargs: object,
+    ) -> subprocess.CompletedProcess[str]:
+        environments.append(env)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", succeed)
+
+    result = PythonPackageBuilder("/controlled/python").build(
+        project_root=tmp_path,
+        output_dir=tmp_path / "packages",
+    )
+
+    assert result.status is PackageBuildStatus.SUCCEEDED
+    assert len(environments) == 1
+    assert environments[0]["SOURCE_DATE_EPOCH"] == "315532800"

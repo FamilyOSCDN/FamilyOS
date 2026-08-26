@@ -3430,11 +3430,11 @@ Move from repeatable procedure toward reconstructable Build Context.
 * [x] Establish controlled dependency state.
 * [ ] Establish critical toolchain version identity.
 * [x] Establish reconstructable environment setup.
-* [ ] Remove time-dependent artifact content where unnecessary.
+* [x] Remove time-dependent artifact content where unnecessary.
 * [ ] Remove random artifact content where unnecessary.
 * [ ] Normalize input ordering where relevant.
 * [ ] Reduce uncontrolled network dependency.
-* [ ] Compare repeated builds.
+* [x] Compare repeated builds.
 * [x] Document known reproducibility limitations.
 
 ---
@@ -3450,6 +3450,28 @@ Equivalent Logical Artifact
 ```
 
 Bit-for-bit identity may be a later objective.
+
+### Current Reproducibility Baseline
+
+Canonical Python package construction now normalizes `SOURCE_DATE_EPOCH` to
+`315532800` at the package-builder execution boundary.
+
+Repeated canonical validation-profile builds from equivalent controlled inputs
+produced equivalent logical artifacts.
+
+The Python wheel was byte-for-byte identical across both executions, including
+identical size, identical SHA-256, identical member contents, and identical
+archive-member timestamps.
+
+The source distribution remained logically equivalent but not byte-for-byte
+identical. Its logical file contents were unchanged, while backend-generated
+archive metadata retained temporal variability.
+
+This baseline therefore removes unnecessary wall-clock influence at the
+FamilyOS package-builder boundary and records the remaining source-distribution
+archive metadata variability as a known limitation.
+
+Level 40 currently stands at 5/11.
 
 ---
 
