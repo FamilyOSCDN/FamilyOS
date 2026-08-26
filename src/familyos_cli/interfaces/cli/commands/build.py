@@ -25,6 +25,9 @@ from familyos_cli.application.build.build_validation_checks import (
 from familyos_cli.application.build.build_validation_orchestrator import (
     BuildValidationOrchestrator,
 )
+from familyos_cli.application.build.canonical_build_result import (
+    CanonicalBuildResult,
+)
 from familyos_cli.application.build.canonical_build_result_finalizer import (
     CanonicalBuildResultFinalizer,
 )
@@ -94,11 +97,12 @@ def run_package_build(
     _render_result(result)
 
     if not result.successful:
-        CanonicalBuildResultFinalizer().finalize(
+        canonical_result = CanonicalBuildResultFinalizer().finalize(
             package_result=result,
             validation_result=None,
             evidence_reference=None,
         )
+        _render_failure_classification(canonical_result)
         return EXIT_FAILURE
 
     if evidence_output is not None:
@@ -363,6 +367,24 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
     if result.diagnostic:
         typer.echo(
             result.diagnostic,
+            err=True,
+        )
+
+
+def _render_failure_classification(
+    result: CanonicalBuildResult,
+) -> None:
+    """Render canonical failure classification and corrective direction."""
+
+    if result.failure_category is not None:
+        typer.echo(
+            f"Failure Category: {result.failure_category.value}",
+            err=True,
+        )
+
+    if result.corrective_information is not None:
+        typer.echo(
+            f"Corrective Action: {result.corrective_information}",
             err=True,
         )
 

@@ -53,6 +53,9 @@ from familyos_cli.application.build.build_execution_observation import (
     BuildExecutionStage,
     BuildExecutionStageStatus,
 )
+from familyos_cli.application.build.build_failure_category import (
+    BuildFailureCategory,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
 from familyos_cli.application.build.build_workspace import BuildWorkspace
@@ -149,6 +152,7 @@ __all__ = [
     "BuildExecutionObservation",
     "BuildExecutionStage",
     "BuildExecutionStageStatus",
+    "BuildFailureCategory",
     "BuildWorkspace",
     "BuildWorkspaceInitializer",
     "BuildContext",

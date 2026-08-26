@@ -13,6 +13,15 @@ from familyos_cli.application.build.build_context import (
     BuildProfile,
     BuildTarget,
 )
+from familyos_cli.application.build.build_execution_observation import (
+    BuildExecutionStageStatus,
+)
+from familyos_cli.application.build.build_failure_category import (
+    BuildFailureCategory,
+    corrective_information_for_failure_category,
+    failure_category_for_execution_stage,
+    failure_category_for_validation_domain,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationRequirement,
@@ -102,6 +111,48 @@ class CanonicalBuildResult:
             return False
 
         return self.evidence_reference is not None
+
+    @property
+    def failure_category(self) -> BuildFailureCategory | None:
+        """Return the authoritative high-level failure classification."""
+
+        validation_result = self.validation_result
+
+        if validation_result is not None:
+            for check in validation_result.checks:
+                if (
+                    check.requirement
+                    is BuildValidationRequirement.REQUIRED
+                    and check.status is BuildValidationStatus.FAILED
+                ):
+                    return failure_category_for_validation_domain(
+                        check.domain
+                    )
+
+        if not self.package_result.successful:
+            for observation in self.package_result.execution_observations:
+                if (
+                    observation.status
+                    is BuildExecutionStageStatus.FAILED
+                ):
+                    return failure_category_for_execution_stage(
+                        observation.stage
+                    )
+
+            return BuildFailureCategory.EXECUTION
+
+        return None
+
+    @property
+    def corrective_information(self) -> str | None:
+        """Return corrective direction for the canonical failure category."""
+
+        category = self.failure_category
+
+        if category is None:
+            return None
+
+        return corrective_information_for_failure_category(category)
 
     @property
     def diagnostic(self) -> str | None:

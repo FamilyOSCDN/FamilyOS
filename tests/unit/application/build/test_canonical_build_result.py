@@ -332,3 +332,263 @@ def test_canonical_build_result_has_no_diagnostic_when_none_exists() -> None:
     )
 
     assert result.diagnostic is None
+
+
+def test_canonical_build_result_has_no_failure_category_when_successful() -> None:
+    from typing import cast
+
+    from familyos_cli.application.build.artifact_discovery import (
+        CanonicalPackageBuildResult,
+    )
+    from familyos_cli.application.build.canonical_build_result import (
+        CanonicalBuildResult,
+    )
+
+    class _PackageResult:
+        successful = True
+        execution_observations = ()
+
+    result = CanonicalBuildResult(
+        package_result=cast(CanonicalPackageBuildResult, _PackageResult()),
+        validation_result=None,
+        evidence_reference=None,
+    )
+
+    assert result.failure_category is None
+
+
+def test_canonical_build_result_projects_required_validation_failure_category(
+) -> None:
+    from typing import cast
+
+    from familyos_cli.application.build.artifact_discovery import (
+        CanonicalPackageBuildResult,
+    )
+    from familyos_cli.application.build.build_failure_category import (
+        BuildFailureCategory,
+    )
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationCheckResult,
+        BuildValidationDomain,
+        BuildValidationRequirement,
+        BuildValidationResult,
+        BuildValidationStatus,
+    )
+    from familyos_cli.application.build.canonical_build_result import (
+        CanonicalBuildResult,
+    )
+
+    class _PackageResult:
+        successful = True
+        execution_observations = ()
+
+    validation_result = BuildValidationResult(
+        build_id=cast(object, None),  # type: ignore[arg-type]
+        profile=cast(object, None),  # type: ignore[arg-type]
+        checks=(
+            BuildValidationCheckResult(
+                check_id="artifact-integrity",
+                domain=BuildValidationDomain.INTEGRITY,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=BuildValidationStatus.FAILED,
+                diagnostic="artifact integrity verification failed",
+            ),
+        ),
+        status=BuildValidationStatus.FAILED,
+    )
+
+    result = CanonicalBuildResult(
+        package_result=cast(CanonicalPackageBuildResult, _PackageResult()),
+        validation_result=validation_result,
+        evidence_reference=None,
+    )
+
+    assert result.failure_category is BuildFailureCategory.INTEGRITY
+
+
+def test_canonical_build_result_projects_failed_execution_stage_category(
+) -> None:
+    from typing import cast
+
+    from familyos_cli.application.build.artifact_discovery import (
+        CanonicalPackageBuildResult,
+    )
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionObservation,
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+    from familyos_cli.application.build.build_failure_category import (
+        BuildFailureCategory,
+    )
+    from familyos_cli.application.build.canonical_build_result import (
+        CanonicalBuildResult,
+    )
+
+    class _PackageResult:
+        successful = False
+        execution_observations = (
+            BuildExecutionObservation(
+                stage=BuildExecutionStage.VALIDATE_TOOLCHAIN,
+                status=BuildExecutionStageStatus.FAILED,
+                duration_seconds=0.1,
+                diagnostic="unsupported build toolchain",
+            ),
+        )
+
+    result = CanonicalBuildResult(
+        package_result=cast(CanonicalPackageBuildResult, _PackageResult()),
+        validation_result=None,
+        evidence_reference=None,
+    )
+
+    assert result.failure_category is BuildFailureCategory.TOOLCHAIN
+
+
+def test_canonical_build_result_validation_failure_precedes_execution_failure(
+) -> None:
+    from typing import cast
+
+    from familyos_cli.application.build.artifact_discovery import (
+        CanonicalPackageBuildResult,
+    )
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionObservation,
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+    from familyos_cli.application.build.build_failure_category import (
+        BuildFailureCategory,
+    )
+    from familyos_cli.application.build.build_validation import (
+        BuildValidationCheckResult,
+        BuildValidationDomain,
+        BuildValidationRequirement,
+        BuildValidationResult,
+        BuildValidationStatus,
+    )
+    from familyos_cli.application.build.canonical_build_result import (
+        CanonicalBuildResult,
+    )
+
+    class _PackageResult:
+        successful = False
+        execution_observations = (
+            BuildExecutionObservation(
+                stage=BuildExecutionStage.PACKAGE,
+                status=BuildExecutionStageStatus.FAILED,
+                duration_seconds=0.2,
+            ),
+        )
+
+    validation_result = BuildValidationResult(
+        build_id=cast(object, None),  # type: ignore[arg-type]
+        profile=cast(object, None),  # type: ignore[arg-type]
+        checks=(
+            BuildValidationCheckResult(
+                check_id="dependency-consistency",
+                domain=BuildValidationDomain.DEPENDENCY,
+                requirement=BuildValidationRequirement.REQUIRED,
+                status=BuildValidationStatus.FAILED,
+                diagnostic="dependency state is inconsistent",
+            ),
+        ),
+        status=BuildValidationStatus.FAILED,
+    )
+
+    result = CanonicalBuildResult(
+        package_result=cast(CanonicalPackageBuildResult, _PackageResult()),
+        validation_result=validation_result,
+        evidence_reference=None,
+    )
+
+    assert result.failure_category is BuildFailureCategory.DEPENDENCY
+
+
+def test_canonical_build_result_falls_back_to_execution_failure_category(
+) -> None:
+    from typing import cast
+
+    from familyos_cli.application.build.artifact_discovery import (
+        CanonicalPackageBuildResult,
+    )
+    from familyos_cli.application.build.build_failure_category import (
+        BuildFailureCategory,
+    )
+    from familyos_cli.application.build.canonical_build_result import (
+        CanonicalBuildResult,
+    )
+
+    class _PackageResult:
+        successful = False
+        execution_observations = ()
+
+    result = CanonicalBuildResult(
+        package_result=cast(CanonicalPackageBuildResult, _PackageResult()),
+        validation_result=None,
+        evidence_reference=None,
+    )
+
+    assert result.failure_category is BuildFailureCategory.EXECUTION
+
+
+def test_successful_canonical_build_result_has_no_corrective_information(
+) -> None:
+    from typing import cast
+
+    from familyos_cli.application.build.artifact_discovery import (
+        CanonicalPackageBuildResult,
+    )
+    from familyos_cli.application.build.canonical_build_result import (
+        CanonicalBuildResult,
+    )
+
+    class _PackageResult:
+        successful = True
+        execution_observations = ()
+
+    result = CanonicalBuildResult(
+        package_result=cast(CanonicalPackageBuildResult, _PackageResult()),
+        validation_result=None,
+        evidence_reference=None,
+    )
+
+    assert result.corrective_information is None
+
+
+def test_failed_canonical_build_result_projects_corrective_information(
+) -> None:
+    from typing import cast
+
+    from familyos_cli.application.build.artifact_discovery import (
+        CanonicalPackageBuildResult,
+    )
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionObservation,
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+    from familyos_cli.application.build.canonical_build_result import (
+        CanonicalBuildResult,
+    )
+
+    class _PackageResult:
+        successful = False
+        execution_observations = (
+            BuildExecutionObservation(
+                stage=BuildExecutionStage.VALIDATE_TOOLCHAIN,
+                status=BuildExecutionStageStatus.FAILED,
+                duration_seconds=0.1,
+                diagnostic="unsupported build toolchain",
+            ),
+        )
+
+    result = CanonicalBuildResult(
+        package_result=cast(CanonicalPackageBuildResult, _PackageResult()),
+        validation_result=None,
+        evidence_reference=None,
+    )
+
+    assert result.corrective_information == (
+        "Restore the required build toolchain and retry."
+    )

@@ -1028,7 +1028,11 @@ def test_failed_build_finalizes_canonical_build_result(
             captured["final_package_result"] = package_result
             captured["final_validation_result"] = validation_result
             captured["final_evidence_reference"] = evidence_reference
-            return object()
+            class FinalResult:
+                failure_category = None
+                corrective_information = None
+
+            return FinalResult()
 
     monkeypatch.setattr(
         build_command,
@@ -1997,3 +2001,45 @@ def test_release_candidate_cli_rejects_unknown_testing_evidence_freshness(
         in result.output.lower()
     )
     assert build_called is False
+
+
+def test_failed_build_renders_canonical_failure_classification(
+    monkeypatch: Any,
+    capsys: Any,
+) -> None:
+    from familyos_cli.application.build.build_execution_observation import (
+        BuildExecutionObservation,
+        BuildExecutionStage,
+        BuildExecutionStageStatus,
+    )
+
+    result = _package_result(successful=False)
+    result.execution_observations = (
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.VALIDATE_TOOLCHAIN,
+            status=BuildExecutionStageStatus.FAILED,
+            duration_seconds=0.1,
+            diagnostic="unsupported build toolchain",
+        ),
+    )
+
+    context = _CommandContext(result)
+    monkeypatch.setattr(
+        build_command,
+        "CommandContext",
+        lambda **_: context,
+    )
+
+    exit_code = build_command.run_package_build(
+        Path("dist"),
+        functional_validation=False,
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == build_command.EXIT_FAILURE
+    assert "Failure Category: toolchain" in captured.err
+    assert (
+        "Corrective Action: Restore the required build toolchain and retry."
+        in captured.err
+    )

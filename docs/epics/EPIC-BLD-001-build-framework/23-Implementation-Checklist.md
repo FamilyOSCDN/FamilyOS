@@ -3030,17 +3030,60 @@ Improve diagnostics through consistent failure categories.
 
 ### Checklist
 
-* [ ] Define input failure category.
-* [ ] Define configuration failure category.
-* [ ] Define dependency failure category.
-* [ ] Define toolchain failure category.
-* [ ] Define environment failure category.
-* [ ] Define execution failure category.
-* [ ] Define artifact failure category.
-* [ ] Define validation failure category.
-* [ ] Define integrity failure category.
-* [ ] Ensure diagnostics include corrective information.
-* [ ] Add failure-path tests.
+* [x] Define input failure category.
+* [x] Define configuration failure category.
+* [x] Define dependency failure category.
+* [x] Define toolchain failure category.
+* [x] Define environment failure category.
+* [x] Define execution failure category.
+* [x] Define artifact failure category.
+* [x] Define validation failure category.
+* [x] Define integrity failure category.
+* [x] Ensure diagnostics include corrective information.
+* [x] Add failure-path tests.
+
+### Implementation Status
+
+Level 35 failure classification is complete for the current Build Framework
+scope.
+
+`BuildFailureCategory` establishes nine stable machine-readable categories:
+input, configuration, dependency, toolchain, environment, execution, artifact,
+validation, and integrity.
+
+Classification is a projection over already established Build authorities. It
+does not parse free-form diagnostic text. Failed required Build Validation
+checks are classified from their `BuildValidationDomain`. When no more specific
+failed validation authority exists, failed `BuildExecutionObservation` stages
+provide the classification. A failed package result without a classified stage
+falls back to the execution category.
+
+Validation-domain and execution-stage mappings are exhaustive. Tests compare
+the mapping sets with the complete enums so that introducing a new domain or
+execution stage requires an explicit failure-classification decision.
+
+Specialized validation domains preserve the Level 35 vocabulary without
+creating undocumented categories. Source failures project to input; metadata
+and functional-artifact failures project to artifact; testing, compliance, and
+evidence failures project to the general validation category.
+
+`CanonicalBuildResult` exposes the terminal `failure_category` while preserving
+the existing diagnostic authority. Build Evidence remains factual evidence and
+does not duplicate this derived result projection.
+
+Each failure category also has stable corrective information. The correction is
+derived from the structured category rather than inferred from diagnostic text.
+On failed CLI builds, the canonical final result is now consumed and renders
+both `Failure Category` and `Corrective Action` in addition to the original
+failure diagnostic.
+
+This level does not introduce a separate diagnostic subsystem, diagnostic-text
+parser, failure-history store, telemetry backend, or additional Build Evidence
+authority.
+
+Failure-path tests cover successful absence, validation-domain classification,
+execution-stage classification, precedence of required validation failures,
+execution fallback, corrective-information projection, and CLI rendering.
 
 ---
 
