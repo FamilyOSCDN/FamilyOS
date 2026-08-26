@@ -311,6 +311,299 @@ Identity <---- Person reference boundary
 Security <---- Family / Membership / Relationship context
 ```
 
+## Canonical Semantic Model
+
+The Family Core SHALL distinguish identity, participation, relationship, family
+context, and authorization as separate semantic concerns.
+
+The canonical semantic model is:
+
+```text
+Person
+   |
+   | participates through
+   v
+Family Membership --------------------> Family
+   |                                      |
+   | lifecycle                            | establishes
+   |                                      v
+   |                                Family Boundary
+   |
+   +---- does not grant permissions
+
+Person <---------- Family Relationship ----------> Person
+                    |
+                    +---- does not grant permissions
+
+Family Core
+    |
+    +---- provides authoritative family business context
+    |
+    v
+Security
+    |
+    +---- evaluates authorization
+```
+
+The following distinctions are normative:
+
+```text
+Person != Identity
+Family Membership != Family Relationship
+Family Membership != Permission
+Family Relationship != Permission
+Family Boundary != Authorization Policy
+```
+
+These distinctions SHALL remain explicit in domain specifications,
+implementation contracts, and cross-domain integrations.
+
+## Person Semantics
+
+A Person represents one business individual known to FamilyOS.
+
+Person SHALL own business meaning about the existence and continuity of that
+individual within the FamilyOS domain model.
+
+A Person SHALL have a stable domain identity independent from:
+
+- display name;
+- authentication state;
+- account state;
+- credentials;
+- plugin-specific records;
+- membership in any particular Family.
+
+A Person MAY exist without an interactive FamilyOS Identity.
+
+A Person MAY participate in zero, one, or multiple Family contexts where future
+domain rules permit such participation.
+
+A Person SHALL NOT derive its business identity from a Family Membership.
+
+A Person SHALL NOT implicitly gain authorization merely because it exists in the
+Family Core.
+
+The technical representation and syntax of the future Person identifier are
+intentionally deferred to the Person Domain Specification. The canonical
+implementation name is expected to follow existing FamilyOS naming conventions,
+including `PersonId`.
+
+## Family Semantics
+
+A Family represents an explicit governed family context in FamilyOS.
+
+A Family SHALL have a stable domain identity independent from:
+
+- its display name;
+- its current members;
+- any single Person;
+- authentication mechanisms;
+- plugin-specific data;
+- infrastructure storage.
+
+A Family SHALL define the business context within which Family Membership is
+evaluated.
+
+A Family SHALL NOT be inferred solely from biological, legal, social, or
+genealogical relationships between Persons.
+
+A Family SHALL NOT be inferred solely from shared residence.
+
+Removing or changing one Family Membership SHALL NOT by itself change the
+identity of the Family.
+
+The technical representation and syntax of the future Family identifier are
+intentionally deferred to the Family Domain Specification. The canonical
+implementation name is expected to follow existing FamilyOS naming conventions,
+including `FamilyId`.
+
+## Family Membership Semantics
+
+Family Membership represents an explicit business association between one Person
+and one Family.
+
+Membership SHALL be modeled independently from both Person and Family so that
+its own business lifecycle and invariants can be represented explicitly.
+
+A Membership SHALL identify exactly one participating Person and exactly one
+Family context.
+
+A Membership SHALL have explicit lifecycle semantics.
+
+Membership lifecycle SHALL support determining whether the association is valid
+for a given business decision without requiring Security to own membership
+state.
+
+The exact lifecycle states, transitions, timestamps, and technical
+representation are intentionally deferred to the Family Domain Specification.
+
+A Membership SHALL NOT:
+
+- represent authentication;
+- represent credentials;
+- represent a family relationship taxonomy;
+- automatically grant authorization;
+- imply unrestricted access to Family resources.
+
+Security MAY use valid Membership information as authorization context.
+
+Security SHALL remain responsible for evaluating whether a particular action is
+permitted.
+
+The technical representation of a future Membership identifier, if a dedicated
+identifier is required, is intentionally deferred.
+
+## Family Relationship Semantics
+
+Family Relationship represents explicit business knowledge about a relationship
+between Persons.
+
+Relationship SHALL remain semantically distinct from Family Membership.
+
+A Relationship MAY describe family meaning that exists independently from
+membership in a particular Family context.
+
+A Relationship SHALL NOT automatically create, activate, revoke, or otherwise
+modify a Family Membership.
+
+A Relationship SHALL NOT automatically grant authorization.
+
+Relationship directionality, symmetry, taxonomy, temporal validity, evidence,
+and lifecycle rules are intentionally deferred to the relevant domain
+specification.
+
+This RFC does not assume that all family relationships are biological, legal,
+genealogical, residential, or symmetric.
+
+The technical representation of a future Relationship identifier, if a
+dedicated identifier is required, is intentionally deferred.
+
+## Family Boundary Semantics
+
+A Family Boundary represents the isolation boundary associated with an explicit
+Family context.
+
+The Family Core SHALL provide the authoritative business context from which a
+Family Boundary can be established.
+
+A Family Boundary SHALL prevent accidental interpretation of unrelated Family
+contexts as one shared business scope.
+
+Family Boundary semantics SHALL remain distinct from authorization policy.
+
+The existence of a Family Boundary does not itself determine whether an actor
+may perform a specific action.
+
+Security SHALL consume Family, Membership, and other approved Family Core
+context when evaluating access across or within Family boundaries.
+
+Cross-family access SHALL require explicit Security policy and SHALL NOT arise
+implicitly from:
+
+- Person existence;
+- Family Membership in another Family;
+- Family Relationship;
+- shared plugin data;
+- shared infrastructure.
+
+## Person and Identity Interaction
+
+Person and Identity are separate architectural concepts with different
+ownership.
+
+The Family Core owns Person business semantics.
+
+The Identity architecture owns platform actor identity.
+
+An Identity MAY reference a Person through an explicit integration contract.
+
+Such a reference SHALL NOT transfer ownership of Person business invariants to
+Identity.
+
+Identity activation MAY require Family Membership validation as defined by
+Security architecture, but the membership fact itself SHALL originate from the
+Family Core.
+
+Authentication state SHALL NOT determine whether the corresponding Person
+exists as a business individual.
+
+## Family Core and Security Interaction
+
+The Family Core SHALL be authoritative for:
+
+- Person business identity;
+- Family business identity;
+- Family Membership facts and lifecycle;
+- Family Relationship facts;
+- Family Boundary business context.
+
+Security SHALL be authoritative for:
+
+- authentication;
+- authorization evaluation;
+- role and permission enforcement;
+- access decisions;
+- denial behavior;
+- security audit requirements.
+
+Family Core information MAY be an input to Security decisions.
+
+Security decisions SHALL NOT redefine the underlying Family Core facts.
+
+A valid Membership therefore means that the business association is valid
+according to Family Core rules. It does not mean that every operation is
+authorized.
+
+A Relationship therefore describes business context. It does not constitute a
+permission.
+
+## Semantic Invariants
+
+The following invariants SHALL govern subsequent Family Core specifications and
+implementation:
+
+1. A Person and an Identity are not interchangeable.
+2. A Person retains its domain identity independently from Family Membership.
+3. A Family retains its domain identity independently from any individual
+   member.
+4. A Membership associates exactly one Person with exactly one Family.
+5. Membership lifecycle is owned by the Family Core, not Security.
+6. Membership validity does not imply unrestricted authorization.
+7. Relationship and Membership are separate business concepts.
+8. Relationship does not imply authorization.
+9. Family Boundary and authorization policy are separate concerns.
+10. Security may consume Family Core facts but does not own or redefine them.
+11. Family Core does not depend on official domain plugins to establish its
+    business truth.
+12. Household is not assumed to be synonymous with Family.
+
+## Intentionally Deferred Semantic Decisions
+
+R2 establishes the canonical semantic distinctions but intentionally does not
+freeze implementation-level design.
+
+The following remain deferred:
+
+- final aggregate boundaries;
+- final entity versus value-object classification;
+- identifier storage representation;
+- UUID or other runtime identifier strategy;
+- Membership lifecycle state names and transition graph;
+- Relationship taxonomy;
+- Relationship directionality and symmetry rules;
+- temporal and historical representation;
+- domain-event catalog;
+- repository contracts;
+- persistence ports and adapters;
+- serialization formats;
+- Household semantics;
+- authorization policy details.
+
+These decisions SHALL be addressed by the Person and Family domain
+specifications or by later governed design work before implementation requires
+them.
+
 ---
 
 # Architectural Consequences
