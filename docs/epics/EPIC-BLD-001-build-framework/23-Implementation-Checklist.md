@@ -107,22 +107,22 @@ Finalize EPIC-BLD-001 as the normative architecture before significant build imp
 
 ### Checklist
 
-* [ ] Confirm all 24 numbered Build Framework chapters exist.
-* [ ] Confirm all seven control documents exist.
-* [ ] Remove temporary migration files.
-* [ ] Remove duplicate numbered documents.
-* [ ] Remove obsolete inherited canonical filenames.
-* [ ] Confirm all normative files contain complete content.
-* [ ] Validate final document structure against `20-Validation.md`.
-* [ ] Synchronize `MANIFEST.md`.
-* [ ] Synchronize `README.md`.
-* [ ] Synchronize `EPIC.yaml`.
-* [ ] Update `CHANGELOG.md`.
-* [ ] Update `Revision-History.md`.
-* [ ] Record final framework validation in `VALIDATION.md`.
-* [ ] Review `EPIC-BLD-001.md` against `00-EPIC.md`.
-* [ ] Commit the validated Build Framework baseline.
-* [ ] Create the appropriate repository tag after checking actual tag history.
+* [x] Confirm all 24 numbered Build Framework chapters exist.
+* [x] Confirm all seven control documents exist.
+* [x] Remove temporary migration files.
+* [x] Remove duplicate numbered documents.
+* [x] Remove obsolete inherited canonical filenames.
+* [x] Confirm all normative files contain complete content.
+* [x] Validate final document structure against `20-Validation.md`.
+* [x] Synchronize `MANIFEST.md`.
+* [x] Synchronize `README.md`.
+* [x] Synchronize `EPIC.yaml`.
+* [x] Update `CHANGELOG.md`.
+* [x] Update `Revision-History.md`.
+* [x] Record final framework validation in `VALIDATION.md`.
+* [x] Review `EPIC-BLD-001.md` against `00-EPIC.md`.
+* [x] Commit the validated Build Framework baseline.
+* [x] Create the appropriate repository tag after checking actual tag history.
 
 ---
 
@@ -138,13 +138,13 @@ The implementation should eliminate dependence on undocumented command sequences
 
 * [x] Identify the current canonical Python package build mechanism.
 * [x] Define one official FamilyOS build entry point.
-* [ ] Ensure the entry point works from the documented repository context.
+* [x] Ensure the entry point works from the documented repository context.
 * [x] Ensure the build entry point is callable locally.
-* [ ] Ensure the same build entry point can be invoked by CI.
+* [x] Ensure the same build entry point can be invoked by CI.
 * [x] Document supported build arguments.
 * [x] Define default build behavior.
-* [ ] Define explicit profile selection.
-* [ ] Define explicit build target selection if multiple targets exist.
+* [x] Define explicit profile selection.
+* [x] Define explicit build target selection if multiple targets exist.
 * [x] Define canonical build exit-code behavior.
 * [x] Ensure required-stage failure produces non-zero process status.
 * [x] Prevent the canonical build command from publishing releases.
@@ -160,7 +160,7 @@ success/failure exits, normalized execution failures, and the absence of a
 publication command. An isolated integration test copies the actual packaging
 inputs into a temporary project and proves that the production adapter builds
 one wheel and one source distribution without changing tracked checkout files.
-GitHub Actions does not invoke `familyos build` yet.
+GitHub Actions now invokes the same canonical `familyos build` entry point using the explicit CI Build Profile.
 
 ---
 
@@ -2424,10 +2424,10 @@ provenance, signing, publication, promotion, or deployment semantics.
 ### Mature Evidence Checklist
 
 * [ ] dependency graph identity.
-* [ ] environment identity.
+* [x] environment identity.
 * [x] stage results.
-* [ ] reproducibility status.
-* [ ] provenance data.
+* [x] reproducibility status.
+* [x] provenance data.
 
 ### Mature Evidence Status
 
@@ -4259,25 +4259,25 @@ Determine whether the Build Framework has been materially realized in FamilyOS e
 
 ### Checklist
 
-* [ ] Canonical build interface exists.
-* [ ] Build profiles exist.
-* [ ] Build Context is explicit.
-* [ ] Build environment is reconstructable.
-* [ ] dependencies are canonical.
-* [ ] configuration precedence is explicit.
-* [ ] build execution is observable.
-* [ ] candidate artifacts are explicit.
-* [ ] artifact validation is automated.
-* [ ] artifact integrity exists.
-* [ ] Build Evidence exists.
-* [ ] CI invokes canonical build behavior.
-* [ ] local and CI semantics align.
-* [ ] security boundaries are enforced.
-* [ ] Build Governance is operational.
-* [ ] Release Handoff exists.
-* [ ] implementation documentation is current.
-* [ ] implementation tests pass.
-* [ ] no critical Build Framework implementation finding remains.
+* [x] Canonical build interface exists.
+* [x] Build profiles exist.
+* [x] Build Context is explicit.
+* [x] Build environment is reconstructable.
+* [x] dependencies are canonical.
+* [x] configuration precedence is explicit.
+* [x] build execution is observable.
+* [x] candidate artifacts are explicit.
+* [x] artifact validation is automated.
+* [x] artifact integrity exists.
+* [x] Build Evidence exists.
+* [x] CI invokes canonical build behavior.
+* [x] local and CI semantics align.
+* [x] security boundaries are enforced.
+* [x] Build Governance is operational.
+* [x] Release Handoff exists.
+* [x] implementation documentation is current.
+* [x] implementation tests pass.
+* [x] no critical Build Framework implementation finding remains.
 
 ---
 
@@ -4443,13 +4443,13 @@ Framework implementation should remain measurable.
 
 The EPIC documentation is complete when:
 
-* [ ] all normative documents are complete;
-* [ ] final structure is validated;
-* [ ] legacy migration state is removed;
-* [ ] control documents are synchronized;
-* [ ] framework validation passes;
-* [ ] framework baseline is committed;
-* [ ] framework baseline is tagged according to repository conventions.
+* [x] all normative documents are complete;
+* [x] final structure is validated;
+* [x] legacy migration state is removed;
+* [x] control documents are synchronized;
+* [x] framework validation passes;
+* [x] framework baseline is committed;
+* [x] framework baseline is tagged according to repository conventions.
 
 ---
 
@@ -4457,16 +4457,16 @@ The EPIC documentation is complete when:
 
 The first Build Framework implementation is complete when:
 
-* [ ] one canonical build path exists;
-* [ ] a clean supported environment can execute it;
+* [x] one canonical build path exists;
+* [x] a clean supported environment can execute it;
 * [x] dependencies are reconstructed from canonical definitions;
-* [ ] required source validation succeeds;
-* [ ] required tests succeed;
-* [ ] artifacts are generated predictably;
-* [ ] artifacts are directly validated;
-* [ ] local and CI execution use equivalent semantics;
-* [ ] failures are actionable;
-* [ ] implementation documentation is current.
+* [x] required source validation succeeds;
+* [x] required tests succeed;
+* [x] artifacts are generated predictably;
+* [x] artifacts are directly validated;
+* [x] local and CI execution use equivalent semantics;
+* [x] failures are actionable;
+* [x] implementation documentation is current.
 
 ---
 
@@ -4474,13 +4474,13 @@ The first Build Framework implementation is complete when:
 
 Trusted artifact capability is complete when:
 
-* [ ] artifact identity is explicit;
-* [ ] artifact validation is mandatory;
-* [ ] artifact integrity is recorded;
-* [ ] Build ID associates artifacts with execution;
-* [ ] Build Evidence is available;
-* [ ] trusted artifacts are immutable in practice;
-* [ ] downstream handoff references the exact validated bytes.
+* [x] artifact identity is explicit;
+* [x] artifact validation is mandatory;
+* [x] artifact integrity is recorded;
+* [x] Build ID associates artifacts with execution;
+* [x] Build Evidence is available;
+* [x] trusted artifacts are immutable in practice;
+* [x] downstream handoff references the exact validated bytes.
 
 ---
 
@@ -4501,13 +4501,13 @@ Build/Release integration is complete when:
 
 Strong reproducibility capability is complete when:
 
-* [ ] source state is precisely identifiable;
-* [ ] configuration resolution is deterministic;
-* [ ] dependency state is reconstructable;
-* [ ] critical toolchain state is controlled;
-* [ ] build environment is reconstructable;
-* [ ] repeated builds can be compared;
-* [ ] meaningful differences are explainable.
+* [x] source state is precisely identifiable;
+* [x] configuration resolution is deterministic;
+* [x] dependency state is reconstructable;
+* [x] critical toolchain state is controlled;
+* [x] build environment is reconstructable;
+* [x] repeated builds can be compared;
+* [x] meaningful differences are explainable.
 
 Bit-for-bit reproducibility may remain a separate higher maturity target.
 
