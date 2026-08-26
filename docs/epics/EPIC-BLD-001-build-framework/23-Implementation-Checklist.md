@@ -2973,7 +2973,7 @@ Introduce metrics only where they support decisions.
 ### Potential Metrics
 
 * [ ] total build duration;
-* [ ] stage duration;
+* [x] stage duration;
 * [ ] build success rate;
 * [ ] failure category;
 * [ ] artifact validation failure rate;
@@ -2984,6 +2984,41 @@ Introduce metrics only where they support decisions.
 * [ ] reproducibility result.
 
 Metrics should not become requirements merely because they can be measured.
+
+### Current Metrics Status
+
+Stage duration is already established as canonical Build execution evidence.
+Each completed `BuildExecutionStage` produces an immutable
+`BuildExecutionObservation` containing its terminal status and elapsed monotonic
+duration. These observations are preserved by `CanonicalPackageBuildResult`,
+propagated into Build Evidence, and exposed through the established Build
+rendering paths.
+
+This existing execution evidence satisfies the current Build-owned requirement
+for stage-duration measurement without introducing a second timing authority or
+a parallel metrics subsystem.
+
+The remaining potential metrics intentionally remain open:
+
+* Total build duration has no canonical measurement boundary yet. It must not be
+  synthesized by summing stage durations because future orchestration may
+  include parallel, overlapping, or otherwise non-additive execution.
+* Build success rate requires aggregation across multiple build executions and
+  therefore is not a property of one canonical build result.
+* Failure category remains owned by the dedicated Level 35 failure
+  classification work.
+* Artifact-validation, dependency-resolution, and environment-validation
+  failure rates require aggregation semantics that are not yet established.
+* Cache hit rate remains deferred until canonical cache behavior and measurement
+  semantics exist.
+* Retry rate remains deferred until canonical retry behavior exists.
+* Reproducibility result remains deferred until canonical reproducibility
+  comparison semantics exist.
+
+EPIC-BLD-001 remains authoritative for Build execution semantics. This level
+does not introduce a Build-specific metrics backend, external telemetry
+dependency, historical aggregation store, or duplicate observability
+abstraction.
 
 ---
 
