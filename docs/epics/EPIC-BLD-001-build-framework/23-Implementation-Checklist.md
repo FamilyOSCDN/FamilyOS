@@ -3183,24 +3183,89 @@ Make `16-Build-Governance.md` operational.
 
 ### Checklist
 
-* [ ] Define Build Framework ownership.
-* [ ] Define build implementation ownership.
-* [ ] Define toolchain ownership.
-* [ ] Define CI ownership.
-* [ ] Define artifact ownership.
-* [ ] Define routine-change review path.
-* [ ] Define significant-change review path.
-* [ ] Define ADR threshold.
-* [ ] Define RFC threshold.
-* [ ] Define exception process.
-* [ ] Define technical-debt tracking.
-* [ ] Define build-security escalation.
-* [ ] Define artifact-contract change review.
-* [ ] Define validation-weakening review.
-* [ ] Document governance process.
+* [x] Define Build Framework ownership.
+* [x] Define build implementation ownership.
+* [x] Define toolchain ownership.
+* [x] Define CI ownership.
+* [x] Define artifact ownership.
+* [x] Define routine-change review path.
+* [x] Define significant-change review path.
+* [x] Define ADR threshold.
+* [x] Define RFC threshold.
+* [x] Define exception process.
+* [x] Define technical-debt tracking.
+* [x] Define build-security escalation.
+* [x] Define artifact-contract change review.
+* [x] Define validation-weakening review.
+* [x] Document governance process.
+
+### Implementation Status
+
+Level 37 operationalizes the governance architecture already defined by
+`16-Build-Governance.md` without introducing a runtime governance subsystem.
+
+The current ownership contract distinguishes Build Framework architecture,
+canonical Build implementation and maintenance, critical toolchain ownership,
+provider-specific CI automation, artifact construction and trust semantics, and
+downstream Release ownership. CI remains subordinate to canonical Build
+semantics and must not become an independent Build authority.
+
+Build changes follow an explicit four-class review model. Routine Class 1
+changes use normal code or documentation review with appropriate validation.
+Significant Class 2 changes require explicit technical review. Class 3 changes
+that establish or modify significant Build architecture require an ADR. Class 4
+changes that affect broader platform strategy or multiple architectural areas
+require an RFC, with EPIC evolution when framework responsibilities, structure,
+or long-term requirements change.
+
+Exceptions to normative Build requirements must be recorded with their reason,
+scope, authority, accepted risk, compensating controls where applicable, and
+remediation, review, or expiry conditions. Repeated or structural exceptions
+must be treated as technical debt or as proposals to change the governing
+architecture.
+
+Build technical debt must remain visible through repository-owned tracking and
+be prioritized according to impact and risk. Security-sensitive changes
+involving credentials, trust boundaries, dependency sources, network authority,
+signing, privileged execution, or comparable concerns require Security
+Architecture review.
+
+Artifact-contract changes require compatibility review against downstream
+consumers. Breaking changes require rationale, migration impact, documentation,
+and appropriate version or release handling. Removal, bypass, disabling, or
+weakening of mandatory Build validation requires explicit technical
+justification and review and must not be performed merely to make execution
+pass.
+
+The operational governance path is:
+
+```text
+Proposed Change
+      ↓
+Assess Scope And Risk
+      ↓
+Classify Change
+      ↓
+Select Required Review
+      ↓
+Record ADR / RFC / Exception / Debt When Required
+      ↓
+Implement
+      ↓
+Validate
+      ↓
+Synchronize Documentation
+      ↓
+Adopt
+```
+
+Governance evidence remains repository-visible through ADRs, RFCs, review and
+exception records, validation evidence, revision history, changelog entries,
+manifest updates, and synchronized EPIC lifecycle metadata as applicable.
+
+Level 37 — Build Governance Implementation is complete at 15/15.
 
 ---
-
 # Level 38 — Documentation Synchronization
 
 ## Objective

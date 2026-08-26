@@ -408,6 +408,141 @@ These may require RFC and EPIC evolution.
 
 ---
 
+# Current Operational Governance Contract
+
+The following contract makes the Build Governance model operational for the
+current EPIC-BLD-001 implementation.
+
+## Operational Ownership
+
+Build Framework architecture is governed through EPIC-BLD-001 and its
+authoritative architecture and governance documents.
+
+Implementation and maintenance of canonical Build behavior belong to
+Engineering Maintainers operating within those framework contracts.
+
+Critical Build toolchain decisions belong to Engineering / Build Maintainers.
+Tool introduction, upgrade, deprecation, or removal must preserve the canonical
+toolchain and dependency-governance contracts.
+
+CI owns provider-specific automation and invocation only. CI must invoke
+canonical Build behavior and must not independently define Build semantics.
+
+Build owns artifact construction, identity, integrity, metadata, validation,
+and Build Evidence semantics. Release owns downstream promotion and release
+policy. Changes crossing that boundary require review by both owning
+frameworks.
+
+## Operational Change Review
+
+Routine changes are Class 1 changes. They follow normal code or documentation
+review together with the validation appropriate to the affected surface.
+
+Significant changes are Class 2 changes. They require explicit technical review
+before adoption and must document their impact on affected Build contracts.
+
+Class 3 changes establish or modify significant Build architecture and require
+an ADR. This includes changes to canonical execution architecture, artifact
+identity, release handoff architecture, dependency architecture, or the Build
+environment model.
+
+Class 4 changes affect broader platform strategy or multiple architectural
+areas and require an RFC. EPIC evolution is also required when the change
+modifies Build Framework responsibilities, structure, or long-term
+requirements.
+
+A change that is both Class 3 and Class 4 follows the stronger Class 4 path.
+An RFC may incorporate or supersede the need for a separate ADR when the
+architectural decision is fully captured by the RFC and repository governance
+makes that relationship explicit.
+
+## Operational Exception Process
+
+An exception to a normative Build requirement must be explicit and recorded.
+The exception record must identify:
+
+* the requirement being excepted;
+* the reason for the exception;
+* the affected scope;
+* the owning or approving authority;
+* the risk or consequence accepted;
+* compensating validation or controls, when applicable;
+* whether the exception is temporary or intentionally persistent;
+* the remediation, review, or expiry condition when applicable.
+
+An exception must not silently redefine the canonical standard. Repeated or
+structural exceptions must be evaluated as technical debt or as a proposal to
+change the governing architecture.
+
+## Operational Technical-Debt Tracking
+
+Known Build debt must remain visible in an appropriate repository-owned
+tracking surface such as the EPIC checklist, revision history, issue tracking,
+or an explicitly referenced follow-up record.
+
+Debt records should identify the affected Build concern, impact or risk, and
+the expected remediation or review path. High-risk debt receives priority over
+cosmetic cleanup.
+
+## Operational Security Escalation
+
+Changes involving credentials, new trust boundaries, dependency sources,
+network authority, signing, privileged execution, or comparable
+security-sensitive Build behavior require Security Architecture review.
+
+Build Governance coordinates integration of the resulting requirements but
+does not replace Security Architecture as the security-policy authority.
+
+## Operational Artifact-Contract Review
+
+Changes to artifact contents, identity, metadata, integrity semantics, naming,
+or release handoff must receive compatibility review against known downstream
+consumers.
+
+Breaking artifact-contract changes must include rationale, migration impact,
+documentation, and appropriate version or release handling.
+
+## Operational Validation-Weakening Review
+
+Removal, bypass, disabling, or weakening of mandatory Build validation requires
+explicit technical justification and review before adoption.
+
+A change must not weaken mandatory validation solely to make local or CI
+execution pass. Security-sensitive or cross-framework weakening must also be
+reviewed by the corresponding owning framework.
+
+## Operational Governance Traceability
+
+The required governance path is:
+
+```text
+Proposed Change
+      ↓
+Assess Scope And Risk
+      ↓
+Classify Change
+      ↓
+Select Required Review
+      ↓
+Record ADR / RFC / Exception / Debt When Required
+      ↓
+Implement
+      ↓
+Validate
+      ↓
+Synchronize Documentation
+      ↓
+Adopt
+```
+
+Significant framework changes update Revision-History.md. Release-relevant
+changes update CHANGELOG.md. Changes to normative document inventory or
+status update MANIFEST.md. Framework lifecycle state remains synchronized
+with EPIC.yaml and related control documents.
+
+Governance evidence remains repository-visible and may include ADRs, RFCs,
+review records, exception records, validation reports, and change history.
+
 # Governance Decision Flow
 
 The decision flow is:
