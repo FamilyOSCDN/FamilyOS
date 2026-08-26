@@ -3556,15 +3556,53 @@ Test whether equivalent contexts produce equivalent artifacts.
 
 ### Checklist
 
-* [ ] Execute equivalent build twice.
-* [ ] Compare artifact count.
-* [ ] Compare artifact type.
-* [ ] Compare metadata.
-* [ ] Compare file contents.
-* [ ] Compare digests where bit-for-bit reproducibility is expected.
-* [ ] Categorize expected variability.
-* [ ] Investigate unexplained variability.
-* [ ] Add periodic CI reproducibility checks if justified.
+* [x] Execute equivalent build twice.
+* [x] Compare artifact count.
+* [x] Compare artifact type.
+* [x] Compare metadata.
+* [x] Compare file contents.
+* [x] Compare digests where bit-for-bit reproducibility is expected.
+* [x] Categorize expected variability.
+* [x] Investigate unexplained variability.
+* [x] Add periodic CI reproducibility checks if justified.
+
+### Current Baseline
+
+Canonical repeated-build validation now establishes artifact reproducibility
+semantics for equivalent Build Contexts.
+
+The validated package pair contains one Python wheel and one source
+distribution in each execution.
+
+The Python wheel is bit-for-bit equivalent across equivalent builds:
+
+* artifact count and type are stable;
+* raw size is equal;
+* raw SHA-256 digest is equal;
+* semantic member content is equal;
+* observed archive metadata is equal.
+
+The source distribution is logically equivalent across equivalent builds:
+
+* artifact count and type are stable;
+* semantic member content is equal;
+* raw size and raw SHA-256 digest may differ;
+* observed archive metadata variability is limited to timestamps;
+* timestamp-only source-distribution variability is classified as expected.
+
+Archive metadata observation, semantic content snapshots, explicit variability
+policy, and aggregate reproducibility comparison now provide deterministic
+application-level authorities for this classification.
+
+Periodic reproducibility CI was evaluated but is not introduced at this
+maturity level. Existing Build CI already contains periodic cache-free
+validation, while artifact reproducibility automation remains a distinct
+future capability. A scheduled reproducibility gate should be introduced only
+after a canonical reproducibility runner owns repeated-build orchestration,
+comparison, diagnostics, and CI result semantics.
+
+The absence of a periodic reproducibility job therefore represents an explicit
+Level 42 maturity decision rather than an unassessed checklist item.
 
 ---
 

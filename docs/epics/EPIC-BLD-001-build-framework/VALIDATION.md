@@ -3235,3 +3235,114 @@ Level 41 — Build Context Fingerprint is complete at 10/10.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 42 Reproducibility Testing Validation — 2026-08-26
+
+Level 42 established canonical artifact reproducibility comparison for
+equivalent FamilyOS Build Contexts.
+
+Two canonical validation-profile package builds were executed from source
+revision:
+
+```text
+3d28729718578c6933fc677b4bc2fba50ae01401
+```
+
+The executions intentionally had different Build IDs while preserving the
+semantic build context.
+
+Both executions produced the same artifact inventory:
+
+```text
+familyos_cli-0.1.0-py3-none-any.whl
+familyos_cli-0.1.0.tar.gz
+```
+
+Canonical semantic content snapshots were introduced for regular package
+archive members. Each member records canonical path, size, SHA-256 algorithm,
+and SHA-256 digest.
+
+The repeated-build comparison observed:
+
+```text
+Python wheel
+raw size equal:       True
+raw digest equal:     True
+semantic content:     equal
+metadata differences: none
+classification:       bit-for-bit-equivalent
+
+Source distribution
+raw size equal:       False
+raw digest equal:     False
+semantic content:     equal
+metadata differences: timestamp
+variability:          expected
+classification:       logically-equivalent
+
+Aggregate reproducible: True
+```
+
+The wheel contained 743 semantic members in each build and the source
+distribution contained 748 semantic members in each build.
+
+Investigation of the source-distribution byte variability established that
+logical member paths and contents were unchanged. Archive inspection isolated
+the raw variability to timestamps. The decompressed tar byte streams therefore
+differed even though semantic member content remained equivalent.
+
+`ArtifactArchiveMetadataObserver` subsequently reproduced this finding
+automatically on the real artifacts:
+
+```text
+python-wheel
+differing fields: ()
+metadata equal: True
+
+source-distribution
+differing fields: ('timestamp',)
+metadata equal: False
+```
+
+The reproducibility model distinguishes:
+
+* bit-for-bit equivalent artifacts;
+* logically equivalent artifacts with explicitly expected variability;
+* non-reproducible artifacts.
+
+`ReproducibilityVariabilityPolicy` permits timestamp-only variability for the
+current source-distribution baseline. Changed semantic content is never
+classified as expected variability.
+
+Focused Level 42 validation completed successfully:
+
+```text
+Level 42 focused tests:          67 passed
+Build application regression:  687 passed
+Build infrastructure:           30 passed
+Build CLI / rendering:          47 passed
+Ruff:                           PASS
+MyPy:                           PASS
+git diff --check:               PASS
+```
+
+Periodic reproducibility CI was explicitly evaluated.
+
+The Build Framework already exercises a separate cache-free validation path
+periodically. Artifact reproducibility automation remains a distinct future
+capability in the CI architecture.
+
+A new periodic reproducibility job is not justified at the current maturity
+level because no canonical reproducibility runner yet owns repeated-build
+orchestration, artifact pairing, comparison diagnostics, and CI result
+semantics.
+
+Scheduled reproducibility validation is therefore deferred until that
+application-level authority exists. This is an explicit maturity decision and
+does not weaken the Level 42 reproducibility contract established by the real
+repeated-build evidence.
+
+Level 42 — Reproducibility Testing is complete at 9/9.
+
+Framework version 1.0.0 and immutable historical publication tag
+v4.7.0-build-framework remain unchanged.

@@ -1869,3 +1869,30 @@ Level 41 — Build Context Fingerprint is complete at 10/10.
 
 Framework version 1.0.0 and immutable historical publication tag
 v4.7.0-build-framework remain unchanged.
+
+## Level 42 — Reproducibility Testing — 2026-08-26
+
+Implemented canonical artifact reproducibility comparison for equivalent Build
+Contexts.
+
+Added deterministic semantic package-content snapshots, archive metadata
+observation, reproducibility classifications, explicit expected-variability
+policy, and aggregate artifact comparison.
+
+Real repeated canonical builds confirmed that the Python wheel is bit-for-bit
+equivalent.
+
+The source distribution is logically equivalent: semantic member content is
+identical while raw archive bytes vary because of timestamp metadata.
+
+Timestamp-only source-distribution variability is explicitly classified as
+expected. Changed semantic content remains non-reproducible.
+
+Periodic reproducibility CI was evaluated and intentionally deferred until a
+canonical reproducibility runner owns repeated-build orchestration and CI
+result semantics.
+
+Level 42 — Reproducibility Testing is complete at 9/9.
+
+Framework version 1.0.0 and immutable historical publication tag
+v4.7.0-build-framework remain unchanged.
