@@ -3796,18 +3796,77 @@ Evaluate cryptographic artifact signing when Release Framework maturity requires
 
 ### Checklist
 
-* [ ] Define signing objective.
-* [ ] Define signing authority.
-* [ ] Define Build versus Release ownership.
-* [ ] Define key-management requirements.
-* [ ] Define signature format.
-* [ ] Define verification process.
-* [ ] Define CI permission boundary.
-* [ ] Define release integration.
-* [ ] Define rotation and revocation behavior.
-* [ ] Record an ADR or RFC before adoption.
+* [x] Define signing objective.
+* [x] Define signing authority.
+* [x] Define Build versus Release ownership.
+* [x] Define key-management requirements.
+* [x] Define signature format.
+* [x] Define verification process.
+* [x] Define CI permission boundary.
+* [x] Define release integration.
+* [x] Define rotation and revocation behavior.
+* [x] Record an ADR or RFC before adoption.
 
 Signing should generally represent release authority rather than ordinary build execution.
+
+
+### Artifact Signing Architecture Decision
+
+Level 45 evaluates artifact signing as a future supply-chain trust control.
+The evaluation is complete, but artifact-signing adoption is intentionally
+deferred by architecture governance.
+
+The current Build Framework establishes artifact identity, artifact integrity,
+Build Evidence, and Build Provenance. SHA-256 artifact digests establish
+content integrity, but they do not establish signer authenticity, release
+authority, or an authenticated builder identity. Build Provenance similarly
+records canonical build relationships without constituting a signed
+attestation.
+
+Artifact signing would introduce a new trust boundary. A meaningful signing
+architecture must define the signing objective, trusted signing identity or
+authority, key or identity lifecycle, signature representation, verification
+policy, CI permission boundary, release integration, rotation, revocation, and
+failure semantics before adoption.
+
+Build remains responsible for artifact construction, identity, integrity,
+metadata, validation, and Build Evidence. Release remains responsible for
+downstream promotion and release policy. A future signing architecture must
+preserve that ownership boundary and align with the Security Framework's
+cryptographic and trust requirements.
+
+No signing mechanism is selected by Level 45. Sigstore, Cosign, GPG/PGP,
+key-based signing, keyless signing, certificates, OIDC identities,
+transparency logs, and equivalent mechanisms remain candidates for future
+governed evaluation rather than current implementation choices.
+
+No `ArtifactSignature`, signing service, signer abstraction, signing key,
+verification key, certificate identity, CI signing secret, OIDC `id-token`
+permission, signature serializer, or signature-verification runtime is
+introduced by this level.
+
+Any future adoption that establishes or modifies a significant Build
+architecture decision requires architecture governance. Because an artifact
+signing and trust model is expected to cross Build, Release, Security, and CI
+boundaries, adoption may require an RFC under the Build governance
+classification. An ADR may be appropriate for a narrower architectural
+decision where repository governance permits it.
+
+Level 46 — Controlled Builder Evaluation remains relevant to future trust and
+builder-identity decisions, but Level 45 does not equate release signing
+authority with builder identity. Controlled-builder evaluation may inform a
+future signing or attestation architecture without prematurely coupling the
+two concepts.
+
+Therefore Level 45 closes as an evaluation milestone:
+
+* artifact-signing use cases and trust requirements are evaluated;
+* Build, Release, Security, and CI ownership boundaries are identified;
+* implementation and dependency introduction remain intentionally absent;
+* adoption is deferred until the required trust architecture is approved
+  through architecture governance.
+
+**Artifact Signing Adoption: Deferred by Governance.**
 
 ---
 

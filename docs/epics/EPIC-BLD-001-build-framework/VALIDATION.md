@@ -3577,3 +3577,60 @@ cross-cutting governance decision.
 
 Framework version 1.0.0 and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+
+## Level 45 Artifact Signing Evaluation Validation — 2026-08-26
+
+### Scope
+
+Level 45 evaluated artifact signing as a potential future supply-chain trust
+control without introducing signing implementation, signing dependencies,
+credentials, CI signing authority, or a proprietary signature format.
+
+### Validation Result
+
+The evaluation distinguished the current artifact-integrity and provenance
+authorities from cryptographic signing. Artifact SHA-256 digests provide
+content-integrity evidence but do not establish signer authenticity or release
+authority. Build Provenance records canonical build relationships but is not a
+signed attestation.
+
+The existing architecture assigns artifact construction, identity, integrity,
+metadata, validation, and Build Evidence to Build, while downstream promotion
+and release policy belong to Release. Security supplies the cryptographic and
+trust requirements that a future signing architecture must satisfy.
+
+The evaluation identified the required decision surface before adoption:
+
+* signing objectives and target artifacts;
+* trusted signing identity or authority;
+* key-based versus keyless identity model;
+* key, certificate, or identity protection and lifecycle;
+* signature representation and storage;
+* verification policy and trusted-root semantics;
+* CI permissions and secret/OIDC boundaries;
+* Release integration and failure behavior;
+* rotation and revocation;
+* cross-framework architecture governance.
+
+No specific signing technology is adopted. Sigstore, Cosign, GPG/PGP,
+key-based signing, keyless signing, certificates, OIDC identities, and
+transparency-log mechanisms remain future evaluation candidates.
+
+No `ArtifactSignature`, signer, signing service, signing key, verification key,
+certificate identity, CI signing secret, OIDC `id-token` permission,
+signature-verification runtime, or new signing dependency was introduced.
+
+A future signing/trust architecture that crosses Build, Release, Security, and
+CI boundaries requires architecture governance before adoption and may require
+an RFC under the Build governance classification. Level 46 Controlled Builder
+Evaluation may inform future builder-identity or attestation decisions, but
+release signing authority is not inferred from builder identity.
+
+### Closure
+
+Level 45 is complete as an architecture evaluation milestone.
+
+**Level 45: evaluation complete.**
+
+**Artifact Signing Adoption: Deferred by Governance.**

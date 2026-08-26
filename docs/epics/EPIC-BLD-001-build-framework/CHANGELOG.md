@@ -1973,3 +1973,29 @@ Level 44 — SBOM Evaluation is complete at 8/8.
 
 Framework version 1.0.0 and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+
+## Level 45 — Artifact Signing Evaluation — 2026-08-26
+
+Artifact Signing Evaluation was completed without introducing signing
+implementation or a new trust claim.
+
+The evaluation confirmed that current artifact SHA-256 integrity records and
+Build Provenance are evidence authorities, not cryptographic signer-authenticity
+claims. A future signing architecture must define signing authority, identity
+and key lifecycle, verification policy, CI permission boundaries, Release
+integration, rotation, revocation, and cross-framework trust semantics before
+adoption.
+
+No signing technology or format was selected. No `ArtifactSignature`, signer,
+signing service, signing key, certificate identity, CI signing secret, OIDC
+`id-token` permission, Sigstore/Cosign/GPG dependency, or signature
+verification runtime was introduced.
+
+Future adoption must pass architecture governance. A cross-framework signing
+and trust model spanning Build, Release, Security, and CI may require an RFC.
+Level 46 Controlled Builder Evaluation may inform later builder-identity and
+attestation work without making builder identity equivalent to release signing
+authority.
+
+**Artifact Signing Adoption: Deferred by Governance.**
