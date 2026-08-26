@@ -604,6 +604,259 @@ These decisions SHALL be addressed by the Person and Family domain
 specifications or by later governed design work before implementation requires
 them.
 
+## Domain Ownership Contract
+
+Family Core ownership SHALL be explicit so that shared family concepts do not
+drift into Identity, Security, infrastructure, or official domain plugins.
+
+The canonical ownership model is:
+
+| Concern | Canonical Owner | Consumers / Integrators |
+|---|---|---|
+| Person business identity and continuity | Family Core | Identity, Security, domain plugins |
+| Family business identity and continuity | Family Core | Security, domain plugins |
+| Family Membership facts and lifecycle | Family Core | Identity, Security, domain plugins |
+| Family Relationship facts and semantics | Family Core | Security, domain plugins |
+| Family Boundary business context | Family Core | Security, domain plugins |
+| Platform actor identity | Identity | Family Core, Security |
+| Authentication | Security / Identity architecture | Platform interfaces and applications |
+| Authorization evaluation | Security | Applications, interfaces, domain integrations |
+| Role and permission enforcement | Security | Applications and interfaces |
+| Health business behavior | Health domain | Family Core references where required |
+| Finance business behavior | Finance domain | Family Core references where required |
+| Education business behavior | Education domain | Family Core references where required |
+| Documents business behavior | Documents domain | Family Core references where required |
+| Communication business behavior | Communication domain | Family Core references where required |
+| Persistence technology | Infrastructure | Family Core through explicit ports |
+| Presentation behavior | Interfaces | Family Core through application contracts |
+
+Ownership means responsibility for the business meaning, evolution, invariants,
+and lifecycle of the owned concept.
+
+Consumption of a Family Core concept SHALL NOT transfer ownership of that
+concept to the consumer.
+
+Identity SHALL NOT redefine Person business identity.
+
+Security SHALL NOT redefine Membership, Relationship, Family, or Person facts in
+order to make an authorization decision.
+
+Official domain plugins SHALL NOT create competing canonical definitions for
+shared Person, Family, Membership, Relationship, or Family Boundary semantics.
+
+Infrastructure SHALL persist Family Core state without becoming authoritative
+for its business meaning.
+
+Interfaces SHALL present Family Core information without owning its invariants.
+
+## Specification Responsibility Boundary
+
+RFC-0016 defines architecture, semantic distinctions, ownership, and mandatory
+specification outcomes.
+
+RFC-0016 SHALL NOT freeze implementation details that require domain-specific
+analysis.
+
+The Person Domain Specification and Family Domain Specification SHALL translate
+this RFC into implementation-ready domain contracts.
+
+Those specifications SHALL preserve every normative distinction established by
+RFC-0016.
+
+A specification MAY refine a concept where this RFC intentionally defers a
+decision.
+
+A specification SHALL NOT contradict RFC-0016 without a governed update to this
+RFC or a superseding architectural decision.
+
+The specification boundary is:
+
+```text
+RFC-0016
+    |
+    +---- architecture
+    +---- canonical semantics
+    +---- ownership
+    +---- cross-domain boundaries
+    +---- required specification outcomes
+    |
+    v
+Person Domain Specification
+Family Domain Specification
+    |
+    +---- domain model decisions
+    +---- invariants
+    +---- lifecycle decisions
+    +---- identifier contracts
+    +---- event contracts
+    +---- implementation-facing domain boundaries
+    |
+    v
+Family Core implementation EPIC
+```
+
+## Person Domain Specification Requirements
+
+The Person Domain Specification SHALL define an implementation-ready contract
+for Person while preserving the Person and Identity separation established by
+this RFC.
+
+At minimum, the Person Domain Specification SHALL define:
+
+- the normative definition and responsibility of Person;
+- the Person domain identity contract;
+- the rules governing Person continuity over time;
+- Person invariants;
+- the Person lifecycle, including whether explicit lifecycle states are
+  required;
+- the information that belongs intrinsically to Person versus information owned
+  by another domain;
+- the boundary between Person and Identity;
+- the boundary between Person and Family Membership;
+- the boundary between Person and plugin-specific records;
+- the aggregate, entity, and value-object classification required for the Person
+  model;
+- the canonical identifier naming and representation required by implementation;
+- creation, update, archival, historical, or equivalent lifecycle semantics
+  where applicable;
+- the domain events required to communicate meaningful Person changes;
+- privacy and data-integrity expectations relevant to Person business data;
+- application-facing operations required to manipulate Person safely;
+- persistence abstractions required by the domain, if persistence is needed;
+- compatibility expectations for existing consumers of person-like data.
+
+The Person Domain Specification SHALL explicitly state which candidate concerns
+are intentionally excluded from Person ownership.
+
+The Person Domain Specification SHALL NOT:
+
+- model authentication credentials as Person state;
+- treat account or authentication lifecycle as Person lifecycle;
+- infer authorization from Person existence;
+- make a Person dependent on membership in one specific Family;
+- make official domain plugins authoritative for Person identity.
+
+The Person Domain Specification SHALL resolve the representation of the
+canonical `PersonId` before implementation relies on that identifier.
+
+## Family Domain Specification Requirements
+
+The Family Domain Specification SHALL define an implementation-ready contract
+for Family, Family Membership, Family Relationship, and Family Boundary.
+
+At minimum, the Family Domain Specification SHALL define:
+
+- the normative definition and responsibility of Family;
+- the Family domain identity contract;
+- Family invariants and continuity rules;
+- the aggregate, entity, and value-object boundaries required for the Family
+  model;
+- the canonical identifier naming and representation required by implementation;
+- Family lifecycle semantics;
+- Family Membership identity requirements, if a dedicated identity is required;
+- Family Membership invariants;
+- Family Membership lifecycle states and valid transitions;
+- the rules that determine Membership validity for business decisions;
+- historical expectations for Membership changes;
+- Family Relationship identity requirements, if a dedicated identity is
+  required;
+- Family Relationship semantics and invariants;
+- Relationship directionality and symmetry rules;
+- the initial Relationship taxonomy or the governed mechanism by which that
+  taxonomy is defined;
+- temporal or historical semantics for Relationships where required;
+- Family Boundary derivation and invariants;
+- cross-family business-context rules;
+- the boundary between Family Core facts and Security authorization decisions;
+- the domain events required to communicate meaningful Family, Membership,
+  Relationship, and Boundary changes;
+- privacy and data-integrity expectations for family business data;
+- application-facing operations required to manipulate Family Core state
+  safely;
+- persistence abstractions required by the domain, if persistence is needed;
+- compatibility expectations for existing family-like or membership-like
+  concepts.
+
+The Family Domain Specification SHALL preserve the invariant that Membership
+does not itself grant authorization.
+
+The Family Domain Specification SHALL preserve the invariant that Relationship
+does not itself grant authorization.
+
+The Family Domain Specification SHALL explicitly decide whether Household is:
+
+- a distinct Family Core concept;
+- a concept owned by another domain;
+- a future concept intentionally deferred;
+- unnecessary for the canonical model.
+
+Household SHALL NOT become synonymous with Family merely as an implementation
+shortcut.
+
+The Family Domain Specification SHALL resolve the representation of the
+canonical `FamilyId` before implementation relies on that identifier.
+
+Any dedicated Membership or Relationship identifier SHALL be specified before
+implementation treats it as a stable public or persisted domain identity.
+
+## Cross-Specification Consistency Contract
+
+The Person Domain Specification and Family Domain Specification SHALL be
+designed as coordinated contracts.
+
+They SHALL agree on:
+
+- how Person is referenced by Family Membership;
+- identifier boundaries between Person and Family concepts;
+- ownership of shared terminology;
+- historical-reference expectations;
+- lifecycle interactions;
+- domain-event integration points;
+- privacy and data-integrity assumptions;
+- compatibility expectations.
+
+The Family Domain Specification SHALL reference Person through the Person
+contract rather than redefining Person.
+
+The Person Domain Specification SHALL reference Family participation through
+the Family Membership contract rather than embedding Family ownership into
+Person.
+
+Neither specification SHALL make Security the owner of Family Core business
+facts.
+
+## Specification-to-Implementation Gate
+
+Family Core implementation SHALL proceed only from sufficiently specified domain
+contracts.
+
+Before implementation of a Family Core concept begins, the specification
+governing that concept SHALL define every decision required to implement its
+business invariants without inventing architecture inside application,
+infrastructure, or interface code.
+
+At minimum, implementation SHALL NOT freeze any of the following unless the
+governing domain specification has resolved them:
+
+- aggregate boundaries;
+- entity and value-object classification;
+- stable identifier contracts;
+- lifecycle states and transitions where applicable;
+- relationship semantics required by the implementation;
+- domain-event contracts required by the implementation;
+- domain ownership boundaries;
+- Security integration boundaries.
+
+Implementation MAY proceed incrementally when only a subset of the Family Core
+is required, provided the implemented subset is fully specified and does not
+prejudge unresolved semantics of later concepts.
+
+An implementation EPIC SHALL consume the accepted RFC and the applicable domain
+specifications as normative inputs.
+
+Implementation findings that expose a foundational contradiction SHALL return to
+RFC or specification governance rather than being silently resolved in code.
+
 ---
 
 # Architectural Consequences
