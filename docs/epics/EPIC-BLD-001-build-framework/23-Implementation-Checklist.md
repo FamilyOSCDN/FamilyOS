@@ -3351,20 +3351,72 @@ Identify and reduce legacy build behavior.
 
 ### Checklist
 
-* [ ] Inventory legacy build scripts.
-* [ ] Inventory duplicate build commands.
-* [ ] Inventory CI-specific build logic.
-* [ ] Inventory duplicated configuration.
-* [ ] Inventory obsolete environment assumptions.
-* [ ] Inventory unowned tools.
-* [ ] Inventory permanently skipped validations.
-* [ ] Inventory manual release preparation steps.
-* [ ] Prioritize debt by impact and risk.
-* [ ] Remove obsolete paths after migration.
-* [ ] Document accepted temporary debt.
+* [x] Inventory legacy build scripts.
+* [x] Inventory duplicate build commands.
+* [x] Inventory CI-specific build logic.
+* [x] Inventory duplicated configuration.
+* [x] Inventory obsolete environment assumptions.
+* [x] Inventory unowned tools.
+* [x] Inventory permanently skipped validations.
+* [x] Inventory manual release preparation steps.
+* [x] Prioritize debt by impact and risk.
+* [x] Remove obsolete paths after migration.
+* [x] Document accepted temporary debt.
+
+### Current Technical-Debt State
+
+The Level 39 repository audit found no active legacy Build script, duplicate
+canonical Build command, independent CI-only Build semantic path, unowned
+critical Build tool, permanently skipped mandatory Build validation, or
+Build-owned manual release-preparation path.
+
+The repository contains `install-epics.sh` for documentation installation and
+`scripts/doctor.sh` for developer diagnostics. Neither implements or replaces
+the canonical Build path.
+
+Canonical package construction remains exposed through `familyos build`.
+The infrastructure-owned Python package builder invokes the declared PyPA
+frontend internally; that adapter is part of the canonical implementation and
+does not constitute a second user-facing Build authority.
+
+CI remains a thin automation adapter around canonical validation and Build
+semantics. Its temporary `continue-on-error` on canonical CI validation exists
+only so validation evidence can be uploaded. The subsequent
+`Preserve canonical validation result` step explicitly exits non-zero whenever
+the canonical validation outcome is not successful.
+
+Canonical Build configuration remains centered on repository-owned
+`pyproject.toml` and generated `requirements.txt` dependency state. No
+conflicting active package-manager or Build configuration authority was found.
+
+The canonical documentation baseline reports zero duplicate numbered documents
+and zero legacy files. No active legacy Build-named path was found by the
+repository audit.
+
+### Accepted Temporary Debt
+
+One known maintenance debt remains accepted:
+
+* pinned GitHub Actions used by Canonical CI have historically emitted a
+  Node.js runtime deprecation warning and may require action-version upgrades.
+
+This debt is maintenance-level rather than correctness-critical. Canonical CI
+continues to pass, Build semantics are unaffected, and no weakened permission,
+validation, artifact-integrity, or release boundary results from the warning.
+
+The remediation path is to upgrade the affected official GitHub Actions through
+normal CI maintenance and revalidate the existing workflow contracts. It must
+not be addressed by weakening validation, changing Build semantics, or granting
+additional permissions.
+
+Capabilities intentionally scheduled for Levels 40 through 49, including
+broader reproducibility, provenance, SBOM evaluation, signing evaluation,
+controlled builders, registries, remote execution, and performance maturity,
+are planned maturity work and are not classified as current technical debt.
+
+Level 39 — Build Technical Debt is complete at 11/11.
 
 ---
-
 # Level 40 — Reproducibility Baseline
 
 ## Objective
