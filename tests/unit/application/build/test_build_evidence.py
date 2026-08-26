@@ -18,6 +18,9 @@ from familyos_cli.application.build.artifact_manifest import (
 )
 from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
+from familyos_cli.application.build.build_context_fingerprint import (
+    BuildContextFingerprint,
+)
 from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
@@ -45,6 +48,11 @@ _BUILD_ID = BuildId(
 
 _OTHER_BUILD_ID = BuildId(
     UUID("11234567-89ab-4cde-8f01-23456789abcd")
+)
+
+_BUILD_CONTEXT_FINGERPRINT = BuildContextFingerprint(
+    algorithm="sha256",
+    digest="f" * 64,
 )
 
 _SOURCE_STATE = SourceState(
@@ -117,6 +125,7 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
     manifest = _manifest()
 
     evidence = BuildEvidence(
+        build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         runtime_version="3.13.7",
@@ -141,6 +150,7 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
 
 def test_build_evidence_exposes_source_revision() -> None:
     evidence = BuildEvidence(
+        build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         runtime_version="3.13.7",
@@ -159,6 +169,7 @@ def test_build_evidence_exposes_source_revision() -> None:
 
 def test_build_evidence_exposes_validation_profile() -> None:
     evidence = BuildEvidence(
+        build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
         runtime_version="3.13.7",
@@ -232,6 +243,7 @@ def test_build_evidence_requires_matching_validation_build_id() -> None:
         match="validation result build ID does not match Build Evidence",
     ):
         BuildEvidence(
+            build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             runtime_version="3.13.7",
@@ -262,6 +274,7 @@ def test_build_evidence_requires_matching_configuration_profile() -> None:
         ),
     ):
         BuildEvidence(
+            build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             runtime_version="3.13.7",
@@ -287,6 +300,7 @@ def test_build_evidence_requires_matching_manifest_build_id() -> None:
         match="artifact manifest build ID does not match Build Evidence",
     ):
         BuildEvidence(
+            build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             runtime_version="3.13.7",
@@ -312,6 +326,7 @@ def test_build_evidence_requires_captured_source_revision() -> None:
         match="requires a captured source revision",
     ):
         BuildEvidence(
+            build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
             build_id=_BUILD_ID,
             source_state=source_state,
             runtime_version="3.13.7",
@@ -350,6 +365,7 @@ def test_build_evidence_rejects_integrity_from_different_build() -> None:
         match="artifact integrity build ID does not match Build Evidence",
     ):
         BuildEvidence(
+            build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             runtime_version="3.13.7",
@@ -388,6 +404,7 @@ def test_build_evidence_rejects_integrity_not_represented_by_manifest() -> None:
         match="artifact integrity is not represented by artifact manifest",
     ):
         BuildEvidence(
+            build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
             runtime_version="3.13.7",
@@ -409,6 +426,7 @@ def test_build_evidence_exposes_captured_source_dirty_state() -> None:
     )
 
     evidence = BuildEvidence(
+        build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
         build_id=_BUILD_ID,
         execution_observations=(),
         source_state=source_state,

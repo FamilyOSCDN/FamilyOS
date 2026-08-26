@@ -6,6 +6,9 @@ from dataclasses import dataclass
 
 from familyos_cli.application.build.artifact_integrity import ArtifactIntegrity
 from familyos_cli.application.build.artifact_manifest import ArtifactManifest
+from familyos_cli.application.build.build_context_fingerprint import (
+    BuildContextFingerprint,
+)
 from familyos_cli.application.build.build_execution_observation import (
     BuildExecutionObservation,
 )
@@ -28,6 +31,7 @@ class BuildEvidence:
     """Evidence authorities associated with one canonical build."""
 
     build_id: BuildId
+    build_context_fingerprint: BuildContextFingerprint
     source_state: SourceState
     runtime_version: str
     dependency_state: DependencyState

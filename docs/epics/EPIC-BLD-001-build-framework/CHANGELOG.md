@@ -1839,3 +1839,33 @@ complete.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 41 — Build Context Fingerprint — 2026-08-26
+
+Implemented canonical Build Context fingerprinting for reproducibility and
+future cache-oriented identity.
+
+Added immutable BuildContextFingerprint and deterministic
+BuildContextFingerprinter.
+
+Canonical fingerprint inputs now cover source, runtime, dependency state,
+critical toolchain state, relevant environment state, and effective Build
+configuration.
+
+Execution-specific identity such as Build ID, output paths, temporary
+directories, and virtual-environment activation is intentionally excluded.
+
+Fingerprint serialization is versioned and deterministic and uses SHA-256.
+
+Build Evidence now requires and carries the fingerprint, while deterministic
+Build Evidence JSON exposes its algorithm and digest.
+
+Explicit semantic fingerprint comparison is available through
+BuildContextFingerprint.matches().
+
+Focused and complete Build regressions remained green.
+
+Level 41 — Build Context Fingerprint is complete at 10/10.
+
+Framework version 1.0.0 and immutable historical publication tag
+v4.7.0-build-framework remain unchanged.

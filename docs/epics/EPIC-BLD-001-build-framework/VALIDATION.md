@@ -3136,3 +3136,102 @@ Level 40 — Reproducibility Baseline is complete at 11/11.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 41 Build Context Fingerprint Validation — 2026-08-26
+
+Level 41 introduced canonical semantic identity for resolved Build Context.
+
+`BuildContextFingerprinter` projects canonical Build Context authorities into a
+versioned deterministic payload.
+
+The fingerprint projection includes:
+
+```text
+source revision
+source dirty state
+runtime version
+dependency declaration identity and SHA-256
+dependency lock identity and SHA-256
+critical toolchain distributions and versions
+operating system
+operating-system release
+machine architecture
+filesystem encoding
+Build profile
+Build target
+functional-validation configuration
+```
+
+The projection intentionally excludes execution-specific or volatile identity:
+
+```text
+Build ID
+package output path
+Build Evidence output path
+temporary directory
+virtual-environment activation state
+```
+
+Critical toolchain entries are sorted before serialization.
+
+Serialization uses deterministic JSON with sorted keys and compact separators,
+UTF-8 encoding, and SHA-256.
+
+The resulting `BuildContextFingerprint` enforces:
+
+```text
+algorithm = sha256
+digest length = 64 hexadecimal characters
+lowercase hexadecimal encoding
+```
+
+Focused behavioral validation confirms that:
+
+* repeated fingerprinting of the same semantic context is deterministic;
+* different Build IDs do not change the fingerprint;
+* different output and Evidence paths do not change the fingerprint;
+* temporary-directory changes do not change the fingerprint;
+* virtual-environment activation changes do not change the fingerprint;
+* dependency-state changes alter the fingerprint;
+* source-revision changes alter the fingerprint;
+* runtime-version changes alter the fingerprint;
+* relevant environment changes alter the fingerprint;
+* missing canonical source revision prevents fingerprint calculation;
+* non-canonical fingerprint identities are rejected;
+* equivalent fingerprints match symmetrically;
+* changed canonical contexts do not match.
+
+`BuildEvidenceFactory` calculates the fingerprint exclusively from the
+already-established Build Context and does not recapture canonical authorities.
+
+Build Evidence requires the fingerprint and deterministic JSON projects:
+
+```json
+{
+  "build_context_fingerprint": {
+    "algorithm": "sha256",
+    "digest": "..."
+  }
+}
+```
+
+Focused Level 41 validation completed successfully:
+
+```text
+Build Context fingerprint tests: 16 passed
+Build Evidence tests:            14 passed
+Build Evidence Factory tests:     8 passed
+Evidence validation checks:      57 passed
+Build Evidence JSON tests:        5 passed
+Build application regression:   623 passed
+Build CLI/rendering regression:  47 passed
+Build infrastructure regression: 30 passed
+Ruff:                           PASS
+MyPy:                           PASS
+git diff --check:               PASS
+```
+
+Level 41 — Build Context Fingerprint is complete at 10/10.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

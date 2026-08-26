@@ -128,6 +128,8 @@ def test_factory_preserves_canonical_package_build_authorities() -> None:
     )
 
     assert evidence.build_id == package_result.build_id
+    assert evidence.build_context_fingerprint.algorithm == "sha256"
+    assert len(evidence.build_context_fingerprint.digest) == 64
     assert evidence.source_state is package_result.source_state
     assert package_result.build_context is not None
     assert (

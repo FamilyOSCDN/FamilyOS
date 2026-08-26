@@ -23,6 +23,10 @@ class BuildEvidenceJsonRenderer:
 
         payload: dict[str, Any] = {
             "build_id": str(evidence.build_id),
+            "build_context_fingerprint": {
+                "algorithm": evidence.build_context_fingerprint.algorithm,
+                "digest": evidence.build_context_fingerprint.digest,
+            },
             "source": {
                 "revision": evidence.source_state.revision,
                 "dirty": evidence.source_state.dirty,

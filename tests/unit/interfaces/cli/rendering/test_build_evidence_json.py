@@ -18,6 +18,9 @@ from familyos_cli.application.build.artifact_manifest import (
 )
 from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
+from familyos_cli.application.build.build_context_fingerprint import (
+    BuildContextFingerprint,
+)
 from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_execution_observation import (
     BuildExecutionObservation,
@@ -52,6 +55,11 @@ from familyos_cli.interfaces.cli.rendering.build_evidence_json import (
 
 _BUILD_ID = BuildId(
     UUID("01234567-89ab-4cde-8f01-23456789abcd")
+)
+
+_BUILD_CONTEXT_FINGERPRINT = BuildContextFingerprint(
+    algorithm="sha256",
+    digest="f" * 64,
 )
 
 _SOURCE_STATE = SourceState(
@@ -145,6 +153,7 @@ _EFFECTIVE_CONFIGURATION = EffectiveBuildConfigurationView(
 )
 
 _EVIDENCE = BuildEvidence(
+    build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
     build_id=_BUILD_ID,
     source_state=_SOURCE_STATE,
     runtime_version="3.13.7",
@@ -177,6 +186,11 @@ def test_renderer_emits_canonical_build_evidence_json() -> None:
     payload = json.loads(rendered)
 
     assert payload["build_id"] == str(_BUILD_ID)
+
+    assert payload["build_context_fingerprint"] == {
+        "algorithm": "sha256",
+        "digest": "f" * 64,
+    }
 
     assert payload["source"] == {
         "revision": _SOURCE_STATE.revision,

@@ -12,6 +12,9 @@ from familyos_cli.application.build.artifact_discovery import (
 )
 from familyos_cli.application.build.artifact_manifest import ArtifactManifest
 from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
+from familyos_cli.application.build.build_context_fingerprint import (
+    BuildContextFingerprint,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationDomain,
@@ -42,6 +45,11 @@ from familyos_cli.application.build.toolchain_state import (
 
 _BUILD_ID = BuildId(
     UUID("01234567-89ab-4cde-8f01-23456789abcd")
+)
+
+_BUILD_CONTEXT_FINGERPRINT = BuildContextFingerprint(
+    algorithm="sha256",
+    digest="f" * 64,
 )
 
 _SOURCE_STATE = SourceState(
@@ -805,6 +813,7 @@ def test_evidence_validation_maps_coherent_build_evidence(
 
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
+        build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
         source_state=_SOURCE_STATE,
         runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,
@@ -868,6 +877,7 @@ def test_evidence_validation_rejects_evidence_for_different_build() -> None:
 
     evidence = BuildEvidence(
         build_id=other_build_id,
+        build_context_fingerprint=_BUILD_CONTEXT_FINGERPRINT,
         source_state=_SOURCE_STATE,
         runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,

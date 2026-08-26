@@ -41,6 +41,12 @@ from familyos_cli.application.build.build_context import (
     BuildProfile,
     BuildTarget,
 )
+from familyos_cli.application.build.build_context_fingerprint import (
+    BuildContextFingerprint,
+)
+from familyos_cli.application.build.build_context_fingerprinter import (
+    BuildContextFingerprinter,
+)
 from familyos_cli.application.build.build_context_resolver import (
     BuildContextResolver,
 )
@@ -156,6 +162,8 @@ __all__ = [
     "BuildWorkspace",
     "BuildWorkspaceInitializer",
     "BuildContext",
+    "BuildContextFingerprint",
+    "BuildContextFingerprinter",
     "BuildContextResolver",
     "BuildEffectiveConfiguration",
     "BuildEvidence",

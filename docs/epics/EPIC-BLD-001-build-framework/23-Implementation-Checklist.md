@@ -3483,18 +3483,68 @@ Provide stronger context identity for reproducibility and caching.
 
 ### Checklist
 
-* [ ] Define canonical fingerprint inputs.
-* [ ] Include source identity.
-* [ ] Include relevant configuration.
-* [ ] Include dependency-state identity.
-* [ ] Include critical toolchain state.
-* [ ] Include relevant environment state.
-* [ ] Define canonical serialization.
-* [ ] Calculate fingerprint.
-* [ ] Associate fingerprint with Build Evidence.
-* [ ] Use fingerprint for comparison where useful.
+* [x] Define canonical fingerprint inputs.
+* [x] Include source identity.
+* [x] Include relevant configuration.
+* [x] Include dependency-state identity.
+* [x] Include critical toolchain state.
+* [x] Include relevant environment state.
+* [x] Define canonical serialization.
+* [x] Calculate fingerprint.
+* [x] Associate fingerprint with Build Evidence.
+* [x] Use fingerprint for comparison where useful.
 
 This is a maturity capability and may remain deferred initially.
+
+### Current Build Context Fingerprint
+
+Canonical Build Context fingerprinting is implemented as a deterministic
+semantic projection of the resolved Build Context.
+
+The canonical fingerprint includes:
+
+* source revision and dirty state;
+* Python runtime version;
+* dependency declaration identity and SHA-256;
+* dependency lock identity and SHA-256;
+* critical toolchain distributions and versions;
+* operating system;
+* operating-system release;
+* machine architecture;
+* filesystem encoding;
+* Build profile;
+* Build target;
+* functional-validation configuration.
+
+Execution-specific or volatile values are intentionally excluded, including:
+
+* Build ID;
+* package output path;
+* Build Evidence output path;
+* temporary directory;
+* virtual-environment activation state.
+
+Critical toolchain entries are sorted by distribution before serialization.
+
+The canonical projection includes schema identity
+`familyos.build-context-fingerprint.v1` and is serialized using deterministic
+JSON ordering and separators before UTF-8 encoding and SHA-256 calculation.
+
+The resulting immutable `BuildContextFingerprint` requires lowercase
+64-character SHA-256 hexadecimal identity.
+
+`BuildEvidenceFactory` calculates the fingerprint from the already-resolved
+Build Context without recapturing canonical authorities. Build Evidence carries
+the fingerprint as a required authority and deterministic Build Evidence JSON
+exposes both algorithm and digest.
+
+`BuildContextFingerprint.matches()` provides explicit semantic comparison for
+reproducibility and future cache-oriented uses.
+
+Equivalent canonical semantic contexts therefore produce matching
+fingerprints, while relevant context changes produce different fingerprints.
+
+Level 41 — Build Context Fingerprint is complete at 10/10.
 
 ---
 

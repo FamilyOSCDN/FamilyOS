@@ -5,6 +5,9 @@ from __future__ import annotations
 from familyos_cli.application.build.artifact_discovery import (
     CanonicalPackageBuildResult,
 )
+from familyos_cli.application.build.build_context_fingerprinter import (
+    BuildContextFingerprinter,
+)
 from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_profile_registry import (
     get_build_profile_definition,
@@ -52,8 +55,13 @@ class BuildEvidenceFactory:
             ),
         )
 
+        build_context_fingerprint = BuildContextFingerprinter().fingerprint(
+            package_result.build_context,
+        )
+
         return BuildEvidence(
             build_id=package_result.build_id,
+            build_context_fingerprint=build_context_fingerprint,
             source_state=package_result.source_state,
             runtime_version=package_result.build_context.runtime_version,
             dependency_state=package_result.build_context.dependency_state,

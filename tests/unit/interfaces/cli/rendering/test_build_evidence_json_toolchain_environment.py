@@ -8,6 +8,9 @@ from uuid import UUID
 
 from familyos_cli.application.build.artifact_manifest import ArtifactManifest
 from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
+from familyos_cli.application.build.build_context_fingerprint import (
+    BuildContextFingerprint,
+)
 from familyos_cli.application.build.build_evidence import BuildEvidence
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
@@ -37,6 +40,10 @@ def test_renderer_projects_toolchain_and_environment_authorities() -> None:
 
     evidence = BuildEvidence(
         build_id=build_id,
+        build_context_fingerprint=BuildContextFingerprint(
+            algorithm="sha256",
+            digest="f" * 64,
+        ),
         source_state=SourceState(
             revision="0123456789abcdef0123456789abcdef01234567",
             dirty=False,
