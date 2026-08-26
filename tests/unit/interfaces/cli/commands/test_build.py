@@ -903,7 +903,7 @@ def test_build_renders_execution_observations_in_order(
     stdout = capsys.readouterr().out
 
     assert exit_code == build_command.EXIT_SUCCESS
-    assert "Execution Stages:" in stdout
+    assert stdout.count("Execution Stages:") == 1
 
     first = "- validate-inputs: SUCCEEDED (0.010000s)"
     second = "- package: SUCCEEDED (0.250000s)"

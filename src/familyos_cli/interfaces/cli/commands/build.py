@@ -343,21 +343,6 @@ def _render_result(result: CanonicalPackageBuildResult) -> None:
 
             typer.echo(line)
 
-    if result.execution_observations:
-        typer.echo("Execution Stages:")
-
-        for observation in result.execution_observations:
-            line = (
-                f"- {observation.stage.value}: "
-                f"{observation.status.value.upper()} "
-                f"({observation.duration_seconds:.6f}s)"
-            )
-
-            if observation.diagnostic:
-                line += f" — {observation.diagnostic}"
-
-            typer.echo(line)
-
     for artifact in result.candidates:
         typer.echo(
             f"- {artifact.artifact_class.value}: {artifact.path}"
