@@ -3475,3 +3475,105 @@ boundary as 7/8 satisfied plus 1 explicit architectural deferral.
 
 Framework version 1.0.0 and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 44 SBOM Evaluation Validation — 2026-08-26
+
+Level 44 completed the architectural evaluation of Software Bill of Materials
+generation without introducing premature SBOM infrastructure.
+
+The evaluation identified operational value in runtime dependency inventory,
+vulnerability analysis, software supply-chain transparency, release
+composition evidence, historical investigation, and future compliance
+automation.
+
+The current canonical Build artifact scope consists of the Python wheel and
+source distribution.
+
+For artifact composition, the required dependency depth was evaluated as the
+runtime dependency closure:
+
+```text
+FamilyOS package component
+        ↓
+direct runtime dependencies
+        ↓
+transitive runtime dependencies
+```
+
+Development, validation, and build-tool dependencies remain separate Build
+Evidence and provenance concerns unless a future SBOM profile explicitly
+extends the composition scope.
+
+Real package metadata confirmed that the Python wheel exposes five direct
+runtime requirements:
+
+```text
+packaging
+typer
+jinja2
+pyyaml
+pydantic
+```
+
+Development dependencies are emitted separately through the `dev` extra and
+are not part of normal runtime composition.
+
+The repository lock currently contains runtime, transitive, development, and
+build/toolchain components together. It therefore cannot by itself be treated
+as an authoritative runtime SBOM.
+
+The current `DependencyState` establishes only the identity and SHA-256
+digests of the canonical dependency declaration and lock inputs. Canonical
+resolved dependency-graph identity remains a separate future maturity
+capability.
+
+SPDX and CycloneDX were both evaluated as suitable future industry-standard
+SBOM representations.
+
+Neither format was adopted as FamilyOS canonical dependency authority.
+
+A future SBOM must be derived from established dependency authorities and must
+not become the source of truth for dependency resolution.
+
+Security Architecture integration was evaluated positively because SBOM
+composition information may support dependency inventory, transitive
+dependency analysis, vulnerability assessment, and release eligibility.
+
+Release Evidence integration was also evaluated positively. A future SBOM may
+form part of durable supply-chain and release evidence while remaining
+complementary to Build Provenance, Artifact Integrity, release manifests, and
+release validation.
+
+Architecture governance was explicitly evaluated.
+
+No existing ADR or RFC currently establishes a FamilyOS SBOM architecture.
+Existing dependency-graph ADR material concerns other platform domains and
+does not establish canonical Build dependency-graph identity.
+
+Current Build Governance classifies changes spanning significant Build
+architecture and multiple platform areas under the stronger RFC path.
+
+A future SBOM implementation would cross Build, Security, and Release Evidence
+boundaries and therefore requires an RFC or equivalent stronger governance
+record before adoption.
+
+Level 44 intentionally introduces no:
+
+```text
+SBOM generator
+SPDX implementation
+CycloneDX implementation
+DependencyInventory authority
+package-URL authority
+new SBOM dependency
+CI SBOM pipeline
+```
+
+Level 44 — SBOM Evaluation is complete at 8/8.
+
+The resulting architecture decision is to defer implementation until FamilyOS
+has sufficient canonical dependency-graph authority and an approved
+cross-cutting governance decision.
+
+Framework version 1.0.0 and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

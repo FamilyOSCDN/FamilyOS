@@ -1937,3 +1937,39 @@ explicit architectural deferral to Level 46.
 
 Framework version 1.0.0 and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 44 — SBOM Evaluation — 2026-08-26
+
+Completed the architectural evaluation of Software Bill of Materials
+generation.
+
+Identified runtime dependency inventory, vulnerability analysis, supply-chain
+transparency, release composition evidence, and historical investigation as
+potential SBOM use cases.
+
+Established the current canonical Python wheel and source distribution as the
+relevant artifact scope.
+
+Evaluated the required artifact-composition depth as the runtime dependency
+closure, including direct and applicable transitive runtime dependencies.
+
+SPDX and CycloneDX were evaluated as viable future standard representations.
+
+Security Architecture and Release Evidence integration were evaluated
+positively.
+
+SBOM implementation was intentionally deferred because FamilyOS does not yet
+establish canonical resolved dependency-graph identity suitable for
+authoritative SBOM generation.
+
+Future adoption must go through cross-cutting architecture governance because
+SBOM semantics affect Build, Security, and Release Evidence architecture.
+
+No SBOM generator, SPDX or CycloneDX implementation, dependency-inventory
+authority, new SBOM dependency, package-URL authority, or CI SBOM pipeline was
+introduced.
+
+Level 44 — SBOM Evaluation is complete at 8/8.
+
+Framework version 1.0.0 and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

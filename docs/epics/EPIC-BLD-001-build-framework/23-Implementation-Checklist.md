@@ -3692,16 +3692,99 @@ Evaluate whether Software Bill of Materials generation provides operational valu
 
 ### Checklist
 
-* [ ] Identify SBOM use cases.
-* [ ] Identify target artifacts.
-* [ ] Identify required dependency depth.
-* [ ] Evaluate SPDX.
-* [ ] Evaluate CycloneDX.
-* [ ] Evaluate integration with Security Architecture.
-* [ ] Evaluate release evidence integration.
-* [ ] Decide through architecture governance before adoption.
+* [x] Identify SBOM use cases.
+* [x] Identify target artifacts.
+* [x] Identify required dependency depth.
+* [x] Evaluate SPDX.
+* [x] Evaluate CycloneDX.
+* [x] Evaluate integration with Security Architecture.
+* [x] Evaluate release evidence integration.
+* [x] Decide through architecture governance before adoption.
 
-SBOM generation is not an immediate mandatory EPIC-BLD-001 implementation requirement.
+### Current Evaluation
+
+SBOM generation has clear potential operational value for FamilyOS.
+
+Primary identified use cases are:
+
+* runtime dependency inventory;
+* dependency and vulnerability analysis;
+* software supply-chain transparency;
+* release composition evidence;
+* historical release investigation;
+* future compliance and security-policy enforcement.
+
+The current canonical package artifacts are:
+
+* Python wheel;
+* source distribution.
+
+For executable package composition, the relevant dependency depth is the
+artifact runtime dependency closure: the FamilyOS package component, its
+direct runtime dependencies, and applicable transitive runtime dependencies.
+
+Build, development, validation, and toolchain dependencies remain separate
+Build Evidence / provenance concerns unless a future SBOM profile explicitly
+defines a broader build-environment composition scope.
+
+SPDX and CycloneDX were both evaluated as viable industry-standard SBOM
+representations.
+
+Neither format is adopted as a canonical FamilyOS authority. A future SBOM
+must remain a projection from established FamilyOS dependency authorities
+rather than becoming the source of truth for dependency identity or
+resolution.
+
+Security Architecture integration is justified because dependency inventory
+and transitive dependency visibility can support vulnerability analysis,
+dependency-risk evaluation, and release eligibility decisions.
+
+Release Evidence integration is also justified. A future SBOM may become
+durable supply-chain evidence associated with applicable release artifacts,
+while remaining complementary to Build Provenance, Artifact Integrity,
+release manifests, and release validation.
+
+### Architecture Governance Decision
+
+SBOM implementation is intentionally deferred at the current Build Framework
+maturity level.
+
+The current `DependencyState` establishes the identity and SHA-256 digests of
+the canonical dependency declaration and lock inputs, but FamilyOS has not yet
+established a canonical resolved dependency-graph identity suitable for
+authoritative SBOM generation.
+
+Generating an SBOM before that authority exists would risk treating a derived
+or partially reconstructed dependency inventory as canonical build evidence.
+
+No SBOM generator, SPDX model, CycloneDX model, dependency-inventory authority,
+package URL authority, new third-party dependency, or CI SBOM pipeline is
+introduced by Level 44.
+
+Future SBOM adoption would cross Build, Security, and Release Evidence
+boundaries and therefore requires architecture governance before
+implementation. Under the current Build Governance classification, such a
+cross-cutting supply-chain architecture decision requires an RFC or equivalent
+stronger governance record.
+
+The future governance decision must establish at least:
+
+* canonical dependency-graph authority;
+* artifact/SBOM binding semantics;
+* supported dependency scope;
+* standard and version selection;
+* component identity requirements;
+* integrity and package-origin semantics;
+* Security Architecture consumption;
+* Release Evidence retention and validation;
+* CI generation and verification policy.
+
+Level 44 therefore completes the SBOM evaluation without adopting SBOM
+generation.
+
+SBOM generation remains a future maturity capability unless separately
+mandated through architecture governance and an applicable build or release
+profile.
 
 ---
 
