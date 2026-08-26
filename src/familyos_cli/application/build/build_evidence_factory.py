@@ -55,10 +55,12 @@ class BuildEvidenceFactory:
         return BuildEvidence(
             build_id=package_result.build_id,
             source_state=package_result.source_state,
+            runtime_version=package_result.build_context.runtime_version,
             dependency_state=package_result.build_context.dependency_state,
             toolchain_state=package_result.build_context.toolchain_state,
             environment_state=package_result.build_context.environment_state,
             effective_configuration=effective_configuration,
+            execution_observations=package_result.execution_observations,
             validation_result=validation_result,
             artifact_manifest=package_result.artifact_manifest,
             artifact_integrities=package_result.artifact_integrities,

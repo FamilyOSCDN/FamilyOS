@@ -27,6 +27,9 @@ class BuildEvidenceJsonRenderer:
                 "revision": evidence.source_state.revision,
                 "dirty": evidence.source_state.dirty,
             },
+            "runtime": {
+                "version": evidence.runtime_version,
+            },
             "dependency_state": {
                 "declaration": {
                     "identity": evidence.dependency_state.declaration_path.name,
@@ -81,6 +84,17 @@ class BuildEvidenceJsonRenderer:
                 "target_supported": (
                     evidence.effective_configuration.target_supported
                 ),
+            },
+            "execution": {
+                "stages": [
+                    {
+                        "stage": observation.stage.value,
+                        "status": observation.status.value,
+                        "duration_seconds": observation.duration_seconds,
+                        "diagnostic": observation.diagnostic,
+                    }
+                    for observation in evidence.execution_observations
+                ],
             },
             "validation": {
                 "profile": evidence.validation_result.profile.value,

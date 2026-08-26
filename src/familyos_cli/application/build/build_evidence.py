@@ -6,6 +6,9 @@ from dataclasses import dataclass
 
 from familyos_cli.application.build.artifact_integrity import ArtifactIntegrity
 from familyos_cli.application.build.artifact_manifest import ArtifactManifest
+from familyos_cli.application.build.build_execution_observation import (
+    BuildExecutionObservation,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationProfile,
@@ -26,10 +29,12 @@ class BuildEvidence:
 
     build_id: BuildId
     source_state: SourceState
+    runtime_version: str
     dependency_state: DependencyState
     toolchain_state: ToolchainState
     environment_state: EnvironmentState
     effective_configuration: EffectiveBuildConfigurationView
+    execution_observations: tuple[BuildExecutionObservation, ...]
     validation_result: BuildValidationResult
     artifact_manifest: ArtifactManifest
     artifact_integrities: tuple[ArtifactIntegrity, ...]

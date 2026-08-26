@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from uuid import UUID
 
@@ -19,6 +20,11 @@ from familyos_cli.application.build.build_context import (
 )
 from familyos_cli.application.build.build_evidence_factory import (
     BuildEvidenceFactory,
+)
+from familyos_cli.application.build.build_execution_observation import (
+    BuildExecutionObservation,
+    BuildExecutionStage,
+    BuildExecutionStageStatus,
 )
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
@@ -124,6 +130,10 @@ def test_factory_preserves_canonical_package_build_authorities() -> None:
     assert evidence.build_id == package_result.build_id
     assert evidence.source_state is package_result.source_state
     assert package_result.build_context is not None
+    assert (
+        evidence.runtime_version
+        == package_result.build_context.runtime_version
+    )
     assert (
         evidence.dependency_state
         is package_result.build_context.dependency_state
@@ -231,6 +241,36 @@ def test_factory_requires_captured_source_revision() -> None:
             package_result,
             _validation_result(),
         )
+
+
+def test_factory_preserves_execution_stage_results() -> None:
+    package_result = _package_result()
+
+    observations = (
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.VALIDATE_INPUTS,
+            status=BuildExecutionStageStatus.SUCCEEDED,
+            duration_seconds=0.125,
+        ),
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.PACKAGE,
+            status=BuildExecutionStageStatus.FAILED,
+            duration_seconds=1.5,
+            diagnostic="package build failed",
+        ),
+    )
+
+    package_result = replace(
+        package_result,
+        execution_observations=observations,
+    )
+
+    evidence = BuildEvidenceFactory().from_package_build(
+        package_result,
+        _validation_result(),
+    )
+
+    assert evidence.execution_observations is observations
 
 
 def test_factory_preserves_toolchain_and_environment_authorities() -> None:

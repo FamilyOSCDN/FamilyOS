@@ -2388,22 +2388,81 @@ Create evidence sufficient to explain important builds.
 
 * [x] Build ID.
 * [x] source revision.
-* [ ] target.
+* [x] target.
 * [x] profile.
-* [ ] runtime version.
-* [ ] critical tool versions.
-* [ ] effective configuration summary.
+* [x] runtime version.
+* [x] critical tool versions.
+* [x] effective configuration summary.
 * [x] validation result.
 * [x] artifact manifest.
 * [x] artifact digests.
+
+The initial Build Evidence baseline is complete.
+
+Canonical Build Evidence preserves the build target through the effective
+configuration authority and preserves the captured runtime version directly
+from Build Context without recalculating runtime state. Critical toolchain
+versions are represented by `ToolchainState`, while the effective configuration
+projection records the resolved build profile, target, functional-validation
+policy, evidence policy, and target-support decision.
+
+The canonical JSON evidence renderer projects these established authorities
+without recalculating them. Toolchain and environment state are serialized from
+their captured application-layer models, and checkout-local absolute paths are
+excluded from portable dependency-state and effective-configuration identity
+where they are not part of canonical evidence identity.
+
+These capabilities complete the initial evidence checklist. The canonical
+Build Evidence JSON now exposes the captured runtime version alongside source,
+dependency, toolchain, environment, effective-configuration, validation,
+manifest, and integrity evidence.
+
+This completion does not introduce dependency-graph fingerprinting, synthetic
+environment fingerprints, stage-result aggregation, reproducibility decisions,
+provenance, signing, publication, promotion, or deployment semantics.
 
 ### Mature Evidence Checklist
 
 * [ ] dependency graph identity.
 * [ ] environment identity.
-* [ ] stage results.
+* [x] stage results.
 * [ ] reproducibility status.
 * [ ] provenance data.
+
+### Mature Evidence Status
+
+Stage-result evidence is now implemented by preserving the canonical ordered
+`BuildExecutionObservation` sequence already produced by package-build
+orchestration. `BuildEvidenceFactory` reuses those observations directly
+without recalculating stage outcomes or timing, and canonical Build Evidence
+JSON exposes each reached stage with its stage identifier, terminal status,
+elapsed monotonic duration, and optional diagnostic.
+
+Stage duration is execution evidence rather than Build Context identity.
+Preserving it does not imply that equivalent builds must have equal timings.
+
+The remaining mature evidence capabilities intentionally remain open:
+
+* Dependency graph identity remains deferred. The current `DependencyState`
+  provides declaration and lock-file identities and SHA-256 digests, but the
+  Build Framework has not yet established a canonical resolved dependency-graph
+  fingerprint. Plugin dependency-graph models belong to plugin ecosystem
+  resolution and are not Build dependency-graph identity.
+* Environment identity remains deferred beyond the currently captured
+  `EnvironmentState`. FamilyOS already records relevant non-sensitive
+  environment properties, but canonical environment fingerprinting remains a
+  future maturity capability.
+* Reproducibility status remains deferred to the dedicated reproducibility
+  maturity work. Current evidence must not synthesize a reproducibility verdict
+  before canonical comparison and fingerprint semantics exist.
+* Provenance data remains deferred to later supply-chain maturity. Level 24 does
+  not introduce provenance attestations, signing, SLSA semantics, publication,
+  promotion, or deployment authority.
+
+Level 24 therefore establishes the complete initial Build Evidence baseline and
+the currently available mature execution-stage evidence while preserving the
+explicit maturity boundaries for dependency-graph identity, environment
+fingerprinting, reproducibility assessment, and provenance.
 
 ---
 

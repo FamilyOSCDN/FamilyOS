@@ -41,6 +41,7 @@ def test_renderer_projects_toolchain_and_environment_authorities() -> None:
             revision="0123456789abcdef0123456789abcdef01234567",
             dirty=False,
         ),
+        runtime_version="3.13.7",
         dependency_state=DependencyState(
             declaration_path=Path("/project/pyproject.toml"),
             declaration_digest="a" * 64,
@@ -67,6 +68,7 @@ def test_renderer_projects_toolchain_and_environment_authorities() -> None:
             evidence_required=False,
             target_supported=True,
         ),
+        execution_observations=(),
         validation_result=BuildValidationResult(
             build_id=build_id,
             profile=BuildValidationProfile.VALIDATION,

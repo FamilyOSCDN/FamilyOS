@@ -119,10 +119,12 @@ def test_build_evidence_preserves_canonical_build_authorities() -> None:
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
+        execution_observations=(),
         validation_result=_validation(),
         artifact_manifest=manifest,
         artifact_integrities=(),
@@ -141,10 +143,12 @@ def test_build_evidence_exposes_source_revision() -> None:
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
+        execution_observations=(),
         validation_result=_validation(),
         artifact_manifest=_manifest(),
         artifact_integrities=(),
@@ -157,16 +161,29 @@ def test_build_evidence_exposes_validation_profile() -> None:
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
+        execution_observations=(),
         validation_result=_validation(),
         artifact_manifest=_manifest(),
         artifact_integrities=(),
     )
 
     assert evidence.profile is BuildValidationProfile.VALIDATION
+
+
+def test_build_evidence_requires_runtime_version() -> None:
+    runtime_field = next(
+        field
+        for field in fields(BuildEvidence)
+        if field.name == "runtime_version"
+    )
+
+    assert runtime_field.default is MISSING
+    assert runtime_field.default_factory is MISSING
 
 
 def test_build_evidence_requires_dependency_state() -> None:
@@ -178,6 +195,17 @@ def test_build_evidence_requires_dependency_state() -> None:
 
     assert dependency_field.default is MISSING
     assert dependency_field.default_factory is MISSING
+
+
+def test_build_evidence_requires_execution_observations() -> None:
+    observation_field = next(
+        field
+        for field in fields(BuildEvidence)
+        if field.name == "execution_observations"
+    )
+
+    assert observation_field.default is MISSING
+    assert observation_field.default_factory is MISSING
 
 
 def test_build_evidence_requires_effective_configuration() -> None:
@@ -206,10 +234,12 @@ def test_build_evidence_requires_matching_validation_build_id() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            runtime_version="3.13.7",
             dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
+            execution_observations=(),
             validation_result=validation,
             artifact_manifest=_manifest(),
             artifact_integrities=(),
@@ -234,10 +264,12 @@ def test_build_evidence_requires_matching_configuration_profile() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            runtime_version="3.13.7",
             dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
             effective_configuration=configuration,
+            execution_observations=(),
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(),
@@ -257,10 +289,12 @@ def test_build_evidence_requires_matching_manifest_build_id() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            runtime_version="3.13.7",
             dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
+            execution_observations=(),
             validation_result=_validation(),
             artifact_manifest=manifest,
             artifact_integrities=(),
@@ -280,10 +314,12 @@ def test_build_evidence_requires_captured_source_revision() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=source_state,
+            runtime_version="3.13.7",
             dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
+            execution_observations=(),
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(),
@@ -316,10 +352,12 @@ def test_build_evidence_rejects_integrity_from_different_build() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            runtime_version="3.13.7",
             dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
+            execution_observations=(),
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(foreign_integrity,),
@@ -352,10 +390,12 @@ def test_build_evidence_rejects_integrity_not_represented_by_manifest() -> None:
         BuildEvidence(
             build_id=_BUILD_ID,
             source_state=_SOURCE_STATE,
+            runtime_version="3.13.7",
             dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
             effective_configuration=_EFFECTIVE_CONFIGURATION,
+            execution_observations=(),
             validation_result=_validation(),
             artifact_manifest=_manifest(),
             artifact_integrities=(integrity,),
@@ -370,7 +410,9 @@ def test_build_evidence_exposes_captured_source_dirty_state() -> None:
 
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
+        execution_observations=(),
         source_state=source_state,
+        runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,

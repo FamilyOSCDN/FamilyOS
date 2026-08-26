@@ -806,10 +806,12 @@ def test_evidence_validation_maps_coherent_build_evidence(
     evidence = BuildEvidence(
         build_id=_BUILD_ID,
         source_state=_SOURCE_STATE,
+        runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
+        execution_observations=(),
         validation_result=BuildValidationResult(
             build_id=_BUILD_ID,
             profile=BuildValidationProfile.VALIDATION,
@@ -867,10 +869,12 @@ def test_evidence_validation_rejects_evidence_for_different_build() -> None:
     evidence = BuildEvidence(
         build_id=other_build_id,
         source_state=_SOURCE_STATE,
+        runtime_version="3.13.7",
         dependency_state=_DEPENDENCY_STATE,
         toolchain_state=_TOOLCHAIN_STATE,
         environment_state=_ENVIRONMENT_STATE,
         effective_configuration=_EFFECTIVE_CONFIGURATION,
+        execution_observations=(),
         validation_result=BuildValidationResult(
             build_id=other_build_id,
             profile=BuildValidationProfile.VALIDATION,

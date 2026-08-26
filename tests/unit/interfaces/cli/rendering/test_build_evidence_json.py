@@ -19,6 +19,11 @@ from familyos_cli.application.build.artifact_manifest import (
 from familyos_cli.application.build.artifact_type import ArtifactClass
 from familyos_cli.application.build.build_context import BuildProfile, BuildTarget
 from familyos_cli.application.build.build_evidence import BuildEvidence
+from familyos_cli.application.build.build_execution_observation import (
+    BuildExecutionObservation,
+    BuildExecutionStage,
+    BuildExecutionStageStatus,
+)
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_validation import (
     BuildValidationCheckResult,
@@ -142,10 +147,24 @@ _EFFECTIVE_CONFIGURATION = EffectiveBuildConfigurationView(
 _EVIDENCE = BuildEvidence(
     build_id=_BUILD_ID,
     source_state=_SOURCE_STATE,
+    runtime_version="3.13.7",
     dependency_state=_DEPENDENCY_STATE,
     toolchain_state=_TOOLCHAIN_STATE,
     environment_state=_ENVIRONMENT_STATE,
     effective_configuration=_EFFECTIVE_CONFIGURATION,
+    execution_observations=(
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.VALIDATE_INPUTS,
+            status=BuildExecutionStageStatus.SUCCEEDED,
+            duration_seconds=0.125,
+        ),
+        BuildExecutionObservation(
+            stage=BuildExecutionStage.PACKAGE,
+            status=BuildExecutionStageStatus.FAILED,
+            duration_seconds=1.5,
+            diagnostic="package build failed",
+        ),
+    ),
     validation_result=_VALIDATION,
     artifact_manifest=_MANIFEST,
     artifact_integrities=(_INTEGRITY,),
@@ -162,6 +181,10 @@ def test_renderer_emits_canonical_build_evidence_json() -> None:
     assert payload["source"] == {
         "revision": _SOURCE_STATE.revision,
         "dirty": False,
+    }
+
+    assert payload["runtime"] == {
+        "version": "3.13.7",
     }
 
     assert payload["dependency_state"] == {
@@ -183,6 +206,21 @@ def test_renderer_emits_canonical_build_evidence_json() -> None:
         "evidence_requested": True,
         "target_supported": True,
     }
+
+    assert payload["execution"]["stages"] == [
+        {
+            "stage": "validate-inputs",
+            "status": "succeeded",
+            "duration_seconds": 0.125,
+            "diagnostic": None,
+        },
+        {
+            "stage": "package",
+            "status": "failed",
+            "duration_seconds": 1.5,
+            "diagnostic": "package build failed",
+        },
+    ]
 
     assert payload["validation"]["profile"] == "ci"
     assert payload["validation"]["status"] == "passed"
