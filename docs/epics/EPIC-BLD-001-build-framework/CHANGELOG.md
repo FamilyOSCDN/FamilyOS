@@ -1721,3 +1721,121 @@ Level 40 currently stands at 5/11.
 
 Framework version `1.0.0` and immutable historical publication tag
 `v4.7.0-build-framework` remain unchanged.
+
+## Level 40 — Existing Reproducibility Contract Closures — 2026-08-26
+
+Closed three Level 40 reproducibility requirements using existing canonical
+Build behavior and focused validation evidence.
+
+No new production implementation was required.
+
+The audit confirmed:
+
+* deterministic configuration resolution;
+* explicit critical toolchain version identity;
+* normalized ordering where relevant.
+
+Focused validation completed successfully:
+
+* configuration contract: 54 tests;
+* toolchain contract: 30 tests;
+* ordering contract: 98 tests.
+
+Level 40 advances from 5/11 to 8/11.
+
+The remaining requirements are canonical source identity, removal of
+unnecessary random artifact influence, and reduction of uncontrolled network
+dependency.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Level 40 — Random Artifact Isolation — 2026-08-26
+
+Validated that random canonical Build identity does not influence trusted
+package artifact content.
+
+Two real canonical builds generated distinct UUID-based Build IDs while
+producing the same logical package artifacts.
+
+The Python wheel remained byte-for-byte identical with the same SHA-256.
+Source-distribution file contents also remained identical, with residual byte
+differences limited to the already documented temporal archive metadata.
+
+No Build ID value appeared inside either artifact class, and the canonical
+Python package builder has no Build ID or UUID dependency.
+
+Build ID randomness remains intentionally scoped to execution identity and
+Build authority correlation.
+
+This closes the Level 40 requirement to remove unnecessary random artifact
+influence.
+
+Level 40 advances from 8/11 to 9/11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Level 40 — Canonical Source Identity Closure — 2026-08-26
+
+Closed the Level 40 canonical source identity requirement using existing
+Build architecture and focused validation evidence.
+
+No new production implementation was required.
+
+Canonical source identity already captures the exact Git commit revision
+and working-tree dirty state before package construction.
+
+The captured source authority is propagated through Build Context, Artifact
+Identity, and Build Evidence.
+
+Existing behavioral coverage includes clean and dirty repositories, staged
+and unstaged changes, deletions, untracked files, detached and tagged
+checkouts, shallow repositories, repositories without an initial commit,
+non-Git directories, unavailable Git execution, and nested-project
+repository-boundary rejection.
+
+Release-candidate validation also enforces valid source authority before
+package execution.
+
+This closes the Level 40 requirement to establish canonical source identity.
+
+Level 40 advances from 9/11 to 10/11.
+
+The sole remaining Level 40 requirement is reduction of uncontrolled
+network dependency.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Level 40 — Network Dependency Closure — 2026-08-26
+
+Closed the final Level 40 reproducibility requirement by validating that
+network dependency is constrained by repository-owned dependency authority.
+
+Canonical package construction supplies committed `requirements.txt` through
+the `pypa/build` dependency-constraints interface, and integration coverage
+demonstrates constraint enforcement across both isolated backend environments.
+
+Canonical CI installs locked dependencies before FamilyOS without further
+dependency resolution. A separate cache-free validation path confirms that
+cache state is not authoritative.
+
+No arbitrary live external service dependency was found in canonical Build
+application or infrastructure authorities.
+
+Network or cache access may still supply constrained dependency bytes.
+Complete offline construction remains a stronger future maturity capability
+and is not claimed by this closure.
+
+This closes:
+
+```text
+Reduce uncontrolled network dependency.
+```
+
+Level 40 — Reproducibility Baseline advances from 10/11 to 11/11 and is
+complete.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

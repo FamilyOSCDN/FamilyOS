@@ -3425,15 +3425,15 @@ Move from repeatable procedure toward reconstructable Build Context.
 
 ### Checklist
 
-* [ ] Establish canonical source identity.
-* [ ] Establish deterministic configuration resolution.
+* [x] Establish canonical source identity.
+* [x] Establish deterministic configuration resolution.
 * [x] Establish controlled dependency state.
-* [ ] Establish critical toolchain version identity.
+* [x] Establish critical toolchain version identity.
 * [x] Establish reconstructable environment setup.
 * [x] Remove time-dependent artifact content where unnecessary.
-* [ ] Remove random artifact content where unnecessary.
-* [ ] Normalize input ordering where relevant.
-* [ ] Reduce uncontrolled network dependency.
+* [x] Remove random artifact content where unnecessary.
+* [x] Normalize input ordering where relevant.
+* [x] Reduce uncontrolled network dependency.
 * [x] Compare repeated builds.
 * [x] Document known reproducibility limitations.
 
@@ -3471,7 +3471,7 @@ This baseline therefore removes unnecessary wall-clock influence at the
 FamilyOS package-builder boundary and records the remaining source-distribution
 archive metadata variability as a known limitation.
 
-Level 40 currently stands at 5/11.
+Level 40 currently stands at 11/11.
 
 ---
 

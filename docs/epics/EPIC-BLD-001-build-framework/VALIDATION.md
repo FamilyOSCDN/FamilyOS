@@ -2847,3 +2847,292 @@ Level 40 currently stands at 5/11.
 
 Framework version 1.0.0 and immutable historical publication tag
 v4.7.0-build-framework remain unchanged.
+
+## Level 40 Existing-Contract Closure Validation — 2026-08-26
+
+A focused Level 40 audit established that three reproducibility requirements
+were already satisfied by existing canonical Build architecture and tests.
+No new production implementation was required.
+
+### Deterministic Configuration Resolution
+
+Canonical configuration resolution already has explicit behavioral coverage for:
+
+* equivalent default and explicit development inputs;
+* equivalent relative and absolute path forms;
+* process-working-directory independence;
+* repeated deterministic resolution;
+* deterministic conflict reporting;
+* immutable configuration projection;
+* separation of observed environment state from configuration projection.
+
+The focused configuration validation executed 54 tests successfully.
+
+This evidence closes:
+
+```text
+Establish deterministic configuration resolution.
+```
+
+### Critical Toolchain Version Identity
+
+Canonical Build Context already captures explicit critical toolchain identities.
+
+The existing toolchain contract provides:
+
+* deterministic critical-version capture;
+* explicit distribution and version identity;
+* immutable toolchain state;
+* rejection of missing or duplicate critical distributions;
+* compatibility validation against canonical policy;
+* exact version enforcement where required;
+* deterministic incompatibility reporting;
+* preservation of toolchain authority in Build Evidence.
+
+The focused toolchain validation executed 30 tests successfully.
+
+This evidence closes:
+
+```text
+Establish critical toolchain version identity.
+```
+
+### Canonical Ordering
+
+Existing Build authorities already normalize ordering where semantic ordering
+is required.
+
+Behavioral coverage establishes deterministic ordering for:
+
+* discovered package artifacts;
+* established Artifact Identities;
+* Artifact Manifest artifact order;
+* structural-validation content inventory diagnostics;
+* candidate-specific diagnostics;
+* critical toolchain versions.
+
+The focused ordering validation executed 98 tests successfully.
+
+This evidence closes:
+
+```text
+Normalize input ordering where relevant.
+```
+
+### Validation Summary
+
+```text
+Configuration contract tests: 54 passed
+Toolchain contract tests:     30 passed
+Ordering contract tests:      98 passed
+git diff --check:              PASS
+Repository pre-patch state:   CLEAN
+Audited HEAD:                  46d90ff
+```
+
+These closures recognize already-established behavior rather than introducing
+new architecture.
+
+Level 40 now stands at 8/11.
+
+The remaining open requirements are:
+
+```text
+Establish canonical source identity.
+Remove random artifact content where unnecessary.
+Reduce uncontrolled network dependency.
+```
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Level 40 Randomness Isolation Validation — 2026-08-26
+
+A focused falsification established that canonical Build execution randomness
+does not influence trusted package artifact content.
+
+Two consecutive canonical validation-profile builds generated distinct Build
+IDs:
+
+```text
+1f0152c0-9570-40fa-9df8-58c33737f389
+678b4dfc-8b53-4582-9ce7-700b7f7e63c4
+```
+
+Build ID uniqueness therefore remained intact.
+
+Despite the distinct execution identities:
+
+* both builds produced the same artifact filenames;
+* the Python wheel was byte-for-byte identical;
+* the wheel SHA-256 was identical across both builds;
+* wheel archive-member ordering was identical;
+* no wheel member content differed;
+* no source-distribution file content differed;
+* neither Build ID appeared inside the wheel;
+* neither Build ID appeared inside the source distribution.
+
+The source-distribution archive bytes remained different only because of the
+previously identified backend-generated temporal archive metadata.
+
+Static inspection additionally confirmed that `PythonPackageBuilder` has no
+`BuildId`, `uuid4`, or UUID-factory dependency.
+
+Build ID randomness therefore remains correctly scoped to execution identity,
+workspace isolation, evidence association, and related Build authorities rather
+than trusted artifact content.
+
+This evidence closes:
+
+```text
+Remove random artifact content where unnecessary.
+```
+
+Level 40 now stands at 9/11.
+
+The remaining open requirements are:
+
+```text
+Establish canonical source identity.
+Reduce uncontrolled network dependency.
+```
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Level 40 Canonical Source Identity Validation — 2026-08-26
+
+A focused Level 40 audit established that canonical source identity is
+already provided by the existing Build architecture.
+
+No new production implementation was required.
+
+Canonical source identity is represented by immutable `SourceState`, which
+captures:
+
+* the exact Git source revision;
+* the working-tree dirty state.
+
+`GitSourceStateProvider` resolves the exact repository root, captures
+`HEAD^{commit}`, and observes working-tree state using
+`git status --porcelain=v1 -z --untracked-files=all`.
+
+The source-state contract has explicit behavioral coverage for:
+
+* clean repositories;
+* unstaged tracked modifications;
+* staged modifications;
+* tracked deletions;
+* untracked files;
+* ignored generated outputs;
+* detached HEAD;
+* tagged checkouts;
+* shallow repositories;
+* repositories without an initial commit;
+* non-Git directories;
+* unavailable Git executables;
+* nested projects beneath an ancestor Git repository.
+
+The source state is captured before package construction and propagated
+through canonical Build Context.
+
+The captured source revision is subsequently associated with Artifact
+Identity, while Build Evidence preserves both source revision and dirty
+state.
+
+Build Evidence requires a captured source revision, preventing evidence
+from claiming authoritative source identity when that identity is absent.
+
+Release-candidate validation additionally rejects invalid source state
+before package execution.
+
+This establishes the canonical authority chain:
+
+```text
+Git repository
+      ↓
+HEAD^{commit} + working-tree state
+      ↓
+SourceState
+      ↓
+BuildContext
+      ↓
+Package execution
+      ↓
+ArtifactIdentity
+      ↓
+BuildEvidence
+```
+
+This evidence closes:
+
+```text
+Establish canonical source identity.
+```
+
+Level 40 now stands at 10/11.
+
+The remaining open requirement is:
+
+```text
+Reduce uncontrolled network dependency.
+```
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
+
+## Level 40 Network Dependency Closure Validation — 2026-08-26
+
+A focused audit established that canonical Build network dependency is reduced
+and controlled at the current reproducibility maturity level.
+
+Canonical Python package construction invokes `pypa/build` with the
+repository-owned absolute `requirements.txt` path through
+`--dependency-constraints-txt`.
+
+Existing integration coverage demonstrates that these constraints apply to
+both isolated backend executions: source-distribution construction and wheel
+construction from the emitted source distribution.
+
+The committed dependency authority pins the critical Build toolchain:
+
+```text
+build==1.5.0
+pip-tools==7.6.1
+setuptools==84.0.0
+wheel==0.48.0
+```
+
+Canonical CI installs committed locked dependencies before installing FamilyOS
+with dependency resolution disabled.
+
+The cache-free validation path installs the same committed dependency state
+with `--no-cache-dir`, demonstrating that cache state is an optimization rather
+than authoritative dependency state.
+
+Functional wheel validation derives runtime dependencies from emitted wheel
+metadata and constrains them to exact pins in committed `requirements.txt`.
+Pip may retrieve constrained wheels from a cache or index when required, but
+it may not choose unconstrained runtime versions.
+
+A focused search found no arbitrary HTTP client, socket, curl, wget, git-clone,
+or live external service dependency in canonical Build application or
+infrastructure authorities.
+
+Fully offline builds, prefetched dependency infrastructure, and controlled
+mirrors remain stronger future maturity capabilities rather than immediate
+requirements.
+
+This evidence closes:
+
+```text
+Reduce uncontrolled network dependency.
+```
+
+It does not claim complete network independence or fully offline package
+construction.
+
+Level 40 — Reproducibility Baseline is complete at 11/11.
+
+Framework version `1.0.0` and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.
