@@ -2914,18 +2914,53 @@ Make build execution understandable.
 
 ### Checklist
 
-* [ ] Log Build ID.
-* [ ] Log target.
-* [ ] Log profile.
-* [ ] Log stage progression.
-* [ ] Log important stage duration.
-* [ ] Report artifacts.
-* [ ] Report validation failures.
-* [ ] Avoid secret logging.
-* [ ] Define debug diagnostics.
-* [ ] Define machine-readable output if needed.
-* [ ] Distinguish warning from error.
-* [ ] Ensure CI failure points remain visible.
+* [x] Log Build ID.
+* [x] Log target.
+* [x] Log profile.
+* [x] Log stage progression.
+* [x] Log important stage duration.
+* [x] Report artifacts.
+* [x] Report validation failures.
+* [x] Avoid secret logging.
+* [x] Define debug diagnostics.
+* [x] Define machine-readable output if needed.
+* [x] Distinguish warning from error.
+* [x] Ensure CI failure points remain visible.
+
+### Implementation Status
+
+Level 33 observability is complete for the current Build Framework scope.
+
+Canonical build output exposes the Build ID, target, profile, ordered execution
+stage progression, elapsed stage durations, produced artifacts, and validation
+diagnostics. The same established build authorities are projected into
+machine-readable Build Evidence JSON without recalculating build state.
+
+Build Validation distinguishes blocking failures from non-blocking warnings
+through explicit requirement classification. Failed `REQUIRED` checks are
+reported as failures, while failed `OPTIONAL` checks remain observable as
+warnings without invalidating the aggregate decision solely for that reason.
+
+Debug diagnostics are governed by the existing Build execution and
+configuration contracts, including diagnostic verbosity and developer
+diagnostics. Level 33 does not require inventing a new CLI debug mode where no
+additional diagnostic capability is currently required.
+
+Build observability must not expose credentials, secrets, or other protected
+information. Generic logging, telemetry security, filtering, and redaction
+policy remain owned by EPIC-OBS-001; the Build Framework supplies
+build-specific observable facts without creating a competing observability
+infrastructure.
+
+Canonical CI preserves failure visibility while retaining validation evidence.
+The canonical validation step may continue temporarily so that its evidence can
+be uploaded, but the subsequent preservation step explicitly restores the
+failed workflow result. Downstream artifact validation and release handoff
+remain dependency-gated and therefore do not hide an upstream Build failure.
+
+Level 33 introduces no new logging backend, telemetry transport, secret
+redaction engine, metrics framework, tracing framework, publication authority,
+or deployment authority.
 
 ---
 
