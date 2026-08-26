@@ -3095,19 +3095,83 @@ Integrate secure build principles from the beginning.
 
 ### Checklist
 
-* [ ] Minimize build-process privileges.
-* [ ] Keep production credentials out of normal builds.
-* [ ] Keep release publication credentials out of normal builds.
-* [ ] Protect registry credentials.
-* [ ] Avoid secret logging.
-* [ ] Detect accidental secret inclusion in artifacts where practical.
-* [ ] Review build dependencies for supply-chain risk.
-* [ ] Review generators for trust risk.
-* [ ] Review network access.
-* [ ] Avoid unrestricted external execution.
-* [ ] Control subprocess arguments.
-* [ ] Avoid unsafe shell command construction.
-* [ ] Document build security assumptions.
+* [x] Minimize build-process privileges.
+* [x] Keep production credentials out of normal builds.
+* [x] Keep release publication credentials out of normal builds.
+* [x] Protect registry credentials.
+* [x] Avoid secret logging.
+* [x] Detect accidental secret inclusion in artifacts where practical.
+* [x] Review build dependencies for supply-chain risk.
+* [x] Review generators for trust risk.
+* [x] Review network access.
+* [x] Avoid unrestricted external execution.
+* [x] Control subprocess arguments.
+* [x] Avoid unsafe shell command construction.
+* [x] Document build security assumptions.
+
+### Current Build Security Boundary
+
+The canonical Build path operates without production or release-publication
+credentials. Publication remains outside ordinary package construction, and
+the package-build environment explicitly excludes publication-only Twine and
+uv credential variables.
+
+Canonical Build Context, environment state, and effective-configuration
+projections intentionally expose only non-sensitive state. Existing tests
+protect that closed projection surface, while Build Validation documentation
+requires diagnostics not to expose secrets discovered in configuration or
+environment state.
+
+The canonical package builder executes the declared PyPA build frontend through
+the current Python interpreter using explicitly constructed subprocess
+arguments. Build execution does not require shell command construction or
+arbitrary user-provided executable selection. Critical package-build tooling is
+declared, version-controlled through the canonical dependency state, observed,
+and validated before package transformation.
+
+Artifact validation establishes a closed expected package-content boundary for
+the canonical wheel and source distribution. Unexpected package content is
+rejected. This provides the currently practical Build-owned protection against
+accidental inclusion of repository-local or otherwise unintended content.
+Build does not introduce a general-purpose secret-scanning subsystem at this
+maturity.
+
+Dependency supply-chain responsibilities are deliberately split by authority.
+Build owns canonical dependency declarations, controlled resolution state,
+dependency freshness, dependency identity, and evidence binding. Security
+Architecture remains authoritative for vulnerability policy, severity,
+exceptions, finding interpretation, and risk acceptance. Level 36 therefore
+does not introduce a duplicate vulnerability scanner or Build-specific
+security-policy authority.
+
+Generator trust is controlled according to actual target requirements. The
+current canonical FamilyOS CLI package target has no dedicated GENERATE stage.
+Its generated dependency lock is materialized before execution, has an explicit
+repository-owned generator, and is freshness-validated before packaging.
+Future targets requiring generated source, schemas, manifests, metadata,
+documentation, resources, or other derived inputs must define generator
+identity, source inputs, destination, ordering, freshness, validation, and
+failure propagation before those outputs may enter canonical execution.
+
+Network access is explicit rather than assumed absent. Dependency acquisition
+and isolated package-build environments may require supported network access.
+The Build Framework does not claim offline execution. Network behavior remains
+limited to the requirements of the declared build and dependency tooling; the
+canonical Build orchestration does not provide an unrestricted external-command
+execution facility.
+
+Build-process privilege remains proportional to Build responsibility. Ordinary
+build execution does not own deployment, production access, artifact
+publication, release promotion, or credential authority. Stronger release,
+security, signing, provenance, or trusted-builder controls remain the
+responsibility of their owning frameworks or future maturity levels.
+
+Level 36 therefore closes through existing implementation, validation, and
+documented authority boundaries. No Build-specific secret backend,
+vulnerability scanner, credential store, security-policy engine, or parallel
+security subsystem is introduced merely to satisfy the checklist.
+
+Level 36 — Build Security is complete at 13/13.
 
 ---
 
