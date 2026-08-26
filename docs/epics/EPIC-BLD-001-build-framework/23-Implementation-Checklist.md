@@ -3557,12 +3557,12 @@ Trusted artifact capability is complete when:
 
 Build/Release integration is complete when:
 
-* [ ] release-candidate build profile exists;
-* [ ] release handoff contract exists;
-* [ ] artifacts are not rebuilt unnecessarily downstream;
-* [ ] integrity is verified across handoff;
-* [ ] EPIC-REL-001 consumes Build Evidence;
-* [ ] release credentials remain outside ordinary Build execution.
+* [x] release-candidate build profile exists;
+* [x] release handoff contract exists;
+* [x] artifacts are not rebuilt unnecessarily downstream;
+* [x] integrity is verified across handoff;
+* [x] EPIC-REL-001 consumes Build Evidence;
+* [x] release credentials remain outside ordinary Build execution.
 
 ---
 
