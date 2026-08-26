@@ -3975,15 +3975,84 @@ Introduce dedicated artifact infrastructure only when required by scale or relea
 
 ### Checklist
 
-* [ ] Identify current artifact storage limitation.
-* [ ] Define registry use cases.
-* [ ] Define artifact retention policy.
-* [ ] Define permissions.
-* [ ] Define artifact immutability requirements.
-* [ ] Define Build/Release ownership.
-* [ ] Define integrity verification.
-* [ ] Evaluate existing registry capabilities before custom infrastructure.
-* [ ] Record architectural decision.
+* [x] Identify current artifact storage limitation.
+* [x] Define registry use cases.
+* [x] Define artifact retention policy.
+* [x] Define permissions.
+* [x] Define artifact immutability requirements.
+* [x] Define Build/Release ownership.
+* [x] Define integrity verification.
+* [x] Evaluate existing registry capabilities before custom infrastructure.
+* [x] Record architectural decision.
+
+
+### Artifact Registry Architecture Decision
+
+Level 47 evaluates whether FamilyOS currently requires a dedicated persistent
+artifact registry. The evaluation is complete, but registry adoption is
+intentionally deferred until Release distribution requires persistent artifact
+storage or equivalent durable retrieval and promotion semantics.
+
+The current Build pipeline already provides a controlled handoff boundary.
+Canonical package candidates and canonical Build Evidence are transferred
+through CI artifact storage, artifact integrity is verified after transfer,
+and Release Handoff consumes the validated artifacts without rebuilding them.
+That mechanism is sufficient for the current CI validation and handoff scope,
+but it is temporary workflow storage rather than a durable distribution
+repository.
+
+A future artifact registry may provide operational value when FamilyOS needs
+one or more of the following capabilities:
+
+* durable retention of validated release candidates;
+* retrieval across independent workflows or longer time horizons;
+* promotion of the same immutable artifact through release stages;
+* controlled package distribution;
+* release rollback or recovery from retained validated artifacts;
+* repository-level retention, access, audit, or lifecycle policies.
+
+Target artifacts remain the canonical package candidates together with the
+Build Evidence required to identify and verify them. Any future storage model
+must preserve the relationship between artifact bytes, artifact identity,
+artifact digests, Build Evidence, and the source/build context from which the
+artifacts were produced.
+
+Retention policy is intentionally not invented before a persistent repository
+is selected. A future policy must define retention classes, expiry or
+preservation rules, cleanup authority, release-history requirements, and any
+regulatory or operational retention obligations.
+
+Registry permissions must preserve framework ownership. Build owns artifact
+construction, identity, integrity, validation, evidence generation, and the
+validated handoff. Release owns downstream promotion, publication,
+distribution policy, and consumer-facing release channels. A registry must not
+silently transfer Release authority into the Build Framework.
+
+Validated artifact bytes must remain immutable across the handoff and any
+future promotion path. Promotion must reference or copy the already validated
+artifact rather than rebuilding it. Artifact integrity must continue to be
+verified using the canonical digests recorded in Build Evidence; repository
+presence alone is not proof of artifact integrity.
+
+Existing platform and ecosystem capabilities must be evaluated before FamilyOS
+introduces custom registry infrastructure. Candidate future solutions may
+include established package or artifact repositories appropriate to the
+distribution model. Selection is deferred until concrete Release requirements
+exist.
+
+Introducing a persistent artifact repository, changing the release handoff
+architecture, or establishing a new distribution repository is an
+architectural decision and must follow the governance path appropriate to its
+scope. A broader artifact-distribution architecture may require RFC-level
+governance.
+
+No artifact-registry client, package publication command, registry credential,
+registry-specific dependency, persistent repository integration, or
+Build-owned publication authority is introduced by Level 47.
+
+Level 47 therefore closes as an evaluation milestone.
+
+**Artifact Registry Adoption: Deferred Until Release Distribution Requires Persistent Artifact Storage.**
 
 ---
 

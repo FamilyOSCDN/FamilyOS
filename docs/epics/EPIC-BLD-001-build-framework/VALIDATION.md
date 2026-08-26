@@ -3703,3 +3703,70 @@ require RFC-level governance.
 **Level 46: 7/7 evaluation complete.**
 
 **Controlled Builder Adoption: Deferred Until Demonstrated Need.**
+
+
+## Level 47 Artifact Registry Evaluation Validation — 2026-08-26
+
+### Scope
+
+Level 47 evaluated whether the Build Framework currently requires a dedicated
+persistent artifact registry. No registry implementation, package publication
+path, registry credential, or Build-owned distribution authority was
+introduced.
+
+### Current Storage Boundary
+
+Canonical package candidates and canonical Build Evidence are currently
+transferred through CI artifact storage. Artifact integrity is verified after
+transfer, and Release Handoff consumes the validated artifacts without
+rebuilding them.
+
+This is sufficient for current CI validation and release handoff, but CI
+artifact storage is not treated as a durable consumer-facing package
+repository or long-term distribution architecture.
+
+### Registry Use Cases
+
+A persistent registry becomes relevant when Release requires durable retention,
+cross-workflow retrieval, promotion of identical validated artifacts, controlled
+distribution, rollback/recovery from retained artifacts, or repository-level
+retention and access policy.
+
+The target storage relationship must preserve canonical package candidates and
+their Build Evidence so that artifact identity and digests remain verifiable.
+
+### Retention, Permissions, And Immutability
+
+No arbitrary retention period is introduced before a persistent repository is
+selected. Future adoption must define retention classes, expiry/preservation
+rules, cleanup authority, release-history requirements, and applicable
+operational obligations.
+
+Permissions must preserve the Build/Release boundary. Build owns construction,
+identity, integrity, validation, evidence, and validated handoff. Release owns
+promotion, publication, distribution policy, and consumer-facing channels.
+
+Validated artifact bytes must remain immutable through promotion. A future
+registry must not cause artifacts to be rebuilt between validation and
+release.
+
+### Integrity And Existing Capabilities
+
+Repository presence is not an integrity assertion. Canonical artifact digests
+recorded in Build Evidence remain the authority for verifying transferred or
+retrieved artifact bytes.
+
+Existing package and artifact repository capabilities must be evaluated before
+custom infrastructure is introduced. Concrete technology selection is deferred
+until Release requirements justify persistent storage.
+
+### Governance Decision
+
+No artifact registry is adopted by Level 47. Introducing a persistent
+repository or materially changing release handoff/distribution architecture
+requires architecture governance appropriate to its scope, potentially
+including RFC-level governance for broader distribution architecture.
+
+**Level 47: 9/9 evaluation complete.**
+
+**Artifact Registry Adoption: Deferred Until Release Distribution Requires Persistent Artifact Storage.**
