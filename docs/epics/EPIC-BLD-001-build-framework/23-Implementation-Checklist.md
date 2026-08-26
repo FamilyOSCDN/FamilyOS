@@ -3887,13 +3887,83 @@ Remote Build Worker
 
 ### Checklist
 
-* [ ] Identify current environment reproducibility limitation.
-* [ ] Determine whether isolation solves the actual problem.
-* [ ] Evaluate maintenance cost.
-* [ ] Evaluate local developer impact.
-* [ ] Evaluate CI portability.
-* [ ] Evaluate security benefits.
-* [ ] Record architecture decision before introduction.
+* [x] Identify current environment reproducibility limitation.
+* [x] Determine whether isolation solves the actual problem.
+* [x] Evaluate maintenance cost.
+* [x] Evaluate local developer impact.
+* [x] Evaluate CI portability.
+* [x] Evaluate security benefits.
+* [x] Record architecture decision before introduction.
+
+
+### Controlled Builder Architecture Decision
+
+Level 46 evaluates whether FamilyOS currently requires a stronger controlled
+builder boundary. The evaluation is complete, but adoption is intentionally
+deferred until a demonstrated engineering, security, release-trust, or
+distribution-scale need justifies the additional architecture.
+
+The current reproducibility limitation is explicit. FamilyOS controls and
+records canonical source, dependency declarations and lock state, runtime
+policy, critical toolchain state, Build configuration, Build Context,
+environment observations, artifact identity, artifact integrity, Build
+Evidence, and reproducibility comparison. It does not fully control the host
+operating-system image, provider runner-image lifecycle, preinstalled system
+packages, underlying host infrastructure, or an authenticated builder
+identity.
+
+Stronger isolation can reduce that uncontrolled state. Containerized builds,
+immutable build images, dedicated or isolated runners, and remote build workers
+could improve environment definition, reproducibility, CI portability,
+security isolation, or high-trust release assurance.
+
+Those benefits do not establish a current adoption requirement. Existing
+ephemeral CI runners already prevent reliance on previous local build state,
+while virtual environments, explicit dependency installation, canonical
+toolchain policy, environment-state capture, cache-free validation, and
+reproducibility testing provide controls appropriate to the current maturity
+level.
+
+A stronger builder also carries material costs. Containerization introduces
+image maintenance, image complexity, security patching, and local developer
+overhead. Dedicated runners require lifecycle, cleanup, isolation, patching,
+and operational ownership. Immutable images require controlled image
+production and update governance. Remote build workers introduce distributed
+infrastructure and must integrate with the existing canonical Build Context
+and Build Evidence architecture rather than creating parallel Build semantics.
+
+The canonical environment model must remain provider-independent. Provider
+specific runner mechanisms belong at the CI integration boundary. A future
+controlled builder must preserve practical local development and must not make
+container or remote infrastructure the hidden source of canonical Build
+semantics.
+
+Security benefits are real: stronger isolation can reduce interaction with
+host state and limit the impact of compromised tooling or dependencies.
+However, isolation strength remains proportional to risk. The Build roadmap
+places trusted builders in the future high-trust supply-chain maturity path,
+where stronger isolation and environment identity may be justified by platform
+risk or distribution scale.
+
+Builder identity therefore remains deferred. `ubuntu-latest`, runner metadata,
+provider infrastructure identifiers, `EnvironmentState`, or other observed
+execution properties are not promoted into an authenticated
+`BuilderIdentity`. A future builder-identity model requires a controlled trust
+boundary capable of supporting that claim.
+
+No containerized canonical build, immutable build image, dedicated or
+self-hosted build runner, remote build worker, authenticated `BuilderIdentity`,
+or provider-specific builder identity is introduced by Level 46.
+
+Future adoption must pass architecture governance before introduction.
+Introducing containerized builds, dedicated workers, or a significant change
+to the Build environment model is an architectural change and requires the
+governance path appropriate to its scope. A cross-platform remote execution or
+broader trusted-builder strategy may require RFC-level governance.
+
+Level 46 therefore closes as an evaluation milestone.
+
+**Controlled Builder Adoption: Deferred Until Demonstrated Need.**
 
 ---
 

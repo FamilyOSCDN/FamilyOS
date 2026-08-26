@@ -1999,3 +1999,35 @@ attestation work without making builder identity equivalent to release signing
 authority.
 
 **Artifact Signing Adoption: Deferred by Governance.**
+
+
+## Level 46 — Controlled Builder Evaluation — 2026-08-26
+
+Controlled Builder Evaluation was completed without introducing new build
+infrastructure.
+
+The evaluation identified the residual reproducibility boundary around host
+operating-system images, provider runner-image lifecycle, preinstalled system
+state, underlying infrastructure, and authenticated builder identity. Stronger
+isolation through containers, immutable images, dedicated runners, or remote
+workers could reduce that state and improve high-trust release assurance.
+
+The current combination of ephemeral CI runners, explicit dependency
+installation, virtual environments, canonical runtime and toolchain policy,
+environment-state capture, cache-free validation, Build Evidence, and
+reproducibility testing remains proportionate to demonstrated FamilyOS needs.
+
+Container and image maintenance, security patching, developer overhead,
+dedicated-runner operations, immutable-image governance, and remote-worker
+infrastructure were evaluated as material adoption costs.
+
+No Docker/container canonical build, immutable build image, dedicated or
+self-hosted build runner, remote build worker, or authenticated
+`BuilderIdentity` was introduced. Provider runner metadata and observed
+environment state remain non-authoritative for builder identity.
+
+Future controlled-builder adoption requires architecture governance and must
+preserve provider independence, local developer usability, canonical Build
+Context, and Build Evidence semantics.
+
+**Controlled Builder Adoption: Deferred Until Demonstrated Need.**
