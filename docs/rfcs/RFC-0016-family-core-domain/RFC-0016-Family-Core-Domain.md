@@ -1024,22 +1024,22 @@ contracts rather than the inverse.
 
 The RFC is considered complete when all criteria below are satisfied.
 
-- [ ] Family Core responsibility is explicitly defined.
-- [ ] Person responsibility and boundaries are explicitly defined.
-- [ ] Family responsibility and boundaries are explicitly defined.
-- [ ] Person and Identity are explicitly separated.
-- [ ] Family Membership semantics are defined.
-- [ ] Family Relationship semantics are defined.
-- [ ] Family Boundary semantics are defined.
-- [ ] Domain ownership boundaries are explicit.
-- [ ] Security integration boundaries are explicit.
-- [ ] Existing plugin integration boundaries are explicit.
-- [ ] Household treatment is explicitly decided or intentionally deferred.
-- [ ] Migration expectations are documented.
-- [ ] Compatibility implications are documented.
-- [ ] Person Domain Specification requirements are established.
-- [ ] Family Domain Specification requirements are established.
-- [ ] No implementation-specific architecture is required to understand the
+- [x] Family Core responsibility is explicitly defined.
+- [x] Person responsibility and boundaries are explicitly defined.
+- [x] Family responsibility and boundaries are explicitly defined.
+- [x] Person and Identity are explicitly separated.
+- [x] Family Membership semantics are defined.
+- [x] Family Relationship semantics are defined.
+- [x] Family Boundary semantics are defined.
+- [x] Domain ownership boundaries are explicit.
+- [x] Security integration boundaries are explicit.
+- [x] Existing plugin integration boundaries are explicit.
+- [x] Household treatment is explicitly decided or intentionally deferred.
+- [x] Migration expectations are documented.
+- [x] Compatibility implications are documented.
+- [x] Person Domain Specification requirements are established.
+- [x] Family Domain Specification requirements are established.
+- [x] No implementation-specific architecture is required to understand the
       decision.
 - [ ] RFC review identifies no unresolved foundational ambiguity.
 - [ ] RFC status can progress from Draft to Accepted through normal FamilyOS
