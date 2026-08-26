@@ -3346,3 +3346,132 @@ Level 42 — Reproducibility Testing is complete at 9/9.
 
 Framework version 1.0.0 and immutable historical publication tag
 v4.7.0-build-framework remain unchanged.
+
+## Level 43 Supply Chain Evidence Validation — 2026-08-26
+
+Level 43 established the current FamilyOS Supply Chain Evidence provenance
+boundary.
+
+A canonical internal `BuildProvenance` model now projects already-established
+Build Evidence authorities without recapturing or reinterpreting canonical
+build state.
+
+The provenance relationship preserves:
+
+```text
+Build ID
+Build Context Fingerprint
+Source State
+Dependency State
+Toolchain State
+Environment State
+Artifact Integrity Records
+```
+
+`BuildProvenanceFactory` derives this representation directly from
+`BuildEvidence`.
+
+Focused validation confirmed that the factory preserves the canonical
+Build Evidence objects rather than recalculating or copying independent
+authorities.
+
+Artifact provenance remains bound to the Build ID and captured source
+revision, and duplicate canonical artifact types are rejected.
+
+### Dependency Source Evidence
+
+Dependency-source information is recorded only to the extent currently
+established by canonical Build Evidence.
+
+`DependencyState` records the repository-controlled dependency declaration and
+lock inputs through their canonical paths and cryptographic digests.
+
+This establishes dependency-input provenance but does not claim knowledge of
+the network origin from which individual distributions were resolved.
+
+No package registry, mirror, index URL, upstream repository, download URL,
+PyPI origin, or equivalent distribution-origin authority is inferred.
+
+### Toolchain And Environment Identity
+
+Critical toolchain versions and canonical non-sensitive environment state are
+preserved directly from Build Evidence.
+
+The current environment authority records execution properties such as
+operating system, operating-system release, machine architecture, virtual
+environment state, temporary-directory identity, and filesystem encoding.
+
+These properties describe the observed execution environment. They do not
+constitute an authenticated builder identity.
+
+### Builder Identity
+
+Builder identity was explicitly evaluated and intentionally deferred.
+
+The current Build Framework does not possess a canonical authority capable of
+authenticating the identity of the builder or execution worker.
+
+Provider-specific CI runner metadata is therefore not promoted into a
+canonical builder identity.
+
+Builder identity will be reconsidered under Level 46 — Controlled Builder
+Evaluation, where stronger isolation, dedicated or ephemeral workers,
+environment identity, security properties, portability, and trust boundaries
+can be evaluated together.
+
+The Level 43 builder-identity checklist item therefore remains deliberately
+unchecked.
+
+### Provenance Representation
+
+`BuildProvenance` is an internal application model and is not a standalone
+FamilyOS wire format.
+
+The existing Build Evidence JSON representation remains unchanged and no
+duplicate `"provenance"` object or proprietary provenance serializer was
+introduced.
+
+Industry-standard provenance formats were evaluated. in-toto Statement and
+SLSA Provenance remain the intended future standards direction when FamilyOS
+has the missing builder and attestation authorities required to produce such
+claims correctly.
+
+No SLSA statement, in-toto attestation, signing assertion, signature,
+`BuilderIdentity`, `DependencySourceState`, inferred package origin, or
+provider-specific runner identity is introduced by Level 43.
+
+### Validation Results
+
+The final Level 43 validation completed successfully:
+
+```text
+Provenance focused tests:        12 passed
+Build application regression:  704 passed
+Build infrastructure:            30 passed
+Build CLI / rendering:           47 passed
+Ruff:                            PASS
+MyPy:                            PASS
+Public provenance API:           PASS
+git diff --check:                PASS
+```
+
+The Level 43 checklist closes as:
+
+```text
+7 requirements satisfied
+1 requirement explicitly deferred
+```
+
+The deferred requirement is:
+
+```text
+Record builder identity where appropriate
+```
+
+and is explicitly assigned to Level 46 — Controlled Builder Evaluation.
+
+Level 43 — Supply Chain Evidence is therefore closed at the current maturity
+boundary as 7/8 satisfied plus 1 explicit architectural deferral.
+
+Framework version 1.0.0 and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

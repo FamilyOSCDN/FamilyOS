@@ -64,6 +64,10 @@ from familyos_cli.application.build.build_failure_category import (
 )
 from familyos_cli.application.build.build_id import BuildId
 from familyos_cli.application.build.build_id_generator import BuildIdGenerator
+from familyos_cli.application.build.build_provenance import BuildProvenance
+from familyos_cli.application.build.build_provenance_factory import (
+    BuildProvenanceFactory,
+)
 from familyos_cli.application.build.build_workspace import BuildWorkspace
 from familyos_cli.application.build.build_workspace_initializer import (
     BuildWorkspaceInitializer,
@@ -169,6 +173,8 @@ __all__ = [
     "BuildEvidence",
     "BuildEvidenceFactory",
     "BuildId",
+    "BuildProvenance",
+    "BuildProvenanceFactory",
     "BuildIdGenerator",
     "BuildProfile",
     "BuildTarget",

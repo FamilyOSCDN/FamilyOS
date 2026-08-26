@@ -1896,3 +1896,44 @@ Level 42 — Reproducibility Testing is complete at 9/9.
 
 Framework version 1.0.0 and immutable historical publication tag
 v4.7.0-build-framework remain unchanged.
+
+## Level 43 — Supply Chain Evidence — 2026-08-26
+
+Established the current canonical Build provenance boundary.
+
+Added the internal `BuildProvenance` model and `BuildProvenanceFactory`.
+
+Build Provenance now preserves existing Build Evidence authorities for Build
+ID, Build Context fingerprint, source state, dependency state, critical
+toolchain state, environment state, and artifact integrity records.
+
+The new provenance authority is exposed through the public Build application
+boundary.
+
+Dependency-source evidence is intentionally limited to the canonical
+repository-controlled dependency declaration and lock authorities currently
+observable through `DependencyState`. No registry, mirror, index URL, PyPI
+origin, upstream repository, or network-resolution provenance is inferred.
+
+Builder identity was evaluated and intentionally deferred to Level 46 —
+Controlled Builder Evaluation because the current framework has no
+authenticated builder-identity authority.
+
+Industry-standard provenance formats were evaluated. in-toto Statement and
+SLSA Provenance remain the intended future direction when the required
+builder and attestation authorities exist.
+
+No proprietary FamilyOS provenance JSON format, SLSA statement, in-toto
+attestation, signature, `BuilderIdentity`, `DependencySourceState`, or
+provider-specific runner identity was introduced.
+
+Final validation completed successfully with 12 focused provenance tests,
+704 Build application tests, 30 Build infrastructure tests, 47 Build CLI /
+rendering tests, Ruff PASS, MyPy PASS, public-import validation PASS, and
+`git diff --check` PASS.
+
+Level 43 closes at the current maturity boundary as 7/8 satisfied plus one
+explicit architectural deferral to Level 46.
+
+Framework version 1.0.0 and immutable historical publication tag
+`v4.7.0-build-framework` remain unchanged.

@@ -3614,16 +3614,73 @@ Progressively strengthen artifact provenance.
 
 ### Checklist
 
-* [ ] Record dependency-source information.
-* [ ] Record toolchain identity.
-* [ ] Record environment identity.
+* [x] Record dependency-source information.
+* [x] Record toolchain identity.
+* [x] Record environment identity.
 * [ ] Record builder identity where appropriate.
-* [ ] Record artifact digests.
-* [ ] Define provenance representation.
-* [ ] Evaluate industry-standard provenance formats.
-* [ ] Avoid creating a proprietary format without clear need.
+* [x] Record artifact digests.
+* [x] Define provenance representation.
+* [x] Evaluate industry-standard provenance formats.
+* [x] Avoid creating a proprietary format without clear need.
 
-This remains a future maturity capability.
+### Dependency Source Evidence Boundary
+
+At the current Supply Chain Evidence maturity level, dependency-source
+information is limited to dependency input authorities that the canonical
+Build Framework can establish without inference.
+
+Canonical Build Evidence records the repository-controlled dependency
+declaration and lock inputs through `DependencyState`, including their
+canonical paths and cryptographic digests. Build Provenance preserves that
+established dependency state without recapturing or reinterpreting it.
+
+This establishes traceability to the dependency inputs that governed the
+build. It does not establish the network origin from which individual
+distributions were resolved or downloaded.
+
+The current framework does not observe or authenticate a package registry,
+mirror, index URL, upstream repository, download URL, or equivalent
+distribution-origin authority. Absence of explicit source metadata must not
+be interpreted as evidence that a dependency originated from PyPI or any
+other registry.
+
+Per-distribution source provenance, governed registry identity, upstream
+origin, dependency artifact integrity, and stronger dependency provenance
+remain future supply-chain maturity concerns and may require changes to the
+dependency resolution or lock strategy before they can become canonical
+evidence.
+
+No `DependencySourceState`, inferred registry identity, package-origin claim,
+or network-resolution provenance is introduced by Level 43.
+
+### Builder Identity Boundary
+
+Builder identity is intentionally deferred at the current Supply Chain
+Evidence maturity level.
+
+The canonical Build Framework currently records the observed execution
+environment and critical toolchain state, but those authorities do not
+constitute an authenticated builder identity. CI runner metadata,
+provider-specific infrastructure identifiers, controlled-worker identity,
+cryptographic builder assertions, and provenance attestations are therefore
+not inferred from the current environment model.
+
+Introducing a canonical builder identity before FamilyOS defines a controlled
+builder boundary would create an identity or trust claim that the current
+architecture cannot establish.
+
+Builder identity will be reconsidered with Level 46 — Controlled Builder
+Evaluation, where stronger isolation, environment identity, dedicated or
+ephemeral workers, portability, security properties, and the corresponding
+trust boundary can be evaluated together.
+
+This deferral does not weaken the current artifact-trust contract. Build trust
+remains based on the applicable controlled inputs, canonical execution
+semantics, validation results, artifact integrity, Build Evidence, and
+governance requirements.
+
+No `BuilderIdentity`, provider-specific runner identity, signing assertion,
+attestation, or SLSA provenance statement is introduced by Level 43.
 
 ---
 
