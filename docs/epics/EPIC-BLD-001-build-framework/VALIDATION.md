@@ -2000,6 +2000,8 @@ source_revision
 build_id
 path
 size
+```
+
 Artifact type is represented by the shared ArtifactClass model. Discovery
 remains identity-neutral: DiscoveredArtifact continues to represent only the
 discovered path, semantic artifact class, and discovery classification.
