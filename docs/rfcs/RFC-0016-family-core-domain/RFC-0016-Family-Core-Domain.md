@@ -4,7 +4,7 @@
 |------|------|
 | RFC | RFC-0016 |
 | Title | Family Core Domain Architecture |
-| Status | Draft |
+| Status | Accepted |
 | Authors | FamilyOS Architecture Team |
 | Created | 2026-08-26 |
 | Updated | 2026-08-26 |
@@ -1041,8 +1041,8 @@ The RFC is considered complete when all criteria below are satisfied.
 - [x] Family Domain Specification requirements are established.
 - [x] No implementation-specific architecture is required to understand the
       decision.
-- [ ] RFC review identifies no unresolved foundational ambiguity.
-- [ ] RFC status can progress from Draft to Accepted through normal FamilyOS
+- [x] RFC review identifies no unresolved foundational ambiguity.
+- [x] RFC status can progress from Draft to Accepted through normal FamilyOS
       governance.
 
 ---
@@ -1125,7 +1125,7 @@ This identifier is not created or considered active by this RFC baseline.
 
 | Field | Value |
 |------|------|
-| Decision | Draft |
+| Decision | Accepted |
 | Architectural Impact | High |
 | Breaking Change | No |
 | Migration Required | Yes |
