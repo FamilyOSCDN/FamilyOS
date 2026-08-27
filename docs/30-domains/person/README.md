@@ -378,15 +378,59 @@ RFC or specification governance rather than being silently resolved in code.
 
 ## Implementation Status
 
-Canonical runtime implementation of the minimal Person subset is now
-authorized by this specification.
+The normative minimal Person runtime is implemented and validated against the
+canonical Person specification.
 
-This authorization is limited to the implementation-ready subset defined by the
-Specification Completion Gate. It SHALL NOT be interpreted as authorization to
-invent or implement deferred Person capabilities or semantics.
+The validated runtime baseline is Git revision `6e9a027`
+(`feat(person): enforce canonical identity and creation invariants`).
 
-Runtime implementation SHALL remain conformant to RFC-0016 and to the normative
-Person specification documents.
+The implemented minimal runtime includes:
+
+- `Person` as the canonical aggregate root;
+- UUID-backed `PersonId` with UUID version 4 canonical generation;
+- strict runtime rejection of non-UUID `PersonId` backing values without
+  coercion or legacy-string reinterpretation;
+- `PersonCreated` with canonical `PersonId` and timezone-aware occurrence time;
+- `CreatePerson` with failure-before-persistence validation ordering;
+- `GetPerson` with canonical presence/absence semantics;
+- `PersonRepository` with canonical `save(Person)` and `get(PersonId)`
+  operations;
+- `PersonConflictError` preserving canonical creation-conflict semantics;
+- `InMemoryPersonRepository` with atomic create-only persistence semantics for
+  canonical Person identity;
+- integration coverage for create, retrieve, absence, distinct identities, and
+  duplicate-creation conflict.
+
+Current validation evidence for this runtime baseline is:
+
+- Person-focused test suite: `40 passed`;
+- unit regression suite: `1727 passed`;
+- integration regression suite: `20 passed`;
+- canonical FamilyOS validation: `PASSED`;
+- Ruff: `PASSED`;
+- MyPy: `PASSED`;
+- deferred Person capabilities detected in the minimal runtime: `NONE`.
+
+The current implementation has also completed an adversarial conformance review
+covering runtime identifier invariants, legacy-string rejection, duplicate
+canonical creation, atomic persistence conflict handling, failure-category
+separation, and deferred-capability boundaries.
+
+This status establishes that the implementation-ready minimal Person subset is
+implemented and conformant to the current canonical specification.
+
+This status SHALL NOT be interpreted as implementation or authorization of the
+explicitly deferred Person scope. Search, listing, mutation, archival, deletion,
+restoration, Person history, future intrinsic attributes, additional domain
+events, migration tooling, transport contracts, Security integration, Privacy
+integration, event delivery, transaction technology, and other separately
+governed concerns remain non-normative or implementation-specific until their
+applicable contracts explicitly authorize them.
+
+Runtime evolution SHALL continue to preserve RFC-0016 and the normative Person
+specification. Any future implementation need that requires a currently
+deferred Person-domain semantic SHALL return to specification or architectural
+governance before that semantic becomes canonical.
 
 ## Documents
 
