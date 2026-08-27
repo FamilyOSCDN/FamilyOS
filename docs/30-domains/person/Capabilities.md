@@ -354,14 +354,23 @@ The following capability decisions remain intentionally deferred:
 - authorization mapping for individual capabilities;
 - transaction boundaries;
 - event dispatch mechanics;
-- compatibility mapping from legacy string-based `person_id` values to
-  canonical `PersonId`.
 
 Deferred decisions SHALL be resolved before runtime implementation depends on
 them.
 
 Runtime code SHALL NOT silently convert a deferred capability into a canonical
 contract.
+
+## Compatibility Capability Boundary
+
+Compatibility migration is not a general Person business capability.
+
+Application migration workflows MAY coordinate legacy-reference conversion, but
+they SHALL obey the canonical compatibility and migration contract in `API.md`
+and the identity invariants in `Domain-Model.md`.
+
+No migration workflow SHALL create, merge, split, or remap canonical Person
+identity merely to accommodate legacy storage or plugin conventions.
 
 ## Implementation Gate
 

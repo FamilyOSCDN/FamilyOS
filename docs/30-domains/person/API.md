@@ -500,21 +500,100 @@ This P5 slice does not mandate:
 
 ## Compatibility Boundary
 
-Existing person-like data and string-based `person_id` fields are compatibility
-inputs only.
+Existing person-like records and string-based `person_id` fields SHALL be
+treated as legacy compatibility inputs. They are not canonical `PersonId`
+values merely because they identify a person-like record today.
 
-In particular, existing official plugin models SHALL NOT determine canonical
-Person identity representation or ownership.
+### Canonical Mapping Rule
 
-A future compatibility and migration contract SHALL define how legacy
-person-like references map to canonical `PersonId`.
+Migration from a legacy `person_id` to canonical `PersonId` SHALL use an
+explicit compatibility mapping.
 
-Until that mapping is specified:
+A legacy identifier SHALL NOT be parsed, cast, hashed, reformatted, or otherwise
+silently reinterpreted as the canonical UUID-backed `PersonId`.
 
-- legacy identifiers SHALL NOT be assumed to equal canonical `PersonId`;
-- migration SHALL NOT silently rewrite identity semantics;
-- plugins SHALL NOT become authoritative for Person identity;
-- canonical runtime implementation SHALL NOT depend on an undocumented mapping.
+The mapping SHALL preserve the business identity and continuity of the same
+Person. Migration SHALL NOT create a new canonical Person merely because the
+identifier representation changes.
+
+For each migrated legacy identity, the compatibility mechanism SHALL establish
+at most one authoritative canonical `PersonId`.
+
+### Stable and Idempotent Mapping
+
+Once a legacy identity is mapped to a canonical `PersonId`, repeated migration
+or compatibility processing SHALL resolve to the same canonical `PersonId`.
+
+The mapping SHALL therefore be stable and idempotent.
+
+A legacy identifier SHALL NOT be remapped to a different canonical `PersonId`
+without an explicit governed identity-correction process.
+
+### Collision and Ambiguity Safety
+
+If one legacy identifier ambiguously refers to multiple Person candidates, or
+multiple incompatible legacy identities appear to claim the same canonical
+Person, migration SHALL fail closed for that record rather than guess.
+
+Compatibility code SHALL surface the ambiguity for governed reconciliation.
+
+Unmappable, malformed, missing, or contradictory legacy identifiers SHALL NOT
+cause silent Person creation.
+
+### Transitional Coexistence
+
+Legacy identifiers MAY coexist with canonical `PersonId` values during an
+explicit migration period.
+
+During coexistence:
+
+- canonical Person identity SHALL remain the UUID-backed `PersonId`;
+- legacy identifiers SHALL remain aliases or compatibility references only;
+- new canonical Person creation SHALL NOT issue legacy identifiers as Person
+  identity;
+- application and persistence code SHALL make the legacy-to-canonical boundary
+  explicit;
+- consumers SHALL NOT depend on legacy identifier structure for new Person
+  semantics.
+
+### Plugin and Consumer Boundary
+
+Plugins and other existing consumers MAY retain legacy `person_id` fields until
+their governed migration is performed.
+
+A plugin SHALL NOT independently redefine, generate, or own canonical
+`PersonId`.
+
+Migration of a plugin-owned reference SHALL preserve the distinction between
+the plugin record and the canonical Person it references.
+
+### Migration Integrity
+
+A migration SHALL preserve:
+
+- Person continuity;
+- referential integrity for migrated references;
+- the uniqueness of canonical `PersonId`;
+- the opacity of canonical UUID identity;
+- historical meaning where legacy references must remain interpretable;
+- auditability of the legacy-to-canonical association where required by
+  applicable data-governance rules.
+
+Migration SHALL NOT silently merge distinct Persons.
+
+Migration SHALL NOT silently split one Person into multiple canonical Persons.
+
+Migration SHALL NOT infer authorization, Family Membership, Identity state, or
+plugin ownership from the existence of a legacy `person_id`.
+
+### Migration Failure Semantics
+
+Migration failure SHALL remain distinguishable from ordinary Person absence and
+from successful canonical Person creation.
+
+The exact technical migration tooling, storage schema, rollout sequencing, and
+transport representation remain implementation concerns. Those concerns SHALL
+not weaken the semantic migration contract defined here.
 
 ## Explicitly Non-Normative API
 

@@ -266,21 +266,26 @@ canonical merely because they predate the Person runtime implementation.
 
 ## Compatibility Baseline
 
-Existing FamilyOS components MAY already contain person-like identifiers or
-references.
+Existing person-like data and string-based `person_id` values are legacy
+compatibility inputs and SHALL NOT define canonical Person identity.
 
-Those existing representations SHALL be treated as compatibility inputs rather
-than as the canonical Person model.
+Canonical migration SHALL use an explicit, stable, and idempotent mapping from
+legacy identity to UUID-backed `PersonId`.
 
-In particular, existing plugin fields such as string-based `person_id`
-references SHALL NOT determine the representation of canonical `PersonId`.
+Migration SHALL preserve Person continuity and referential integrity. It SHALL
+NOT silently reinterpret legacy strings as UUIDs, create a new Person because
+identifier representation changes, merge distinct Persons, split one Person,
+or guess through ambiguous identity evidence.
 
-Migration requirements SHALL be defined before an existing consumer is changed
-to depend on canonical Person contracts.
+Legacy identifiers MAY coexist temporarily as aliases or compatibility
+references, but canonical Person identity remains `PersonId`.
 
-No existing runtime consumer is modified by this P1 baseline.
+Plugins and existing consumers do not own canonical Person identity merely
+because they contain a `person_id` field.
 
----
+Detailed semantic migration invariants are normative in `Domain-Model.md` and
+`API.md`. Concrete tooling, storage migration scripts, rollout sequencing, and
+transport mechanics remain implementation concerns.
 
 ## Specification Completion Gate
 
@@ -341,7 +346,6 @@ The following decisions remain intentionally unresolved by P1:
 - Person domain-event catalog;
 - application operation signatures;
 - persistence port contracts;
-- detailed migration strategy for existing person-like consumers.
 
 These decisions SHALL be resolved by subsequent Person Domain Specification
 slices before implementation depends on them.

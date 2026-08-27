@@ -436,6 +436,36 @@ Authorization and access-control enforcement remain Security responsibilities.
 
 No additional Person Entity or Value Object is currently normative.
 
+## Compatibility and Migration Invariants
+
+Legacy identity migration SHALL preserve canonical Person identity rather than
+replace it with storage identity.
+
+The following invariants are normative:
+
+1. A legacy `person_id` is not a canonical `PersonId`.
+2. Conversion SHALL occur only through an explicit compatibility mapping.
+3. One migrated legacy Person identity SHALL resolve to at most one canonical
+   `PersonId`.
+4. A stable mapping SHALL resolve repeatedly to the same canonical `PersonId`.
+5. Migration SHALL NOT create a new Person solely because identifier
+   representation changes.
+6. Migration SHALL NOT silently merge distinct Persons.
+7. Migration SHALL NOT silently split one Person into multiple Persons.
+8. Ambiguous or contradictory identity evidence SHALL fail closed rather than
+   be guessed.
+9. Unmappable legacy identifiers SHALL NOT be silently converted into new
+   canonical Persons.
+10. Plugin-owned legacy references SHALL NOT become plugin ownership of Person
+    identity.
+11. Historical references SHALL remain interpretable where required by
+    applicable data-governance rules.
+12. Migration SHALL preserve the opacity and UUID-backed representation of
+    canonical `PersonId`.
+
+The exact migration tooling and storage mechanics are non-domain implementation
+concerns, provided they preserve these invariants.
+
 ## Deferred Domain-Model Decisions
 
 The following remain intentionally deferred:
@@ -450,7 +480,6 @@ The following remain intentionally deferred:
 - additional Entities inside the Person aggregate, if justified;
 - persistence-port contracts;
 - application-facing operation signatures;
-- migration mechanics for legacy string-based `person_id` consumers.
 
 These decisions SHALL be resolved by the appropriate Person specification slice
 before implementation depends on them.
