@@ -166,11 +166,14 @@ contracts in this specification.
 The Person domain SHALL own only information intrinsically belonging to the
 canonical Person business concept.
 
-Current specification evidence does not yet justify a final canonical set of
-intrinsic Person attributes.
+The minimum canonical state required to establish a Person is the Person's
+canonical `PersonId`.
 
-This P3 model therefore does not declare any of the following mandatory
-canonical Person state:
+No additional intrinsic Person attribute is currently required for canonical
+Person existence.
+
+In particular, the current Person contract does not require any of the
+following as mandatory canonical Person state:
 
 - display, legal, preferred, given, or family name;
 - email address or phone number;
@@ -180,11 +183,34 @@ canonical Person state:
 - locale;
 - profile information.
 
-Their ownership and invariants SHALL be resolved before runtime implementation
-depends on them.
+The absence of these attributes from the current mandatory Person state does
+not permanently exclude them from the Person domain.
 
-`PersonId` is the only canonical Person Value Object fixed by this P3
-domain-model slice.
+A future attribute MAY become canonical Person state only through an explicit
+domain decision establishing:
+
+- why the information is intrinsic to Person rather than another domain;
+- its business meaning;
+- its invariants;
+- its optionality or requirement semantics;
+- its privacy and disclosure expectations;
+- its lifecycle and mutation semantics;
+- its compatibility implications.
+
+Information SHALL NOT become canonical Person state merely because it describes,
+references, identifies, or is operationally associated with an individual.
+
+Plugin-owned health, finance, education, document, communication, and other
+domain-specific information SHALL remain outside canonical Person state unless
+a separately governed architectural decision explicitly changes ownership.
+
+Family Membership, authentication state, authorization data, credentials,
+platform Identity state, and plugin-specific records are not intrinsic Person
+state.
+
+`PersonId` is therefore the only mandatory canonical Person Value Object and
+the only mandatory intrinsic Person state established by the current
+specification.
 
 ## Person Continuity
 
@@ -259,8 +285,12 @@ The canonical Person model SHALL preserve these invariants:
 16. Mutable display or profile information SHALL NOT implicitly create a new
     Person.
 17. A Person SHALL NOT require Family Membership to retain Person identity.
-18. Runtime code SHALL NOT invent unresolved lifecycle states or intrinsic
-    attributes as a substitute for domain specification.
+18. Runtime code SHALL NOT invent unresolved lifecycle states as a substitute
+    for domain specification.
+19. No additional intrinsic Person attribute SHALL become mandatory without an
+    explicit governed Person-domain decision.
+20. Information owned by another domain SHALL NOT become canonical Person state
+    merely because it references or concerns a Person.
 
 ## Family Membership Boundary
 
@@ -378,7 +408,6 @@ No additional Person Entity or Value Object is currently normative.
 
 The following remain intentionally deferred:
 
-- exact intrinsic Person attributes;
 - Value Objects required for future intrinsic attributes;
 - explicit Person lifecycle states, if any;
 - lifecycle transition matrix;

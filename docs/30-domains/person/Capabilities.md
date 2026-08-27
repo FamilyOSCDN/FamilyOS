@@ -72,8 +72,11 @@ Create Person SHALL NOT:
 - create plugin-specific records as intrinsic Person state;
 - expose or depend on the internal representation of `PersonId`.
 
-The concrete `PersonId` generation strategy remains deferred until the canonical
-identifier representation is resolved.
+Canonical Person creation SHALL establish a UUID-backed `PersonId` using UUID
+version 4 in accordance with the canonical Person identifier contract.
+
+Consumers SHALL continue to treat `PersonId` as opaque and SHALL NOT depend on
+its UUID structure for Person business semantics.
 
 ### Failure Semantics
 

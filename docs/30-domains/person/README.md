@@ -144,6 +144,25 @@ SHALL NOT define the canonical identifier representation.
 Detailed `PersonId` invariants and compatibility requirements are normative in
 `Domain-Model.md`.
 
+### Minimum Canonical Person State
+
+The minimum canonical state required for Person existence is the canonical
+`PersonId`.
+
+No additional intrinsic Person attribute is currently mandatory.
+
+Names, birth information, contact information, addresses, gender, locale,
+profile information, Family Membership, Identity state, authorization data, and
+plugin-specific records SHALL NOT be made mandatory Person state without an
+explicit governed domain decision.
+
+This minimum is a data-minimization and ownership boundary, not a permanent
+prohibition on future Person attributes.
+
+Any future intrinsic Person attribute SHALL require explicit specification of
+its business meaning, ownership, invariants, optionality, lifecycle, privacy,
+and compatibility semantics.
+
 ---
 
 ## Specification Documents
@@ -296,7 +315,6 @@ baseline.
 
 The following decisions remain intentionally unresolved by P1:
 
-- concrete internal representation of `PersonId`;
 - complete Person intrinsic-data model;
 - detailed Person lifecycle states and transitions;
 - complete Person invariant set;

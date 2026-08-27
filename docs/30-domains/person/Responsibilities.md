@@ -258,7 +258,6 @@ selecting the complete implementation model.
 
 The following remain governed by later Person specification slices:
 
-- exact intrinsic Person attributes;
 - concrete `PersonId` representation and invariants;
 - final aggregate, entity, and value-object classification;
 - detailed Person lifecycle states and transitions;

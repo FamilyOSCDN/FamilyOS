@@ -87,9 +87,17 @@ classes, framework annotations, or interface adapters.
 The command SHALL accept only information whose business meaning is valid for
 canonical Person creation.
 
-The exact intrinsic Person attributes remain deferred by the domain model.
-Therefore this specification does not yet define a final concrete request DTO
-or field list.
+The canonical Person model requires no intrinsic creation attribute beyond
+establishment of the canonical `PersonId`.
+
+No name, birth information, contact information, address, gender, locale,
+profile information, Family Membership, Identity state, authorization data, or
+plugin-specific record is required merely to establish canonical Person
+existence.
+
+This semantic minimum does not freeze a final concrete request DTO or Python
+field list. Application contracts MAY evolve when separately governed Person
+attributes become normative.
 
 Creation input SHALL NOT require:
 
@@ -102,7 +110,11 @@ Creation input SHALL NOT require:
 The caller SHALL NOT provide or depend on the internal backing representation of
 `PersonId`.
 
-The concrete `PersonId` generation strategy remains deferred.
+Canonical creation SHALL establish a UUID-backed `PersonId` using UUID version
+4 in accordance with the canonical Person identifier contract.
+
+The application contract SHALL preserve the opacity of `PersonId`; callers
+SHALL NOT depend on UUID structure or derive Person business meaning from it.
 
 ### Success Semantics
 
@@ -532,8 +544,6 @@ canonical merely because they are common CRUD patterns.
 The following decisions remain intentionally deferred:
 
 - final intrinsic Person creation fields;
-- concrete `PersonId` backing representation;
-- concrete `PersonId` generation strategy;
 - concrete Create Person request type;
 - concrete Create Person result type;
 - concrete Get Person result type;
