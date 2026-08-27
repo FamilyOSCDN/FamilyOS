@@ -289,10 +289,29 @@ The absence of a universal lifecycle-state enumeration SHALL NOT erase,
 invalidate, or silently rewrite historical references to the same canonical
 Person.
 
-Detailed archival, retention, deletion, erasure, restoration, and Person-history
-mechanics remain separately governed decisions and SHALL be reconciled with
-Person continuity and applicable Data Architecture, Privacy, and Security
-contracts before becoming normative.
+Person data lifecycle SHALL distinguish the canonical Person's historical
+continuity from the lifecycle of erasable data associated with that Person.
+
+Erasure, redaction, anonymization, retention expiry, or physical removal of
+erasable Person data SHALL NOT by itself rewrite the historical fact that the
+canonical Person existed, SHALL NOT silently create a replacement Person, and
+SHALL NOT authorize reuse of that Person's canonical `PersonId`.
+
+`PersonCreated` remains an immutable Person-domain fact. Data-governance or
+privacy processing MAY govern retention or disclosure of event representations
+and associated data, but SHALL NOT redefine the underlying Person-domain fact.
+
+The Person domain does not establish a universal requirement to retain every
+piece of Person-related data indefinitely. Retention, deletion, erasure,
+anonymization, restoration, and physical-storage mechanics remain governed by
+the applicable Data Architecture, Privacy, Security, and domain-specific
+contracts.
+
+No universal `ACTIVE`, `ARCHIVED`, `DELETED`, erased, or equivalent Person state
+is introduced by this data-lifecycle contract.
+
+`ArchivePerson`, `DeletePerson`, `RestorePerson`, and `PersonHistory` therefore
+remain non-normative until separately governed business semantics justify them.
 
 ## Domain Invariants
 
@@ -323,6 +342,12 @@ The canonical Person model SHALL preserve these invariants:
     explicit governed Person-domain decision.
 20. Information owned by another domain SHALL NOT become canonical Person state
     merely because it references or concerns a Person.
+21. Erasure or removal of erasable Person data SHALL NOT by itself erase the
+    historical fact that the canonical Person existed.
+22. A canonical `PersonId` SHALL NOT be reused for another Person after
+    retention, erasure, deletion, anonymization, or equivalent processing.
+23. Privacy or retention processing SHALL NOT silently rewrite `PersonCreated`
+    into a fact that canonical Person creation did not occur.
 
 ## Family Membership Boundary
 
@@ -499,8 +524,9 @@ The following remain intentionally deferred:
 - Value Objects required for future intrinsic attributes;
 - explicit Person lifecycle states, if any;
 - lifecycle transition matrix;
-- detailed archival and historical mechanics;
-- retention, deletion, erasure, and restoration semantics;
+- detailed archival and Person-history mechanics;
+- concrete retention, deletion, erasure, anonymization, and restoration
+  mechanisms consistent with the canonical data-lifecycle boundary;
 - complete domain-event set and detailed payload schemas;
 - timestamps and temporal Value Objects, if required;
 - additional Entities inside the Person aggregate, if justified;

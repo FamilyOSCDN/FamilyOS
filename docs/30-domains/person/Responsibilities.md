@@ -254,6 +254,21 @@ specification and implementation work:
 11. Interfaces may present Person but do not own Person invariants.
 12. Domain-specific records remain owned by their respective domains.
 
+## Data Lifecycle Responsibility Boundary
+
+The Person domain SHALL preserve canonical identity continuity and historical
+Person meaning while minimizing unnecessary ownership of personal information.
+
+The Person domain SHALL define the invariant that erasure or removal of erasable
+data does not, by itself, rewrite the historical fact of Person existence.
+
+The Person domain SHALL NOT own universal retention periods, storage deletion
+mechanics, anonymization technology, legal-policy interpretation, or
+infrastructure purge procedures.
+
+Those concerns SHALL remain with the applicable Data Architecture, Privacy,
+Security, governance, infrastructure, or domain-specific authority.
+
 ## Deferred Responsibility Details
 
 This document establishes responsibility boundaries without prematurely

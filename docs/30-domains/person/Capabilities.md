@@ -295,6 +295,17 @@ Their semantics SHALL be reconciled with Person continuity, historical meaning,
 privacy, retention, erasure, Data Architecture, and Security requirements
 before they become normative.
 
+Data erasure, redaction, anonymization, retention expiry, or physical storage
+removal SHALL NOT be treated as an implicit `DeletePerson` capability.
+
+Likewise, preservation of the historical fact that a Person existed SHALL NOT
+be interpreted as a universal requirement to retain all Person-related data
+indefinitely.
+
+No adapter, plugin, repository, or application workflow SHALL invent
+`ArchivePerson`, `DeletePerson`, or `RestorePerson` merely to implement a
+technical data-retention operation.
+
 ### Person History
 
 The Person domain requires preservation of historical meaning where necessary,

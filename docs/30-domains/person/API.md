@@ -477,6 +477,33 @@ representation rather than requiring the complete Person aggregate.
 Concrete field-level disclosure rules remain deferred until canonical intrinsic
 Person attributes and applicable privacy policies are specified.
 
+## Data Lifecycle and Erasure Boundary
+
+Application APIs SHALL distinguish Person business continuity from technical or
+governance operations over erasable Person data.
+
+Erasure, redaction, anonymization, retention expiry, or physical deletion of
+erasable data SHALL NOT silently mean that the canonical Person never existed.
+
+Such processing SHALL NOT:
+
+- reuse the affected canonical `PersonId` for another Person;
+- silently create a replacement Person;
+- rewrite historical references to a different Person;
+- reinterpret `PersonCreated` as though successful creation never occurred;
+- create an implicit canonical `DeletePerson`, `ArchivePerson`, or
+  `RestorePerson` operation.
+
+This contract does not define a universal erasure API, retention API, deletion
+API, anonymization API, or restoration API.
+
+Concrete mechanisms SHALL be defined by the applicable Privacy, Security, Data
+Architecture, infrastructure, and domain-specific contracts before runtime
+implementation depends on them.
+
+Preservation of Person historical continuity does not require unrestricted
+disclosure or indefinite retention of every Person-related datum.
+
 ## Infrastructure Boundary
 
 Infrastructure MAY provide:

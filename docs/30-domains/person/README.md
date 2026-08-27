@@ -264,6 +264,26 @@ canonical merely because they predate the Person runtime implementation.
 
 ---
 
+## Canonical Data Lifecycle Boundary
+
+Person continuity and Person-data retention are distinct concerns.
+
+Erasure, redaction, anonymization, retention expiry, or physical removal of
+erasable Person data SHALL NOT by itself erase the historical fact that the
+canonical Person existed or permit reuse of that Person's `PersonId`.
+
+Conversely, preserving Person historical continuity SHALL NOT be interpreted as
+a requirement to retain or disclose every Person-related datum indefinitely.
+
+`PersonCreated` remains the immutable business fact of successful canonical
+Person creation. Privacy, retention, and infrastructure processing SHALL NOT
+rewrite that underlying domain fact.
+
+No universal archive, delete, restore, erasure, or Person-history capability is
+made normative by this boundary. Those operations remain separately governed.
+
+---
+
 ## Canonical Person Event
 
 `PersonCreated` is the only canonical Person domain event currently normative.
