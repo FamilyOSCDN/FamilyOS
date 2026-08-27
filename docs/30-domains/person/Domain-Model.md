@@ -398,6 +398,32 @@ Domain-specific records remain owned by their respective domains.
 Existing plugin `person_id` fields remain compatibility inputs until an explicit
 migration contract integrates them with canonical `PersonId`.
 
+## Failure-Semantics Invariants
+
+Failure and non-success outcomes SHALL preserve Person business meaning across
+application, persistence, Security, privacy, migration, and infrastructure
+boundaries.
+
+The following invariants are canonical:
+
+1. Invalid Person-domain input SHALL NOT be represented as successful Person
+   state.
+2. Person absence SHALL remain semantically distinct from invalid identifier
+   input.
+3. Person absence SHALL remain semantically distinct from authorization denial.
+4. Person absence SHALL remain semantically distinct from infrastructure
+   failure.
+5. Authorization denial SHALL NOT redefine canonical Person existence.
+6. Privacy or disclosure restriction SHALL NOT silently rewrite Person-domain
+   facts.
+7. Infrastructure failure SHALL NOT become a Person-domain fact merely because
+   it occurs while processing a Person operation.
+8. Person conflict SHALL fail rather than silently merge, split, replace, or
+   reinterpret canonical Person identity.
+9. Compatibility or migration ambiguity SHALL fail closed rather than guess.
+10. Concrete exception, result, transport, and persistence representations SHALL
+    preserve these semantic distinctions.
+
 ## Domain Events
 
 ### PersonCreated

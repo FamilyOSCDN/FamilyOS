@@ -84,8 +84,9 @@ its UUID structure for Person business semantics.
 
 Creation SHALL fail rather than produce invalid Person state.
 
-The complete taxonomy and representation of creation failures remain an
-application-contract decision for a later specification slice.
+Creation failure semantics SHALL follow the canonical outcome categories in
+`API.md`; their concrete runtime representation remains an implementation-contract
+decision.
 
 ## Retrieve Person
 
@@ -349,6 +350,24 @@ meaning.
 This document SHALL NOT prescribe database schemas, ORM models, tables,
 collections, foreign keys, or storage engines.
 
+## Canonical Capability Outcome Boundary
+
+Canonical Person capabilities SHALL preserve the outcome distinctions defined by
+`API.md`.
+
+Capability semantics SHALL distinguish successful Person behavior from
+Person-domain invalidity, Person conflict, Person absence, Security
+authorization denial, privacy or disclosure restriction, infrastructure
+failure, and compatibility or migration failure whenever those outcomes are
+applicable.
+
+Capabilities SHALL define business meaning and SHALL NOT prescribe Python
+exception hierarchies, transport status codes, or a universal result-wrapper
+type.
+
+No capability implementation SHALL collapse infrastructure failure into Person
+absence or treat authorization denial as Person-domain invalidity.
+
 ## Deferred Capability Decisions
 
 The following capability decisions remain intentionally deferred:
@@ -360,7 +379,7 @@ The following capability decisions remain intentionally deferred:
 - explicit deletion or erasure capability;
 - explicit restoration capability;
 - Person history/query capability;
-- concrete failure taxonomy;
+- concrete failure representation, exception hierarchy, and transport mapping;
 - application command/query names and structures;
 - concrete application method signatures;
 - persistence repository/port contract;

@@ -250,7 +250,7 @@ meaning and infrastructure failure.
 The application layer SHALL NOT expose storage-engine errors as canonical Person
 business semantics.
 
-Concrete error classes and transport mappings remain deferred.
+Concrete error classes and transport mappings remain implementation-contract decisions; their representations SHALL preserve the canonical failure semantics defined below.
 
 ## Evolve Person Boundary
 
@@ -673,6 +673,129 @@ repositories to invent lifecycle states or generic CRUD semantics.
 No interface or infrastructure implementation SHALL make these operations
 canonical merely because they are common CRUD patterns.
 
+## Canonical Failure and Result Semantics
+
+The Person application contract SHALL preserve the semantic distinction between
+successful Person outcomes and materially different failure or non-success
+outcomes.
+
+The canonical Person specification defines semantic outcome categories, not
+Python exception classes, HTTP status codes, CLI exit codes, serialization
+formats, or a mandatory generic `Result` container.
+
+### Canonical Outcome Categories
+
+Person application operations SHALL distinguish, where applicable:
+
+1. **Success** — the requested canonical Person operation completed and its
+   Person-domain postconditions hold.
+2. **Invalid Person Input** — supplied Person-domain input cannot satisfy the
+   canonical Person contract or invariants.
+3. **Person Conflict** — the requested operation conflicts with established
+   canonical Person identity, continuity, uniqueness, or other Person-domain
+   invariants.
+4. **Person Not Found** — a valid canonical Person reference does not resolve to
+   an existing Person in the authoritative Person persistence boundary.
+5. **Authorization Denial** — Security denies the caller permission to perform
+   the requested operation.
+6. **Privacy or Disclosure Restriction** — the operation cannot disclose the
+   requested Person information under the applicable privacy or disclosure
+   boundary.
+7. **Infrastructure Failure** — persistence, transport, transaction, or other
+   infrastructure required by the operation fails independently of Person
+   business validity.
+8. **Compatibility or Migration Failure** — legacy identity evidence cannot be
+   mapped safely to canonical Person identity under the governed compatibility
+   contract.
+
+These categories describe semantic distinctions. An operation need only expose
+categories that can meaningfully arise for that operation.
+
+### Separation Rules
+
+A Person implementation SHALL NOT:
+
+- represent invalid Person input as Person absence;
+- represent Person absence as authorization denial;
+- represent authorization denial as Person absence merely for implementation
+  convenience;
+- represent infrastructure failure as ordinary Person absence;
+- represent a Person conflict as successful creation or mutation;
+- convert ambiguous or contradictory migration evidence into a successful
+  Person mapping;
+- expose infrastructure details as though they were Person-domain facts.
+
+Security MAY intentionally constrain externally observable disclosure in order
+to avoid leaking protected information. Such presentation or transport behavior
+SHALL NOT erase the internal semantic distinction between authorization,
+privacy, absence, and infrastructure outcomes at the governed application
+boundary.
+
+### Create Person Result Semantics
+
+Successful `CreatePerson` execution SHALL establish exactly one valid canonical
+Person and SHALL produce the canonical `PersonCreated` domain event.
+
+Failed creation SHALL NOT persist invalid canonical Person state and SHALL NOT
+produce a canonical `PersonCreated` event.
+
+Creation SHALL distinguish, when applicable:
+
+- invalid Person-domain input;
+- conflict with canonical Person identity or creation invariants;
+- authorization denial;
+- infrastructure or persistence failure.
+
+### Get Person Result Semantics
+
+Successful `GetPerson` execution SHALL return the canonical Person associated
+with the requested canonical `PersonId`, subject to the applicable Security and
+privacy boundaries.
+
+A valid canonical `PersonId` for which no Person exists SHALL produce a
+semantically distinct Person-not-found outcome.
+
+Person not found SHALL remain distinct from invalid identifier input,
+authorization denial, privacy or disclosure restriction, and infrastructure
+failure.
+
+### Persistence Result Semantics
+
+Persistence presence, persistence absence, and persistence failure SHALL remain
+semantically distinct.
+
+A repository or persistence adapter SHALL NOT translate a technical persistence
+failure into ordinary Person absence.
+
+The concrete repository representation MAY use an optional value, sentinel,
+exception, result object, or another established FamilyOS mechanism provided
+these semantic distinctions are preserved.
+
+### Migration Result Semantics
+
+Compatibility and migration processing SHALL fail closed when legacy identity
+evidence is malformed, unmappable, ambiguous, contradictory, or would require
+an unsafe merge, split, or identity guess.
+
+Migration failure SHALL remain distinct from ordinary Person absence,
+authorization denial, and infrastructure failure.
+
+### Representation Boundary
+
+The following remain implementation-contract decisions:
+
+- concrete Python error or exception classes;
+- whether application operations use exceptions, explicit result objects,
+  discriminated unions, or another established FamilyOS representation;
+- concrete repository absence representation;
+- transport-specific status codes and payloads;
+- CLI exit codes and messages;
+- logging, tracing, and telemetry representation.
+
+Any concrete representation SHALL preserve the canonical semantic distinctions
+defined by this specification and SHALL NOT collapse categories in a way that
+changes Person business meaning.
+
 ## Deferred API Decisions
 
 The following decisions remain intentionally deferred:
@@ -681,8 +804,8 @@ The following decisions remain intentionally deferred:
 - concrete Create Person request type;
 - concrete Create Person result type;
 - concrete Get Person result type;
-- concrete not-found representation;
-- concrete application error classes;
+- concrete not-found representation, provided Person absence remains semantically distinct;
+- concrete application error classes and transport mappings;
 - concrete repository interface technology;
 - concrete Python method signatures;
 - concrete transaction mechanism;

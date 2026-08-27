@@ -269,6 +269,24 @@ infrastructure purge procedures.
 Those concerns SHALL remain with the applicable Data Architecture, Privacy,
 Security, governance, infrastructure, or domain-specific authority.
 
+## Failure Semantics Responsibility Boundary
+
+The Person domain SHALL define the Person-business meaning of invalidity,
+conflict, absence, and other Person-specific outcome distinctions.
+
+Security SHALL remain authoritative for authorization decisions and their
+security-sensitive disclosure constraints.
+
+Privacy and governance authorities SHALL remain authoritative for applicable
+disclosure restrictions.
+
+Infrastructure SHALL remain responsible for technical failure mechanisms and
+SHALL NOT redefine infrastructure failure as Person absence or Person-domain
+invalidity.
+
+Interfaces and transports MAY map canonical outcomes into protocol-specific
+representations, but SHALL NOT change their underlying semantic category.
+
 ## Deferred Responsibility Details
 
 This document establishes responsibility boundaries without prematurely

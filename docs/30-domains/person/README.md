@@ -326,6 +326,21 @@ Detailed semantic migration invariants are normative in `Domain-Model.md` and
 `API.md`. Concrete tooling, storage migration scripts, rollout sequencing, and
 transport mechanics remain implementation concerns.
 
+## Canonical Failure and Result Baseline
+
+Person application semantics distinguish success from invalid Person input,
+Person conflict, Person absence, authorization denial, privacy or disclosure
+restriction, infrastructure failure, and compatibility or migration failure
+whenever those outcomes are applicable.
+
+These are semantic categories rather than a frozen Python or transport model.
+
+Concrete exceptions, result objects, repository absence representations, HTTP
+or other transport mappings, CLI exit codes, and observability details remain
+implementation-contract decisions. Any chosen representation SHALL preserve the
+canonical distinctions and SHALL NOT silently convert infrastructure failure,
+authorization denial, or privacy restriction into ordinary Person absence.
+
 ## Specification Completion Gate
 
 The Person Domain Specification is not implementation-ready until the
