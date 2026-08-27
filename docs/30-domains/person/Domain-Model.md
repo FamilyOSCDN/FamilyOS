@@ -232,35 +232,67 @@ mutable concerns changes.
 
 The Person domain owns Person business lifecycle semantics.
 
-The lifecycle begins when a new canonical Person is created. Subsequent Person
-changes SHALL preserve stable identity and domain continuity unless a future
-accepted specification explicitly defines different business semantics.
+Canonical Person lifecycle begins when a new canonical Person is successfully
+created.
+
+The canonical lifecycle model is continuity-based rather than state-machine
+based. Person existence and continuity are represented by the continued
+existence of the same canonical `PersonId`, not by a universal lifecycle-status
+enumeration.
+
+After creation, a Person SHALL remain the same canonical Person while that
+`PersonId` remains the authoritative identity, regardless of changes in
+authentication, account state, platform Identity, Family Membership,
+plugin-specific records, persistence technology, or interface representation.
 
 Person lifecycle SHALL remain independent from authentication, account, Family
 Membership, and plugin-specific lifecycle state.
 
 ### Explicit Lifecycle States
 
-This P3 slice does not introduce a canonical Person lifecycle enumeration.
+The canonical Person model SHALL NOT define a universal lifecycle-state
+enumeration at this stage.
 
-Current evidence does not justify states such as `ACTIVE`, `INACTIVE`,
-`ARCHIVED`, `DECEASED`, `DELETED`, or equivalent as universal canonical Person
-states.
+States such as `ACTIVE`, `INACTIVE`, `ARCHIVED`, `DECEASED`, `DELETED`, or
+equivalent SHALL NOT be treated as canonical Person states merely because they
+are common lifecycle concepts in other systems.
 
-Such states SHALL NOT be invented by runtime implementation.
+The absence of a lifecycle enumeration is a normative Person-domain decision,
+not an unresolved implementation gap.
 
-If explicit states become necessary, their meaning, invariants, transitions,
-historical treatment, and compatibility implications SHALL be specified before
-implementation depends on them.
+A future canonical Person lifecycle state MAY be introduced only through an
+explicit governed domain decision that establishes its business meaning,
+invariants, valid transitions, continuity implications, historical treatment,
+privacy implications, and compatibility requirements.
+
+Runtime code, persistence schemas, interfaces, and plugins SHALL NOT invent a
+Person lifecycle state machine as a substitute for such a governed decision.
+
+### Lifecycle Transitions
+
+Canonical Person creation is the only lifecycle transition currently required
+by the Person specification.
+
+No generic activation, deactivation, archival, deletion, restoration, or
+equivalent Person transition is currently normative.
+
+Changes to future intrinsic Person attributes SHALL be modeled through explicit
+business operations when those attributes and operations become normative; they
+SHALL NOT require a universal Person lifecycle status merely to express change.
 
 ### Historical Meaning
 
 Person lifecycle evolution SHALL preserve historical meaning where Person data
-or references must remain understandable over time.
+is referenced by other FamilyOS domains.
 
-Detailed archival, retention, deletion, erasure, restoration, and historical
-mechanics remain governed by later specification work and applicable Data,
-Privacy, and Security contracts.
+The absence of a universal lifecycle-state enumeration SHALL NOT erase,
+invalidate, or silently rewrite historical references to the same canonical
+Person.
+
+Detailed archival, retention, deletion, erasure, restoration, and Person-history
+mechanics remain separately governed decisions and SHALL be reconciled with
+Person continuity and applicable Data Architecture, Privacy, and Security
+contracts before becoming normative.
 
 ## Domain Invariants
 

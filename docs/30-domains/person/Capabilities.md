@@ -282,8 +282,9 @@ The specification has not yet established:
 
 ### Archive, Delete, and Restore
 
-P3 does not define canonical Person lifecycle states or the business semantics
-of archival, deletion, erasure, restoration, or equivalent transitions.
+The canonical Person lifecycle does not require a universal lifecycle-state
+enumeration, and archival, deletion, erasure, restoration, or equivalent
+transitions are not currently normative Person business transitions.
 
 `ArchivePerson`, `DeletePerson`, and `RestorePerson` SHALL therefore remain
 deferred.

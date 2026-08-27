@@ -536,6 +536,11 @@ contract.
 The remaining operations are deferred by the canonical capability
 specification.
 
+The canonical Person lifecycle is continuity-based and does not require a
+universal lifecycle-state enumeration. The absence of `ArchivePerson`,
+`DeletePerson`, and `RestorePerson` is therefore not permission for adapters or
+repositories to invent lifecycle states or generic CRUD semantics.
+
 No interface or infrastructure implementation SHALL make these operations
 canonical merely because they are common CRUD patterns.
 

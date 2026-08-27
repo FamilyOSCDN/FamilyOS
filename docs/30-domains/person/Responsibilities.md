@@ -260,7 +260,8 @@ The following remain governed by later Person specification slices:
 
 - concrete `PersonId` representation and invariants;
 - final aggregate, entity, and value-object classification;
-- detailed Person lifecycle states and transitions;
+- future lifecycle states or transitions beyond canonical creation, if later
+  justified by explicit Person business semantics;
 - complete Person invariant set;
 - domain-event schemas;
 - application operation signatures;

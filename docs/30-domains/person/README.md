@@ -165,6 +165,24 @@ and compatibility semantics.
 
 ---
 
+## Canonical Lifecycle
+
+Canonical Person lifecycle begins with successful Person creation.
+
+The current canonical lifecycle is continuity-based: stable `PersonId`
+preserves Person identity and continuity without requiring a universal
+lifecycle-state enumeration.
+
+`ACTIVE`, `INACTIVE`, `ARCHIVED`, `DECEASED`, `DELETED`, and similar states are
+not canonical Person states unless a later governed Person-domain decision
+defines their business semantics and transition rules.
+
+Archival, retention, deletion, erasure, restoration, and Person-history
+mechanics remain separately governed concerns and SHALL NOT be inferred from
+the absence of a lifecycle-state enumeration.
+
+---
+
 ## Specification Documents
 
 The Person Domain Specification consists of the following documents:
@@ -316,7 +334,8 @@ baseline.
 The following decisions remain intentionally unresolved by P1:
 
 - complete Person intrinsic-data model;
-- detailed Person lifecycle states and transitions;
+- canonical lifecycle model, including the explicit decision that no universal
+  Person lifecycle-state enumeration is currently required;
 - complete Person invariant set;
 - complete Person value-object model;
 - Person domain-event catalog;
