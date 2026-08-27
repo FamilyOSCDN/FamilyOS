@@ -126,17 +126,40 @@ internal representation.
 
 ### PersonId Representation
 
-The concrete backing representation and generation strategy of `PersonId`
-remain intentionally deferred.
+`PersonId` SHALL use UUID as its canonical backing representation.
 
-This specification does not yet mandate UUID, string, integer, ULID, or another
-technical representation.
+Canonical creation of a new `PersonId` SHALL use UUID version 4.
 
-The representation SHALL be resolved before canonical runtime implementation
-depends on `PersonId`.
+The UUID representation is a technical identity mechanism only. Consumers SHALL
+treat the value as opaque and SHALL NOT infer Person semantics, chronology,
+Family membership, authentication identity, storage location, or any other
+business meaning from the UUID value.
 
-Existing string-based `person_id` fields are compatibility inputs only and SHALL
-NOT determine the canonical `PersonId` representation.
+The canonical textual representation of `PersonId` SHALL be the standard UUID
+string representation.
+
+`PersonId` SHALL be immutable and comparable by value.
+
+The representation SHALL NOT encode confidential information, personal
+information, authentication data, Family identity, Family Membership identity,
+plugin-specific identity, or mutable Person attributes.
+
+UUID generation SHALL remain independent from persistence technology,
+authentication providers, Family membership, and plugin infrastructure.
+
+Existing string-based `person_id` fields are compatibility inputs only. Values
+such as `person-001` SHALL NOT define or constrain the canonical `PersonId`
+representation.
+
+Compatibility and migration code SHALL make conversion between legacy
+string-based identifiers and canonical `PersonId` explicit. Runtime code SHALL
+NOT silently reinterpret arbitrary legacy strings as canonical UUID-backed
+`PersonId` values.
+
+The UUID backing representation is normative. The exact Python implementation,
+constructor surface, dependency-injection mechanism for UUID generation, and
+legacy migration mechanism remain implementation concerns subject to the
+contracts in this specification.
 
 ## Intrinsic Person State
 
@@ -355,7 +378,6 @@ No additional Person Entity or Value Object is currently normative.
 
 The following remain intentionally deferred:
 
-- concrete backing representation and generation strategy for `PersonId`;
 - exact intrinsic Person attributes;
 - Value Objects required for future intrinsic attributes;
 - explicit Person lifecycle states, if any;

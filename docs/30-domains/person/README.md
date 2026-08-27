@@ -126,13 +126,23 @@ PersonId
 The identifier SHALL comply with the applicable FamilyOS identifier and naming
 contracts.
 
-The concrete internal representation of `PersonId` remains intentionally
-unresolved at this baseline stage.
+The canonical backing representation of `PersonId` SHALL be UUID.
 
-No runtime implementation SHALL rely on a concrete `PersonId` representation
-until this specification resolves that representation.
+Canonical creation of a new `PersonId` SHALL use UUID version 4.
 
-Identifiers SHALL NOT encode confidential or personal information.
+The UUID value SHALL remain opaque to consumers and SHALL NOT encode or imply
+Person semantics, confidential information, personal information,
+authentication identity, Family identity, Family Membership identity, or
+plugin-specific identity.
+
+The canonical textual representation SHALL be the standard UUID string
+representation.
+
+Existing string-based `person_id` values are compatibility inputs only and
+SHALL NOT define the canonical identifier representation.
+
+Detailed `PersonId` invariants and compatibility requirements are normative in
+`Domain-Model.md`.
 
 ---
 
