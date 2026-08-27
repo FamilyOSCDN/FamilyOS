@@ -343,40 +343,50 @@ authorization denial, or privacy restriction into ordinary Person absence.
 
 ## Specification Completion Gate
 
-The Person Domain Specification is not implementation-ready until the
-documentation set has resolved every decision required by RFC-0016 for the
-implemented Person subset.
+The canonical minimal Person subset defined by this specification is
+implementation-ready.
 
-Before canonical Person implementation begins, the specification SHALL resolve
-at minimum:
+The implementation-ready subset consists of the normative contracts already
+established by this specification:
 
-- the representation and invariants of `PersonId`;
-- Person continuity rules;
-- Person invariants;
-- Person lifecycle semantics;
-- intrinsic Person information;
-- aggregate, entity, and value-object classification;
-- meaningful Person domain events;
-- privacy and data-integrity expectations;
-- application-facing operations;
-- persistence abstractions where required;
-- compatibility expectations and migration boundaries.
+- `Person` as the canonical aggregate root;
+- UUID-backed `PersonId`, with UUID version 4 used for canonical creation;
+- `PersonId` as the only mandatory intrinsic Person state currently required;
+- continuity-based Person lifecycle semantics without a universal lifecycle-state
+  enumeration;
+- the canonical Create Person capability and `CreatePerson` application command;
+- the canonical Retrieve Person capability and `GetPerson` application query;
+- the `PersonRepository` persistence boundary with canonical `save(Person)` and
+  `get(PersonId)` semantics;
+- the canonical `PersonCreated` domain event;
+- canonical compatibility and migration invariants;
+- canonical data-lifecycle and historical-continuity invariants;
+- canonical failure and result semantics.
+
+Implementation of this minimal subset SHALL preserve all Person-domain
+invariants, ownership boundaries, Security and Privacy boundaries, compatibility
+rules, and failure-category distinctions defined by the specification.
+
+A future capability or data concept is not implementation-ready merely because
+the minimal subset is implementation-ready. Search, listing, mutation,
+archival, deletion, restoration, Person history, additional intrinsic
+attributes, additional events, and other explicitly deferred features remain
+non-normative until separately governed.
 
 Implementation findings that expose a foundational contradiction SHALL return to
 RFC or specification governance rather than being silently resolved in code.
 
----
-
 ## Implementation Status
 
-Canonical Person runtime implementation has not started.
+Canonical runtime implementation of the minimal Person subset is now
+authorized by this specification.
 
-This specification SHALL precede implementation.
+This authorization is limited to the implementation-ready subset defined by the
+Specification Completion Gate. It SHALL NOT be interpreted as authorization to
+invent or implement deferred Person capabilities or semantics.
 
-No source-code implementation is authorized merely by the creation of this P1
-baseline.
-
----
+Runtime implementation SHALL remain conformant to RFC-0016 and to the normative
+Person specification documents.
 
 ## Documents
 
@@ -390,21 +400,30 @@ baseline.
 
 ## Deferred Decisions
 
-The following decisions remain intentionally unresolved by P1:
+The following remain intentionally deferred because the current minimal
+canonical Person subset does not depend on them:
 
-- complete Person intrinsic-data model;
-- canonical lifecycle model, including the explicit decision that no universal
-  Person lifecycle-state enumeration is currently required;
-- complete Person invariant set;
-- complete Person value-object model;
-- Person domain-event catalog;
-- application operation signatures;
-- persistence port contracts;
+- future intrinsic Person attributes and their Value Objects;
+- future Person lifecycle states or transitions, if justified by explicit
+  Person business semantics;
+- additional Entities inside the Person aggregate, if justified;
+- concrete Person mutation operations;
+- searchable Person attributes, search, and listing semantics;
+- archival, deletion, erasure, restoration, and Person-history capabilities;
+- additional Person domain events and event payloads beyond `PersonCreated`;
+- concrete failure representation, exception hierarchy, or universal result
+  wrapper;
+- concrete repository technology and Python method signatures;
+- concrete transaction mechanisms;
+- event dispatch, delivery, transport, and infrastructure mechanics;
+- transport-specific contracts and mappings;
+- field-level disclosure rules;
+- concrete retention, deletion, erasure, anonymization, and restoration
+  mechanisms.
 
-These decisions SHALL be resolved by subsequent Person Domain Specification
-slices before implementation depends on them.
-
----
+These deferred concerns SHALL NOT be invented by runtime code. If implementation
+requires one of them, the applicable Person specification or cross-cutting
+architecture SHALL govern it first.
 
 ## References
 

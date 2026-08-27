@@ -545,39 +545,37 @@ concerns, provided they preserve these invariants.
 
 ## Deferred Domain-Model Decisions
 
-The following remain intentionally deferred:
+The following domain-model decisions remain intentionally deferred because
+they are not required by the implementation-ready minimal Person subset:
 
-- Value Objects required for future intrinsic attributes;
-- explicit Person lifecycle states, if any;
-- lifecycle transition matrix;
-- detailed archival and Person-history mechanics;
+- Value Objects required by future intrinsic Person attributes;
+- future lifecycle states or transitions beyond canonical creation, if any;
+- detailed archival and Person-history models;
 - concrete retention, deletion, erasure, anonymization, and restoration
-  mechanisms consistent with the canonical data-lifecycle boundary;
-- complete domain-event set and detailed payload schemas;
-- timestamps and temporal Value Objects, if required;
-- additional Entities inside the Person aggregate, if justified;
-- persistence-port contracts;
-- application-facing operation signatures;
+  mechanisms;
+- additional Person domain events beyond `PersonCreated`;
+- additional Entities inside the Person aggregate, if justified.
 
-These decisions SHALL be resolved by the appropriate Person specification slice
-before implementation depends on them.
+The canonical `PersonId` representation and invariants, current intrinsic state,
+Person continuity and lifecycle semantics, current invariant set,
+`PersonCreated`, compatibility and migration invariants, and historical
+continuity semantics are resolved and SHALL NOT be treated as deferred.
 
-Runtime code SHALL NOT silently resolve a deferred domain decision.
+Runtime code SHALL NOT silently resolve a genuinely deferred domain decision.
 
 ## Implementation Gate
 
-This P3 document establishes the canonical Person domain-model baseline.
+The canonical minimal Person domain-model subset defined by this document
+and the complete Person specification is implementation-ready.
 
-It does not, by itself, make the complete Person Domain Specification
-implementation-ready.
+Runtime implementation MAY implement the normative minimal subset, provided it
+preserves the aggregate, identifier, continuity, intrinsic-state, lifecycle,
+event, compatibility, data-lifecycle, and failure-semantics invariants defined
+by the specification.
 
-Canonical Person runtime implementation SHALL remain blocked until the complete
-Person specification resolves the implementation decisions required by RFC-0016
-and the completion gate in `README.md`.
-
-Later specification work must still establish required capabilities,
-application-facing contracts, persistence boundaries, compatibility
-expectations, and any domain-model details those contracts require.
+This gate does not authorize future lifecycle states, mutation semantics,
+archival, deletion, restoration, Person history, additional events, additional
+intrinsic attributes, or other explicitly deferred domain concepts.
 
 ## Normative References
 

@@ -289,22 +289,33 @@ representations, but SHALL NOT change their underlying semantic category.
 
 ## Deferred Responsibility Details
 
-This document establishes responsibility boundaries without prematurely
-selecting the complete implementation model.
+The responsibility boundaries required by the canonical minimal Person
+subset are resolved.
 
-The following remain governed by later Person specification slices:
+In particular, the following are no longer deferred: canonical `PersonId`
+representation and invariants; aggregate/entity/value-object classification for
+the current model; the current Person invariant set; `PersonCreated` semantics;
+the canonical Create Person and Retrieve Person application operations; and the
+canonical `PersonRepository` persistence boundary.
 
-- concrete `PersonId` representation and invariants;
-- final aggregate, entity, and value-object classification;
-- future lifecycle states or transitions beyond canonical creation, if later
-  justified by explicit Person business semantics;
-- complete Person invariant set;
-- domain-event schemas;
-- application operation signatures;
-- persistence-port contracts;
-- historical and archival mechanics.
+The following remain governed by future Person specification work or applicable
+cross-cutting architecture:
 
-No runtime implementation is authorized to invent these decisions.
+- future intrinsic attributes and their Value Objects;
+- future lifecycle states or transitions beyond canonical creation, if
+  justified;
+- additional Entities inside the Person aggregate, if justified;
+- additional Person events beyond `PersonCreated`;
+- mutation, search, listing, archival, deletion, restoration, and Person-history
+  capabilities;
+- concrete historical/archival storage mechanics;
+- concrete retention, erasure, anonymization, and restoration mechanisms;
+- concrete Python signatures and repository technology;
+- transaction, event-dispatch, transport, and infrastructure mechanics;
+- field-level disclosure rules.
+
+Runtime implementation MAY implement the normative minimal Person subset, but
+SHALL NOT invent any genuinely deferred Person-domain responsibility.
 
 ## Normative References
 

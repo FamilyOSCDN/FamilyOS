@@ -798,49 +798,54 @@ changes Person business meaning.
 
 ## Deferred API Decisions
 
-The following decisions remain intentionally deferred:
+The following API and implementation details remain intentionally deferred
+or implementation-specific because the minimal canonical Person subset does not
+require them to become domain semantics:
 
-- final intrinsic Person creation fields;
-- concrete Create Person request type;
-- concrete Create Person result type;
-- concrete Get Person result type;
-- concrete not-found representation, provided Person absence remains semantically distinct;
+- concrete Python request and result classes;
+- concrete not-found representation, provided Person absence remains
+  semantically distinct;
 - concrete application error classes and transport mappings;
 - concrete repository interface technology;
 - concrete Python method signatures;
 - concrete transaction mechanism;
 - event dispatch mechanism;
-- event payload and metadata representation;
+- event envelope, metadata, and transport representation;
 - concrete mutation commands;
 - search and listing contracts;
 - archival, deletion, erasure, and restoration contracts;
 - Person history contract;
 - transport contracts;
-- field-level disclosure rules;
-- legacy `person_id` to canonical `PersonId` migration mapping.
+- field-level disclosure rules.
 
-Deferred decisions SHALL be resolved before runtime implementation depends on
-them.
+The semantic creation minimum, `CreatePerson`, `GetPerson`, `PersonRepository`
+with `save(Person)` and `get(PersonId)`, canonical `PersonCreated` semantics,
+and the legacy-identifier compatibility and migration mapping rules are resolved
+and SHALL NOT be treated as deferred.
 
-Runtime code SHALL NOT silently convert a deferred API or persistence decision
-into a canonical contract.
+Deferred implementation choices SHALL preserve the canonical semantics and SHALL
+NOT silently create new Person business contracts.
 
 ## Implementation Gate
 
-This P5 document establishes the canonical initial application API and
-persistence boundary for Person.
+The canonical minimal Person application and persistence subset is
+implementation-ready.
 
-It does not, by itself, authorize canonical Person runtime implementation.
+Runtime implementation MAY implement:
 
-Canonical Person runtime implementation SHALL remain blocked until the complete
-Person Domain Specification completion gate in `README.md` is satisfied.
+- `CreatePerson`;
+- `GetPerson`;
+- `PersonRepository` with the canonical `save(Person)` and `get(PersonId)`
+  semantics;
+- production of `PersonCreated` on successful canonical creation;
+- the canonical failure and result distinctions defined by this document.
 
-Subsequent specification work SHALL reconcile remaining identifier,
-compatibility, migration, privacy, lifecycle, event, and implementation-readiness
-decisions required by that gate.
+Concrete Python shapes and infrastructure technologies MAY be selected during
+implementation where this specification intentionally leaves representation
+open, but they SHALL preserve the normative semantics.
 
-No application, infrastructure, interface, or plugin code SHALL invent those
-decisions merely to begin implementation early.
+This gate does not authorize deferred mutation, search, listing, archival,
+deletion, restoration, Person-history, transport, or disclosure contracts.
 
 ## Normative References
 

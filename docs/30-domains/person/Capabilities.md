@@ -370,7 +370,8 @@ absence or treat authorization denial as Person-domain invalidity.
 
 ## Deferred Capability Decisions
 
-The following capability decisions remain intentionally deferred:
+The following capability decisions remain intentionally deferred because
+they are outside the implementation-ready minimal Person subset:
 
 - concrete Person mutation operations;
 - searchable Person attributes;
@@ -379,19 +380,20 @@ The following capability decisions remain intentionally deferred:
 - explicit deletion or erasure capability;
 - explicit restoration capability;
 - Person history/query capability;
-- concrete failure representation, exception hierarchy, and transport mapping;
-- application command/query names and structures;
-- concrete application method signatures;
-- persistence repository/port contract;
-- authorization mapping for individual capabilities;
+- authorization mapping for future individual capabilities;
 - transaction boundaries;
-- event dispatch mechanics;
+- event dispatch mechanics.
 
-Deferred decisions SHALL be resolved before runtime implementation depends on
-them.
+The canonical Create Person and Retrieve Person capabilities, their application
+operation names, and the canonical `PersonRepository` persistence boundary are
+resolved and SHALL NOT be treated as deferred.
 
-Runtime code SHALL NOT silently convert a deferred capability into a canonical
-contract.
+Concrete Python signatures, repository technology, failure representation, and
+transport mappings remain implementation-contract or infrastructure decisions
+and SHALL preserve the canonical semantics already defined.
+
+Runtime code SHALL NOT silently convert a genuinely deferred capability into a
+canonical contract.
 
 ## Compatibility Capability Boundary
 
@@ -406,18 +408,14 @@ identity merely to accommodate legacy storage or plugin conventions.
 
 ## Implementation Gate
 
-This P4 document establishes the canonical Person capability baseline.
+The canonical minimal Person capability subset is implementation-ready.
 
-It does not, by itself, make the complete Person Domain Specification
-implementation-ready.
+Runtime implementation MAY implement Create Person and Retrieve Person through
+the governed application and persistence contracts defined in `API.md`.
 
-Canonical Person runtime implementation SHALL remain blocked until the
-specification completion gate in `README.md` is satisfied.
-
-In particular, subsequent specification work must still establish the
-application/API contract, persistence boundary, compatibility/migration
-requirements, unresolved identifier representation, and any additional
-domain-model semantics required by those contracts.
+This authorization does not make Search Person, List Persons, mutation,
+Archive Person, Delete Person, Restore Person, Person History, or other
+explicitly deferred capabilities normative.
 
 ## Normative References
 
