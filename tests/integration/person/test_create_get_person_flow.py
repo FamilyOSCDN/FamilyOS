@@ -3,7 +3,13 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from familyos_cli.application.person import CreatePerson, GetPerson
+import pytest
+
+from familyos_cli.application.person import (
+    CreatePerson,
+    GetPerson,
+    PersonConflictError,
+)
 from familyos_cli.domain.person import PersonId
 from familyos_cli.infrastructure.person import InMemoryPersonRepository
 
@@ -82,3 +88,30 @@ def test_two_creations_with_distinct_ids_remain_independently_retrievable() -> N
     assert first.person_id == first_id
     assert second.person_id == second_id
     assert first != second
+
+
+def test_duplicate_creation_fails_without_replacing_original_person() -> None:
+    """One canonical identity can produce only one successful creation result."""
+
+    repository = InMemoryPersonRepository()
+    person_id = PersonId(UUID("dddddddd-dddd-4ddd-8ddd-dddddddddddd"))
+
+    first_result = CreatePerson(
+        repository,
+        person_id_factory=lambda: person_id,
+        clock=lambda: datetime(2026, 8, 27, 17, 0, tzinfo=UTC),
+    ).execute()
+
+    duplicate_creation = CreatePerson(
+        repository,
+        person_id_factory=lambda: person_id,
+        clock=lambda: datetime(2026, 8, 27, 17, 5, tzinfo=UTC),
+    )
+
+    with pytest.raises(
+        PersonConflictError,
+        match=f"Person '{person_id}' already exists",
+    ):
+        duplicate_creation.execute()
+
+    assert repository.get(person_id) is first_result.person

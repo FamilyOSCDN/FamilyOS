@@ -7,12 +7,16 @@ from abc import ABC, abstractmethod
 from familyos_cli.domain.person import Person, PersonId
 
 
+class PersonConflictError(Exception):
+    """Raised when persistence would replace an established Person identity."""
+
+
 class PersonRepository(ABC):
     """Persist and retrieve canonical Person aggregates."""
 
     @abstractmethod
     def save(self, person: Person) -> None:
-        """Persist one canonical Person."""
+        """Atomically persist a new Person, rejecting an established identity."""
 
         raise NotImplementedError
 

@@ -1,5 +1,6 @@
 from dataclasses import FrozenInstanceError, fields
 from datetime import UTC, datetime
+from typing import cast
 from uuid import UUID
 
 import pytest
@@ -22,6 +23,17 @@ def test_person_created_contains_minimal_canonical_payload() -> None:
         "person_id",
         "occurred_at",
     ]
+
+
+def test_person_created_rejects_non_canonical_identity_reference() -> None:
+    with pytest.raises(
+        TypeError,
+        match="PersonCreated person_id must be a PersonId",
+    ):
+        PersonCreated(
+            person_id=cast(PersonId, "person-001"),
+            occurred_at=_OCCURRED_AT,
+        )
 
 
 def test_person_created_requires_timezone_aware_occurrence_time() -> None:

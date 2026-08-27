@@ -1,8 +1,15 @@
 """Tests for the in-memory Person repository adapter."""
 
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 from uuid import UUID
 
-from familyos_cli.application.ports.person import PersonRepository
+import pytest
+
+from familyos_cli.application.ports.person import (
+    PersonConflictError,
+    PersonRepository,
+)
 from familyos_cli.domain.person import Person, PersonId
 from familyos_cli.infrastructure.person import InMemoryPersonRepository
 
@@ -30,13 +37,42 @@ def test_get_returns_none_for_absent_person() -> None:
     assert repository.get(person_id) is None
 
 
-def test_save_replaces_same_person_identity_without_creating_duplicate() -> None:
+def test_save_rejects_established_identity_without_replacing_person() -> None:
     person_id = PersonId(UUID("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"))
     first = Person(person_id=person_id)
     second = Person(person_id=person_id)
     repository = InMemoryPersonRepository()
 
     repository.save(first)
-    repository.save(second)
 
-    assert repository.get(person_id) == second
+    with pytest.raises(
+        PersonConflictError,
+        match=f"Person '{person_id}' already exists",
+    ):
+        repository.save(second)
+
+    assert repository.get(person_id) is first
+
+
+def test_concurrent_save_establishes_identity_exactly_once() -> None:
+    person_id = PersonId(UUID("cccccccc-cccc-4ccc-8ccc-cccccccccccc"))
+    persons = tuple(Person(person_id=person_id) for _ in range(8))
+    barrier = Barrier(len(persons))
+    repository = InMemoryPersonRepository()
+
+    def attempt_save(person: Person) -> bool:
+        barrier.wait()
+
+        try:
+            repository.save(person)
+        except PersonConflictError:
+            return False
+
+        return True
+
+    with ThreadPoolExecutor(max_workers=len(persons)) as executor:
+        outcomes = tuple(executor.map(attempt_save, persons))
+
+    assert outcomes.count(True) == 1
+    assert outcomes.count(False) == len(persons) - 1
+    assert repository.get(person_id) is persons[outcomes.index(True)]

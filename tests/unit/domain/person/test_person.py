@@ -1,4 +1,5 @@
 from dataclasses import FrozenInstanceError, fields
+from typing import cast
 from uuid import UUID
 
 import pytest
@@ -13,6 +14,11 @@ def test_person_has_person_id_as_only_intrinsic_state() -> None:
 
     assert person.person_id == _PERSON_ID
     assert [field.name for field in fields(Person)] == ["person_id"]
+
+
+def test_person_rejects_non_canonical_identity_reference() -> None:
+    with pytest.raises(TypeError, match="Person person_id must be a PersonId"):
+        Person(person_id=cast(PersonId, "person-001"))
 
 
 def test_person_is_immutable() -> None:

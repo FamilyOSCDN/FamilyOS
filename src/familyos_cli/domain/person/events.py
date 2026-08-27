@@ -14,6 +14,9 @@ class PersonCreated:
     occurred_at: datetime
 
     def __post_init__(self) -> None:
-        """Require an unambiguous timezone-aware occurrence instant."""
+        """Require canonical identity and an unambiguous occurrence instant."""
+        if not isinstance(self.person_id, PersonId):
+            raise TypeError("PersonCreated person_id must be a PersonId")
+
         if self.occurred_at.tzinfo is None or self.occurred_at.utcoffset() is None:
             raise ValueError("PersonCreated occurrence time must be timezone-aware")

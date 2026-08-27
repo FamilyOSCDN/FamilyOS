@@ -1,11 +1,12 @@
 """Tests for canonical CreatePerson application semantics."""
 
 from datetime import UTC, datetime
+from typing import cast
 from uuid import UUID
 
 import pytest
 
-from familyos_cli.application.person import CreatePerson
+from familyos_cli.application.person import CreatePerson, PersonConflictError
 from familyos_cli.application.ports.person import PersonRepository
 from familyos_cli.domain.person import Person, PersonId
 
@@ -89,6 +90,54 @@ def test_create_person_uses_injected_clock_once() -> None:
 
     assert calls == 1
     assert result.event.occurred_at == occurred_at
+
+
+def test_create_person_rejects_invalid_identity_before_persistence() -> None:
+    """An invalid factory result cannot cross into canonical persistence."""
+
+    repository = RecordingPersonRepository()
+    clock_calls = 0
+
+    def clock() -> datetime:
+        nonlocal clock_calls
+        clock_calls += 1
+        return datetime(2026, 8, 27, 16, 30, tzinfo=UTC)
+
+    use_case = CreatePerson(
+        repository,
+        person_id_factory=lambda: cast(PersonId, "person-001"),
+        clock=clock,
+    )
+
+    with pytest.raises(TypeError, match="Person person_id must be a PersonId"):
+        use_case.execute()
+
+    assert repository.saved == []
+    assert clock_calls == 0
+
+
+def test_create_person_propagates_person_conflict() -> None:
+    """Canonical identity conflict remains distinct from infrastructure failure."""
+
+    class ConflictingRepository(PersonRepository):
+        def save(self, person: Person) -> None:
+            raise PersonConflictError(f"Person '{person.person_id}' already exists")
+
+        def get(self, person_id: PersonId) -> Person | None:
+            return None
+
+    person_id = PersonId(UUID("cccccccc-cccc-4ccc-8ccc-cccccccccccc"))
+    use_case = CreatePerson(
+        ConflictingRepository(),
+        person_id_factory=lambda: person_id,
+        clock=lambda: datetime(2026, 8, 27, 16, 45, tzinfo=UTC),
+    )
+
+    with pytest.raises(
+        PersonConflictError,
+        match=f"Person '{person_id}' already exists",
+    ):
+        use_case.execute()
 
 
 def test_create_person_propagates_identity_factory_failure() -> None:

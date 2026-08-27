@@ -10,6 +10,11 @@ class PersonId:
 
     value: UUID
 
+    def __post_init__(self) -> None:
+        """Reject non-canonical backing values without coercion."""
+        if not isinstance(self.value, UUID):
+            raise TypeError("PersonId value must be a UUID")
+
     @classmethod
     def generate(cls) -> "PersonId":
         """Generate a new canonical Person identity using UUID version 4."""

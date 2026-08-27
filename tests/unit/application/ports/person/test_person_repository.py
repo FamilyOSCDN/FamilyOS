@@ -6,7 +6,10 @@ import inspect
 
 import pytest
 
-from familyos_cli.application.ports.person import PersonRepository
+from familyos_cli.application.ports.person import (
+    PersonConflictError,
+    PersonRepository,
+)
 from familyos_cli.domain.person import Person, PersonId
 
 
@@ -31,6 +34,9 @@ def test_concrete_repository_can_implement_canonical_contract() -> None:
             self._persons: dict[PersonId, Person] = {}
 
         def save(self, person: Person) -> None:
+            if person.person_id in self._persons:
+                raise PersonConflictError
+
             self._persons[person.person_id] = person
 
         def get(self, person_id: PersonId) -> Person | None:
