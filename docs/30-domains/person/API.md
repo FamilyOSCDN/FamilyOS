@@ -156,13 +156,26 @@ error codes, HTTP status codes, CLI exit codes, or transport error envelopes.
 
 ### Event Semantics
 
-Successful Person creation SHALL carry the canonical `PersonCreated` domain
+Successful Person creation SHALL produce the canonical `PersonCreated` domain
 event semantics defined by the Person domain model.
 
-Persistence and event handling SHALL preserve the rule that a failed creation
-must not be represented externally as a successfully created Person.
+The application contract SHALL preserve, at minimum, the canonical `PersonId`
+of the created Person and the timezone-aware occurrence time of successful
+canonical Person creation as the semantic content of `PersonCreated`.
 
-This P5 slice does not mandate:
+The occurrence time SHALL describe the Person-domain fact itself and SHALL NOT
+be replaced by a persistence, publication, dispatch, delivery, ingestion, or
+processing timestamp.
+
+Persistence and event handling SHALL preserve the rule that a failed creation
+must not be represented externally as a successfully created Person and SHALL
+NOT produce a canonical `PersonCreated` event for failed creation.
+
+The application contract SHALL NOT require non-canonical Person attributes,
+Identity state, Family Membership, authorization data, credentials, or
+plugin-specific records merely to populate `PersonCreated`.
+
+This specification does not mandate:
 
 - an event bus;
 - an outbox;
@@ -170,11 +183,14 @@ This P5 slice does not mandate:
 - a transaction framework;
 - broker technology;
 - event transport;
-- final event payload representation;
-- final event metadata or versioning representation.
+- concrete serialization shape;
+- envelope metadata;
+- schema-version encoding;
+- event, correlation, or causation identifiers;
+- delivery, ordering, retry, or durability mechanics.
 
-Those mechanics SHALL be specified before runtime implementation depends on
-them.
+Those concerns remain governed by applicable cross-cutting and infrastructure
+contracts and SHALL preserve the canonical Person event semantics.
 
 ## Get Person
 
@@ -401,16 +417,23 @@ Domain events describe meaningful Person-domain facts.
 
 `PersonCreated` is the only canonical Person domain event currently normative.
 
-Application orchestration SHALL preserve its domain meaning.
+Its canonical semantic contract consists of the successful creation fact, the
+created canonical `PersonId`, and the timezone-aware occurrence time of that
+fact.
+
+Application orchestration SHALL preserve that domain meaning and SHALL NOT add
+non-canonical Person state merely to satisfy an infrastructure event envelope.
 
 Infrastructure MAY transport or persist domain events only through governed
 adapters.
 
 Infrastructure SHALL NOT redefine a domain event as an infrastructure event
-merely because it delivers that event.
+merely because it delivers that event, and infrastructure timestamps SHALL NOT
+replace the canonical domain occurrence time.
 
-Final event dispatch, durability, ordering, retry, metadata, and versioning
-contracts remain deferred.
+Concrete dispatch, durability, ordering, retry, serialization, envelope
+metadata, schema-version encoding, correlation, causation, and transport
+contracts remain separately governed cross-cutting or infrastructure concerns.
 
 ## Security Boundary
 

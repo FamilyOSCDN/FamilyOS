@@ -264,6 +264,25 @@ canonical merely because they predate the Person runtime implementation.
 
 ---
 
+## Canonical Person Event
+
+`PersonCreated` is the only canonical Person domain event currently normative.
+
+It records the immutable business fact that creation of one canonical Person
+succeeded. Its minimum canonical semantic content is the created `PersonId` and
+the timezone-aware occurrence time of successful canonical Person creation.
+
+The occurrence time describes the domain fact and is distinct from persistence,
+publication, dispatch, delivery, ingestion, or processing timestamps.
+
+No non-canonical Person attribute, Identity state, Family Membership,
+authorization data, credential, or plugin-specific record is required merely
+to populate this event.
+
+Serialization, envelope metadata, schema-version encoding, event identifiers,
+correlation and causation identifiers, transport, delivery guarantees, ordering,
+retry, durability, and outbox mechanics remain separately governed concerns.
+
 ## Compatibility Baseline
 
 Existing person-like data and string-based `person_id` values are legacy

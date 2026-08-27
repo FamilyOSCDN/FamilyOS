@@ -85,6 +85,9 @@ Ownership follows business-domain boundaries.
 
 ### Person Domain Events
 
+The Person domain SHALL own the business meaning and minimum canonical semantic
+content of its domain events.
+
 The Person domain SHALL define domain events required to communicate meaningful
 Person changes to approved consumers.
 

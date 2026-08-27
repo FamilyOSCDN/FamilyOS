@@ -377,18 +377,44 @@ migration contract integrates them with canonical `PersonId`.
 
 ### PersonCreated
 
-The canonical Person domain SHALL define the event name `PersonCreated`.
+The canonical Person domain SHALL define the domain event `PersonCreated`.
 
-`PersonCreated` represents successful creation of a new canonical Person and
-SHALL identify that Person through the canonical Person identity contract.
+`PersonCreated` represents the immutable business fact that creation of exactly
+one new canonical Person succeeded.
 
-Final payload, metadata, versioning, timestamp semantics, and transport
-representation remain governed by later event-contract specification and
-applicable FamilyOS cross-cutting specifications.
+The minimum canonical semantic payload of `PersonCreated` SHALL contain:
+
+- the canonical `PersonId` of the Person that was created;
+- the occurrence time at which canonical Person creation succeeded.
+
+The event SHALL identify the created Person only through the canonical Person
+identity contract. Consumers SHALL treat the contained `PersonId` as opaque and
+SHALL NOT infer Person business meaning from its UUID backing representation.
+
+The occurrence time SHALL represent the domain occurrence of successful Person
+creation. It SHALL be timezone-aware and SHALL denote an unambiguous instant.
+It SHALL NOT be substituted by a later persistence, publication, dispatch,
+delivery, ingestion, or processing timestamp.
+
+No name, contact information, Family Membership, Identity state, authorization
+data, credentials, plugin-specific record, or other non-canonical Person data is
+required in the canonical `PersonCreated` semantic payload.
+
+`PersonCreated` SHALL be emitted only for successful creation of a new canonical
+Person. Failed creation SHALL NOT produce a canonical `PersonCreated` fact.
+
+The event is a Person-domain fact regardless of whether infrastructure later
+persists, serializes, publishes, dispatches, or transports it.
+
+Concrete serialization shape, envelope metadata, schema-version encoding,
+event identifiers, correlation or causation identifiers, transport technology,
+delivery guarantees, ordering, retry, durability, and outbox mechanics remain
+cross-cutting or infrastructure concerns unless a later governed specification
+makes one of them part of the canonical Person event contract.
 
 ### Additional Person Events
 
-No additional Person domain event is normative in this P3 slice.
+No additional Person domain event is currently normative.
 
 `PersonUpdated`, `PersonArchived`, `PersonDeleted`, `PersonRestored`,
 `PersonDeactivated`, and `PersonReactivated` SHALL NOT be treated as canonical

@@ -59,7 +59,9 @@ Create Person SHALL:
 - preserve all Person domain invariants;
 - establish Person continuity independently from Identity, Family Membership,
   authorization, and plugin-specific records;
-- produce the canonical `PersonCreated` domain event when creation succeeds;
+- produce the canonical `PersonCreated` domain event when creation succeeds,
+  carrying the created canonical `PersonId` and the timezone-aware occurrence
+  time of successful canonical Person creation;
 - avoid requiring an interactive Identity merely for Person existence;
 - avoid requiring Family Membership merely for Person existence.
 
