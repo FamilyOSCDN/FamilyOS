@@ -36,10 +36,11 @@ class CreatePerson:
         """Create, persist, and report one canonical Person."""
 
         person = Person(person_id=self._person_id_factory())
-        self._repository.save(person)
-
         event = PersonCreated(
             person_id=person.person_id,
             occurred_at=self._clock(),
         )
+
+        self._repository.save(person)
+
         return CreatePersonResult(person=person, event=event)

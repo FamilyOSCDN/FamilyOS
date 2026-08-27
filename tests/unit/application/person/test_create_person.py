@@ -3,6 +3,8 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
+import pytest
+
 from familyos_cli.application.person import CreatePerson
 from familyos_cli.application.ports.person import PersonRepository
 from familyos_cli.domain.person import Person, PersonId
@@ -87,3 +89,96 @@ def test_create_person_uses_injected_clock_once() -> None:
 
     assert calls == 1
     assert result.event.occurred_at == occurred_at
+
+
+def test_create_person_propagates_identity_factory_failure() -> None:
+    """Identity-generation failure remains distinct and propagates unchanged."""
+
+    repository = RecordingPersonRepository()
+
+    def failing_person_id_factory() -> PersonId:
+        raise RuntimeError("identity generation unavailable")
+
+    use_case = CreatePerson(
+        repository,
+        person_id_factory=failing_person_id_factory,
+        clock=lambda: datetime(2026, 8, 27, 17, 0, tzinfo=UTC),
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="identity generation unavailable",
+    ):
+        use_case.execute()
+
+    assert repository.saved == []
+
+
+def test_create_person_propagates_repository_failure() -> None:
+    """Persistence failure is not translated into successful Person creation."""
+
+    class FailingRepository(PersonRepository):
+        def save(self, person: Person) -> None:
+            raise RuntimeError("persistence unavailable")
+
+        def get(self, person_id: PersonId) -> Person | None:
+            return None
+
+    person_id = PersonId(UUID("dddddddd-dddd-4ddd-8ddd-dddddddddddd"))
+
+    use_case = CreatePerson(
+        FailingRepository(),
+        person_id_factory=lambda: person_id,
+        clock=lambda: datetime(2026, 8, 27, 17, 30, tzinfo=UTC),
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="persistence unavailable",
+    ):
+        use_case.execute()
+
+
+def test_create_person_propagates_clock_failure_before_persistence() -> None:
+    """Clock failure propagates before canonical Person persistence."""
+
+    repository = RecordingPersonRepository()
+    person_id = PersonId(UUID("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee"))
+
+    def failing_clock() -> datetime:
+        raise RuntimeError("clock unavailable")
+
+    use_case = CreatePerson(
+        repository,
+        person_id_factory=lambda: person_id,
+        clock=failing_clock,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="clock unavailable",
+    ):
+        use_case.execute()
+
+    assert repository.saved == []
+
+
+def test_create_person_rejects_naive_occurrence_time_before_persistence() -> None:
+    """Invalid PersonCreated time fails before the Person is persisted."""
+
+    repository = RecordingPersonRepository()
+    person_id = PersonId(UUID("ffffffff-ffff-4fff-8fff-ffffffffffff"))
+
+    use_case = CreatePerson(
+        repository,
+        person_id_factory=lambda: person_id,
+        clock=lambda: datetime(2026, 8, 27, 18, 0),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="PersonCreated occurrence time must be timezone-aware",
+    ):
+        use_case.execute()
+
+    assert repository.saved == []
