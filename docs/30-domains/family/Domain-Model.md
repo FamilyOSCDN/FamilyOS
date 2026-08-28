@@ -446,6 +446,8 @@ Membership history SHALL preserve at least:
   contract.
 
 The exact historical event-storage mechanism remains an implementation concern.
+The required temporal facts SHALL nevertheless be durably preserved according
+to the Family Core Temporal Persistence Contract below.
 
 Canonical business history SHALL NOT be silently rewritten to make a Membership
 appear never to have existed.
@@ -718,6 +720,60 @@ The initial contract requires:
 - end time when ended.
 
 The exact persistence mechanism remains implementation-specific.
+
+## Family Core Temporal Persistence Contract
+
+The initial Family Core runtime SHALL distinguish canonical lifecycle continuity
+from the temporal facts required to preserve the meaning of that continuity.
+
+For Membership and Relationship lifecycle operations, the canonical domain
+event `occurred_at` value SHALL represent the occurrence time of the successful
+business transition described by that event.
+
+Persistence supporting the implementation-ready subset SHALL durably preserve,
+together with the applicable canonical continuity, the temporal facts required
+by this domain model.
+
+For Membership, this means preserving at least:
+
+- when the Membership was canonically established;
+- the current canonical lifecycle state;
+- the effective occurrence time of lifecycle transitions required by the
+  implementation contract.
+
+For Relationship, this means preserving at least:
+
+- establishment time;
+- the current canonical lifecycle state;
+- end time when the Relationship is `ENDED`.
+
+The required temporal fact and the lifecycle state produced by the same
+successful operation SHALL NOT become observably inconsistent. A persistence
+failure SHALL NOT leave the canonical continuity advanced while losing the
+required occurrence fact for that same transition.
+
+This contract does not require temporal values to become intrinsic fields of
+the `Membership` or `Relationship` domain entities. A governed implementation
+MAY preserve the required facts through entity state, persistence metadata,
+durable canonical event records, or another representation that preserves the
+same business meaning and failure semantics.
+
+This contract does not mandate event sourcing, an event store, an event bus,
+an outbox, event-retention technology, or a universal historical reconstruction
+facility.
+
+The following remain outside this temporal persistence contract unless
+separately governed:
+
+- `FamilyHistory`;
+- Membership or Relationship collection history queries;
+- generic list or search capabilities;
+- post-`ENDED` Membership or Relationship re-establishment;
+- Relationship evidence or provenance capabilities;
+- event delivery and dispatch mechanics.
+
+A persistence representation SHALL NOT use implementation convenience to erase,
+rewrite, synthesize, or silently replace required Family Core temporal facts.
 
 ### Relationship Domain Events
 

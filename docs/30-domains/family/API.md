@@ -756,6 +756,43 @@ This document does not mandate:
 Delivery failure semantics remain separately governed and SHALL NOT silently
 rewrite the underlying canonical domain fact.
 
+## Family Core Temporal Persistence Contract
+
+Application operations that establish or transition canonical Membership or
+Relationship lifecycle state SHALL preserve the occurrence time required by
+`Domain-Model.md` as part of the successful persistence outcome.
+
+For the initial contract:
+
+- `FamilyMembershipCreated.occurred_at` is the canonical Membership
+  establishment occurrence time;
+- Membership lifecycle event `occurred_at` values are the canonical effective
+  occurrence times for the corresponding transitions;
+- `FamilyRelationshipEstablished.occurred_at` is the canonical Relationship
+  establishment occurrence time;
+- `FamilyRelationshipEnded.occurred_at` is the canonical Relationship end
+  occurrence time.
+
+A successful state-changing operation SHALL NOT report success if the required
+temporal fact for that same transition cannot be durably preserved.
+
+The lifecycle continuity update and its required temporal occurrence fact SHALL
+therefore share one governed atomic success boundary. The concrete transaction,
+storage, and representation mechanism remains an infrastructure decision.
+
+The minimum `save(...)` / `get(...)` repository descriptions in this document
+remain semantic baselines rather than a prohibition on a later governed port
+extension required to satisfy this temporal persistence contract.
+
+This contract does not require domain entities to expose timestamp fields and
+does not require event sourcing, an event store, an outbox, event retention, or
+event delivery infrastructure.
+
+No `FamilyHistory`, Membership history-query, Relationship history-query, list,
+search, delete, or re-establishment operation is introduced by this contract.
+Those capabilities remain deferred where already identified by the Family
+specification.
+
 ## Failure and Result Boundary
 
 Application contracts SHALL preserve the semantic failure categories established

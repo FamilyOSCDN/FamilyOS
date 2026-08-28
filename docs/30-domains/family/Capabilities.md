@@ -603,8 +603,10 @@ Persistence SHALL preserve:
 - canonical Person references;
 - Membership composite identity and lifecycle;
 - terminal Membership continuity;
+- Membership temporal lifecycle facts required by `Domain-Model.md`;
 - Relationship canonicalization and lifecycle;
 - terminal Relationship continuity;
+- Relationship establishment and end times required by `Domain-Model.md`;
 - Family Boundary isolation;
 - atomic conflict semantics required by the applicable capability.
 
@@ -619,6 +621,22 @@ Persistence SHALL NOT:
 
 This document does not prescribe database schemas, ORM models, tables,
 collections, foreign keys, indexes, storage engines, or transaction technology.
+
+### Temporal Persistence Boundary
+
+Temporal persistence for the implementation-ready subset SHALL preserve the
+business occurrence facts required by `Domain-Model.md` without making their
+concrete storage representation canonical.
+
+A conforming implementation MAY use entity fields, persistence metadata,
+durable canonical event records, or an equivalent governed representation,
+provided lifecycle state and the temporal fact produced by the same successful
+operation cannot become observably inconsistent.
+
+This temporal persistence requirement SHALL NOT be interpreted as authorization
+for `FamilyHistory`, historical collection queries, event sourcing, event-store
+technology, post-`ENDED` re-establishment, or Relationship evidence/provenance
+capabilities.
 
 ## Failure Boundary
 

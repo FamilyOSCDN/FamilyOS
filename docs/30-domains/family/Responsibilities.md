@@ -429,7 +429,8 @@ required by an implementation-ready Family subset:
 - dedicated Relationship identity, if any;
 - Relationship directionality and symmetry rules;
 - Relationship taxonomy;
-- Relationship temporal and historical mechanics;
+- Relationship temporal and historical mechanics beyond the minimum lifecycle
+  occurrence facts required by `Domain-Model.md`;
 - detailed Family Boundary derivation mechanics;
 - complete Family Core event catalog;
 - concrete application command/query shapes;
@@ -440,6 +441,24 @@ required by an implementation-ready Family subset:
 - concrete privacy, retention, erasure, and disclosure mechanisms.
 
 These items SHALL NOT be silently frozen by runtime implementation.
+
+## Family Core Temporal Persistence Contract
+
+The minimum temporal facts required by the current implementation-ready
+Membership and Relationship lifecycles are not deferred.
+
+The Family domain owns the business meaning of those facts. `Domain-Model.md`
+defines the minimum temporal information that SHALL be preserved, and `API.md`
+defines the application/persistence success boundary for preserving it.
+
+Concrete persistence representation, event-storage technology, event delivery,
+universal history/query capabilities, post-`ENDED` re-establishment semantics,
+and Relationship evidence/provenance remain separately governed or deferred as
+identified by the canonical Family specification.
+
+This responsibility contract does not make timestamp fields intrinsic to
+Membership or Relationship entities and does not authorize a generic Family
+history subsystem.
 
 ## Implementation Responsibility Gate
 
