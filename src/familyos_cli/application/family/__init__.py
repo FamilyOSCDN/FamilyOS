@@ -31,6 +31,9 @@ from familyos_cli.application.family.establish_relationship import (
 from familyos_cli.application.family.get_family import GetFamily
 from familyos_cli.application.family.get_membership import GetMembership
 from familyos_cli.application.family.get_relationship import GetRelationship
+from familyos_cli.application.family.resolve_family_boundary import (
+    ResolveFamilyBoundary,
+)
 from familyos_cli.application.family.suspend_membership import (
     SuspendMembership,
     SuspendMembershipResult,
@@ -64,6 +67,7 @@ __all__ = [
     "PersonNotFoundError",
     "RelationshipConflictError",
     "RelationshipNotFoundError",
+    "ResolveFamilyBoundary",
     "SuspendMembership",
     "SuspendMembershipResult",
 ]
