@@ -89,17 +89,11 @@ def test_quality_domain_has_no_tool_specific_dependency() -> None:
     assert _violations(_DOMAIN, _TOOL_SPECIFIC) == ()
 
 
-def test_phase_one_introduces_no_quality_domain_models() -> None:
+def test_phase_two_does_not_introduce_later_quality_domain_models() -> None:
     forbidden_symbols = {
         "QualityAssessment",
-        "QualityDomain",
         "QualityEvidence",
-        "QualityFinding",
-        "QualityRequirement",
-        "QualityRule",
-        "QualitySeverity",
-        "QualityStatus",
-        "QualityTarget",
+        "QualityProfile",
     }
     discovered: set[str] = set()
 
