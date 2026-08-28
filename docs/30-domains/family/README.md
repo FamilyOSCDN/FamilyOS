@@ -229,12 +229,52 @@ The Family Domain Specification is organized as follows:
 
 ## Implementation Status
 
-Family runtime implementation is not authorized merely by the existence of this
-README.
+### F3.7 Final Specification Reconciliation
 
-This document establishes the specification boundary and structure. Detailed
-normative contracts remain to be completed and reconciled across the Family
-specification documents before the RFC-0016 implementation gate can be declared
-satisfied for any runtime subset.
+The Family specification completed final specification reconciliation against
+RFC-0016 at baseline commit `5c01dd1`.
 
-No Family runtime implementation is established by this document.
+The reconciliation result is:
+
+- `F3.7 — Final Specification Reconciliation`: **PASS**;
+- the initial implementation-ready Family subset is authorized for runtime
+  implementation;
+- explicitly deferred Family semantics remain unauthorized for runtime
+  implementation until separately specified and governed.
+
+The authorized initial runtime subset SHALL remain constrained by the normative
+contracts established across this specification set.
+
+In particular:
+
+- canonical Family identity uses `FamilyId`;
+- canonical Membership identity for the initial implementation-ready subset is
+  the composite business key `(FamilyId, PersonId)`;
+- no dedicated canonical Membership identifier is introduced;
+- no dedicated canonical Relationship identifier is introduced;
+- a future dedicated Membership or Relationship identifier requires an explicit
+  governed specification change before runtime implementation may depend on it;
+- Household is not a canonical concept in the initial Family model and remains
+  explicitly deferred;
+- Security may consume Family Core facts as authorization context but SHALL NOT
+  become the source of truth for Family, Membership, Relationship, or Boundary
+  semantics;
+- runtime code SHALL NOT silently resolve, freeze, or promote deferred Family
+  semantics into canonical behavior.
+
+The RFC-0016 specification-to-implementation gate is therefore satisfied for
+the implementation-ready subset whose semantics are fully defined by the
+current Family specification.
+
+This authorization is incremental and scope-limited. It does not authorize
+implementation of explicitly deferred capabilities or semantics, including
+Household, post-`ENDED` Membership or Relationship re-establishment, generic
+Family CRUD/query behavior, or future dedicated Membership or Relationship
+identifiers.
+
+Family runtime implementation MAY now begin for the authorized initial subset,
+subject to the contracts, invariants, failure semantics, persistence boundaries,
+cross-domain boundaries, and deferred-scope restrictions defined by this
+specification.
+
+No runtime implementation is established by this document itself.
