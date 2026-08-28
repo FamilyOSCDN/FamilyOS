@@ -6,8 +6,12 @@ from familyos_cli.infrastructure.family.in_memory_family_repository import (
 from familyos_cli.infrastructure.family.in_memory_membership_repository import (
     InMemoryMembershipRepository,
 )
+from familyos_cli.infrastructure.family.in_memory_relationship_repository import (
+    InMemoryRelationshipRepository,
+)
 
 __all__ = [
     "InMemoryFamilyRepository",
     "InMemoryMembershipRepository",
+    "InMemoryRelationshipRepository",
 ]
