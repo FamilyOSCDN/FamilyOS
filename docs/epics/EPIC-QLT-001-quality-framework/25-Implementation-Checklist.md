@@ -307,10 +307,10 @@ CRITICAL
 Checklist:
 
 ```text id="impl-severity-checklist"
-[ ] Define QualitySeverity
-[ ] Document semantics
+[x] Define QualitySeverity
+[x] Document semantics
 [ ] Add serialization support if required
-[ ] Test all valid values
+[x] Test all valid values
 [ ] Test invalid values
 [ ] Ensure ordering semantics are explicit if supported
 ```
@@ -335,10 +335,10 @@ UNKNOWN
 Checklist:
 
 ```text id="impl-status-checklist"
-[ ] Define QualityStatus
-[ ] Separate execution status from severity
-[ ] Define ERROR semantics
-[ ] Define UNKNOWN semantics
+[x] Define QualityStatus
+[x] Separate execution status from severity
+[x] Define ERROR semantics
+[x] Define UNKNOWN semantics
 [ ] Test serialization
 [ ] Test invalid status rejection
 ```
@@ -368,9 +368,9 @@ Checklist:
 
 ```text id="impl-domain-checklist"
 [x] Determine whether enum or extensible identifier is preferable
-[ ] Define initial domains
-[ ] Avoid unnecessary hard-coding of future domains
-[ ] Add validation tests
+[x] Define initial domains
+[x] Avoid unnecessary hard-coding of future domains
+[x] Add validation tests
 ```
 
 ---
@@ -392,8 +392,8 @@ metadata
 Checklist:
 
 ```text id="impl-target-checklist"
-[ ] Define QualityTarget
-[ ] Support repository target
+[x] Define QualityTarget
+[x] Support repository target
 [ ] Support file / module target
 [ ] Support plugin target
 [ ] Support documentation target
@@ -425,13 +425,13 @@ evidence_ids
 Checklist:
 
 ```text id="impl-finding-checklist"
-[ ] Define QualityFinding
-[ ] Define stable identifier semantics
-[ ] Define required fields
-[ ] Define optional location
-[ ] Define evidence references
+[x] Define QualityFinding
+[x] Define stable identifier semantics
+[x] Define required fields
+[x] Define optional location
+[x] Define evidence references
 [ ] Define status lifecycle if included initially
-[ ] Add construction tests
+[x] Add construction tests
 [ ] Add serialization tests
 [ ] Add equality / fingerprint tests if applicable
 ```
@@ -458,12 +458,12 @@ verification
 Checklist:
 
 ```text id="impl-requirement-checklist"
-[ ] Define QualityRequirement
-[ ] Define authority field
-[ ] Define mandatory semantics
-[ ] Define applicability representation
-[ ] Define verification expectations
-[ ] Test requirement validation
+[x] Define QualityRequirement
+[x] Define authority field
+[x] Define mandatory semantics
+[x] Define applicability representation
+[x] Define verification expectations
+[x] Test requirement validation
 ```
 
 ---
@@ -486,12 +486,12 @@ executor
 Checklist:
 
 ```text id="impl-rule-checklist"
-[ ] Define QualityRule
-[ ] Require requirement linkage where appropriate
-[ ] Define severity
-[ ] Define executor or adapter reference
-[ ] Avoid embedding tool-specific behavior in domain model
-[ ] Add validation tests
+[x] Define QualityRule
+[x] Require requirement linkage where appropriate
+[x] Define severity
+[x] Define executor or adapter reference
+[x] Avoid embedding tool-specific behavior in domain model
+[x] Add validation tests
 ```
 
 ---
@@ -499,11 +499,11 @@ Checklist:
 # Phase 2 Exit Criteria
 
 ```text id="impl-phase2-exit"
-[ ] Core domain models implemented
-[ ] Domain models independent of tool implementations
-[ ] Unit test coverage established
-[ ] Static analysis passes
-[ ] Domain terminology matches normative framework
+[x] Core domain models implemented
+[x] Domain models independent of tool implementations
+[x] Unit test coverage established
+[x] Static analysis passes
+[x] Domain terminology matches normative framework
 ```
 
 ---
