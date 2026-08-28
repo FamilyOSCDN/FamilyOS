@@ -2265,3 +2265,83 @@ Evidence
 ```
 
 The FamilyOS Quality Rule Model therefore establishes the normative structure required to make quality requirements explicit, repeatable, traceable, automatable, explainable, and governable throughout the complete FamilyOS engineering lifecycle.
+
+---
+
+## Phase 2 Runtime Rule and Status Contract
+
+This section reconciles the normative Quality Rule Model with the initial
+machine-readable Quality domain implementation.
+
+### Canonical Quality Severity
+
+`QualitySeverity` SHALL expose exactly the following initial values:
+
+```text
+INFO
+LOW
+MEDIUM
+HIGH
+CRITICAL
+```
+
+Severity expresses the significance of a quality concern. It MUST NOT itself
+decide gate behavior or progression policy.
+
+### Canonical Quality Status
+
+`QualityStatus` SHALL expose exactly the following initial values:
+
+```text
+PASS
+WARNING
+FAIL
+ERROR
+SKIPPED
+UNKNOWN
+```
+
+The status semantics are:
+
+- `PASS` — evaluation completed successfully and the evaluated condition was
+  satisfied.
+- `WARNING` — evaluation completed and identified a non-blocking concern.
+- `FAIL` — evaluation completed successfully and identified a quality
+  violation.
+- `ERROR` — the evaluation mechanism could not produce a reliable conclusion.
+- `SKIPPED` — evaluation was intentionally not executed.
+- `UNKNOWN` — available information is insufficient to determine the quality
+  state.
+
+The following distinctions are normative:
+
+- `ERROR` MUST NOT be collapsed into `FAIL`.
+- `UNKNOWN` MUST NOT be interpreted as `PASS`.
+- `SKIPPED` MUST remain distinct from `UNKNOWN`.
+- `WARNING` is the canonical Quality status spelling.
+
+Existing uses of `WARN` that describe an enforcement mode, lifecycle phase,
+profile behavior, or another semantically distinct policy concept are not
+renamed by this contract.
+
+### Runtime Quality Identifiers
+
+Runtime identifiers SHALL preserve the governed FamilyOS Quality namespaces
+already established by the normative framework and SHALL remain compatible
+with the canonical FamilyOS identifier specification.
+
+The initial namespaces include:
+
+```text
+QLT-DOM-*
+QLT-REQ-*
+QLT-RULE-*
+QLT-FIND-*
+```
+
+Phase 2 MUST NOT invent a competing identifier convention.
+
+This contract authorizes only the core model vocabulary governed by the Core
+Domain Models phase. It does not authorize Quality Evidence implementation,
+tool adapters, assessment execution, profiles, CLI integration, CI integration,
+or quality gates.

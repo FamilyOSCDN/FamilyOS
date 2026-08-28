@@ -1976,3 +1976,30 @@ No single metric, tool, test suite, or engineering discipline can represent the 
 The Quality Domains model therefore provides the structural vocabulary required to evaluate quality across architecture, implementation, testing, security, documentation, reliability, performance, compatibility, governance, and the broader engineering lifecycle.
 
 These domains form the classification foundation for the quality rules, evidence, metrics, assessments, risk mechanisms, gates, reporting, observability, and governance capabilities defined throughout the remainder of EPIC-QLT-001.
+
+---
+
+## Runtime Quality Domain Contract
+
+This section records the implementation-level contract required before the
+initial Quality domain model is introduced.
+
+The canonical runtime representation SHALL use `QualityDomain` as the
+machine-readable classification of the quality concern being evaluated.
+Domain values SHALL be stable identifiers suitable for deterministic
+serialization, comparison, evidence correlation, and later assessment.
+
+The initial runtime vocabulary SHALL be derived from the normative Quality
+Framework rather than from any individual verification tool. A Quality domain
+MUST NOT encode Ruff, MyPy, Pytest, a CI provider, or another execution
+mechanism as the domain abstraction itself.
+
+Where a governed Quality domain requires a persistent textual identifier, that
+identifier SHALL remain compatible with the FamilyOS identifier specification
+and the existing `QLT-DOM-*` namespace. This reconciliation does not introduce
+a second Quality-domain identifier scheme.
+
+The Phase 2 implementation SHALL remain limited to the core domain vocabulary.
+Tool adapters, evidence persistence, assessment orchestration, profiles, CLI
+surfaces, CI integration, gates, historical state, observability, governance,
+and Quality intelligence remain governed by their later implementation phases.

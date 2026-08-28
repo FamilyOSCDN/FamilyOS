@@ -235,14 +235,14 @@ The actual location must follow FamilyOS repository architecture.
 # Package Structure Checklist
 
 ```text id="impl-package-checklist"
-[ ] Confirm canonical package location
-[ ] Create quality package
-[ ] Create domain package
-[ ] Create application package
-[ ] Create infrastructure package
+[x] Confirm canonical package location
+[x] Create quality package
+[x] Create domain package
+[x] Create application package
+[x] Create infrastructure package
 [ ] Create presentation / CLI integration package
-[ ] Add package exports where appropriate
-[ ] Preserve Clean Architecture dependency direction
+[x] Add package exports where appropriate
+[x] Preserve Clean Architecture dependency direction
 ```
 
 ---
@@ -250,13 +250,13 @@ The actual location must follow FamilyOS repository architecture.
 # Architecture Constraints
 
 ```text id="impl-architecture-constraints"
-[ ] Domain layer has no Ruff-specific dependency
-[ ] Domain layer has no MyPy-specific dependency
-[ ] Domain layer has no Pytest-specific dependency
-[ ] Domain layer has no CI-provider dependency
+[x] Domain layer has no Ruff-specific dependency
+[x] Domain layer has no MyPy-specific dependency
+[x] Domain layer has no Pytest-specific dependency
+[x] Domain layer has no CI-provider dependency
 [ ] Infrastructure depends on application/domain contracts
 [ ] Presentation depends on application services
-[ ] Tool integrations remain adapters
+[x] Tool integrations remain adapters
 ```
 
 ---
@@ -264,9 +264,9 @@ The actual location must follow FamilyOS repository architecture.
 # Architecture Tests
 
 ```text id="impl-architecture-tests"
-[ ] Add import-boundary tests
+[x] Add import-boundary tests
 [ ] Add package dependency tests where tooling exists
-[ ] Add regression test preventing tool-specific domain coupling
+[x] Add regression test preventing tool-specific domain coupling
 ```
 
 ---
@@ -274,10 +274,10 @@ The actual location must follow FamilyOS repository architecture.
 # Phase 1 Exit Criteria
 
 ```text id="impl-phase1-exit"
-[ ] Package architecture established
-[ ] Dependency boundaries validated
-[ ] No unnecessary infrastructure introduced
-[ ] Architecture tests pass
+[x] Package architecture established
+[x] Dependency boundaries validated
+[x] No unnecessary infrastructure introduced
+[x] Architecture tests pass
 ```
 
 ---
@@ -3159,3 +3159,32 @@ Improve
 ```
 
 Through this sequence, EPIC-QLT-001 can evolve from a normative engineering framework into a practical, reliable, explainable, and continuously improving FamilyOS quality platform without sacrificing simplicity, maintainability, or architectural integrity.
+
+---
+
+## Phase 2 Runtime Contract Reconciliation
+
+The following decisions are prerequisites for implementation of the initial
+Core Quality Domain Models:
+
+- [x] Canonical Quality package architecture established.
+- [x] Core Quality domain remains independent from Ruff, MyPy, Pytest, and CI
+      providers.
+- [x] `QualitySeverity` vocabulary reconciled as `INFO`, `LOW`, `MEDIUM`,
+      `HIGH`, `CRITICAL`.
+- [x] `QualityStatus` vocabulary reconciled as `PASS`, `WARNING`, `FAIL`,
+      `ERROR`, `SKIPPED`, `UNKNOWN`.
+- [x] `WARNING` selected as the canonical runtime status spelling.
+- [x] Existing semantically distinct `WARN` modes/phases are not globally
+      renamed.
+- [x] `ERROR` remains distinct from `FAIL`.
+- [x] `UNKNOWN` cannot silently become `PASS`.
+- [x] `SKIPPED` remains distinct from `UNKNOWN`.
+- [x] Runtime Quality identifiers remain compatible with the FamilyOS
+      identifier specification and existing `QLT-*` namespaces.
+- [x] Phase 2 does not authorize Quality Evidence implementation.
+- [x] Phase 2 does not authorize tool adapters, Quality CLI, CI integration, or
+      Quality gates.
+
+This reconciliation authorizes implementation of the Core Quality Domain
+Models only after the resulting documentation diff is reviewed and accepted.

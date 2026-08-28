@@ -2392,3 +2392,25 @@ Predict
 ```
 
 Through incremental implementation, reuse of existing engineering frameworks, deterministic verification, structured evidence, automated assessment, progressive Quality Gates, observability, governance, Continuous Improvement, and eventually explainable Quality Intelligence, FamilyOS can evolve from a collection of strong engineering practices into a coherent and continuously improving quality engineering platform.
+
+---
+
+## Phase 2 Runtime Vocabulary Reconciliation
+
+Before implementation of the Core Quality Domain Models, the initial runtime
+vocabulary is reconciled as follows:
+
+- `QualitySeverity`: `INFO`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
+- `QualityStatus`: `PASS`, `WARNING`, `FAIL`, `ERROR`, `SKIPPED`, `UNKNOWN`.
+- `WARNING` is the canonical status spelling for the runtime Quality model.
+- `WARN` remains valid only where an existing framework concept intentionally
+  represents a mode, phase, policy, or other concept distinct from
+  `QualityStatus`.
+- `ERROR`, `FAIL`, `SKIPPED`, and `UNKNOWN` remain semantically distinct.
+- Quality identifiers remain compatible with the FamilyOS identifier
+  specification and the existing governed `QLT-*` namespaces.
+
+This reconciliation does not advance the roadmap into Quality Evidence,
+verification adapters, assessment, profiles, CLI, CI, gates, observability, or
+governance. Those capabilities remain sequenced after the Core Domain Models
+phase.
