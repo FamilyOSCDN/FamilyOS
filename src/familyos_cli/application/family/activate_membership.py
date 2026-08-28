@@ -82,7 +82,7 @@ class ActivateMembership:
                 occurred_at=occurred_at,
             )
 
-        self._repository.save(transitioned)
+        self._repository.save(transitioned, event)
 
         return ActivateMembershipResult(
             membership=transitioned,

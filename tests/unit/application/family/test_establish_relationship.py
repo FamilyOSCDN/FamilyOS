@@ -66,7 +66,7 @@ def test_establish_normalizes_child_of_before_conflict_and_persistence() -> None
     repo.get.assert_called_once_with(
         _family_id(), _low(), _high(), RelationshipType.PARENT_OF
     )
-    repo.save.assert_called_once_with(result.relationship)
+    repo.save.assert_called_once_with(result.relationship, result.event)
 
 
 @pytest.mark.parametrize(

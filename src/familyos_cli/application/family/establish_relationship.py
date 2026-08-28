@@ -102,5 +102,5 @@ class EstablishRelationship:
             occurred_at=self._clock(),
         )
 
-        self._relationship_repository.save(relationship)
+        self._relationship_repository.save(relationship, event)
         return EstablishRelationshipResult(relationship=relationship, event=event)

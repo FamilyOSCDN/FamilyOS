@@ -26,7 +26,7 @@ class StubMembershipRepository(MembershipRepository):
         self.membership = membership
         self.requests: list[tuple[FamilyId, PersonId]] = []
 
-    def save(self, membership: Membership) -> None:
+    def save(self, membership: Membership, temporal_fact: object) -> None:
         self.membership = membership
 
     def get(
@@ -77,7 +77,7 @@ def test_get_membership_returns_none_for_ordinary_absence() -> None:
 
 def test_get_membership_propagates_repository_failure() -> None:
     class FailingRepository(MembershipRepository):
-        def save(self, membership: Membership) -> None:
+        def save(self, membership: Membership, temporal_fact: object) -> None:
             raise AssertionError("save must not be called")
 
         def get(
@@ -93,7 +93,7 @@ def test_get_membership_propagates_repository_failure() -> None:
 
 def test_get_membership_does_not_coerce_identifiers() -> None:
     class TypeCheckingRepository(MembershipRepository):
-        def save(self, membership: Membership) -> None:
+        def save(self, membership: Membership, temporal_fact: object) -> None:
             raise AssertionError("save must not be called")
 
         def get(

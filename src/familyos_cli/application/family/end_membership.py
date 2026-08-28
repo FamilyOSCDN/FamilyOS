@@ -64,7 +64,7 @@ class EndMembership:
             occurred_at=self._clock(),
         )
 
-        self._repository.save(transitioned)
+        self._repository.save(transitioned, event)
 
         return EndMembershipResult(
             membership=transitioned,

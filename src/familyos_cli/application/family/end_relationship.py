@@ -74,5 +74,5 @@ class EndRelationship:
             occurred_at=self._clock(),
         )
 
-        self._repository.save(transitioned)
+        self._repository.save(transitioned, event)
         return EndRelationshipResult(relationship=transitioned, event=event)

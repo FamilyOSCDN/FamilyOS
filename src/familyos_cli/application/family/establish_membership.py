@@ -83,7 +83,7 @@ class EstablishMembership:
             occurred_at=self._clock(),
         )
 
-        self._membership_repository.save(membership)
+        self._membership_repository.save(membership, event)
 
         return EstablishMembershipResult(
             membership=membership,

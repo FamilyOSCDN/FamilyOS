@@ -7,10 +7,12 @@ from familyos_cli.application.ports.family.family_repository import (
 from familyos_cli.application.ports.family.membership_repository import (
     MembershipConflictError,
     MembershipRepository,
+    MembershipTemporalFact,
 )
 from familyos_cli.application.ports.family.relationship_repository import (
     RelationshipConflictError,
     RelationshipRepository,
+    RelationshipTemporalFact,
 )
 
 __all__ = [
@@ -18,6 +20,8 @@ __all__ = [
     "FamilyRepository",
     "MembershipConflictError",
     "MembershipRepository",
+    "MembershipTemporalFact",
     "RelationshipConflictError",
     "RelationshipRepository",
+    "RelationshipTemporalFact",
 ]

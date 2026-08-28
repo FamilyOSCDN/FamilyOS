@@ -4,8 +4,16 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from familyos_cli.domain.family import FamilyId, Relationship, RelationshipType
+from familyos_cli.domain.family import (
+    FamilyId,
+    FamilyRelationshipEnded,
+    FamilyRelationshipEstablished,
+    Relationship,
+    RelationshipType,
+)
 from familyos_cli.domain.person import PersonId
+
+RelationshipTemporalFact = FamilyRelationshipEstablished | FamilyRelationshipEnded
 
 
 class RelationshipConflictError(Exception):
@@ -16,8 +24,12 @@ class RelationshipRepository(ABC):
     """Persist and retrieve canonical normalized Relationship continuities."""
 
     @abstractmethod
-    def save(self, relationship: Relationship) -> None:
-        """Persist canonical creation or the valid terminal lifecycle successor."""
+    def save(
+        self,
+        relationship: Relationship,
+        temporal_fact: RelationshipTemporalFact,
+    ) -> None:
+        """Atomically persist Relationship continuity and its temporal fact."""
 
         raise NotImplementedError
 

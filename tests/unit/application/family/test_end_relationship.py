@@ -50,7 +50,7 @@ def test_end_normalizes_child_of_and_persists_ended_continuity() -> None:
     repo.get.assert_called_once_with(
         _family_id(), _low(), _high(), RelationshipType.PARENT_OF
     )
-    repo.save.assert_called_once_with(result.relationship)
+    repo.save.assert_called_once_with(result.relationship, result.event)
 
 
 def test_end_raises_not_found_for_absence() -> None:

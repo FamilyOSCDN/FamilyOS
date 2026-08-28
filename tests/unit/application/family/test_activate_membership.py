@@ -39,7 +39,7 @@ class RecordingMembershipRepository(MembershipRepository):
         self.requests: list[tuple[FamilyId, PersonId]] = []
         self.saved: list[Membership] = []
 
-    def save(self, membership: Membership) -> None:
+    def save(self, membership: Membership, temporal_fact: object) -> None:
         self.saved.append(membership)
         self.membership = membership
 
@@ -179,7 +179,7 @@ def test_activate_uses_clock_once() -> None:
 
 def test_activate_propagates_save_conflict() -> None:
     class ConflictingRepository(RecordingMembershipRepository):
-        def save(self, membership: Membership) -> None:
+        def save(self, membership: Membership, temporal_fact: object) -> None:
             raise MembershipConflictError("concurrent Membership transition")
 
     repository = ConflictingRepository(

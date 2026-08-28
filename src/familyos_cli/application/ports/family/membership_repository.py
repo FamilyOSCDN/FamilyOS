@@ -4,8 +4,24 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from familyos_cli.domain.family import FamilyId, Membership
+from familyos_cli.domain.family import (
+    FamilyId,
+    FamilyMembershipActivated,
+    FamilyMembershipCreated,
+    FamilyMembershipEnded,
+    FamilyMembershipReactivated,
+    FamilyMembershipSuspended,
+    Membership,
+)
 from familyos_cli.domain.person import PersonId
+
+MembershipTemporalFact = (
+    FamilyMembershipCreated
+    | FamilyMembershipActivated
+    | FamilyMembershipSuspended
+    | FamilyMembershipReactivated
+    | FamilyMembershipEnded
+)
 
 
 class MembershipConflictError(Exception):
@@ -16,8 +32,12 @@ class MembershipRepository(ABC):
     """Persist and retrieve canonical Membership continuities."""
 
     @abstractmethod
-    def save(self, membership: Membership) -> None:
-        """Persist canonical Membership creation or a valid lifecycle successor."""
+    def save(
+        self,
+        membership: Membership,
+        temporal_fact: MembershipTemporalFact,
+    ) -> None:
+        """Atomically persist Membership continuity and its temporal fact."""
 
         raise NotImplementedError
 

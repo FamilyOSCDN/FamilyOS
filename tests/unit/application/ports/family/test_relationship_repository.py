@@ -1,14 +1,23 @@
-"""Tests for the canonical RelationshipRepository port."""
+"""Tests for the canonical RelationshipRepository temporal persistence port."""
 
 from __future__ import annotations
 
 import inspect
+from datetime import UTC, datetime
 from uuid import UUID
 
 import pytest
 
-from familyos_cli.application.ports.family import RelationshipRepository
-from familyos_cli.domain.family import FamilyId, Relationship, RelationshipType
+from familyos_cli.application.ports.family import (
+    RelationshipRepository,
+    RelationshipTemporalFact,
+)
+from familyos_cli.domain.family import (
+    FamilyId,
+    FamilyRelationshipEstablished,
+    Relationship,
+    RelationshipType,
+)
 from familyos_cli.domain.person import PersonId
 
 
@@ -33,22 +42,19 @@ def test_relationship_repository_cannot_be_instantiated() -> None:
         RelationshipRepository()  # type: ignore[abstract]
 
 
-def test_concrete_repository_can_implement_canonical_contract() -> None:
+def test_concrete_repository_accepts_entity_and_temporal_fact_atomically() -> None:
     class Repository(RelationshipRepository):
         def __init__(self) -> None:
-            self._relationships: dict[
-                tuple[FamilyId, PersonId, PersonId, RelationshipType],
-                Relationship,
-            ] = {}
+            self.relationship: Relationship | None = None
+            self.fact: RelationshipTemporalFact | None = None
 
-        def save(self, relationship: Relationship) -> None:
-            key = (
-                relationship.family_id,
-                relationship.source_person_id,
-                relationship.target_person_id,
-                relationship.relationship_type,
-            )
-            self._relationships[key] = relationship
+        def save(
+            self,
+            relationship: Relationship,
+            temporal_fact: RelationshipTemporalFact,
+        ) -> None:
+            self.relationship = relationship
+            self.fact = temporal_fact
 
         def get(
             self,
@@ -57,14 +63,21 @@ def test_concrete_repository_can_implement_canonical_contract() -> None:
             target_person_id: PersonId,
             relationship_type: RelationshipType,
         ) -> Relationship | None:
-            return self._relationships.get(
-                (
-                    family_id,
-                    source_person_id,
-                    target_person_id,
-                    relationship_type,
-                )
+            if self.relationship is None:
+                return None
+            key = (
+                family_id,
+                source_person_id,
+                target_person_id,
+                relationship_type,
             )
+            stored_key = (
+                self.relationship.family_id,
+                self.relationship.source_person_id,
+                self.relationship.target_person_id,
+                self.relationship.relationship_type,
+            )
+            return self.relationship if key == stored_key else None
 
     repository = Repository()
     relationship = Relationship.establish(
@@ -73,15 +86,15 @@ def test_concrete_repository_can_implement_canonical_contract() -> None:
         _target_person_id(),
         RelationshipType.PARENT_OF,
     )
+    event = FamilyRelationshipEstablished(
+        family_id=relationship.family_id,
+        source_person_id=relationship.source_person_id,
+        target_person_id=relationship.target_person_id,
+        relationship_type=relationship.relationship_type,
+        occurred_at=datetime(2026, 8, 28, 10, 0, tzinfo=UTC),
+    )
 
-    assert repository.get(
-        relationship.family_id,
-        relationship.source_person_id,
-        relationship.target_person_id,
-        relationship.relationship_type,
-    ) is None
-
-    repository.save(relationship)
+    repository.save(relationship, event)
 
     assert repository.get(
         relationship.family_id,
@@ -89,6 +102,7 @@ def test_concrete_repository_can_implement_canonical_contract() -> None:
         relationship.target_person_id,
         relationship.relationship_type,
     ) == relationship
+    assert repository.fact == event
 
 
 def test_relationship_repository_exposes_only_canonical_operations() -> None:

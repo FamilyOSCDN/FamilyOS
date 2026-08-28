@@ -67,7 +67,7 @@ class RecordingMembershipRepository(MembershipRepository):
         self.get_requests: list[tuple[FamilyId, PersonId]] = []
         self.saved: list[Membership] = []
 
-    def save(self, membership: Membership) -> None:
+    def save(self, membership: Membership, temporal_fact: object) -> None:
         self.saved.append(membership)
         self.existing = membership
 
@@ -259,7 +259,7 @@ def test_establish_membership_propagates_clock_failure_before_persistence() -> N
 
 def test_establish_membership_propagates_repository_failure() -> None:
     class FailingMembershipRepository(RecordingMembershipRepository):
-        def save(self, membership: Membership) -> None:
+        def save(self, membership: Membership, temporal_fact: object) -> None:
             raise RuntimeError("persistence unavailable")
 
     repository = FailingMembershipRepository()

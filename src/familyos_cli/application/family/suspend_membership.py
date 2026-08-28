@@ -64,7 +64,7 @@ class SuspendMembership:
             occurred_at=self._clock(),
         )
 
-        self._repository.save(transitioned)
+        self._repository.save(transitioned, event)
 
         return SuspendMembershipResult(
             membership=transitioned,
