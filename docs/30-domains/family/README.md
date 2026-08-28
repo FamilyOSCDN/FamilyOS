@@ -278,3 +278,53 @@ cross-domain boundaries, and deferred-scope restrictions defined by this
 specification.
 
 No runtime implementation is established by this document itself.
+
+
+### F4.15 Initial Family Runtime Final Reconciliation
+
+The authorized initial Family runtime subset completed final runtime
+reconciliation at baseline commit `94da92c`.
+
+The reconciliation result is:
+
+- `F4.15 — Initial Family Runtime Final Reconciliation`: **PASS**;
+- all eleven capabilities in the authorized initial Family capability set have
+  canonical application runtime implementations;
+- the applicable Family, Membership, Relationship, Boundary, persistence, and
+  temporal-persistence contracts are represented by the implemented subset;
+- the Family runtime quality baseline passes its Family test suite, Ruff, and
+  mypy validation;
+- no explicitly deferred Family capability was promoted into the canonical
+  runtime by the initial implementation.
+
+The implemented initial capability set is:
+
+```text
+CreateFamily
+RetrieveFamily / GetFamily
+EstablishMembership
+RetrieveMembership / GetMembership
+ActivateMembership
+SuspendMembership
+EndMembership
+EstablishRelationship
+RetrieveRelationship / GetRelationship
+EndRelationship
+ResolveFamilyBoundary
+```
+
+`ResolveFamilyBoundary` preserves the canonical contract that Family Boundary
+identity is the applicable `FamilyId`; no separate Family Boundary identifier or
+aggregate is introduced.
+
+Completion of this initial runtime subset does not authorize deferred Family
+semantics. Household, post-`ENDED` Membership or Relationship
+re-establishment, generic Family CRUD or collection-query behavior, universal
+history/query capabilities, cross-family or global Relationship semantics, and
+future dedicated Membership or Relationship identifiers remain unavailable
+until separately specified and governed.
+
+The F3.7 specification-to-implementation authorization remains the historical
+gate under which this runtime work proceeded. F4.15 records that the authorized
+initial subset has now been implemented and reconciled against that governed
+specification boundary.

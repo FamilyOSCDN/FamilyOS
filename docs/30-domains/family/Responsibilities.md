@@ -417,30 +417,63 @@ code treats it as canonical.
 Application, infrastructure, plugin, or persistence code SHALL NOT invent stable
 Membership or Relationship identifiers merely for implementation convenience.
 
-## Deferred Responsibility Details
+## Resolved and Deferred Responsibility Details
 
-The following responsibility decisions remain intentionally deferred until
-required by an implementation-ready Family subset:
+The initial implementation-ready Family subset has now resolved the
+responsibility decisions required by its canonical runtime contract.
 
-- exact `FamilyId` runtime representation;
-- Family lifecycle states beyond the continuity rules already established;
-- dedicated Membership identity, if any;
-- exact Membership lifecycle state names and transitions;
-- dedicated Relationship identity, if any;
-- Relationship directionality and symmetry rules;
-- Relationship taxonomy;
-- Relationship temporal and historical mechanics beyond the minimum lifecycle
-  occurrence facts required by `Domain-Model.md`;
-- detailed Family Boundary derivation mechanics;
-- complete Family Core event catalog;
-- concrete application command/query shapes;
-- concrete persistence port technology;
-- transaction mechanics;
-- event-dispatch mechanics;
-- compatibility mapping mechanisms;
-- concrete privacy, retention, erasure, and disclosure mechanisms.
+For that implemented subset, the specification and runtime now establish:
 
-These items SHALL NOT be silently frozen by runtime implementation.
+- the canonical UUID version 4 runtime representation and invariants of
+  `FamilyId`;
+- the canonical Membership lifecycle states `PENDING`, `ACTIVE`, `SUSPENDED`,
+  and `ENDED`, together with their governed transitions;
+- Membership identity as `(FamilyId, PersonId)` without a dedicated Membership
+  identifier;
+- the initial Relationship taxonomy `PARENT_OF`, `CHILD_OF`, `SPOUSE_OF`, and
+  `SIBLING_OF`;
+- the required Relationship directionality, inverse normalization, symmetry,
+  canonical endpoint ordering, lifecycle, and terminal continuity rules;
+- Relationship identity without a dedicated Relationship identifier;
+- the Family Boundary derivation required by the initial subset, where the
+  canonical boundary identity is the applicable `FamilyId`;
+- the canonical application use-case shapes required by the authorized initial
+  capability set;
+- the minimum persistence ports and temporal-persistence success boundary
+  required by the implemented Membership and Relationship lifecycles.
+
+Those resolved initial-subset decisions SHALL NOT be interpreted as resolution
+of broader Family semantics that remain outside the authorized runtime.
+
+The following responsibility or implementation-mechanism decisions remain
+intentionally deferred or separately governed:
+
+- Family lifecycle states or attributes beyond the current minimal Family
+  continuity contract;
+- dedicated Membership identity, if future governed semantics require one;
+- Membership lifecycle states beyond the canonical initial set and
+  post-`ENDED` re-establishment semantics;
+- dedicated Relationship identity, if future governed semantics require one;
+- Relationship taxonomy beyond the canonical initial set;
+- post-`ENDED` Relationship re-establishment, cross-family/global Relationship
+  semantics, and Relationship evidence/provenance;
+- additional Family Boundary mechanics beyond identity derivation from
+  `FamilyId` and preservation of distinct Family contexts;
+- Household semantics;
+- Family Core events beyond the catalog required by the implemented initial
+  subset;
+- persistence technology and concrete storage representation;
+- transaction technology beyond the atomic success boundaries already required
+  by the canonical persistence contracts;
+- event dispatch, delivery, broker, retry, and outbox mechanics;
+- compatibility and migration mechanisms;
+- concrete Security authorization mappings;
+- concrete Privacy, retention, erasure, consent, and disclosure mechanisms;
+- transport-specific contracts and presentation mechanics;
+- universal historical or collection-query capabilities.
+
+Runtime implementation SHALL continue to fail closed rather than silently
+freeze any of these deferred semantics.
 
 ## Family Core Temporal Persistence Contract
 

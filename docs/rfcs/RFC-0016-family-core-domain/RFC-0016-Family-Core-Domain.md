@@ -7,7 +7,7 @@
 | Status | Accepted |
 | Authors | FamilyOS Architecture Team |
 | Created | 2026-08-26 |
-| Updated | 2026-08-26 |
+| Updated | 2026-08-28 |
 | Target Release | TBD |
 | Supersedes | None |
 | Superseded By | None |
@@ -31,6 +31,19 @@ This RFC defines the architectural boundaries and responsibilities of the Family
 Core before implementation begins.
 
 ---
+
+## Implementation Status Note
+
+RFC-0016 remains **Accepted** as the governing architectural baseline. Since its
+acceptance, the Family Domain Specification completed its final
+specification-to-implementation reconciliation (F3.7), and the authorized
+initial Family runtime subset subsequently completed implementation and final
+runtime reconciliation (F4.15) at commit `94da92c`.
+
+The completed initial runtime subset does not close or authorize semantics that
+this RFC or the Family Domain Specification intentionally defers. Future Family
+runtime expansion remains subject to the same specification-to-implementation
+gate.
 
 # Context
 
@@ -1129,6 +1142,6 @@ This identifier is not created or considered active by this RFC baseline.
 | Architectural Impact | High |
 | Breaking Change | No |
 | Migration Required | Yes |
-| Implementation Status | Not Started |
+| Implementation Status | Initial authorized Family runtime subset completed and reconciled (F4.15, `94da92c`) |
 | Priority | High |
 | Target Version | TBD |

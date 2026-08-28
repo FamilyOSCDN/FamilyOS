@@ -1064,6 +1064,32 @@ runtime slice.
 No application, infrastructure, interface, plugin, or migration code SHALL
 invent unresolved Family semantics merely to begin implementation early.
 
+
+### Initial Runtime Gate Outcome
+
+The final cross-document reconciliation required by this implementation gate was
+completed before runtime implementation proceeded. The initial
+implementation-ready subset was authorized by F3.7 and its resulting runtime was
+subsequently completed and reconciled by F4.15 at baseline commit `94da92c`.
+
+For that initial subset:
+
+- the eleven authorized capabilities have application runtime implementations;
+- Family, Membership, Relationship, and Family Boundary identity contracts are
+  preserved;
+- Membership and Relationship persistence preserve the required canonical
+  temporal facts within the same atomic persistence success boundary as the
+  corresponding lifecycle state;
+- `ResolveFamilyBoundary` returns the applicable canonical `FamilyId` boundary
+  identity for an existing Family and preserves ordinary Family absence without
+  introducing a separate Boundary identifier;
+- explicitly deferred API capabilities remain outside the canonical runtime.
+
+This recorded outcome does not weaken the implementation gate. Any future
+Family runtime slice that depends on currently deferred semantics SHALL undergo
+the applicable specification and governance reconciliation before those
+semantics become canonical runtime behavior.
+
 ## Normative References
 
 - `docs/30-domains/family/README.md`
