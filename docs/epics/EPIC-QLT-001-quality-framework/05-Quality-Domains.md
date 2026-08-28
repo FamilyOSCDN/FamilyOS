@@ -2027,3 +2027,43 @@ an arbitrary string as a valid Quality domain merely because it is non-empty.
 This decision resolves the Phase 2 representation choice only. Definition of
 the runtime type, the initial domain catalogue, validation behavior, and tests
 remain implementation work governed by the original Phase 2 checklist.
+
+## Phase 2 Quality Identifier Runtime Contract
+
+Phase 2 runtime identifiers SHALL preserve the category and stable-boundary
+requirements of `SPEC-0002`.
+
+The initial Quality runtime SHALL recognize the following governed identifier
+categories:
+
+```text
+QLT-DOM-*
+QLT-REQ-*
+QLT-RULE-*
+QLT-FIND-*
+```
+
+Each category SHALL be represented by an immutable validated value object at
+the domain boundary rather than by an unconstrained raw string.
+
+Validation SHALL establish at minimum that the value is a non-empty canonical
+string in the expected Quality identifier namespace and that it contains a
+non-empty category-specific suffix.
+
+Phase 2 SHALL NOT impose a narrower internal suffix grammar that would reject
+identifier forms already present in the normative Quality corpus. In
+particular, existing domain segments such as `ARC` and `ARCH`, or `TST` and
+`TEST`, SHALL NOT be silently normalized into one another.
+
+Identifier objects SHALL preserve the canonical supplied identifier exactly.
+They SHALL NOT infer additional semantics solely from arbitrary suffix
+segments.
+
+The `QualityDomain` initial governed catalogue remains the set of documented
+`QLT-DOM-*` identifiers. Future governed Quality domains remain extensible
+under the previously defined Runtime Representation Decision.
+
+`QLT-EVID-*` belongs to the Quality Evidence contract governed by Phase 3.
+Phase 2 MAY carry opaque evidence identifier references where required by the
+Finding contract, but SHALL NOT introduce the `QualityEvidence` runtime model
+or close the Phase 3 evidence implementation gate.

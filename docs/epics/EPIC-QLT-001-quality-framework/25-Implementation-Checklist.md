@@ -3188,3 +3188,33 @@ Core Quality Domain Models:
 
 This reconciliation authorizes implementation of the Core Quality Domain
 Models only after the resulting documentation diff is reviewed and accepted.
+
+## Phase 2 Core Model Shape Reconciliation
+
+The Phase 2 implementation contract was reconciled before runtime model
+implementation.
+
+Contract decisions:
+
+- [x] Quality runtime identifier categories preserve `SPEC-0002` stable-boundary
+      validation without inventing a narrower suffix taxonomy.
+- [x] `QualityTarget` initial runtime fields and reproducibility boundary are
+      defined.
+- [x] `QualityFinding` required fields and the Phase 2 opaque Evidence-reference
+      boundary are defined without implementing `QualityEvidence`.
+- [x] `QualityRequirement` authority, mandatory, applicability, and verification
+      representation is defined for the initial runtime.
+- [x] `QualityRule` requirement linkage and opaque executor-reference boundary
+      are defined without implementing the Phase 4 Quality Executor port.
+- [x] Phase 2 models remain tool-independent and do not authorize adapters,
+      Quality CLI, CI integration, Quality gates, profiles, or assessment
+      execution.
+
+These reconciliation records do not close the original Phase 2 implementation
+checklist. `Define QualitySeverity`, `Define QualityStatus`, `Define initial
+domains`, `Define QualityTarget`, `Define QualityFinding`,
+`Define QualityRequirement`, `Define QualityRule`, validation/testing items,
+and the Phase 2 exit criteria remain open until their corresponding runtime
+implementation and verification evidence exist.
+
+Phase 3 `QualityEvidence` implementation remains explicitly open.

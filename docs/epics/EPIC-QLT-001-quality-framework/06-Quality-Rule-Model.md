@@ -2345,3 +2345,182 @@ This contract authorizes only the core model vocabulary governed by the Core
 Domain Models phase. It does not authorize Quality Evidence implementation,
 tool adapters, assessment execution, profiles, CLI integration, CI integration,
 or quality gates.
+
+## Phase 2 Core Model Shape Contract
+
+This section reconciles the initial runtime shape of the Phase 2 Quality
+domain models. It narrows implementation choices only where the existing
+Quality Framework already establishes sufficient semantics.
+
+### Quality Target
+
+`QualityTarget` SHALL identify the governed object being evaluated with enough
+identity to support reproducible evaluation.
+
+The initial runtime model SHALL contain:
+
+```text
+target_type
+identifier
+revision
+version
+path
+metadata
+```
+
+`target_type` and `identifier` are required non-empty strings.
+
+`revision`, `version`, and `path` are optional strings. When supplied, they
+MUST be non-empty. A source-controlled target SHOULD carry its source revision
+when reproducibility requires revision binding.
+
+`metadata` SHALL be immutable from the perspective of the `QualityTarget`
+instance. Phase 2 metadata is descriptive context only and SHALL NOT determine
+Quality policy, gate behavior, or tool execution.
+
+Target identity SHALL be based on the explicit target classification and
+identifier together with the supplied reproducibility qualifiers. Phase 2
+SHALL NOT invent target-type-specific infrastructure behavior.
+
+### Quality Finding
+
+`QualityFinding` SHALL represent one normalized Quality observation.
+
+The initial runtime model SHALL contain:
+
+```text
+id
+rule_id
+domain
+severity
+status
+message
+target
+location
+evidence_ids
+```
+
+The required fields are `id`, `rule_id`, `domain`, `severity`, `status`,
+`message`, and `target`.
+
+`id` SHALL use the governed `QLT-FIND-*` category.
+
+`rule_id` SHALL use the governed `QLT-RULE-*` category.
+
+`domain` SHALL be a `QualityDomain`.
+
+`severity` SHALL be a `QualitySeverity`.
+
+`status` SHALL be a `QualityStatus`.
+
+`message` MUST be non-empty.
+
+`target` SHALL be a `QualityTarget`.
+
+`location` is optional descriptive location information and, when supplied,
+MUST be non-empty.
+
+`evidence_ids` SHALL be an immutable collection of opaque canonical
+`QLT-EVID-*` identifier strings during Phase 2. Phase 2 SHALL validate the
+Quality Evidence namespace boundary only; it SHALL NOT define
+`QualityEvidence`, Evidence persistence, or Evidence lifecycle semantics.
+
+The Finding model SHALL NOT generate evidence identifiers and SHALL NOT
+require an Evidence runtime object to exist.
+
+### Quality Requirement
+
+`QualityRequirement` SHALL represent one governed Quality expectation.
+
+The initial runtime model SHALL contain:
+
+```text
+id
+title
+description
+domain
+authority
+mandatory
+applicability
+verification
+```
+
+`id` SHALL use the governed `QLT-REQ-*` category.
+
+`title`, `description`, `authority`, `applicability`, and `verification` are
+required non-empty strings in the initial Phase 2 runtime model.
+
+`domain` SHALL be a `QualityDomain`.
+
+`mandatory` SHALL be an explicit boolean and SHALL NOT be inferred from
+authority, severity, applicability, or verification text.
+
+`authority` records the authoritative source or provenance for the
+requirement. Phase 2 SHALL NOT introduce a separate authority registry.
+
+`applicability` records the governed applicability expression or description.
+Phase 2 SHALL NOT implement profile resolution or applicability execution.
+
+`verification` records the expected verification semantics. It SHALL remain
+tool-independent and SHALL NOT embed Ruff, MyPy, Pytest, CI-provider, command,
+or adapter execution behavior.
+
+### Quality Rule
+
+`QualityRule` SHALL represent one governed, tool-independent executable-quality
+definition without implementing execution itself.
+
+The initial runtime model SHALL contain:
+
+```text
+id
+requirement_id
+domain
+severity
+description
+executor
+```
+
+`id` SHALL use the governed `QLT-RULE-*` category.
+
+`requirement_id` SHALL use the governed `QLT-REQ-*` category when supplied.
+The field is optional in Phase 2 because the normative framework requires
+requirement linkage where appropriate rather than for every possible rule.
+
+`domain` SHALL be a `QualityDomain`.
+
+`severity` SHALL be a `QualitySeverity`.
+
+`description` MUST be non-empty.
+
+`executor` is an optional opaque logical reference only. When supplied, it
+MUST be a non-empty string. It SHALL NOT be a callable, process executor,
+tool adapter, application port, infrastructure object, or tool-specific
+configuration.
+
+The actual Quality Executor application port remains governed by Phase 4.
+Ruff, MyPy, Pytest, documentation-validation, Plugin Compliance, and other
+tool adapters remain governed by their later implementation phases.
+
+### Phase 2 Model Invariants
+
+The Phase 2 models SHALL be immutable domain values or immutable domain
+records using the established FamilyOS domain-model style where appropriate.
+
+They SHALL reject invalid backing types rather than silently coercing them.
+
+Closed canonical vocabularies such as `QualitySeverity` and `QualityStatus`
+SHALL remain distinct from extensible governed identifier value objects.
+
+Phase 2 SHALL NOT introduce:
+
+- `QualityEvidence`;
+- Quality Evidence persistence or lifecycle behavior;
+- Quality Assessment execution;
+- Quality Profiles;
+- Quality Gates;
+- Quality CLI;
+- CI integration;
+- Quality Executor application ports;
+- Ruff, MyPy, Pytest, or other tool adapters;
+- tool-specific behavior in the Quality domain layer.
