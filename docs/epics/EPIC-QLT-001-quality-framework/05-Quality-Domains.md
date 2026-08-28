@@ -2003,3 +2003,27 @@ The Phase 2 implementation SHALL remain limited to the core domain vocabulary.
 Tool adapters, evidence persistence, assessment orchestration, profiles, CLI
 surfaces, CI integration, gates, historical state, observability, governance,
 and Quality intelligence remain governed by their later implementation phases.
+
+### Runtime Representation Decision
+
+`QualityDomain` SHALL be implemented as an immutable, validated, extensible
+value object rather than as a closed enum or an unconstrained raw string.
+
+This representation preserves the distinction between a governed stable
+identifier and a display or implementation name while allowing the Quality
+Framework to introduce additional governed domains without requiring the core
+type itself to be expanded for every future domain.
+
+The currently documented `QLT-DOM-*` identifiers form the initial governed
+Quality-domain catalogue. They do not define an eternally closed set of values.
+Any future Quality-domain identifier MUST be introduced through the applicable
+FamilyOS governance process and MUST remain compatible with the identifier
+requirements of `SPEC-0002`.
+
+The runtime value object SHALL validate the Quality-domain identifier contract
+at its stable boundary. It MUST reject malformed identifiers and MUST NOT treat
+an arbitrary string as a valid Quality domain merely because it is non-empty.
+
+This decision resolves the Phase 2 representation choice only. Definition of
+the runtime type, the initial domain catalogue, validation behavior, and tests
+remain implementation work governed by the original Phase 2 checklist.

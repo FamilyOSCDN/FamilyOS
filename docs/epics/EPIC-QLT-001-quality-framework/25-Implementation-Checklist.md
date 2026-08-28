@@ -367,7 +367,7 @@ GOVERNANCE
 Checklist:
 
 ```text id="impl-domain-checklist"
-[ ] Determine whether enum or extensible identifier is preferable
+[x] Determine whether enum or extensible identifier is preferable
 [ ] Define initial domains
 [ ] Avoid unnecessary hard-coding of future domains
 [ ] Add validation tests
