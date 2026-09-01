@@ -1139,6 +1139,23 @@ The runtime SHALL default to `sys.executable`, obtain the governed path from
 exit status `0` to `PASS`, exit status `1` with reliable findings to `FAIL`,
 and tool/protocol failures to `ERROR`.
 
+### Empty Python Target Compatibility
+
+The existing FamilyOS MyPy behavior for a target containing no `.py` or `.pyi`
+source files SHALL be preserved explicitly. The Phase 6 adapter SHALL detect
+that condition before the main MyPy execution and normalize it as a
+compatibility `PASS` with zero findings, one canonical `TYPE_VERIFICATION`
+evidence record with result `PASS`, and the diagnostic
+`No Python source files found; nothing to type-check.`
+
+The main MyPy check SHALL NOT run for that target, and a version probe is not
+required because no governed MyPy execution occurs.
+
+This narrow compatibility rule SHALL NOT redefine general Quality
+applicability. `SKIPPED` is not the correct semantic, and Phase 6 SHALL NOT add
+`NOT_APPLICABLE` to `QualityCheckResult` or implement generic applicability
+resolution.
+
 `QualityFinding` authority SHALL come from the supplied `QualityRule`:
 `rule.id`, `rule.domain`, and `rule.severity`. Native MyPy severity SHALL NOT
 be converted into FamilyOS `QualitySeverity`. Native MyPy diagnostic codes

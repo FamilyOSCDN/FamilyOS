@@ -725,6 +725,38 @@ Exit status `0` SHALL produce no failure findings. Exit status `1` SHALL be
 accepted as `FAIL` only when the diagnostic payload is valid and provides the
 expected type-checking findings.
 
+## Empty Python Target Compatibility
+
+A governed target path that contains no Python source files SHALL preserve the
+existing FamilyOS MyPy behavior rather than invoking MyPy and interpreting its
+fatal no-source exit status as an infrastructure failure.
+
+For this initial Phase 6 adapter only, when the governed target contains no
+`.py` or `.pyi` source files:
+
+* the main MyPy check SHALL NOT be executed;
+* `QualityCheckResult.status` SHALL be `PASS`;
+* no findings SHALL be produced;
+* one `QualityEvidence` record SHALL be produced with result `PASS`;
+* the evidence SHALL retain the canonical `TYPE_VERIFICATION`,
+  `source="quality.mypy"`, and `tool="mypy"` identity;
+* the result SHALL include the diagnostic
+  `No Python source files found; nothing to type-check.`;
+* a MyPy version probe is not required because no governed MyPy execution
+  occurs.
+
+This is a compatibility normalization required to preserve existing MyPy
+behavior. It SHALL NOT establish a general rule that non-applicable Quality
+checks are `PASS`.
+
+The broader Quality model distinguishes `NOT_APPLICABLE` from `SKIPPED`.
+`SKIPPED` is not the semantic for an empty Python target. The initial
+`QualityCheckResult` status model does not expose `NOT_APPLICABLE`, and Phase 6
+SHALL NOT expand that model or implement generic applicability resolution.
+
+Generic applicability and authoritative `NOT_APPLICABLE` result propagation
+remain outside the Phase 6 MyPy adapter boundary.
+
 ## MyPy Finding Mapping
 
 Each reliable MyPy diagnostic SHALL become a `QualityFinding`.
