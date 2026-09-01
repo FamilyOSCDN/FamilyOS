@@ -841,6 +841,30 @@ This closure establishes only the initial Phase 4 verification-adapter
 contract. It does not, by itself, authorize Phase 5 Ruff integration or any
 later Quality implementation phase.
 
+## Phase 4 Concrete Adapter Reconciliation
+
+Phase 5 Ruff implementation subsequently supplied the concrete execution
+evidence intentionally deferred by the initial Phase 4 contract closure.
+
+The canonical Quality Ruff adapter now captures stdout, stderr, exit status,
+and execution duration; normalizes timeout and process / OS execution failures
+to `ERROR`; probes the Ruff version; stores an available version in
+`QualityEvidence.tool_version`; and preserves an unavailable version as a
+non-fatal diagnostic when the Ruff quality conclusion itself remains
+trustworthy.
+
+The two conditional process-abstraction checklist items are also resolved.
+The reconciliation audit found no canonical reusable FamilyOS
+`CommandExecutor` / `ProcessExecutor` abstraction that the Quality adapter was
+required to reuse. Existing bounded contexts continue to own their
+tool-specific subprocess execution. Phase 5 therefore introduced neither a
+generic process framework nor duplicate canonical execution infrastructure
+solely for Quality.
+
+With this concrete-adapter evidence, all 25 Phase 4 checklist items are
+reconciled as satisfied. This retrospective reconciliation does not broaden
+Phase 4 authority and does not authorize Phase 6 or any later Quality phase.
+
 ---
 
 # Quality Check Result
@@ -899,14 +923,14 @@ Checklist:
 If a reusable command executor is required:
 
 ```text id="impl-subprocess"
-[ ] Reuse existing FamilyOS process abstraction if available
-[ ] Avoid introducing duplicate execution infrastructure
-[ ] Capture stdout
-[ ] Capture stderr
-[ ] Capture exit code
-[ ] Capture duration
-[ ] Handle timeout
-[ ] Handle executable-not-found
+[x] Reuse existing FamilyOS process abstraction if available
+[x] Avoid introducing duplicate execution infrastructure
+[x] Capture stdout
+[x] Capture stderr
+[x] Capture exit code
+[x] Capture duration
+[x] Handle timeout
+[x] Handle executable-not-found
 ```
 
 ---
@@ -914,9 +938,9 @@ If a reusable command executor is required:
 # Tool Version Collection
 
 ```text id="impl-tool-version"
-[ ] Collect relevant tool version
-[ ] Store version in evidence
-[ ] Handle unavailable version gracefully
+[x] Collect relevant tool version
+[x] Store version in evidence
+[x] Handle unavailable version gracefully
 ```
 
 ---
@@ -1012,22 +1036,64 @@ This contract authorizes only the initial Phase 5 Ruff implementation slice.
 It does not, by itself, authorize Phase 6 MyPy integration or any later Quality
 implementation phase.
 
+## Phase 5 Runtime Closure Evidence
+
+The canonical Ruff runtime slice is implemented by commit `dd5540f`
+(`feat(quality): implement canonical ruff executor`) and its real integration
+coverage is established by commit `1fd8c1a`
+(`test(quality): add real ruff integration coverage`).
+
+Closure evidence includes:
+
+- `RuffQualityExecutor` implementing the existing `QualityExecutorPort` in the
+  Quality infrastructure layer;
+- canonical execution through the active Python interpreter using
+  `python -m ruff check <target path> --output-format=json`;
+- normalized `PASS`, `FAIL`, and `ERROR` semantics with reliable Ruff JSON
+  parsing;
+- governed `QualityFinding` mapping for rule authority, severity, message,
+  path, line, and column while preserving native Ruff rule codes as
+  tool-specific evidence metadata;
+- one governed `STATIC_ANALYSIS` `QualityEvidence` record per Ruff execution
+  attempt, including exit status, violation count, native Ruff codes, and
+  available Ruff tool version;
+- timeout, process / OS failure, invalid JSON, invalid violation payload, and
+  inconsistent Ruff protocol behavior normalized to `ERROR`;
+- non-fatal Ruff-version unavailability represented by `tool_version=None`
+  plus a diagnostic;
+- focused adapter unit coverage;
+- real Ruff integration coverage for both a valid fixture and an invalid
+  `F401` fixture without subprocess mocking;
+- preservation of the pre-existing Plugin Compliance Ruff workflow as an
+  independent bounded-context implementation;
+- 20 tests passing across the canonical Ruff adapter, real integration tests,
+  and Plugin Compliance Ruff regression;
+- 128 targeted Quality tests passing during staged and post-commit validation;
+- Ruff validation passing; and
+- MyPy validation passing across the reconciled Quality source/test scope.
+
+All 20 Phase 5 checklist items are therefore satisfied.
+
+This closure authorizes documentary completion of Phase 5 only. Phase 6 MyPy
+integration and all later Quality phases remain outside this closure and SHALL
+remain open until separately audited and authorized.
+
 ---
 
 # Ruff Adapter Checklist
 
 ```text id="impl-ruff"
-[ ] Confirm canonical Ruff command used by FamilyOS
-[ ] Implement Ruff adapter
-[ ] Execute Ruff through infrastructure layer
-[ ] Parse reliable machine-readable output if available
-[ ] Normalize violations into QualityFinding
-[ ] Produce QualityEvidence
-[ ] Distinguish Ruff execution ERROR from lint FAIL
-[ ] Capture Ruff version
-[ ] Add adapter unit tests
-[ ] Add integration tests with valid fixture
-[ ] Add integration tests with invalid fixture
+[x] Confirm canonical Ruff command used by FamilyOS
+[x] Implement Ruff adapter
+[x] Execute Ruff through infrastructure layer
+[x] Parse reliable machine-readable output if available
+[x] Normalize violations into QualityFinding
+[x] Produce QualityEvidence
+[x] Distinguish Ruff execution ERROR from lint FAIL
+[x] Capture Ruff version
+[x] Add adapter unit tests
+[x] Add integration tests with valid fixture
+[x] Add integration tests with invalid fixture
 ```
 
 ---
@@ -1035,11 +1101,11 @@ implementation phase.
 # Ruff Finding Mapping
 
 ```text id="impl-ruff-mapping"
-[ ] Map Ruff rule code
-[ ] Map file path
-[ ] Map line / column where available
-[ ] Map message
-[ ] Map QualitySeverity according to governed policy
+[x] Map Ruff rule code
+[x] Map file path
+[x] Map line / column where available
+[x] Map message
+[x] Map QualitySeverity according to governed policy
 ```
 
 ---
@@ -1047,10 +1113,10 @@ implementation phase.
 # Phase 5 Exit Criteria
 
 ```text id="impl-phase5-exit"
-[ ] Ruff produces normalized evidence
-[ ] Ruff failures produce structured findings
-[ ] Ruff adapter reproducible
-[ ] Existing Ruff workflow remains functional
+[x] Ruff produces normalized evidence
+[x] Ruff failures produce structured findings
+[x] Ruff adapter reproducible
+[x] Existing Ruff workflow remains functional
 ```
 
 ---
