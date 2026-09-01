@@ -87,10 +87,11 @@ def test_quality_domain_has_no_tool_specific_dependency() -> None:
     assert _violations(_DOMAIN, _TOOL_SPECIFIC) == ()
 
 
-def test_phase_three_does_not_introduce_later_quality_domain_models() -> None:
+def test_phase_four_does_not_introduce_later_quality_domain_models() -> None:
     forbidden_symbols = {
         "QualityAssessment",
         "QualityProfile",
+        "QualityGate",
     }
     discovered: set[str] = set()
 
