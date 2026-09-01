@@ -1628,6 +1628,204 @@ Integrate EPIC-PLUGIN-002 without duplicating its compliance engine.
 
 ---
 
+
+## Phase 9 Runtime Contract Freeze
+
+The Phase 9 runtime integration SHALL consume the existing
+EPIC-PLUGIN-002 Plugin Compliance Framework as an authoritative bounded
+context. Quality SHALL normalize Plugin Compliance output into Quality
+models without recreating Plugin Compliance rules, profiles, validators,
+or compliance-decision semantics.
+
+### Authority and execution boundary
+
+- EPIC-PLUGIN-002 remains authoritative for plugin compliance rules,
+  profiles, validator execution, rule outcomes, finding semantics,
+  evidence semantics, severity semantics, and the overall compliance
+  decision.
+- The authoritative execution API is
+  `ComplianceEngine.evaluate(ComplianceRequest) -> ComplianceResult`.
+- Quality SHALL consume the structured `ComplianceResult`; it SHALL NOT
+  invoke Plugin Compliance validators individually or reproduce the
+  compliance evaluation algorithm.
+- The Plugin Compliance application/CLI surfaces remain consumers of the
+  same engine and are not reimplemented inside Quality.
+
+### Official plugin target and profile
+
+Phase 9 freezes the canonical Quality-side plugin target shape as:
+
+```text
+QualityTarget(
+    target_type="plugin",
+    identifier=<canonical PluginDescriptor.id>,
+    version=<PluginDescriptor.version>,
+    path=<PluginDescriptor.path>,
+    revision=<Quality execution revision, optional>,
+)
+```
+
+- `target_type="plugin"` is the canonical Quality target type for this
+  integration.
+- `identifier` is the canonical plugin identity and SHALL equal the
+  resolved `PluginDescriptor.id`.
+- `version` SHALL represent the resolved `PluginDescriptor.version`.
+- `path` SHALL identify the resolved plugin path used for discovery and
+  execution; path does not replace plugin identity.
+- `revision` belongs to the Quality execution context and is optional.
+- The governed Plugin Compliance profile is identified by `official`.
+- Plugin descriptor discovery and profile resolution remain owned by the
+  existing Plugin Compliance/plugin infrastructure. Quality SHALL NOT
+  recreate `OFFICIAL_PROFILE`, its included rules, mandatory rules,
+  exclusions, or blocking severity threshold.
+- Plugin identity and plugin version returned by `ComplianceResult` SHALL
+  remain traceable in the normalized Quality output.
+
+### Compliance decision normalization
+
+`ComplianceResult.status` is authoritative. Quality SHALL NOT recompute
+compliance from rule evaluations, findings, mandatory flags, or severity
+thresholds.
+
+The Phase 9 status normalization contract is:
+
+```text
+ComplianceStatus.COMPLIANT     -> QualityStatus.PASS
+ComplianceStatus.NON_COMPLIANT -> QualityStatus.FAIL
+ComplianceStatus.INCOMPLETE    -> QualityStatus.WARNING
+ComplianceStatus.ERROR         -> QualityStatus.ERROR
+```
+
+An integration/runtime failure that prevents a reliable Plugin Compliance
+assessment SHALL produce `QualityStatus.ERROR`; it SHALL NOT be
+misrepresented as ordinary plugin non-compliance.
+
+### Finding normalization and rule identity
+
+- Plugin Compliance findings SHALL be normalized into `QualityFinding`
+  values.
+- `QualityFinding.rule_id` SHALL remain the `QualityRule.id` supplied to
+  the Quality executor and therefore remains in the canonical
+  `QLT-RULE-*` namespace.
+- `ComplianceFinding.rule_id` remains the authoritative source Plugin
+  Compliance rule identity and SHALL be preserved explicitly as
+  provenance in normalized output.
+- Quality SHALL NOT rewrite a `PLUGIN-*` rule id into a fabricated
+  `QLT-RULE-*` id, nor create replacement Plugin Compliance rules.
+- Finding message, location, source evidence references, category, source
+  status, source domain, and source Plugin rule id SHALL be preserved
+  directly where the Quality model supports them and otherwise through
+  deterministic metadata or diagnostics.
+- Quality finding identifiers and Quality evidence identifiers remain in
+  their canonical `QLT-*` namespaces; source Plugin identifiers SHALL be
+  preserved as provenance rather than silently rewritten.
+
+### Severity preservation
+
+Plugin Compliance severity and Quality severity are distinct governed
+vocabularies:
+
+```text
+Plugin Compliance: INFO, WARNING, ERROR, CRITICAL
+Quality:           INFO, LOW, MEDIUM, HIGH, CRITICAL
+```
+
+Phase 9 SHALL NOT invent a cross-vocabulary conversion such as
+`WARNING -> MEDIUM` or `ERROR -> HIGH`.
+
+For every normalized `QualityFinding`:
+
+```text
+QualityFinding.severity = QualityRule.severity
+```
+
+The Quality rule supplied to the executor remains authoritative for
+FamilyOS `QualitySeverity`. The original `ComplianceFinding.severity`
+remains authoritative Plugin Compliance provenance and SHALL be preserved
+explicitly in normalized output. Source Plugin severity SHALL NOT alter,
+replace, or feed back into the authoritative Plugin Compliance decision
+or the governed Quality rule severity.
+
+Tests SHALL cover all Plugin Compliance source severity values and prove
+that source severity provenance is preserved independently from
+`QualityRule.severity`.
+
+### Evidence normalization
+
+- `ComplianceEvidence` SHALL be consumed as authoritative source evidence
+  and normalized into `QualityEvidence`.
+- Source evidence identity and provenance SHALL remain traceable,
+  including the Plugin Compliance evidence id, evidence type, source,
+  producer, producer version, plugin id, plugin version, scope, trust
+  level, and collection time where representable.
+- Quality SHALL use its own canonical `QualityEvidenceId` namespace for
+  normalized evidence and SHALL retain source Plugin evidence identifiers
+  as provenance.
+- Plugin Compliance payload content SHALL not be reinterpreted as new
+  compliance policy by Quality.
+- Phase 9 SHALL NOT invent a parallel evidence framework.
+
+### Revision binding
+
+`ComplianceResult` carries plugin identity and plugin version but does not
+define a plugin revision field. Revision binding therefore belongs to the
+Quality execution context:
+
+```text
+authoritative ComplianceResult
+          +
+QualityTarget.revision
+          |
+          v
+normalized QualityEvidence.revision
+```
+
+Quality SHALL bind normalized compliance evidence to
+`QualityTarget.revision` when a revision is supplied. It SHALL NOT mutate
+`ComplianceResult` or imply that Plugin Compliance produced a revision it
+does not own.
+
+### No-duplication invariant
+
+Phase 9 SHALL NOT introduce:
+
+- a duplicate Plugin Compliance rule catalog;
+- a duplicate official compliance profile;
+- a duplicate Plugin Compliance validator registry;
+- a duplicate compliance decision evaluator;
+- a second compliance engine;
+- a generic replacement abstraction that changes EPIC-PLUGIN-002
+  ownership.
+
+The Quality-side implementation is an adapter/normalizer around the
+authoritative Plugin Compliance output.
+
+### Verification contract
+
+Phase 9 implementation evidence SHALL include focused unit tests and real
+integration tests covering at least:
+
+- official profile resolution through Plugin Compliance;
+- compliant official-plugin normalization;
+- non-compliant plugin normalization;
+- incomplete and error status normalization;
+- Plugin rule identity preservation;
+- all Plugin severity normalization cases while preserving source
+  severity provenance;
+- Plugin finding normalization;
+- Plugin evidence normalization and provenance;
+- plugin id/version traceability;
+- `QualityTarget.revision` binding;
+- failure behavior that produces Quality `ERROR`;
+- proof that Quality consumes the authoritative Plugin Compliance engine
+  rather than recreating its rules or profiles.
+
+This contract freezes the intended Phase 9 integration boundary only. It
+does not constitute runtime implementation evidence and does not close
+any Phase 9 checklist item.
+
+---
+
 # Phase 10 — Quality Assessment Model
 
 ## Objective
