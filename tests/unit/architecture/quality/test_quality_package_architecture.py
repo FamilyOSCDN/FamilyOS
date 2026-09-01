@@ -63,9 +63,7 @@ def _violations(
     for source_file in _sources(package):
         for module in _imports(source_file):
             if module.startswith(forbidden_prefixes):
-                violations.append(
-                    f"{source_file.relative_to(_PACKAGE_ROOT)}: {module}"
-                )
+                violations.append(f"{source_file.relative_to(_PACKAGE_ROOT)}: {module}")
 
     return tuple(violations)
 
@@ -89,10 +87,9 @@ def test_quality_domain_has_no_tool_specific_dependency() -> None:
     assert _violations(_DOMAIN, _TOOL_SPECIFIC) == ()
 
 
-def test_phase_two_does_not_introduce_later_quality_domain_models() -> None:
+def test_phase_three_does_not_introduce_later_quality_domain_models() -> None:
     forbidden_symbols = {
         "QualityAssessment",
-        "QualityEvidence",
         "QualityProfile",
     }
     discovered: set[str] = set()
