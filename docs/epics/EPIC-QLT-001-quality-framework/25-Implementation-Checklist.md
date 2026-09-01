@@ -1457,6 +1457,95 @@ Checklist:
 
 ---
 
+## Canonical Runtime Contract
+
+Phase 8 SHALL integrate documentation validation through a Quality-owned
+`DocumentationQualityExecutor` implementing `QualityExecutorPort`.
+
+EPIC-DOC-001 remains authoritative for documentation-specific semantics.
+The Quality Framework owns execution orchestration and normalization into the
+common Quality model; it SHALL NOT redefine Documentation Framework ownership.
+
+The Documents Plugin `DocumentValidator` is not the Phase 8 validation engine
+and SHALL NOT be used as the Documentation Framework validator.
+
+### Execution Boundary
+
+The executor SHALL validate the local filesystem target identified by
+`QualityTarget.path`.
+
+The initial Phase 8 implementation SHALL be deterministic and local:
+
+- no subprocess-based documentation validator is required;
+- no external Markdown linter dependency is required;
+- PyYAML MAY be used for YAML parsing;
+- external HTTP link verification is outside the initial runtime slice.
+
+A missing `target.path`, an inaccessible validation target, or an unexpected
+validator/infrastructure failure SHALL produce `QualityStatus.ERROR`.
+
+Ordinary documentation violations discovered by a successfully executed
+validator SHALL produce `QualityStatus.FAIL`, not `ERROR`.
+
+### Initial Validation Scope
+
+The initial runtime slice SHALL cover:
+
+- canonical EPIC structure and required control artifacts;
+- required numbered chapter presence and naming consistency;
+- duplicate numbered chapter detection;
+- non-empty required files;
+- `EPIC.yaml` presence and YAML parse validity;
+- basic Markdown structural integrity, including fenced-code-block balance and
+  heading structure;
+- local relative Markdown reference integrity.
+
+Malformed `EPIC.yaml`, a missing required document, an empty required document,
+an invalid canonical name, an unbalanced Markdown fence, or a broken local
+relative reference are documentation violations and therefore SHALL normalize
+to `FAIL` with actionable findings.
+
+### Quality Normalization
+
+The canonical evidence type SHALL be `DOCUMENTATION`.
+The canonical evidence source SHALL be `quality.documentation`.
+The canonical tool identity SHALL be `familyos-documentation-validator`.
+The Quality domain for governed documentation rules SHALL be `QLT-DOM-DOC`.
+
+Each execution SHALL produce one aggregate `DOCUMENTATION` evidence record.
+
+A successful validation with no violations SHALL produce `QualityStatus.PASS`,
+`QualityEvidenceResult.PASS`, and no findings.
+
+A successful validation with one or more documentation violations SHALL produce
+`QualityStatus.FAIL`, `QualityEvidenceResult.FAIL`, and one actionable
+`QualityFinding` per reported violation.
+
+An execution that cannot reliably complete SHALL produce
+`QualityStatus.ERROR`, `QualityEvidenceResult.ERROR` when execution evidence
+can be produced, no synthetic documentation-violation findings, and diagnostic
+information describing the execution failure.
+
+Findings SHALL preserve the governed rule identifier, domain, severity, target,
+location when available, and aggregate evidence identifier.
+
+The evidence revision SHALL preserve `QualityTarget.revision`.
+
+### Ownership and Deferred Scope
+
+EPIC-DOC-001 remains the semantic authority for documentation standards,
+structure, lifecycle, governance, naming, metadata, and reference expectations.
+
+Phase 8 SHALL NOT introduce a generic subprocess abstraction or transfer
+Documentation Framework semantic ownership into Quality.
+
+Full Markdown linting, remote/external URL availability checks, generalized
+schema-validation infrastructure, and broader documentation-policy engines are
+deferred unless separately authorized.
+
+These contract decisions freeze the implementation boundary only. They do not,
+by themselves, satisfy or close any Phase 8 checklist item.
+
 # Phase 9 — Plugin Compliance Integration
 
 ## Objective
