@@ -1182,8 +1182,8 @@ No generic process framework, Build/Testing coupling, Plugin Compliance
 dependency, validator relocation, or Phase 7+ implementation is authorized by
 this reconciliation.
 
-All 19 Phase 6 checklist items remain open until concrete implementation and
-verification evidence satisfy them. Phase 7 and later phases remain open.
+All 19 Phase 6 checklist items are satisfied by concrete implementation and
+verification evidence and are now closed. Phase 7 and later phases remain open.
 
 
 ## Objective
@@ -1195,16 +1195,16 @@ Integrate FamilyOS static typing verification.
 # MyPy Adapter Checklist
 
 ```text id="impl-mypy"
-[ ] Confirm canonical MyPy command
-[ ] Implement MyPy adapter
-[ ] Parse structured output where practical
-[ ] Normalize type errors into findings
-[ ] Produce QualityEvidence
-[ ] Capture MyPy version
-[ ] Distinguish execution ERROR from type FAIL
-[ ] Add passing fixture
-[ ] Add failing fixture
-[ ] Add adapter tests
+[x] Confirm canonical MyPy command
+[x] Implement MyPy adapter
+[x] Parse structured output where practical
+[x] Normalize type errors into findings
+[x] Produce QualityEvidence
+[x] Capture MyPy version
+[x] Distinguish execution ERROR from type FAIL
+[x] Add passing fixture
+[x] Add failing fixture
+[x] Add adapter tests
 ```
 
 ---
@@ -1212,12 +1212,12 @@ Integrate FamilyOS static typing verification.
 # MyPy Finding Mapping
 
 ```text id="impl-mypy-mapping"
-[ ] File path
-[ ] Line
-[ ] Column where available
-[ ] MyPy code where available
-[ ] Message
-[ ] Severity mapping
+[x] File path
+[x] Line
+[x] Column where available
+[x] MyPy code where available
+[x] Message
+[x] Severity mapping
 ```
 
 ---
@@ -1225,9 +1225,9 @@ Integrate FamilyOS static typing verification.
 # Phase 6 Exit Criteria
 
 ```text id="impl-phase6-exit"
-[ ] MyPy integrated into common quality model
-[ ] Type evidence available
-[ ] Existing MyPy behavior preserved
+[x] MyPy integrated into common quality model
+[x] Type evidence available
+[x] Existing MyPy behavior preserved
 ```
 
 ---
