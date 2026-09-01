@@ -1123,6 +1123,52 @@ remain open until separately audited and authorized.
 
 # Phase 6 — MyPy Integration
 
+## Phase 6 MyPy Runtime Contract Reconciliation
+
+The Phase 6 implementation contract is frozen before runtime implementation.
+
+The canonical Quality adapter SHALL implement the existing
+`QualityExecutorPort` in the Quality infrastructure layer and execute MyPy as:
+
+```text
+<active Python executable> -m mypy <target path> --output=json
+```
+
+The runtime SHALL default to `sys.executable`, obtain the governed path from
+`QualityTarget.path`, parse MyPy newline-delimited JSON diagnostics, normalize
+exit status `0` to `PASS`, exit status `1` with reliable findings to `FAIL`,
+and tool/protocol failures to `ERROR`.
+
+`QualityFinding` authority SHALL come from the supplied `QualityRule`:
+`rule.id`, `rule.domain`, and `rule.severity`. Native MyPy severity SHALL NOT
+be converted into FamilyOS `QualitySeverity`. Native MyPy diagnostic codes
+remain tool-specific data and MAY be retained in evidence metadata.
+
+MyPy evidence SHALL use canonical `TYPE_VERIFICATION`,
+`source="quality.mypy"`, and `tool="mypy"`. `TYPE_CHECK` remains non-canonical.
+
+The adapter SHALL probe:
+
+```text
+<active Python executable> -m mypy --version
+```
+
+Available version data SHALL be stored in `tool_version`. Version
+unavailability SHALL remain non-fatal when the actual MyPy quality conclusion
+is trustworthy and SHALL be surfaced through diagnostics.
+
+The adapter SHALL use injected finding/evidence ID factories, a timezone-aware
+evidence clock, a monotonic duration clock, the active Python executable, and
+an infrastructure timeout, following the established Ruff adapter precedent.
+
+No generic process framework, Build/Testing coupling, Plugin Compliance
+dependency, validator relocation, or Phase 7+ implementation is authorized by
+this reconciliation.
+
+All 19 Phase 6 checklist items remain open until concrete implementation and
+verification evidence satisfy them. Phase 7 and later phases remain open.
+
+
 ## Objective
 
 Integrate FamilyOS static typing verification.
