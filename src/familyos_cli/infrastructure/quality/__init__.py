@@ -1,4 +1,7 @@
-"""Canonical Quality Framework infrastructure package.
+"""Canonical Quality Framework infrastructure package."""
 
-Concrete infrastructure is intentionally deferred until a later phase requires it.
-"""
+from familyos_cli.infrastructure.quality.ruff_quality_executor import (
+    RuffQualityExecutor as RuffQualityExecutor,
+)
+
+__all__ = ["RuffQualityExecutor"]
