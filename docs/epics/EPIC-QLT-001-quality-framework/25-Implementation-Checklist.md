@@ -1414,13 +1414,13 @@ EPIC Metadata
 Checklist:
 
 ```text id="impl-doc-checklist"
-[ ] Identify existing documentation validators
-[ ] Reuse existing validators where available
-[ ] Implement adapter
-[ ] Normalize findings
-[ ] Produce documentation evidence
-[ ] Add fixtures
-[ ] Add integration tests
+[x] Identify existing documentation validators
+[x] Reuse existing validators where available
+[x] Implement adapter
+[x] Normalize findings
+[x] Produce documentation evidence
+[x] Add fixtures
+[x] Add integration tests
 ```
 
 ---
@@ -1428,10 +1428,10 @@ Checklist:
 # EPIC Structure Validation
 
 ```text id="impl-epic-structure"
-[ ] Validate required EPIC files
-[ ] Validate duplicate chapter detection
-[ ] Validate empty required file detection
-[ ] Validate expected control artifacts
+[x] Validate required EPIC files
+[x] Validate duplicate chapter detection
+[x] Validate empty required file detection
+[x] Validate expected control artifacts
 ```
 
 ---
@@ -1439,10 +1439,10 @@ Checklist:
 # Markdown Validation
 
 ```text id="impl-markdown-validation"
-[ ] Validate code fence closure
-[ ] Validate heading rules where deterministic
-[ ] Validate links where practical
-[ ] Preserve Documentation Framework authority
+[x] Validate code fence closure
+[x] Validate heading rules where deterministic
+[x] Validate links where practical
+[x] Preserve Documentation Framework authority
 ```
 
 ---
@@ -1450,12 +1450,42 @@ Checklist:
 # Phase 8 Exit Criteria
 
 ```text id="impl-phase8-exit"
-[ ] Documentation quality can produce common findings
-[ ] Validation works on Quality Framework itself
-[ ] Documentation-specific semantics remain externalized
+[x] Documentation quality can produce common findings
+[x] Validation works on Quality Framework itself
+[x] Documentation-specific semantics remain externalized
 ```
 
 ---
+
+## Phase 8 Closure Evidence
+
+Phase 8 is closed against runtime commit `1944a31`
+(`feat(quality): implement documentation validation runtime`).
+
+Closure evidence:
+
+- Documentation executor unit validation: **19 / 19 PASS**.
+- Real Documentation integration validation: **2 / 2 PASS**.
+- Combined Documentation validation slice: **21 / 21 PASS**.
+- Quality regression at the runtime gate: **186 / 186 PASS**.
+- Ruff validation: **PASS**.
+- MyPy validation: **PASS**.
+- Real canonical EPIC validation on `EPIC-COM-001`: **PASS**, zero violations.
+- Quality Framework self-validation on `EPIC-QLT-001`: execution **PASS**;
+  the validator deterministically reports **32** existing `markdown_heading`
+  documentation violations and normalizes them through the common Quality model.
+- Documentation-specific semantic authority remains with `EPIC-DOC-001`; Quality
+  owns execution orchestration and common finding/evidence normalization only.
+- Documentation semantics are implemented outside the Quality infrastructure package
+  under `familyos_cli.infrastructure.documentation`; the Documents Plugin validator is
+  not used as the Documentation Framework validation engine.
+
+The Phase 8 exit criterion that validation works on the Quality Framework itself is a
+capability/execution criterion; it does **not** assert that the existing
+`EPIC-QLT-001` documentation is conformant. The 32 existing heading violations remain
+a separate documentation-conformance/migration concern. Any later gate that explicitly
+requires Documentation Validation to **PASS** remains open until its own evidence is
+satisfied.
 
 ## Canonical Runtime Contract
 
