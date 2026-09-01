@@ -1236,7 +1236,70 @@ Integrate FamilyOS static typing verification.
 
 ## Objective
 
-Integrate FamilyOS testing results as structured quality evidence.
+Integrate FamilyOS testing results as structured quality evidence while preserving
+the Testing Framework as the canonical authority for Pytest execution semantics.
+
+Phase 7 SHALL introduce a Quality-owned Pytest verification adapter without
+creating a runtime dependency from Quality on Testing infrastructure. Existing
+Testing Framework behavior is semantic authority and SHALL be preserved, but
+`PytestRunner` SHALL NOT be reused, moved, or imported into Quality.
+
+---
+
+# Canonical Pytest Runtime Contract
+
+The canonical Quality adapter SHALL be:
+
+```text id="impl-pytest-executor-contract"
+PytestQualityExecutor(QualityExecutorPort)
+```
+
+The canonical invocation SHALL be:
+
+```text id="impl-pytest-command-contract"
+<python executable> -m pytest <target path> --junitxml=<temporary XML report>
+```
+
+Pytest native JUnit XML is the structured transport. The temporary report SHALL
+be adapter-owned and SHALL NOT leave generated artifacts in the repository.
+
+Phase 7 SHALL NOT add `pytest-json-report` merely for structured output, parse
+human terminal output as the authoritative protocol, introduce a generic process
+abstraction, create a Quality dependency on `infrastructure.testing`, move/reuse
+`PytestRunner`, or authorize Phase 8+ runtime work.
+
+---
+
+# Testing Framework Semantic Authority
+
+The existing Testing Framework remains authoritative for aggregate Pytest status
+semantics. Quality SHALL preserve:
+
+```text id="impl-pytest-status-contract"
+Pytest exit 0  -> QualityStatus.PASS
+Pytest exit 1  -> QualityStatus.FAIL
+Pytest exit 2+ -> QualityStatus.ERROR
+```
+
+Established Pytest exit codes are:
+
+```text id="impl-pytest-exit-codes"
+0 = OK
+1 = TESTS_FAILED
+2 = INTERRUPTED
+3 = INTERNAL_ERROR
+4 = USAGE_ERROR
+5 = NO_TESTS_COLLECTED
+6 = MAX_WARNINGS_ERROR
+```
+
+Thus assertion failures and setup/fixture/teardown errors producing exit `1` are
+`FAIL`. Collection errors producing exit `2`, interruption, internal/usage
+errors, no tests collected (`5`), maximum-warning errors (`6`), timeout,
+process-launch failure, and missing/malformed/inconsistent structured output are
+`ERROR`.
+
+A JUnit `<error>` element SHALL NOT override the aggregate exit-code mapping.
 
 ---
 
@@ -1260,15 +1323,19 @@ Integrate FamilyOS testing results as structured quality evidence.
 
 # Test Evidence
 
-Initial evidence may include:
+Canonical evidence SHALL use:
 
-```text id="impl-test-evidence"
-passed
-failed
-skipped
-errors
-duration
+```text id="impl-pytest-evidence-contract"
+type:          TEST
+source:        quality.pytest
+tool:          pytest
+revision:      None
+result:        PASS | FAIL | ERROR
 ```
+
+Evidence metadata SHALL preserve passed, failed, skipped, errors, duration, and
+native exit code. Skipped tests SHALL be represented in evidence counts and do
+not independently cause `FAIL` when the aggregate result passes.
 
 Checklist:
 
@@ -1284,13 +1351,21 @@ Checklist:
 
 # Failed Test Findings
 
-Decide whether:
+Initial granularity SHALL be one `QualityFinding` per failed or test-error
+testcase when the aggregate result is `FAIL`.
 
-```text id="impl-test-findings"
-Each failed test
+Each finding SHALL preserve governed Quality authority:
+
+```text id="impl-test-finding-authority"
+rule_id  = rule.id
+domain   = rule.domain
+severity = rule.severity
+status   = QualityStatus.FAIL
 ```
 
-becomes a finding or whether the suite produces aggregated findings initially.
+Canonical `ERROR` results SHALL NOT require synthetic failed-test findings.
+Detailed diagnostics SHALL remain available through result diagnostics and
+Quality evidence.
 
 Checklist:
 
@@ -1309,6 +1384,9 @@ Checklist:
 [ ] Test failures visible in common quality model
 [ ] Testing Framework remains authoritative
 ```
+
+All 22 Phase 7 checklist items remain open until concrete implementation and
+verification evidence satisfy them. Phase 8 and later phases remain open.
 
 ---
 
