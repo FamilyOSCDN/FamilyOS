@@ -201,6 +201,43 @@ METRIC
 
 The evidence type helps determine interpretation and reporting behavior.
 
+## Initial Runtime Evidence Type Contract
+
+For the initial executable Quality Evidence runtime, `QualityEvidenceType`
+SHALL be represented as an immutable, validated, extensible value object.
+
+It SHALL NOT be modeled as a closed enum because the Quality Evidence model
+explicitly allows additional evidence categories to emerge as the framework
+evolves. It SHALL also not be accepted as an arbitrary unvalidated raw string.
+
+The initial canonical values are:
+
+```text
+TEST
+STATIC_ANALYSIS
+TYPE_VERIFICATION
+ARCHITECTURE
+SECURITY
+DOCUMENTATION
+BUILD
+PERFORMANCE
+COMPATIBILITY
+COMPLIANCE
+OBSERVABILITY
+MANUAL_REVIEW
+METRIC
+```
+
+These values are semantic evidence categories. They are not persistent
+`SPEC-0002` entity identifiers and no `QLT-EVID-TYPE-*` namespace is introduced
+by this phase.
+
+`TYPE_VERIFICATION` is the canonical initial spelling. `TYPE_CHECK` SHALL NOT
+be introduced as a second runtime spelling for the same evidence category.
+
+Additional evidence types MAY be introduced through controlled framework
+evolution without changing the representation strategy.
+
 ---
 
 # Evidence Source
@@ -322,6 +359,32 @@ Evidence may also reference the originating requirement.
 
 ---
 
+## Initial Runtime Traceability Contract
+
+The initial executable `QualityEvidence` model SHALL use the existing
+`QualityTarget` domain model for target binding.
+
+Evidence identity SHALL use a dedicated immutable `QualityEvidenceId` with the
+canonical `QLT-EVID-*` namespace. Its stable-boundary validation SHALL follow
+the same `SPEC-0002`-compatible strategy used by the existing Quality runtime
+identifier value objects: validate the category namespace and canonical
+non-empty suffix without inventing a narrower suffix taxonomy that rejects
+existing Quality Evidence identifiers.
+
+A `QualityRuleId` MAY be recorded when the evidence is produced for a governed
+Quality Rule. A `QualityRequirementId` MAY additionally be recorded for direct
+requirement traceability. These references are optional because the normative
+Evidence model also supports evidence classes such as measurement,
+operational, review, and governance evidence that are not necessarily produced
+by a single executable rule.
+
+The `QLT-CHECK-*` examples below remain conceptual execution-mechanism
+references in Phase 3. Phase 3 SHALL NOT introduce a `QualityCheckId` runtime
+contract merely from those examples. Normalized check execution and executor
+contracts belong to Phase 4 — Verification Adapter Contracts.
+
+---
+
 # Evidence Check Reference
 
 Evidence should identify the execution mechanism.
@@ -361,6 +424,40 @@ NOT_APPLICABLE
 ```
 
 The result meaning must remain stable across evidence providers.
+
+## Initial Runtime Evidence Result Contract
+
+The result of an evidence record is not the same concept as the broader
+`QualityStatus` model.
+
+The initial executable Quality Evidence runtime SHALL therefore define a
+dedicated closed `QualityEvidenceResult` vocabulary:
+
+```text
+PASS
+WARNING
+FAIL
+ERROR
+SKIPPED
+NOT_APPLICABLE
+```
+
+`QualityEvidenceResult` SHALL remain distinct from `QualityStatus`.
+
+In particular:
+
+* `NOT_APPLICABLE` means that the evaluated rule does not apply to the target;
+* `UNKNOWN`, which belongs to `QualityStatus`, is not a substitute for
+  `NOT_APPLICABLE`;
+* `FAIL` means that verification executed successfully and found
+  non-compliance;
+* `ERROR` means that verification could not complete successfully;
+* structurally invalid or malformed evidence is neither `FAIL` nor `ERROR` as
+  an evidence result. Invalid evidence fails the evidence contract itself and
+  must be rejected before it can participate in authoritative assessment.
+
+The canonical field name for this concept in `QualityEvidence` SHALL be
+`result`, not `status`.
 
 ---
 
@@ -2475,6 +2572,75 @@ Human decisions must produce explicit review evidence.
 Quality evidence should connect to the requirement or rule it supports.
 
 ---
+
+# Initial Executable Quality Evidence Boundary
+
+The first executable `QualityEvidence` domain model SHALL remain smaller than
+the complete lifecycle model described throughout this document.
+
+Its initial domain responsibilities are:
+
+```text
+QualityEvidenceId
+QualityEvidenceType
+QualityEvidenceResult
+QualityEvidence
+```
+
+The initial `QualityEvidence` record SHALL provide the following semantic
+fields:
+
+```text
+id
+type
+source
+target
+result
+created_at
+revision
+rule_id
+requirement_id
+tool
+tool_version
+metadata
+artifact
+```
+
+Runtime interpretation:
+
+* `id` is a `QualityEvidenceId`;
+* `type` is a `QualityEvidenceType`;
+* `source` identifies the capability, system, process, or producer responsible
+  for the observation and must be a non-empty tool-independent string;
+* `target` is the existing immutable `QualityTarget`;
+* `result` is a `QualityEvidenceResult`;
+* `created_at` is a timezone-aware timestamp;
+* `revision` is optional only when revision binding is genuinely not
+  applicable; when supplied it must be a non-empty canonical string;
+* `rule_id` is an optional `QualityRuleId`;
+* `requirement_id` is an optional `QualityRequirementId`;
+* `tool` and `tool_version` are optional descriptive provider metadata and do
+  not make the domain model tool-specific;
+* `metadata` is immutable machine-readable descriptive metadata;
+* `artifact` is an optional non-empty artifact reference, not an embedded
+  large artifact payload.
+
+The model SHALL be immutable and SHALL reject malformed required values at the
+domain boundary.
+
+The initial runtime model SHALL NOT own:
+
+* evidence persistence or publication;
+* evidence supersession or archival lifecycle;
+* freshness policy or assessment sufficiency decisions;
+* Quality Gate evaluation;
+* tool execution;
+* normalized Quality Check execution contracts;
+* Ruff, MyPy, Pytest, or other provider-specific behavior;
+* evidence aggregation;
+* advanced provenance, signing, attestation, or storage.
+
+Those concerns remain governed by their later implementation phases.
 
 # Initial FamilyOS Evidence Model
 

@@ -518,21 +518,36 @@ Implement structured Quality Evidence capable of supporting reproducible finding
 
 # Quality Evidence Model
 
-Suggested initial fields:
+Canonical initial runtime fields:
 
 ```text id="impl-evidence-fields"
 id
 type
 source
 target
-revision
-status
+result
 created_at
+revision
+rule_id
+requirement_id
 tool
 tool_version
 metadata
 artifact
 ```
+
+Phase 3 runtime contract:
+
+* `id` uses immutable `QualityEvidenceId` with the `QLT-EVID-*` namespace.
+* `type` uses immutable validated extensible `QualityEvidenceType`.
+* `target` reuses the existing `QualityTarget`.
+* `result` uses the dedicated closed `QualityEvidenceResult` vocabulary and
+  SHALL NOT reuse `QualityStatus`.
+* `rule_id` and `requirement_id` are optional traceability references.
+* `QLT-CHECK-*` runtime identity and normalized check execution remain Phase 4
+  concerns.
+* Evidence persistence, publication, assessment, gates, aggregation, and
+  provider-specific execution remain outside this Phase 3 domain-model slice.
 
 Checklist:
 
@@ -552,18 +567,29 @@ Checklist:
 
 # Evidence Type
 
-Potential initial types:
+Canonical initial types:
 
 ```text id="impl-evidence-types"
-STATIC_ANALYSIS
-TYPE_CHECK
 TEST
-DOCUMENTATION
-COMPLIANCE
+STATIC_ANALYSIS
+TYPE_VERIFICATION
 ARCHITECTURE
+SECURITY
+DOCUMENTATION
 BUILD
+PERFORMANCE
+COMPATIBILITY
+COMPLIANCE
+OBSERVABILITY
 MANUAL_REVIEW
+METRIC
 ```
+
+`QualityEvidenceType` SHALL be an immutable validated extensible value object,
+not a closed enum and not an arbitrary unvalidated raw string. These values are
+semantic categories rather than new `SPEC-0002` persistent identifier
+namespaces. `TYPE_VERIFICATION` is the canonical spelling; `TYPE_CHECK` is not
+a second runtime alias.
 
 Checklist:
 
@@ -571,6 +597,37 @@ Checklist:
 [ ] Define initial evidence types
 [ ] Allow future extension
 [ ] Test mapping from adapter results
+```
+
+---
+
+# Evidence Result
+
+Canonical initial result vocabulary:
+
+```text id="impl-evidence-results"
+PASS
+WARNING
+FAIL
+ERROR
+SKIPPED
+NOT_APPLICABLE
+```
+
+`QualityEvidenceResult` is distinct from `QualityStatus`. `UNKNOWN` remains a
+`QualityStatus` concept and SHALL NOT substitute for `NOT_APPLICABLE`.
+
+Malformed or structurally invalid evidence is not represented as a `FAIL` or
+`ERROR` evidence result; it is rejected as invalid evidence.
+
+Checklist:
+
+```text id="impl-evidence-result-checklist"
+[ ] Define QualityEvidenceResult
+[ ] Keep QualityEvidenceResult distinct from QualityStatus
+[ ] Define NOT_APPLICABLE semantics
+[ ] Distinguish invalid evidence from FAIL and ERROR
+[ ] Test all initial result values
 ```
 
 ---
