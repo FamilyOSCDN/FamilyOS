@@ -795,6 +795,54 @@ implementation phase.
 
 
 
+
+## Initial Phase 4 Runtime Closure Evidence
+
+The initial Phase 4 Verification Adapter Contract runtime slice is closed by
+commit `d2f530b` (`feat(quality): establish verification adapter contracts`).
+
+Runtime evidence for this closure includes:
+
+- immutable `QualityCheckId` using the governed `QLT-CHECK-*` namespace;
+- immutable application-layer `QualityCheckResult` with the six reconciled
+  normalized result fields;
+- explicit `FAIL` versus `ERROR` contract semantics;
+- support for multiple findings, zero findings on `PASS`, and attached
+  `QualityEvidence`;
+- a tool-independent `QualityExecutorPort` using the authorized
+  `check_id` / `rule` / `target` execution boundary;
+- contract coverage proving explicit check identity preservation;
+- architecture protection against premature later-phase Quality models and
+  tool-specific Quality-domain coupling;
+- 113 targeted Quality tests passing;
+- Ruff validation passing; and
+- MyPy validation passing across 21 Quality source files.
+
+For this initial closure, 14 of the 25 Phase 4 checklist items are satisfied.
+The remaining 11 items intentionally stay open.
+
+Two subprocess-framework items remain conditional because no reusable canonical
+FamilyOS command/process abstraction has been established as a prerequisite.
+FamilyOS SHALL NOT introduce duplicate or generic execution infrastructure
+solely to close those checklist items.
+
+The remaining concrete execution concerns — stdout, stderr, exit-code and
+duration capture, timeout and executable-not-found behavior, and tool-version
+collection/storage/unavailability handling — remain deferred until authorized
+concrete Quality tool adapters demonstrate and implement those behaviors.
+
+`Execution failures normalized` is closed at the stable application-contract
+level: reliable Quality violations map to `FAIL`, while execution that cannot
+reliably complete or conclude maps to `ERROR`. This closure does not claim
+that concrete Ruff, MyPy, Pytest, or other tool failure modes have already been
+executed or normalized by adapters.
+
+This closure establishes only the initial Phase 4 verification-adapter
+contract. It does not, by itself, authorize Phase 5 Ruff integration or any
+later Quality implementation phase.
+
+---
+
 # Quality Check Result
 
 Define a normalized result model.
@@ -813,11 +861,11 @@ diagnostics
 Checklist:
 
 ```text id="impl-check-result-checklist"
-[ ] Define normalized check result
-[ ] Separate FAIL from ERROR
-[ ] Support multiple findings
-[ ] Support zero findings on PASS
-[ ] Support evidence attachment
+[x] Define normalized check result
+[x] Separate FAIL from ERROR
+[x] Support multiple findings
+[x] Support zero findings on PASS
+[x] Support evidence attachment
 ```
 
 ---
@@ -837,11 +885,11 @@ or a simpler interface appropriate to the application architecture.
 Checklist:
 
 ```text id="impl-executor-checklist"
-[ ] Define application port for quality executor
-[ ] Keep subprocess behavior in infrastructure
-[ ] Define normalized return model
-[ ] Define error behavior
-[ ] Add contract tests
+[x] Define application port for quality executor
+[x] Keep subprocess behavior in infrastructure
+[x] Define normalized return model
+[x] Define error behavior
+[x] Add contract tests
 ```
 
 ---
@@ -876,10 +924,10 @@ If a reusable command executor is required:
 # Phase 4 Exit Criteria
 
 ```text id="impl-phase4-exit"
-[ ] Tool adapter contract stable
-[ ] Execution failures normalized
-[ ] Tool-specific details remain infrastructure concerns
-[ ] Contract tests pass
+[x] Tool adapter contract stable
+[x] Execution failures normalized
+[x] Tool-specific details remain infrastructure concerns
+[x] Contract tests pass
 ```
 
 ---
