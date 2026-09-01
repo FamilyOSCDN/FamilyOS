@@ -1306,17 +1306,17 @@ A JUnit `<error>` element SHALL NOT override the aggregate exit-code mapping.
 # Pytest Adapter Checklist
 
 ```text id="impl-pytest"
-[ ] Confirm canonical Pytest invocation
-[ ] Decide structured report format
-[ ] Implement Pytest adapter
-[ ] Normalize execution state
-[ ] Produce test evidence
-[ ] Capture test counts
-[ ] Capture failure information
-[ ] Capture duration
-[ ] Capture Pytest version
-[ ] Distinguish infrastructure ERROR from test FAIL
-[ ] Add adapter tests
+[x] Confirm canonical Pytest invocation
+[x] Decide structured report format
+[x] Implement Pytest adapter
+[x] Normalize execution state
+[x] Produce test evidence
+[x] Capture test counts
+[x] Capture failure information
+[x] Capture duration
+[x] Capture Pytest version
+[x] Distinguish infrastructure ERROR from test FAIL
+[x] Add adapter tests
 ```
 
 ---
@@ -1340,11 +1340,11 @@ not independently cause `FAIL` when the aggregate result passes.
 Checklist:
 
 ```text id="impl-test-evidence-checklist"
-[ ] Represent passing suite
-[ ] Represent failing suite
-[ ] Represent collection error
-[ ] Represent skipped tests
-[ ] Preserve Testing Framework semantics
+[x] Represent passing suite
+[x] Represent failing suite
+[x] Represent collection error
+[x] Represent skipped tests
+[x] Preserve Testing Framework semantics
 ```
 
 ---
@@ -1370,9 +1370,9 @@ Quality evidence.
 Checklist:
 
 ```text id="impl-test-findings-checklist"
-[ ] Define initial granularity
-[ ] Avoid excessive finding noise
-[ ] Preserve detailed diagnostics in evidence
+[x] Define initial granularity
+[x] Avoid excessive finding noise
+[x] Preserve detailed diagnostics in evidence
 ```
 
 ---
@@ -1380,13 +1380,13 @@ Checklist:
 # Phase 7 Exit Criteria
 
 ```text id="impl-phase7-exit"
-[ ] Pytest evidence integrated
-[ ] Test failures visible in common quality model
-[ ] Testing Framework remains authoritative
+[x] Pytest evidence integrated
+[x] Test failures visible in common quality model
+[x] Testing Framework remains authoritative
 ```
 
-All 22 Phase 7 checklist items remain open until concrete implementation and
-verification evidence satisfy them. Phase 8 and later phases remain open.
+All 22 Phase 7 checklist items are satisfied by concrete implementation and
+verification evidence. Phase 8 and later phases remain open.
 
 ---
 
