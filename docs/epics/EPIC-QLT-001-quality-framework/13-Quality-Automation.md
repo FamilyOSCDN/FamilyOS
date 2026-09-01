@@ -3622,3 +3622,174 @@ Engineering Decision
 ```
 
 Through deterministic execution, normalized evidence, profile-based orchestration, risk-aware validation, CI integration, reliable failure semantics, observability, governance, and continuous improvement, Quality Automation transforms FamilyOS quality assurance from a collection of individual engineering practices into an integrated engineering capability.
+
+---
+
+# Phase 4 Runtime Contract Reconciliation
+
+The initial executable Phase 4 runtime SHALL establish a stable,
+tool-independent verification-adapter boundary without prematurely implementing
+the Ruff, MyPy, Pytest, documentation-validation, Plugin Compliance, or other
+tool adapters governed by later phases.
+
+## Quality Check Identity
+
+Phase 4 SHALL introduce `QualityCheckId` as the stable runtime identity of a
+Quality check.
+
+`QualityCheckId` SHALL:
+
+- be an immutable validated value object;
+- use the governed `QLT-CHECK-*` namespace;
+- follow the same `SPEC-0002`-compatible stable-boundary strategy used by the
+  existing Quality runtime identifiers;
+- require a canonical non-empty suffix;
+- preserve supplied canonical identifiers without inferring semantics from the
+  suffix; and
+- avoid a narrower suffix taxonomy that would reject existing identifiers such
+  as `QLT-CHECK-LINT`, `QLT-CHECK-TYPE`, `QLT-CHECK-UNIT`,
+  `QLT-CHECK-ARCH`, or `QLT-CHECK-DOC`.
+
+The temporary executable or command name SHALL NOT define check identity.
+
+## Normalized Quality Check Result
+
+The initial normalized execution result SHALL be an immutable application-layer
+model named `QualityCheckResult`.
+
+Its initial runtime fields SHALL be:
+
+```text
+check_id
+status
+findings
+evidence
+duration_seconds
+diagnostics
+```
+
+- `check_id` is a `QualityCheckId`;
+- `status` is the existing `QualityStatus`;
+- `findings` is an immutable tuple of `QualityFinding` values;
+- `evidence` is an immutable tuple of `QualityEvidence` values;
+- `duration_seconds` is a non-negative floating-point number of seconds; and
+- `diagnostics` is an immutable tuple of non-empty strings.
+
+A `PASS` result MAY contain zero findings. Phase 4 SHALL NOT invent assessment
+policy that forbids every finding on a `PASS` result.
+
+The normalized check result is an application execution contract. It SHALL NOT
+be promoted into a new Quality domain entity merely because it references
+domain values.
+
+## Check Status Semantics
+
+The initial Phase 4 normalized check result SHALL reuse the established
+`QualityStatus` runtime vocabulary:
+
+```text
+PASS
+WARNING
+FAIL
+ERROR
+SKIPPED
+UNKNOWN
+```
+
+`FAIL` means the check executed reliably and detected a Quality violation.
+`ERROR` means the check could not reliably execute or could not produce a valid
+conclusion. Tool crashes, missing executables, invalid or corrupt native
+results, and timeouts SHALL normally normalize to `ERROR` unless a later
+governed rule explicitly establishes different semantics. `ERROR` SHALL NOT
+silently become `PASS`.
+
+The broader automation documentation also discusses `NOT_APPLICABLE`.
+Phase 4 SHALL NOT silently mutate the established `QualityStatus` vocabulary to
+add that state. `NOT_APPLICABLE` remains available in the distinct
+`QualityEvidenceResult` vocabulary and any future check-status reconciliation
+MUST be explicit.
+
+## Quality Executor Application Port
+
+Phase 4 SHALL introduce a tool-independent Quality Executor application port.
+
+The initial port SHALL use a simple `execute(...) -> QualityCheckResult`
+boundary appropriate to the current FamilyOS application architecture.
+
+The conceptual `prepare()`, `execute()`, `collect()`, and `normalize()` stages
+remain explanatory decomposition only. They SHALL NOT require four public port
+methods.
+
+The initial executor contract SHALL operate only on Quality runtime concepts
+already authorized for the slice. It SHALL NOT introduce a dependency on
+`QualityProfile`, Quality Gate policy, CI-provider configuration, or
+tool-specific configuration merely because those concepts appear in broader
+automation examples.
+
+`QualityRule.executor` remains an opaque logical reference. It SHALL NOT become
+the executor object, callable, subprocess runner, or adapter instance.
+
+## Execution and Normalization Boundary
+
+Tool-specific execution details SHALL remain outside the Quality domain.
+
+Native exit codes, stdout, stderr, reports, metrics, artifacts, timing, and
+other tool representations SHALL not automatically become authoritative
+Quality Evidence.
+
+Later tool adapters SHALL translate native execution state into the normalized
+Quality application contract and canonical Quality Evidence without leaking
+tool or subprocess semantics into the Quality domain.
+
+Phase 4 SHALL define error-normalization behavior at the contract boundary, but
+it SHALL NOT implement a later-phase tool merely to demonstrate the contract.
+
+## Subprocess Boundary
+
+No reusable canonical FamilyOS command/process abstraction has been established
+as a prerequisite for this initial Quality slice.
+
+The Phase 4 subprocess checklist remains conditional on an actual reusable
+command executor being required.
+
+Phase 4 SHALL NOT introduce a generic `CommandExecutor`, `ProcessExecutor`, or
+equivalent abstraction solely to close conditional checklist items.
+
+Concrete adapters introduced by later phases remain responsible for proving
+stdout, stderr, exit-code, duration, timeout, and executable-not-found behavior
+where applicable.
+
+## Tool Version Boundary
+
+`QualityEvidence` already supports descriptive `tool` and `tool_version`
+metadata.
+
+Actual tool-version collection, storage from real adapter execution, and
+graceful unavailable-version handling SHALL remain open until concrete Quality
+tool adapters exist.
+
+## Initial Phase 4 Implementation Boundary
+
+The initial executable Phase 4 slice MAY implement:
+
+- `QualityCheckId`;
+- immutable `QualityCheckResult`;
+- the tool-independent Quality Executor application port;
+- validation and contract tests;
+- architecture-test evolution required to authorize the Phase 4 contract.
+
+The initial executable Phase 4 slice SHALL NOT implement:
+
+- Ruff integration;
+- MyPy integration;
+- Pytest integration;
+- documentation-validator integration;
+- Plugin Compliance integration;
+- Quality Profiles;
+- Quality Assessment;
+- Quality Gates;
+- Quality CLI;
+- CI integration;
+- a generic subprocess framework without demonstrated need;
+- tool-version probing without a concrete adapter; or
+- tool-specific behavior in the Quality domain.

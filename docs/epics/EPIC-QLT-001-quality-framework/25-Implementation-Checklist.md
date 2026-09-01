@@ -712,6 +712,89 @@ Create a common interface between FamilyOS quality semantics and external qualit
 
 ---
 
+## Phase 4 Runtime Implementation Contract
+
+The initial executable Phase 4 slice SHALL establish the normalized,
+tool-independent verification-adapter contract before any concrete later-phase
+tool adapter is implemented.
+
+### Quality Check Identity
+
+Phase 4 SHALL introduce immutable `QualityCheckId` using the governed
+`QLT-CHECK-*` namespace and the existing Quality identifier validation
+strategy. It SHALL validate the namespace and canonical non-empty suffix
+without imposing a narrower suffix taxonomy.
+
+Existing examples such as `QLT-CHECK-LINT`, `QLT-CHECK-TYPE`,
+`QLT-CHECK-UNIT`, `QLT-CHECK-ARCH`, and `QLT-CHECK-DOC` SHALL remain valid.
+
+### Initial Normalized Result Contract
+
+`QualityCheckResult` SHALL be an immutable application-layer execution result
+with exactly these initial semantic fields:
+
+```text
+check_id: QualityCheckId
+status: QualityStatus
+findings: tuple[QualityFinding, ...]
+evidence: tuple[QualityEvidence, ...]
+duration_seconds: float
+diagnostics: tuple[str, ...]
+```
+
+`duration_seconds` SHALL be non-negative. Collection fields SHALL be immutable
+tuples. Diagnostic entries SHALL be non-empty strings. A `PASS` result SHALL
+support zero findings.
+
+The initial result SHALL reuse `QualityStatus`. `FAIL` means reliable execution
+that detected a Quality violation. `ERROR` means execution could not reliably
+complete or produce a valid conclusion. Timeout, missing executable, tool
+crash, and corrupt native result SHALL normally normalize to `ERROR`;
+`ERROR` SHALL NOT silently become `PASS`.
+
+The broader automation concept `NOT_APPLICABLE` SHALL NOT be silently added to
+`QualityStatus` during this slice. It remains part of the distinct
+`QualityEvidenceResult` vocabulary pending explicit future reconciliation.
+
+### Initial Executor Port Contract
+
+Phase 4 SHALL introduce a tool-independent Quality Executor application port
+with a simple `execute(...) -> QualityCheckResult` boundary.
+
+The conceptual `prepare() / execute() / collect() / normalize()` sequence does
+not require separate public port methods.
+
+The initial port SHALL use only already-authorized Quality runtime concepts and
+SHALL NOT introduce `QualityProfile`, gate policy, CI-provider configuration,
+or tool-specific configuration.
+
+`QualityRule.executor` remains an opaque logical reference and SHALL NOT become
+the runtime executor object.
+
+### Deferred and Conditional Phase 4 Concerns
+
+No canonical reusable FamilyOS command/process abstraction has been identified
+as a prerequisite for this slice. The subprocess checklist therefore remains
+conditional until a concrete adapter demonstrates the need.
+
+The initial Phase 4 slice SHALL NOT introduce a generic subprocess framework
+solely to close checklist items.
+
+Actual stdout/stderr/exit-code capture, timeout handling,
+executable-not-found handling, and tool-version collection SHALL remain open
+until concrete tool adapters are implemented in their authorized phases.
+
+`QualityEvidence.tool` and `QualityEvidence.tool_version` remain the canonical
+descriptive evidence fields when later adapters provide those values.
+
+This reconciliation authorizes only the initial Phase 4 contract slice. It
+does not by itself authorize Phase 5 Ruff integration or any later Quality
+implementation phase.
+
+---
+
+
+
 # Quality Check Result
 
 Define a normalized result model.
