@@ -940,6 +940,80 @@ Integrate existing Ruff validation into the Quality Framework.
 
 ---
 
+## Phase 5 Runtime Implementation Contract
+
+The initial Ruff integration SHALL implement the existing
+`QualityExecutorPort` in the Quality infrastructure layer while preserving the
+existing Plugin Compliance Ruff validator as a separate bounded-context
+workflow.
+
+The canonical invocation is:
+
+```text
+<python executable> -m ruff check <target path> --output-format=json
+```
+
+with the Python executable defaulting to `sys.executable` and no shell
+interpretation.
+
+Initial normalization is governed as follows:
+
+```text
+exit 0 + valid JSON     -> PASS
+exit 1 + valid JSON     -> FAIL
+other exit status       -> ERROR
+timeout                 -> ERROR
+process / OS failure    -> ERROR
+invalid Ruff JSON       -> ERROR
+```
+
+For each Ruff violation:
+
+* `QualityFinding.rule_id` comes from the supplied `QualityRule.id`;
+* `QualityFinding.domain` comes from the supplied `QualityRule.domain`;
+* `QualityFinding.severity` comes from the supplied `QualityRule.severity`;
+* the finding status is `FAIL`;
+* the Ruff code remains tool-native information and SHALL NOT be promoted to a
+  `QLT-RULE-*` identifier;
+* message, path, line, and column are preserved where available.
+
+Finding and evidence identities SHALL use injected factories/callables that
+return valid `QualityFindingId` and `QualityEvidenceId` values. Phase 5 SHALL
+NOT embed random identity generation inside Ruff parsing or introduce a generic
+Quality identity framework solely for this adapter.
+
+One governed Ruff execution SHALL initially produce one `QualityEvidence`
+record of type `STATIC_ANALYSIS`. The evidence SHALL bind to the supplied
+target and rule, use an injected timezone-aware clock for `created_at`, identify
+Ruff as the tool, and preserve the Ruff version when available. Produced
+findings SHALL reference that evidence identifier.
+
+Revision remains optional in this initial slice. Phase 5 SHALL NOT depend on
+Build or Testing source-state contracts merely to populate Quality Evidence
+revision, and it does not close the deferred evidence freshness or full
+revision-awareness work.
+
+The adapter SHALL attempt:
+
+```text
+<python executable> -m ruff --version
+```
+
+A version-probe failure alone is non-fatal: `tool_version` MAY remain `None`
+and a diagnostic SHALL record the unavailable version without replacing an
+otherwise trustworthy Ruff `PASS` or `FAIL` with `ERROR`.
+
+The initial Phase 5 slice MAY introduce a Ruff-specific infrastructure adapter
+and focused tests. It SHALL NOT introduce a generic process-execution
+framework, depend on Plugin Compliance runtime models, rewrite the existing
+Plugin Compliance Ruff validator, or introduce Phase 6+ behavior.
+
+This contract authorizes only the initial Phase 5 Ruff implementation slice.
+It does not, by itself, authorize Phase 6 MyPy integration or any later Quality
+implementation phase.
+
+---
+
 # Ruff Adapter Checklist
 
 ```text id="impl-ruff"

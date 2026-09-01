@@ -542,6 +542,147 @@ Automation should support evidence invalidation.
 
 ---
 
+# Phase 5 Ruff Runtime Contract
+
+The initial canonical Ruff integration SHALL implement the existing
+`QualityExecutorPort` through the Quality infrastructure layer. It SHALL remain
+independent of the Plugin Compliance `QualityRuffValidator`; that validator is
+an existing bounded-context workflow whose behavior SHALL remain functional,
+but its class and compliance-specific models SHALL NOT become dependencies of
+the canonical Quality runtime.
+
+## Canonical Ruff Invocation
+
+The initial Quality Ruff adapter SHALL execute Ruff through the active FamilyOS
+Python interpreter rather than relying on a separately resolved `ruff` binary:
+
+```text
+<python executable> -m ruff check <target path> --output-format=json
+```
+
+The Python executable SHALL default to the active interpreter represented by
+`sys.executable`. Execution SHALL occur without shell interpretation.
+
+The target path SHALL come from the governed `QualityTarget` path contract.
+Phase 5 SHALL NOT introduce Quality Profiles, generic execution-context models,
+or tool-specific configuration domain models merely to invoke Ruff.
+
+## Ruff Execution Semantics
+
+Ruff exit status and structured output SHALL be normalized as follows:
+
+```text
+exit 0 + valid JSON     -> PASS
+exit 1 + valid JSON     -> FAIL
+other exit status       -> ERROR
+timeout                 -> ERROR
+process / OS failure    -> ERROR
+invalid Ruff JSON       -> ERROR
+```
+
+`FAIL` means Ruff executed reliably and reported governed lint violations.
+`ERROR` means the check could not reliably execute or conclude. `ERROR` SHALL
+NOT silently become `PASS`.
+
+## Ruff Finding Mapping
+
+Each Ruff violation SHALL become a `QualityFinding`.
+
+The governed FamilyOS rule remains authoritative for Quality semantics:
+
+```text
+QualityFinding.rule_id  = QualityRule.id
+QualityFinding.domain   = QualityRule.domain
+QualityFinding.severity = QualityRule.severity
+QualityFinding.status   = FAIL
+QualityFinding.target   = supplied QualityTarget
+```
+
+The native Ruff rule code, such as `F401`, SHALL NOT be promoted or rewritten
+as a `QLT-RULE-*` identifier. It SHALL be preserved as tool-native information.
+
+The Ruff message SHALL map to the finding message. File path, line, and column
+SHALL be preserved where Ruff supplies them. The initial adapter MAY represent
+that source position through the existing optional finding `location` string;
+Phase 5 SHALL NOT introduce a new source-location domain model.
+
+## Finding and Evidence Identity
+
+Phase 5 SHALL preserve the existing `QLT-FIND-*` and `QLT-EVID-*` identity
+contracts. The initial Ruff adapter SHALL NOT embed random identity generation
+inside Ruff parsing.
+
+Finding and evidence identity creation SHALL be supplied to the adapter through
+small injected factories/callables that return valid `QualityFindingId` and
+`QualityEvidenceId` values. This keeps identity generation testable and avoids
+introducing a generic Quality identity framework before such a framework is
+canonically required.
+
+## Ruff Evidence
+
+The initial Ruff adapter SHALL produce one `QualityEvidence` record for one
+governed Ruff execution. It SHALL NOT require one evidence record per Ruff
+violation.
+
+The evidence SHALL:
+
+* use `STATIC_ANALYSIS` as its Quality evidence type;
+* bind to the supplied `QualityTarget`;
+* bind `rule_id` to the supplied `QualityRule.id`;
+* identify Ruff as the tool;
+* preserve the captured Ruff version when available;
+* preserve machine-readable native execution information in the existing
+  immutable metadata boundary where practical;
+* use the injected timezone-aware clock for `created_at`;
+* use the injected evidence identity factory;
+* remain revision-optional for this initial Phase 5 slice.
+
+Each produced finding SHALL reference the execution evidence identifier through
+its existing `evidence_ids` boundary.
+
+Phase 5 does not close the deferred Quality Evidence freshness or full
+revision-awareness contract. The initial Ruff adapter SHALL NOT depend on Build
+or Testing source-state models merely to populate `revision`.
+
+## Ruff Tool Version
+
+The adapter SHALL attempt to collect the Ruff version using the same active
+Python interpreter:
+
+```text
+<python executable> -m ruff --version
+```
+
+A successful version probe SHALL populate `QualityEvidence.tool_version`.
+
+Failure of the version probe alone SHALL be handled gracefully: the evidence
+MAY use `tool_version=None`, and the normalized check result SHALL retain a
+diagnostic explaining that the Ruff version was unavailable. A version-probe
+failure SHALL NOT erase an otherwise trustworthy Ruff `PASS` or `FAIL`.
+
+Failure to execute the governed Ruff check itself remains `ERROR`.
+
+## Phase 5 Infrastructure Boundary
+
+The initial Ruff implementation MAY introduce a Ruff-specific infrastructure
+adapter and its focused tests.
+
+It SHALL NOT:
+
+* introduce a generic `CommandExecutor` or `ProcessExecutor` abstraction solely
+  for Phase 5;
+* depend on Plugin Compliance runtime models;
+* rewrite or relocate the existing Plugin Compliance Ruff validator;
+* depend on Build or Testing source-state contracts;
+* introduce MyPy, Pytest, Quality Profile, Quality Assessment, Quality Gate,
+  Quality CLI, or CI integration behavior;
+* authorize Phase 6 or any later Quality implementation phase.
+
+The existing Ruff workflow SHALL remain functional after the canonical Quality
+Ruff adapter is introduced.
+
+---
+
 # Local Quality Automation
 
 Local automation provides rapid developer feedback before remote CI.
