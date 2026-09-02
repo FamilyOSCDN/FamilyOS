@@ -1898,13 +1898,13 @@ created_at
 Checklist:
 
 ```text id="impl-assessment-checklist"
-[ ] Define QualityAssessment
-[ ] Define assessment identity
-[ ] Define revision binding
-[ ] Define profile reference
-[ ] Define assessment status
-[ ] Define quality state
-[ ] Add serialization tests
+[x] Define QualityAssessment
+[x] Define assessment identity
+[x] Define revision binding
+[x] Define profile reference
+[x] Define assessment status
+[x] Define quality state
+[x] Add serialization tests
 ```
 
 ---
@@ -1925,9 +1925,9 @@ Add `CONDITIONAL` only when exception/risk semantics are implemented.
 Checklist:
 
 ```text id="impl-quality-state-checklist"
-[ ] Define state semantics
-[ ] Ensure UNKNOWN cannot become PASS
-[ ] Add aggregation tests
+[x] Define state semantics
+[x] Ensure UNKNOWN cannot become PASS
+[x] Add aggregation tests
 ```
 
 ---
@@ -1953,11 +1953,11 @@ Missing required evidence
 Checklist:
 
 ```text id="impl-assessment-aggregation"
-[ ] Implement deterministic aggregation
-[ ] Test all state transitions
-[ ] Test missing evidence
-[ ] Test adapter ERROR
-[ ] Test warning-only case
+[x] Implement deterministic aggregation
+[x] Test all state transitions
+[x] Test missing evidence
+[x] Test adapter ERROR
+[x] Test warning-only case
 ```
 
 ---
@@ -1965,12 +1965,12 @@ Checklist:
 # Assessment Service
 
 ```text id="impl-assessment-service"
-[ ] Define application service
-[ ] Accept target and profile
-[ ] Execute or consume required checks
-[ ] Collect evidence
-[ ] Collect findings
-[ ] Produce assessment
+[x] Define application service
+[x] Accept target and profile
+[x] Execute or consume required checks
+[x] Collect evidence
+[x] Collect findings
+[x] Produce assessment
 ```
 
 ---
@@ -1978,9 +1978,9 @@ Checklist:
 # Phase 10 Exit Criteria
 
 ```text id="impl-phase10-exit"
-[ ] Reproducible QualityAssessment available
-[ ] Assessment requires complete required evidence
-[ ] Assessment tests pass
+[x] Reproducible QualityAssessment available
+[x] Assessment requires complete required evidence
+[x] Assessment tests pass
 ```
 
 ---
@@ -2078,6 +2078,43 @@ Business aggregation logic SHALL remain outside CLI and infrastructure adapters.
 Implementation evidence SHALL cover assessment identity and immutability, stable serialization, target/revision binding, opaque profile preservation, PASS, PASS_WITH_WARNINGS, FAIL, UNKNOWN from missing evidence, required adapter ERROR producing assessment ERROR plus UNKNOWN quality state, required SKIPPED/UNKNOWN not becoming PASS, warning-only aggregation, blocking aggregation, reordered-input determinism, canonical evidence/finding identifier collection, and proof that raw provider outputs are not reinterpreted.
 
 This contract freezes the Phase 10 runtime boundary only. It does not constitute runtime implementation evidence and does not close any Phase 10 checklist item. Phase 11 Quality Profiles and Phase 12 Quality CLI remain unauthorized and unsatisfied by this contract freeze.
+
+---
+
+
+## Phase 10 Implementation Evidence
+
+Phase 10 is implemented and verified by the following commits:
+
+- `85b409d3ec73ebf9b5fa317cf6dce60282d04e00` — freezes the Phase 10 Quality Assessment runtime contract.
+- `c7f35fe469fac927191d18b9be892c94afd130e3` — establishes `QualityAssessment`, governed assessment identity, the closed assessment-state vocabulary, stable serialization, and the application assessment service.
+- `f8932df3dba59a95adb6cfa8f5d0a0a0ab94d319` — enforces assessment target/revision consistency for consumed canonical evidence and findings.
+- `b021778f1840f7f46fe5d608406e1cb51654e4f7` — hardens required-check aggregation semantics so a required `FAIL` cannot be promoted to `PASS_WITH_WARNINGS` without an explicit blocking conclusion.
+
+Verified Phase 10 runtime evidence:
+
+- focused Quality Assessment service tests: **19 passed**;
+- full Quality regression suite: **230 passed**;
+- Quality architecture tests: **6 passed**;
+- Ruff: **PASS**;
+- MyPy: **PASS** across **29 source files**;
+- `git diff --check`: **PASS**;
+- the assessment service consumes canonical `QualityCheckResult` values and does not reinterpret raw Ruff, MyPy, Pytest, Documentation Validation, or Plugin Compliance provider payloads.
+
+Traceability and aggregation semantics are frozen as follows:
+
+- all consumed evidence and findings must belong to the assessment `QualityTarget`;
+- when consumed evidence carries an explicit revision, that revision must match `QualityTarget.revision`;
+- `QualityEvidence.revision = None` remains valid in Phase 10; generalized evidence freshness/staleness policy remains deferred;
+- only required checks are decision inputs for Phase 10 aggregation; additional supplied canonical results remain traceable through collected evidence/finding identifiers but are non-decisive;
+- required adapter/check `ERROR`, missing required inputs/evidence, required `SKIPPED`/`UNKNOWN`, and a required `FAIL` without an explicitly classified blocking finding produce `UNKNOWN` rather than an unsupported successful or blocking conclusion;
+- an explicitly classified blocking finding from a required check produces `FAIL`;
+- complete warning-only required inputs produce `PASS_WITH_WARNINGS`;
+- complete required `PASS` inputs with no warning or blocking condition produce `PASS`.
+
+The Phase 10 profile field remains an opaque supplied reference. `QualityProfile` and profile policy remain deferred to Phase 11. Quality CLI, Quality Gates, risk, exception, release, observability, metrics, governance, and later Quality Framework capabilities remain outside this closure.
+
+**Phase 10 — Quality Assessment Model: COMPLETE.**
 
 ---
 
