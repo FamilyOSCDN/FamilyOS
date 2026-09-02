@@ -2220,6 +2220,101 @@ Architecture Checks
 
 ---
 
+## Phase 11 Runtime Contract
+
+This contract freezes the initial Phase 11 runtime boundary before implementation. It does not constitute runtime implementation evidence and does not close any Phase 11 checklist item.
+
+### Canonical Profile Model
+
+Phase 11 SHALL introduce a canonical immutable `QualityProfile` domain model and a dedicated stable `QualityProfileId`.
+
+The initial profile model SHALL contain, at minimum:
+
+```text id="impl-phase11-profile-runtime-fields"
+id
+version
+target_types
+required_checks
+required_domains
+severity_policy
+```
+
+`QualityProfileId` SHALL use a dedicated governed Quality namespace. The documentary profile identity authority uses the conceptual `QLT-PROFILE-<NAME>` form; Phase 11 SHALL therefore use the `QLT-PROFILE` namespace unless a stronger existing repository authority is discovered before implementation.
+
+`version` SHALL be an explicit non-empty supplied value and SHALL participate in the stable profile reference used by assessments. Phase 11 SHALL NOT invent semantic-version compatibility behavior; broader semantic version governance remains deferred.
+
+`target_types`, `required_checks`, and `required_domains` SHALL be explicit immutable collections. Their canonical representation SHALL be deterministic and SHALL reject invalid member types and duplicate values.
+
+`required_checks` SHALL reference canonical `QualityCheckId` values. `required_domains` SHALL reference canonical `QualityDomain` values. Phase 11 SHALL reuse these existing domain identities rather than introduce parallel check or domain identifiers.
+
+### Applicability and Resolution
+
+Phase 11 SHALL provide deterministic profile applicability and resolution for the initial runtime subset.
+
+Applicability SHALL be based on explicit target-type information supplied by the canonical `QualityTarget`. Phase 11 SHALL NOT infer applicability from undocumented environment state.
+
+The initial resolver SHALL accept governed profile definitions and a target and SHALL return an explicit resolved profile result. Equivalent profile inputs presented in different order SHALL resolve deterministically.
+
+A profile whose `target_types` does not include the target type SHALL NOT silently become applicable.
+
+The initial Phase 11 runtime MAY resolve a single directly applicable profile or a deterministic set of directly applicable profiles, but it SHALL NOT silently implement inheritance, composition, precedence, target overrides, conflict-resolution policy, lifecycle-stage policy, criticality inference, repository-policy discovery, or automatic assignment unless those semantics are separately frozen and tested within Phase 11.
+
+### Effective Requirements
+
+A resolved profile SHALL make the required checks and required domains available to application orchestration without duplicating provider or external framework semantics.
+
+Profiles SHALL select or reference canonical Quality expectations; they SHALL NOT reinterpret raw provider payloads or redefine external framework methodology.
+
+Missing or invalid governed profile configuration SHALL fail explicitly. It SHALL NOT fall back to an undocumented default profile.
+
+### Severity Policy Boundary
+
+`severity_policy` belongs to the Phase 11 profile surface because the canonical Phase 11 checklist names it explicitly.
+
+For the initial runtime, severity policy SHALL be explicit, deterministic, serializable, and preserved as governed profile configuration.
+
+Phase 11 SHALL NOT introduce an implicit rule such as `HIGH` or `CRITICAL` automatically meaning blocking. Any transformation from finding severity to blocking assessment behavior SHALL require explicit governed policy and SHALL remain compatible with the Phase 10 requirement that blocking classification is explicit.
+
+Gate policy, exception policy, risk acceptance, lifecycle transition decisions, and release decisions remain deferred to their dedicated later phases.
+
+### Assessment Integration
+
+Phase 10 intentionally stores `QualityAssessment.profile` as an opaque non-empty string. Phase 11 SHALL preserve the historical assessment boundary while making that reference reproducible from a resolved profile identity and version.
+
+The initial stable assessment profile reference SHALL identify both profile identity and profile version. Phase 11 SHALL NOT embed a mutable `QualityProfile` object directly into `QualityAssessment`.
+
+Assessment orchestration SHALL derive required check identifiers from the resolved profile rather than from an undocumented hard-coded default.
+
+Changing a profile version SHALL be capable of producing a distinct stable profile reference even when the target revision is unchanged.
+
+### Determinism and Validation
+
+Phase 11 implementation evidence SHALL cover:
+
+- profile identity validation;
+- immutable profile structure;
+- non-empty explicit version;
+- deterministic serialization;
+- target-type applicability;
+- canonical `QualityCheckId` references;
+- canonical `QualityDomain` references;
+- duplicate rejection;
+- deterministic resolution under reordered equivalent inputs;
+- explicit invalid/unresolved-profile behavior;
+- stable identity-plus-version assessment reference;
+- severity-policy preservation without implicit blocking semantics;
+- proof that `QualityGate` and Quality CLI remain unimplemented.
+
+### Deferred Profile Capabilities
+
+The broader Quality Profile specification describes inheritance, composition, precedence, overrides, conflict detection, criticality, thresholds, evidence policy, gate policy, exception policy, lifecycle states, registries, automatic assignment, metrics, observability, risk integration, compliance composition, and framework-specific profile specializations.
+
+Those capabilities SHALL NOT be considered implemented merely because the initial `QualityProfile` model exists. They remain deferred unless explicitly implemented and evidenced by a later Phase 11 slice or by the dedicated later Quality Framework phase that owns the behavior.
+
+Phase 12 Quality CLI remains unauthorized by this contract freeze. `QualityGate` remains reserved for later gate phases.
+
+---
+
 # Phase 12 — Quality CLI
 
 ## Objective
