@@ -2315,6 +2315,113 @@ Phase 12 Quality CLI remains unauthorized by this contract freeze. `QualityGate`
 
 ---
 
+## Phase 11 Profile Resolution Contract
+
+This contract freezes the initial Phase 11 profile resolution boundary. It
+authorizes only the minimal deterministic registry/resolver subset required to
+make governed `QualityProfile` values resolvable for a `QualityTarget`. It does
+not constitute implementation evidence and does not close any Phase 11
+checklist item by itself.
+
+### Governed Profile Registry
+
+Phase 11 SHALL introduce a `QualityProfileRegistry` that owns the explicit set
+of governed `QualityProfile` values available to resolution.
+
+The registry SHALL:
+
+- accept canonical `QualityProfile` values only;
+- reject duplicate governed profile identity/version registrations;
+- expose profiles without relying on filesystem, environment, repository,
+  lifecycle, plugin, or network discovery;
+- preserve profile identity and version exactly as supplied;
+- fail explicitly for invalid or unresolved governed profile references;
+- remain independent from domain-specific profile registries.
+
+The registry SHALL NOT become an implicit global catalog of `QualityCheckId`
+values. Phase 11 SHALL NOT invent a closed set of globally known Quality checks
+where no canonical check registry authority currently exists.
+
+### Initial Profile Resolver
+
+Phase 11 SHALL introduce a deterministic `QualityProfileResolver` consuming
+the governed `QualityProfileRegistry` and a canonical `QualityTarget`.
+
+For the initial Phase 11 subset, applicability SHALL be determined only from
+the explicit `QualityTarget.target_type` and the profile's explicit
+`target_types`.
+
+Resolution SHALL produce exactly one applicable canonical `QualityProfile`:
+
+- zero applicable profiles -> resolution failure;
+- exactly one applicable profile -> that profile is returned;
+- more than one applicable profile -> ambiguity failure.
+
+The initial resolver SHALL NOT silently choose among multiple applicable
+profiles. Equivalent governed profile sets registered in different orders
+SHALL produce the same resolution outcome.
+
+### Explicitly Deferred Resolution Semantics
+
+The initial resolver SHALL NOT implement profile inheritance, composition,
+parent traversal, precedence, priority, conflict resolution, target overrides,
+repository-policy discovery, lifecycle-stage selection, criticality inference,
+risk-based selection, plugin classification selection, automatic defaults,
+environment/filesystem discovery, gate selection, exception policy, or release
+policy.
+
+### Unknown Check Boundary
+
+`QualityProfile.required_checks` SHALL continue to use canonical
+`QualityCheckId` values.
+
+A namespace-valid `QualityCheckId` SHALL NOT be treated as globally registered
+merely because its syntax is valid. Conversely, the initial profile resolver
+SHALL NOT reject a check by consulting an invented hard-coded list.
+
+The Phase 11 checklist requirement "Unknown check rejected" therefore requires
+a separately governed validation authority or an explicit supplied set of
+known checks before it can be closed. The registry/resolver slice SHALL NOT
+claim that checklist evidence.
+
+### Assessment Boundary
+
+This registry/resolver slice SHALL NOT modify Phase 10 assessment aggregation.
+A later Phase 11 integration slice SHALL make assessment orchestration derive
+required check identifiers from the resolved profile and SHALL supply a stable
+assessment profile reference containing profile identity and version.
+
+Until that integration slice is explicitly implemented and tested,
+`QualityAssessmentService` SHALL retain its existing Phase 10 contract.
+
+### Architecture Boundary
+
+During this slice:
+
+- `QualityGate` SHALL remain unimplemented;
+- Quality CLI SHALL remain unimplemented;
+- provider-specific execution semantics SHALL remain outside profile
+  resolution;
+- raw provider results SHALL NOT be reinterpreted by profile resolution.
+
+### Required Resolver Evidence
+
+Implementation evidence SHALL include at minimum:
+
+- governed profile registration;
+- duplicate identity/version rejection;
+- deterministic inspectable registry behavior;
+- one applicable profile resolution;
+- zero-applicable-profile explicit failure;
+- multiple-applicable-profile explicit ambiguity failure;
+- deterministic outcome under reordered equivalent registrations;
+- exact target-type applicability;
+- preservation of profile identity and version;
+- proof that no implicit default profile is selected;
+- proof that unknown-check global validation is not invented in this slice;
+- proof that `QualityGate` and Quality CLI remain absent.
+
+
 # Phase 12 — Quality CLI
 
 ## Objective
