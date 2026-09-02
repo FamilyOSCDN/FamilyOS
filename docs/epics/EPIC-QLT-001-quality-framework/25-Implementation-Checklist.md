@@ -3053,6 +3053,168 @@ Runtime implementation MAY begin only against this frozen Phase 12 contract.
 
 Implementation SHALL remain blocked if a proposed runtime change requires inventing semantics that belong to a later phase or contradict the existing Quality domain, profile, executor, evidence, or assessment contracts.
 
+### 14. Phase 12 Runtime Composition Contract
+
+This contract freezes the narrow runtime-composition boundary required to make
+the already-authorized Phase 12 Quality execution path usable from the FamilyOS
+CLI. It does not expand Quality business semantics and does not authorize any
+later-phase Quality capability.
+
+#### Composition Root
+
+`ApplicationContainer` SHALL remain the canonical runtime composition root for
+the initial Quality CLI path.
+
+Concrete Quality infrastructure executors SHALL be constructed by the bootstrap
+composition layer, not by the Quality application layer and not by the Typer
+command module.
+
+`CommandContext` MAY expose the composed Quality application services required
+by the CLI, following the existing FamilyOS CLI dependency-access pattern. The
+CLI SHALL consume those services and SHALL remain an interface adapter rather
+than becoming a dependency-injection or business-semantics authority.
+
+Phase 12 SHALL NOT introduce a parallel Quality dependency container, service
+locator, provider registry, or general-purpose Quality composition framework.
+
+#### Initial Executor Composition
+
+The Phase 12 composition SHALL use the existing Quality infrastructure
+executors for exactly the five governed initial checks:
+
+```text
+QLT-CHECK-RUFF
+  -> RuffQualityExecutor
+
+QLT-CHECK-MYPY
+  -> MypyQualityExecutor
+
+QLT-CHECK-PYTEST
+  -> PytestQualityExecutor
+
+QLT-CHECK-DOC
+  -> DocumentationQualityExecutor
+
+QLT-CHECK-PLUGIN-COMPLIANCE
+  -> PluginComplianceQualityExecutor
+```
+
+These concrete adapters SHALL be associated with the already-governed Phase 12
+`QualityRule` values through the existing `QualityExecutionBinding` boundary.
+
+The binding set SHALL remain explicit and complete. Runtime composition SHALL
+NOT discover executors dynamically, infer an executor from a check identifier,
+reinterpret `QualityRule.executor` as an object lookup key, or establish a
+global provider registry.
+
+#### Plugin Compliance Composition
+
+`PluginComplianceQualityExecutor` SHALL reuse the existing Plugin Compliance
+runtime authority already composed by `ApplicationContainer`, including the
+canonical `ComplianceEngine` and the existing plugin discovery/loading
+dependencies required by that adapter.
+
+Phase 12 SHALL NOT create a second independent Plugin Compliance policy model,
+rule registry, profile authority, or compliance engine merely for the Quality
+CLI path.
+
+The Quality adapter remains an integration boundary that consumes authoritative
+Plugin Compliance evaluation and normalizes it into Quality execution results.
+
+#### Finding and Evidence Identity Composition
+
+The existing Quality executor contracts require injected callables that produce
+valid `QualityFindingId` and `QualityEvidenceId` values. Phase 12 SHALL satisfy
+that requirement at runtime composition without moving identity generation into
+the executors.
+
+For this initial local runtime boundary, the composition layer MAY create
+ephemeral opaque identifiers using UUID version 4 values under the existing
+canonical namespaces:
+
+```text
+QLT-FIND-<opaque UUID value>
+QLT-EVID-<opaque UUID value>
+```
+
+The resulting values SHALL still be constructed and validated through the
+existing `QualityFindingId` and `QualityEvidenceId` value objects.
+
+This authorization is deliberately narrow:
+
+- generated identities are runtime-local opaque identities;
+- no deterministic identity guarantee is introduced;
+- no persistence, replay, cross-run stability, or ordering semantics are implied;
+- no counter-based identifiers from tests become runtime authority;
+- executors SHALL continue to receive identity factories by injection;
+- Phase 12 SHALL NOT introduce `QualityFindingId.generate()`,
+  `QualityEvidenceId.generate()`, a generic Quality identity service, an
+  identity registry, or a persistence-backed identity allocator.
+
+The UUID mechanism is therefore a composition implementation detail for
+satisfying the already-existing injected-factory contract, not a new Quality
+identity-governance model.
+
+#### Quality Execution Service Composition
+
+The bootstrap layer SHALL construct the governed default
+`QualityProfileRegistry`, the existing `QualityProfileResolver`, the exact
+five-member `QualityExecutionBinding` tuple, and `QualityExecutionService`.
+
+Required-check ordering SHALL continue to come exclusively from the resolved
+`QualityProfile.required_checks`. Binding construction order SHALL NOT become
+execution-order authority.
+
+The application service SHALL remain infrastructure-agnostic. No import from
+`familyos_cli.infrastructure` or `familyos_cli.interfaces` may be introduced
+into the Quality application package.
+
+#### Shared CLI Runtime Boundary
+
+`quality check`, `quality assess`, and `quality report` SHALL reuse the same
+governed runtime composition rather than independently constructing profiles,
+rules, executors, or bindings.
+
+Where assessment is required, the CLI path SHALL reuse the existing Quality
+application assessment services and the same normalized execution results.
+Composition SHALL NOT move assessment aggregation, blocking semantics, exit-code
+policy, or rendering semantics into the bootstrap container.
+
+#### Explicit Non-Goals
+
+This Phase 12 composition contract SHALL NOT introduce:
+
+- Quality Gate models or evaluation;
+- CI integration;
+- merge or release gates;
+- risk-based execution;
+- Quality Exceptions or Quality Debt;
+- Quality observability, metrics, events, or notifications;
+- governance registries;
+- executor discovery or plugin-style Quality provider registration;
+- persistent Quality execution history;
+- persistent Quality identity allocation;
+- profile inheritance, composition, default selection, or latest-version selection;
+- a generic subprocess abstraction solely for Quality;
+- lifecycle, incremental-execution, intelligence, or AI-assisted semantics.
+
+Those capabilities remain owned by later Quality Framework phases.
+
+#### Runtime Composition Implementation Gate
+
+Runtime composition MAY now be implemented only within the boundaries frozen
+above.
+
+Implementation SHALL remain blocked if it requires changing the governed five
+check/rule associations, inventing persistence or identity-governance semantics,
+moving infrastructure dependencies into the application layer, making the CLI
+the composition root, or introducing behavior owned by a later Quality phase.
+
+No Phase 12 checklist item is closed merely by this composition contract freeze.
+Runtime composition, CLI integration, command behavior, exit-code behavior, and
+Phase 12 exit criteria still require independent implementation evidence.
+
+---
 
 # Phase 13 — CI Integration
 
