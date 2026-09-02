@@ -15,6 +15,8 @@ from familyos_cli.domain.quality.quality_evidence_type import (
 )
 from familyos_cli.domain.quality.quality_finding import QualityFinding
 from familyos_cli.domain.quality.quality_finding_id import QualityFindingId
+from familyos_cli.domain.quality.quality_profile import QualityProfile
+from familyos_cli.domain.quality.quality_profile_id import QualityProfileId
 from familyos_cli.domain.quality.quality_requirement import QualityRequirement
 from familyos_cli.domain.quality.quality_requirement_id import QualityRequirementId
 from familyos_cli.domain.quality.quality_rule import QualityRule
@@ -37,6 +39,8 @@ __all__ = [
     "QualityDomain",
     "QualityFinding",
     "QualityFindingId",
+    "QualityProfile",
+    "QualityProfileId",
     "QualityRequirement",
     "QualityRequirementId",
     "QualityRule",

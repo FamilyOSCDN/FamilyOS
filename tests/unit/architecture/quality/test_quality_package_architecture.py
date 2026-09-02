@@ -87,9 +87,8 @@ def test_quality_domain_has_no_tool_specific_dependency() -> None:
     assert _violations(_DOMAIN, _TOOL_SPECIFIC) == ()
 
 
-def test_phase_ten_exposes_assessment_but_not_later_quality_domain_models() -> None:
+def test_phase_eleven_exposes_profile_but_not_later_quality_domain_models() -> None:
     forbidden_symbols = {
-        "QualityProfile",
         "QualityGate",
     }
     discovered: set[str] = set()
@@ -109,6 +108,7 @@ def test_phase_ten_exposes_assessment_but_not_later_quality_domain_models() -> N
         )
 
     assert "QualityAssessment" in discovered
+    assert "QualityProfile" in discovered
     assert discovered.isdisjoint(forbidden_symbols)
 
 
