@@ -2862,6 +2862,166 @@ Checklist:
 
 ---
 
+## Phase 12 Quality CLI Contract
+
+This contract freezes the initial runtime boundary for Phase 12 before Quality CLI implementation begins.
+
+### 1. CLI Command Surface
+
+Phase 12 SHALL introduce a top-level Typer sub-application registered as `familyos quality`.
+
+The initial command surface SHALL contain:
+
+```text
+familyos quality check
+familyos quality assess
+familyos quality report
+```
+
+The Quality CLI SHALL follow the existing FamilyOS Typer sub-application architecture. The CLI layer SHALL remain an interface adapter and SHALL NOT become the authority for Quality business semantics.
+
+### 2. Target Construction Boundary
+
+The initial Quality CLI SHALL construct and pass the canonical `QualityTarget` required by the application layer. CLI target input SHALL map explicitly to existing `QualityTarget` fields. Phase 12 SHALL NOT introduce a second CLI-specific Quality target model.
+
+The CLI SHALL NOT infer hidden target semantics from environment state, repository state, CI-provider state, or later lifecycle policy unless separately authorized. Profile applicability SHALL continue to depend on canonical explicit `QualityTarget.target_type` semantics.
+
+### 3. Profile Resolution Boundary
+
+Profile resolution SHALL reuse the governed profile registry and `QualityProfileResolver`.
+
+The CLI SHALL NOT duplicate applicability logic, silently choose a default profile, implement latest-profile selection, or introduce profile inheritance/composition. The resolved profile remains the authority for ordered `required_checks`.
+
+### 4. Quality Execution Orchestration
+
+Phase 12 MAY introduce a narrow application-layer Quality execution orchestration service because no canonical executor dispatcher currently exists.
+
+That service SHALL consume a canonical `QualityTarget`, resolve its governed profile, consume the profile's ordered `required_checks`, resolve an explicit Phase 12 execution binding for each required governed `QualityCheckId`, execute the bound existing `QualityExecutorPort` with the bound `QualityRule`, preserve deterministic profile check ordering, and return normalized `QualityCheckResult` values.
+
+The execution binding SHALL be an application-layer configuration boundary sufficient to satisfy the existing canonical executor contract:
+
+```text
+QualityCheckId + QualityRule + QualityExecutorPort
+```
+
+Each initial binding SHALL explicitly associate exactly one governed check id with the `QualityRule` supplied to execution and the existing executor adapter used for that check. The orchestrator SHALL pass those explicit values to `QualityExecutorPort.execute(check_id=..., rule=..., target=...)`.
+
+Phase 12 SHALL NOT infer a `QualityRule` from the spelling of a `QualityCheckId`, manufacture a rule inside the CLI or executor, treat a test fixture rule id as governed runtime authority, or reinterpret `QualityRule.executor` as an executor instance. `QualityRule.executor` SHALL retain its existing opaque logical-reference semantics.
+
+The Phase 12 execution binding SHALL NOT establish a global Quality Rule Registry, a global check-to-rule taxonomy, an open-ended Quality check catalog, profile inheritance/composition, or later Governance Registry semantics. It is a narrow deterministic runtime wiring boundary for the initial governed checks only.
+
+Executor dispatch, rule binding, and required-check selection are application semantics and SHALL NOT be implemented as business logic inside the Typer command module.
+
+The initial binding set SHALL be explicit and limited to the governed checks already established in Phase 11:
+
+```text
+QLT-CHECK-RUFF
+QLT-CHECK-MYPY
+QLT-CHECK-PYTEST
+QLT-CHECK-DOC
+QLT-CHECK-PLUGIN-COMPLIANCE
+```
+
+A governed required check without a complete execution binding — including a missing rule or unavailable executor — SHALL fail visibly and SHALL NOT silently become SKIPPED or PASS.
+
+The concrete governed `QualityRule` values used by the initial bindings SHALL be explicit runtime configuration and SHALL satisfy the existing `QualityRule` domain contract. Phase 12 SHALL NOT derive their identity from test-only fixtures. If a concrete rule required for an initial binding has not yet been established as governed runtime configuration, implementation of that binding SHALL remain blocked until that rule is explicitly defined within the Phase 12 application configuration boundary without redefining global rule-governance semantics.
+
+### 5. Executor and Normalization Boundary
+
+Existing Quality executors remain authoritative for translating tool-native execution behavior into canonical `QualityCheckResult` values.
+
+The CLI SHALL NOT interpret native Ruff, MyPy, Pytest, Documentation, or Plugin Compliance process exit codes as FamilyOS Quality conclusions. Native execution details SHALL continue to be normalized by the executor boundary.
+
+Phase 12 SHALL NOT introduce a generic FamilyOS command/process abstraction unless separately authorized.
+
+### 6. `quality check` Semantics
+
+`familyos quality check` SHALL construct the canonical target from explicit CLI input, resolve the governed profile, execute the profile's required checks through application-layer orchestration, render each normalized check result, and return a Quality-semantic CLI exit code.
+
+The command SHALL preserve normalized statuses rather than collapsing `WARNING`, `SKIPPED`, `UNKNOWN`, or `ERROR` into an invented PASS/FAIL boolean.
+
+`quality check` SHALL NOT create or evaluate a Quality Gate.
+
+### 7. `quality assess` Semantics
+
+`familyos quality assess` SHALL reuse the same governed execution path and the existing `QualityProfileAssessmentService`.
+
+The resolved profile reference SHALL remain the assessment profile identity and the profile's `required_checks` SHALL remain required-check authority.
+
+The command SHALL render at minimum overall assessment status, target-level quality state, profile reference, blocking findings when supplied by authorized semantics, and an evidence summary.
+
+Phase 12 SHALL NOT infer blocking findings from `severity_policy` and SHALL NOT evaluate Quality Gates.
+
+### 8. `quality report` Semantics
+
+`familyos quality report` SHALL provide a stable presentation of canonical Quality execution and/or assessment information produced by the same application semantics used by `check` and `assess`.
+
+Human-readable output SHALL be supported. Structured output MAY be supported where implemented, but SHALL use an explicit renderer boundary and stable deterministic field semantics. The CLI SHALL NOT expose arbitrary dataclass internals as an accidental serialization contract.
+
+Phase 12 SHALL NOT create persistent report storage, report history, observability pipelines, or governance registries.
+
+### 9. CLI Exit Code Policy
+
+The frozen initial Quality CLI exit codes are:
+
+```text
+0  Quality command completed with a non-failing Quality conclusion.
+1  Quality command completed with a Quality FAIL conclusion.
+2  Quality command could not produce a reliable Quality conclusion because of ERROR, UNKNOWN/incomplete required state, invalid target/profile resolution, unavailable required executor, invalid command input, or equivalent Quality execution failure.
+```
+
+For `quality check`, all required checks PASS or contain only PASS and WARNING => exit 0. A required FAIL => exit 1 unless ERROR, UNKNOWN, missing/incomplete required execution, or equivalent unreliable state requires exit 2. Required ERROR, UNKNOWN, SKIPPED, missing result, unavailable executor, unresolved profile, or ambiguous profile => exit 2.
+
+For `quality assess`, canonical assessment state PASS or PASS_WITH_WARNINGS => exit 0; canonical assessment state FAIL => exit 1; canonical assessment state UNKNOWN, or assessment status ERROR/UNKNOWN => exit 2.
+
+`quality report` SHALL use the same semantic exit policy for the Quality result it evaluates or renders. Pure rendering failures SHALL return exit 2.
+
+Native tool exit codes SHALL NOT leak through as Quality CLI exit codes.
+
+### 10. Rendering Boundary
+
+Human-readable rendering SHALL remain in the CLI/interface layer. Structured rendering, when implemented, SHALL use dedicated CLI rendering code.
+
+Rendering SHALL consume canonical Quality results and SHALL NOT recalculate assessment state, profile applicability, required checks, blocking semantics, or Quality Gate policy.
+
+### 11. CLI Registration and Tests
+
+The Quality command group SHALL be registered through the existing FamilyOS CLI application architecture.
+
+Phase 12 runtime evidence SHALL cover at least: Quality help and command discovery; explicit target construction; governed profile resolution; deterministic required-check execution; unresolved and ambiguous profile failures where applicable; unavailable executor failure; normalized check rendering; assessment/evidence rendering; blocking-finding rendering using existing explicit semantics; exit 0/1/2 behavior; and structured rendering semantics if structured output is implemented.
+
+Application-layer tests SHALL cover execution orchestration independently of Typer.
+
+### 12. Deferred Boundaries
+
+Phase 12 SHALL NOT implement or redefine:
+
+- CI integration;
+- Quality Gate domain models or gate evaluation;
+- merge-gate or release-gate policy;
+- risk-based execution;
+- Quality Exception semantics;
+- Quality Debt management;
+- release Quality policy;
+- Quality observability or metrics;
+- governance registries;
+- framework lifecycle automation;
+- incremental or distributed execution;
+- Quality events or notifications;
+- Quality intelligence or AI-assisted analysis;
+- profile inheritance/composition;
+- implicit default or latest-profile selection;
+- provider-specific CI semantics.
+
+These remain owned by later Quality Framework phases.
+
+### 13. Phase 12 Implementation Gate
+
+Runtime implementation MAY begin only against this frozen Phase 12 contract.
+
+Implementation SHALL remain blocked if a proposed runtime change requires inventing semantics that belong to a later phase or contradict the existing Quality domain, profile, executor, evidence, or assessment contracts.
+
+
 # Phase 13 — CI Integration
 
 ## Objective
