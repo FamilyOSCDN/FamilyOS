@@ -2926,6 +2926,38 @@ A governed required check without a complete execution binding — including a m
 
 The concrete governed `QualityRule` values used by the initial bindings SHALL be explicit runtime configuration and SHALL satisfy the existing `QualityRule` domain contract. Phase 12 SHALL NOT derive their identity from test-only fixtures. If a concrete rule required for an initial binding has not yet been established as governed runtime configuration, implementation of that binding SHALL remain blocked until that rule is explicitly defined within the Phase 12 application configuration boundary without redefining global rule-governance semantics.
 
+#### Governed Initial Phase 12 Rule Definitions
+
+For the initial Phase 12 execution-binding boundary, FamilyOS SHALL establish the following five concrete `QualityRule` values as explicit application-layer runtime configuration. These definitions exist only to provide the rule value required by the already-frozen Phase 12 execution contract. They SHALL NOT constitute a global Quality Rule Registry or a general check-to-rule taxonomy.
+
+The rule identities describe engineering expectations rather than making the current verification tools the semantic owners of those expectations.
+
+| Governed check | Runtime rule | Requirement | Domain | Severity | Description | Executor logical reference |
+| --- | --- | --- | --- | --- | --- | --- |
+| `QLT-CHECK-RUFF` | `QLT-RULE-STA-001` | `None` | `QLT-DOM-MNT` | `MEDIUM` | Python source must satisfy configured static analysis requirements. | `ruff` |
+| `QLT-CHECK-MYPY` | `QLT-RULE-TYP-001` | `QLT-REQ-TYP-001` | `QLT-DOM-COR` | `HIGH` | Public Python interfaces must satisfy configured type verification requirements. | `mypy` |
+| `QLT-CHECK-PYTEST` | `QLT-RULE-TST-001` | `None` | `QLT-DOM-TST` | `CRITICAL` | Required tests selected for the active quality profile must pass. | `pytest` |
+| `QLT-CHECK-DOC` | `QLT-RULE-DOC-001` | `None` | `QLT-DOM-DOC` | `HIGH` | Required canonical documentation must satisfy configured documentation validation requirements. | `documentation` |
+| `QLT-CHECK-PLUGIN-COMPLIANCE` | `QLT-RULE-CPL-001` | `None` | `QLT-DOM-CPL` | `HIGH` | Authoritative plugin compliance evaluation must complete successfully for an applicable plugin target. | `plugin_compliance` |
+
+These Phase 12 definitions are governed runtime wiring values. Similar identifiers or values appearing in executor unit-test fixtures SHALL NOT be treated as their source of authority.
+
+`QLT-RULE-STA-001` represents the tool-independent static-analysis expectation. Ruff is the current execution provider and may be replaced without changing the rule's engineering meaning.
+
+`QLT-RULE-TYP-001` represents the type-verification expectation already associated with `QLT-REQ-TYP-001`. MyPy is the current execution provider and SHALL NOT become the semantic identity of the rule.
+
+`QLT-RULE-TST-001` represents the requirement that the tests selected for the active profile complete successfully. Infrastructure or execution failure remains `ERROR`, not a successful or ordinary failing test conclusion.
+
+`QLT-RULE-DOC-001` represents canonical documentation validation. The documentation executor remains responsible only for normalization and execution; it SHALL NOT redefine the rule at runtime.
+
+`QLT-RULE-CPL-001` is strictly a Quality Framework integration rule governing successful consumption of the authoritative Plugin Compliance evaluation. It SHALL NOT duplicate, replace, reinterpret, or claim ownership of any specialized plugin-compliance rule, profile, finding, evidence, or governance semantics owned by EPIC-PLUGIN-002. The existing Plugin Compliance Framework remains authoritative for the compliance evaluation consumed by the Quality executor.
+
+The `executor` values above are opaque logical references carried by `QualityRule.executor`. They SHALL NOT be interpreted as executor objects, dependency-injection containers, or a general provider registry.
+
+The initial Phase 12 binding configuration SHALL contain exactly these five governed check/rule associations. Adding another association requires explicit contract authority; it SHALL NOT be inferred from an executor implementation, test fixture, check-id spelling, or discovered tool.
+
+No Phase 12 checklist item is closed merely by freezing these rule definitions. Runtime implementation, integration evidence, CLI behavior, exit-code behavior, and Phase 12 exit criteria remain open until independently demonstrated.
+
 ### 5. Executor and Normalization Boundary
 
 Existing Quality executors remain authoritative for translating tool-native execution behavior into canonical `QualityCheckResult` values.
