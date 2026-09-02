@@ -4411,3 +4411,202 @@ and the Phase 2 exit criteria remain open until their corresponding runtime
 implementation and verification evidence exist.
 
 Phase 3 `QualityEvidence` implementation remains explicitly open.
+
+## Phase 11 Profile-to-Assessment Integration Contract
+
+This contract freezes the initial Phase 11 boundary by which a resolved canonical
+`QualityProfile` participates in Quality assessment orchestration. It does not
+constitute implementation evidence and does not, by itself, close any remaining
+Phase 11 checklist item.
+
+### Responsibility Boundary
+
+Phase 11 SHALL preserve the Phase 10 `QualityAssessmentService` as the canonical
+assessment aggregation primitive. Profile resolution and profile-derived
+assessment inputs SHALL be orchestrated above that service rather than silently
+mixing profile discovery, provider execution, gate evaluation, risk
+interpretation, and assessment aggregation into one responsibility.
+
+The integration SHALL consume a canonical `QualityTarget`, a governed
+`QualityProfileResolver`, normalized canonical `QualityCheckResult` values, and
+the explicit blocking classification required by the Phase 10 assessment
+contract.
+
+### Profile Resolution
+
+The integration SHALL resolve the applicable canonical `QualityProfile` through
+the governed `QualityProfileResolver`.
+
+The integration SHALL NOT:
+
+- select a default profile when resolution fails;
+- select a preferred or latest profile from an ambiguous result;
+- discover profiles from undocumented environment, filesystem, repository,
+  lifecycle, risk, plugin-classification, or provider state;
+- reinterpret provider-specific output to determine profile applicability.
+
+Zero applicable profiles and ambiguous profile resolution SHALL remain explicit
+failures according to the frozen Phase 11 Profile Resolution Contract.
+
+### Assessment Profile Reference
+
+The resolved profile SHALL supply the assessment profile reference.
+
+The value passed to `QualityAssessment.profile` SHALL be the stable canonical
+`QualityProfile.reference`, containing both profile identity and explicit
+profile version.
+
+For example:
+
+```text
+QLT-PROFILE-REPOSITORY@1
+```
+
+The integration SHALL NOT embed a mutable `QualityProfile` object directly into
+`QualityAssessment`.
+
+Changing the resolved profile version SHALL be capable of producing a distinct
+assessment profile reference even when the target revision and normalized check
+results are otherwise unchanged.
+
+### Required Checks
+
+The resolved profile SHALL be the authoritative Phase 11 source of required
+check identifiers for assessment orchestration.
+
+The integration SHALL derive:
+
+```text
+required_check_ids = resolved_profile.required_checks
+```
+
+and SHALL pass those canonical `QualityCheckId` values to the existing Phase 10
+assessment aggregation boundary.
+
+The integration SHALL NOT maintain an undocumented duplicate list of required
+checks, invent a global Quality check catalog, reinterpret provider-native check
+identities, or silently add/remove required checks.
+
+The existing Phase 11 "Unknown check rejected" checklist requirement remains
+governed by the separately frozen authority boundary: no global
+`QualityCheckId` catalog currently exists, so absence from an invented catalog
+SHALL NOT be treated as invalidity.
+
+### Blocking Classification and Severity Policy
+
+The Phase 10 assessment contract requires explicit blocking classification
+through `blocking_finding_ids`. That explicit input SHALL remain authoritative
+for this initial Phase 11 integration slice.
+
+Although `QualityProfile.severity_policy` is canonical governed profile
+configuration, this integration SHALL NOT automatically translate finding
+severity into blocking classification.
+
+In particular, the implementation SHALL NOT assume that `HIGH`, `CRITICAL`, or
+any other `QualitySeverity` is blocking unless an explicitly governed policy
+boundary authorizes that interpretation.
+
+This preserves the documented separation between profile expectations,
+assessment conclusions, and lifecycle gate decisions. Gate evaluation, risk
+acceptance, exception policy, lifecycle transition policy, and release
+authorization remain deferred to their dedicated later phases.
+
+### Assessment Aggregation
+
+After profile resolution, the integration SHALL delegate assessment aggregation
+to the existing `QualityAssessmentService`.
+
+At minimum, the delegated inputs SHALL preserve:
+
+```text
+profile            = resolved_profile.reference
+required_check_ids = resolved_profile.required_checks
+```
+
+along with the canonical target, normalized check results, explicit
+`blocking_finding_ids`, assessment identity, and creation time required by the
+Phase 10 service.
+
+The integration SHALL NOT duplicate or replace the Phase 10 aggregation
+precedence for required `ERROR`, missing/unknown/skipped required results,
+explicit blocking findings, non-blocking required `FAIL`, warning-only required
+sets, all-pass required sets, or non-required result traceability.
+
+### Determinism and Traceability
+
+Equivalent governed profile sets, equivalent targets, equivalent normalized
+check results, and equivalent explicit blocking inputs SHALL produce equivalent
+profile-derived assessment inputs independent of profile registration order.
+
+The resulting assessment SHALL preserve:
+
+- canonical target identity;
+- target revision;
+- stable profile identity and version through `QualityProfile.reference`;
+- normalized evidence identifiers;
+- normalized finding identifiers;
+- the existing Phase 10 assessment status and quality-state semantics.
+
+No undocumented environment state may participate in the result.
+
+### Initial Runtime Shape
+
+The initial implementation SHOULD introduce a narrow application-layer
+orchestration boundary rather than widening the domain model or introducing a
+later-phase gate abstraction.
+
+That orchestration MAY be represented by a dedicated application service that:
+
+1. resolves exactly one applicable `QualityProfile`;
+2. derives the stable profile reference;
+3. derives required canonical check identifiers;
+4. delegates aggregation to `QualityAssessmentService`;
+5. returns the resulting canonical `QualityAssessment`.
+
+The existing lower-level `QualityAssessmentService.assess(...)` contract MAY
+remain available as the Phase 10 aggregation primitive.
+
+### Required Implementation Evidence
+
+Before the Phase 11 assessment-integration checklist item may be closed,
+implementation evidence SHALL demonstrate at minimum:
+
+- exactly one applicable governed profile is resolved;
+- the assessment stores `resolved_profile.reference`;
+- profile identity and version are both traceable in that reference;
+- `resolved_profile.required_checks` supplies the required assessment check set;
+- a changed profile version can produce a changed assessment profile reference;
+- unresolved profile resolution fails explicitly;
+- ambiguous profile resolution fails explicitly;
+- registration order does not alter deterministic resolution behavior;
+- explicit Phase 10 blocking classification remains preserved;
+- profile `severity_policy` is not silently converted into blocking findings;
+- Phase 10 assessment aggregation semantics remain regression-compatible;
+- no global Quality check catalog is invented;
+- no default profile is introduced;
+- no provider-native result reinterpretation is introduced;
+- `QualityGate` remains unimplemented;
+- Quality CLI remains unimplemented.
+
+### Deferred Boundaries
+
+This contract does not authorize implementation of:
+
+- profile inheritance or composition;
+- profile precedence or conflict resolution;
+- automatic profile assignment;
+- repository-policy discovery;
+- lifecycle-stage profile policy;
+- target criticality inference;
+- risk-driven profile selection;
+- severity-to-blocking inference beyond a separately governed contract;
+- gate evaluation;
+- exception or waiver policy;
+- risk acceptance;
+- merge authorization;
+- release authorization;
+- Quality CLI behavior;
+- Quality observability or metrics.
+
+Those concerns remain deferred to their explicit Phase 11 follow-up slices or
+dedicated later Quality Framework phases.
