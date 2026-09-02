@@ -2421,6 +2421,231 @@ Implementation evidence SHALL include at minimum:
 - proof that unknown-check global validation is not invented in this slice;
 - proof that `QualityGate` and Quality CLI remain absent.
 
+## Phase 11 Governed Initial Profiles and Known-Check Validation Contract
+
+This contract freezes the remaining Phase 11 authority required to establish
+version-controlled initial Quality profiles and to reconcile the checklist
+requirement that an unknown check is rejected. It extends the already-frozen
+Phase 11 profile, registry/resolution, and profile-to-assessment contracts
+without changing their existing runtime semantics.
+
+### Quality Check Identity Authority
+
+`QualityCheckId` remains the canonical immutable identity for normalized Quality
+check executions and SHALL continue to use the governed `QLT-CHECK-*`
+namespace established by Phase 4.
+
+The `QLT-CHECK-*` namespace remains extensible. Phase 11 SHALL NOT impose a
+closed global suffix taxonomy, and SHALL NOT reinterpret every syntactically
+valid `QualityCheckId` as a globally registered Quality capability.
+
+Phase 4 examples such as `QLT-CHECK-LINT`, `QLT-CHECK-TYPE`,
+`QLT-CHECK-UNIT`, `QLT-CHECK-ARCH`, and `QLT-CHECK-DOC` remain valid examples
+of the extensible identifier namespace. Their validity does not, by itself,
+make them required or supported by every governed profile.
+
+For the initial Phase 11 governed-profile slice, the following check identities
+are authorized where the corresponding implemented Quality capability is used:
+
+```text
+QLT-CHECK-RUFF
+QLT-CHECK-MYPY
+QLT-CHECK-PYTEST
+QLT-CHECK-DOC
+QLT-CHECK-PLUGIN-COMPLIANCE
+```
+
+These identities are profile-definition identities for the initial governed
+slice. They SHALL NOT invalidate other namespace-valid `QLT-CHECK-*`
+identities used by independently governed execution or test scenarios.
+
+`QualityCheckId` and `QualityRuleId` remain distinct concepts.
+`QLT-RULE-*` identities SHALL NOT be substituted for profile
+`required_checks`.
+
+### Known-Check Validation Boundary
+
+The Phase 11 checklist requirement "Unknown check rejected" SHALL be satisfied
+at the governed profile-definition boundary, not by changing the
+`QualityCheckId` value object and not by introducing a global closed Quality
+check catalog.
+
+A governed profile-definition loader, factory, or equivalent construction
+boundary SHALL validate every `required_checks` entry against an explicit
+supplied or locally owned set of check identities authorized for that governed
+definition set.
+
+A required check that is syntactically valid as a `QualityCheckId` but is not
+present in that governed known-check set SHALL be rejected explicitly.
+
+This validation SHALL NOT imply that the same check identity is globally
+invalid. The generic `QualityProfile` model, `QualityProfileRegistry`, and
+`QualityProfileResolver` SHALL remain capable of representing and resolving
+namespace-valid profiles outside the initial governed definition set when those
+profiles are supplied by another authorized boundary.
+
+The existing behavior proving that a namespace-valid check is not rejected
+merely because no global Quality check catalog exists SHALL therefore remain
+valid.
+
+### Version-Controlled Profile Definitions
+
+The initial FamilyOS Quality profile definitions SHALL live in repository source
+control as explicit deterministic definitions or deterministic construction
+code.
+
+The initial slice SHALL NOT require YAML, JSON, TOML, environment variables,
+repository discovery, network discovery, or provider-native configuration as a
+profile authority.
+
+Each governed profile definition SHALL preserve an explicit
+`QualityProfileId`, explicit version, target types, required checks, required
+domains, and severity policy.
+
+Profile version selection SHALL remain explicit. Phase 11 SHALL NOT introduce
+implicit "latest" selection, semantic-version compatibility resolution,
+fallback versions, environment-selected versions, or mutable in-place profile
+replacement.
+
+A default registry builder MAY register the initial governed definitions in a
+deterministic order. Duplicate profile identity/version registration SHALL
+continue to fail according to the existing `QualityProfileRegistry` contract.
+
+### Initial Governed Profiles
+
+The initial governed profile set SHALL establish these recommended Phase 11
+profiles:
+
+```text
+familyos-repository
+familyos-official-plugin
+familyos-documentation
+```
+
+Their canonical runtime identities SHALL use `QualityProfileId` values in the
+existing `QLT-PROFILE-*` namespace. The exact suffixes SHALL be deterministic
+and human-readable representations of the governed profile names.
+
+The initial profile versions SHALL be explicit supplied values recorded in the
+version-controlled definitions.
+
+The profile definitions SHALL use only check identities backed by already
+authorized Quality capabilities. Phase 11 SHALL NOT invent placeholder
+executors or unsupported check identities merely to mirror aspirational
+documentation text.
+
+The Repository Profile MAY govern the already implemented Ruff, MyPy, Pytest,
+and documentation-validation capabilities.
+
+The Official Plugin Profile MAY govern the applicable already implemented
+repository-quality capabilities together with Plugin Compliance. References in
+the earlier implementation guidance to "Plugin Tests", "Plugin Documentation",
+"Architecture Checks", or "Repository Base" SHALL NOT by themselves authorize
+new check identities, profile inheritance, or new executors.
+
+The Documentation Profile SHALL be limited to already authorized documentation
+Quality capability unless a broader set is separately frozen.
+
+`familyos-release` and `familyos-critical-release` remain later profiles and
+SHALL NOT be introduced by this initial Phase 11 slice.
+
+### Profile Composition and Inheritance
+
+The phrase "Repository Base" in the earlier suggested Official Plugin Profile
+requirements is descriptive guidance only for this initial slice.
+
+Phase 11 SHALL NOT introduce profile inheritance, profile composition, parent
+profiles, transitive required checks, merge semantics, or override semantics
+without a separate explicit contract.
+
+If multiple initial profiles share check identities, those identities SHALL be
+listed explicitly in each deterministic governed definition.
+
+### Applicability and Resolution
+
+Initial governed profile applicability SHALL continue to use only explicit
+`QualityTarget.target_type` information according to the existing
+`QualityProfile.applies_to(...)` and `QualityProfileResolver` contracts.
+
+The governed profile-definition slice SHALL NOT introduce implicit defaults,
+repository-state discovery, environment-based selection, provider-native
+selection, or lifecycle-based selection.
+
+Zero applicable profiles SHALL remain an explicit resolution failure.
+Multiple applicable profiles SHALL remain an explicit ambiguity failure.
+
+The initial governed definitions SHALL therefore use target-type applicability
+that does not create accidental ambiguity for their intended canonical target
+categories.
+
+### Assessment Integration
+
+The existing `QualityProfileAssessmentService` remains the Phase 11
+profile-aware assessment orchestration boundary.
+
+It SHALL continue to resolve one applicable governed `QualityProfile`, pass
+`profile.reference` as the assessment profile reference, derive
+`required_check_ids` from `QualityProfile.required_checks`, preserve explicit
+`blocking_finding_ids`, and delegate aggregation to the existing Phase 10
+`QualityAssessmentService`.
+
+The governed initial-profile slice SHALL NOT duplicate or replace Phase 10
+aggregation semantics.
+
+`severity_policy` SHALL remain preserved profile data and SHALL NOT be
+automatically translated into blocking findings or gate decisions.
+
+`required_domains` SHALL remain explicit profile data and SHALL NOT acquire
+new execution or gate semantics in this slice.
+
+### Required Runtime Evidence
+
+Before this contract can be used to close the remaining Phase 11 checklist
+items, runtime evidence SHALL demonstrate at minimum:
+
+- deterministic construction of the three initial governed profiles;
+- explicit identity and version preservation for every governed profile;
+- deterministic registration of the governed profile set;
+- rejection of duplicate governed profile identity/version registration;
+- rejection of a syntactically valid but unknown required check at the governed
+  profile-definition validation boundary;
+- continued acceptance of namespace-valid `QualityCheckId` values outside that
+  governed validation boundary;
+- successful resolution of each initial profile for its intended explicit
+  target type;
+- explicit failure for unresolved or ambiguous applicability;
+- assessment integration using the resolved profile reference and the
+  profile-owned required check set;
+- preservation of explicit blocking semantics without severity inference; and
+- deterministic serialization or inspection sufficient to prove that the
+  definitions are repository-versioned and reproducible.
+
+### Explicitly Deferred Concerns
+
+This contract does not authorize:
+
+- a global closed Quality check registry or catalog;
+- implicit or environment-selected profile defaults;
+- implicit latest-version selection;
+- profile inheritance or composition;
+- new Architecture, Plugin Tests, or Plugin Documentation executors solely to
+  satisfy suggested profile text;
+- provider-native payload reinterpretation;
+- automatic severity-to-blocking policy;
+- Quality Gates;
+- merge gates;
+- release gates;
+- Quality risk policy;
+- exception policy;
+- profile lifecycle automation;
+- Quality CLI; or
+- CI integration beyond authority already granted by its own implementation
+  phase.
+
+Those concerns remain governed by their dedicated later phases or require a
+separate explicit contract before implementation.
+
+---
 
 # Phase 12 — Quality CLI
 
