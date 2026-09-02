@@ -2142,12 +2142,12 @@ severity_policy
 Checklist:
 
 ```text id="impl-profile-checklist"
-[ ] Define QualityProfile
-[ ] Define profile identity
-[ ] Define profile version
-[ ] Define required checks
-[ ] Define applicability
-[ ] Add profile validation
+[x] Define QualityProfile
+[x] Define profile identity
+[x] Define profile version
+[x] Define required checks
+[x] Define applicability
+[x] Add profile validation
 ```
 
 ---
@@ -2201,11 +2201,11 @@ Architecture Checks
 # Profile Tests
 
 ```text id="impl-profile-tests"
-[ ] Valid profile loads
-[ ] Unknown check rejected
-[ ] Duplicate check behavior defined
-[ ] Missing required field rejected
-[ ] Version represented
+[x] Valid profile loads
+[x] Unknown check rejected
+[x] Duplicate check behavior defined
+[x] Missing required field rejected
+[x] Version represented
 ```
 
 ---
@@ -2213,9 +2213,9 @@ Architecture Checks
 # Phase 11 Exit Criteria
 
 ```text id="impl-phase11-exit"
-[ ] Profile resolution works
-[ ] Assessments use profiles
-[ ] Profiles are version-controlled
+[x] Profile resolution works
+[x] Assessments use profiles
+[x] Profiles are version-controlled
 ```
 
 ---
@@ -2647,6 +2647,113 @@ separate explicit contract before implementation.
 
 ---
 
+## Phase 11 Closure Evidence
+
+Phase 11 — Quality Profiles is closed on the basis of implemented and validated
+runtime evidence. The checklist items above are closed only for the initial
+governed Phase 11 subset authorized by the frozen contracts in this section.
+
+### Runtime Evidence
+
+The canonical profile model and governed runtime are implemented across these
+Phase 11 commits:
+
+```text
+34c8dcc feat(quality): establish quality profile model
+50be26f feat(quality): implement profile registry and resolver
+73afa3e feat(quality): integrate profiles with assessments
+d7b2a01 feat(quality): establish governed initial profiles
+```
+
+The implemented runtime provides:
+
+- immutable `QualityProfile` values;
+- dedicated `QualityProfileId` identity in the `QLT-PROFILE-*` namespace;
+- explicit profile versions participating in stable profile references;
+- canonical `QualityCheckId` required-check references;
+- canonical `QualityDomain` required-domain references;
+- deterministic applicability based on explicit `QualityTarget.target_type`;
+- duplicate validation for profile collections and governed known-check sets;
+- explicit local rejection of unknown required checks at the governed
+  `QualityProfileDefinition` boundary without introducing a global closed check
+  catalog;
+- deterministic `QualityProfileRegistry` inspection and duplicate
+  identity/version rejection;
+- deterministic `QualityProfileResolver` behavior with explicit unresolved and
+  ambiguous-profile failures;
+- `QualityProfileAssessmentService` orchestration deriving
+  `required_check_ids` from the resolved profile and preserving the stable
+  `profile.reference`;
+- explicit blocking semantics preserved from Phase 10 without automatic
+  severity-to-blocking inference; and
+- source-controlled deterministic initial profile definitions.
+
+### Initial Governed Profiles
+
+The version-controlled initial governed set is:
+
+```text
+QLT-PROFILE-REPOSITORY@1.0.0
+  target_type: repository
+  required_checks:
+    QLT-CHECK-RUFF
+    QLT-CHECK-MYPY
+    QLT-CHECK-PYTEST
+    QLT-CHECK-DOC
+
+QLT-PROFILE-OFFICIAL-PLUGIN@1.0.0
+  target_type: plugin
+  required_checks:
+    QLT-CHECK-RUFF
+    QLT-CHECK-MYPY
+    QLT-CHECK-PYTEST
+    QLT-CHECK-DOC
+    QLT-CHECK-PLUGIN-COMPLIANCE
+
+QLT-PROFILE-DOCUMENTATION@1.0.0
+  target_type: documentation
+  required_checks:
+    QLT-CHECK-DOC
+```
+
+For this initial Phase 11 slice, `required_domains` and `severity_policy`
+remain explicit but empty governed profile data. No additional execution,
+blocking, gate, risk, exception, lifecycle, or release semantics are inferred
+from them.
+
+### Validation Evidence
+
+Final Phase 11 reconciliation at commit
+`d7b2a01dd867ef16475f46d14171380fb0295a71` demonstrated:
+
+```text
+Phase 11 focused tests: 60 passed
+Full Quality regression: 296 passed
+Quality architecture tests: 6 passed
+Ruff: PASS
+MyPy: PASS — 38 source files
+Phase 11 checklist obligations: 14 / 14 PASS
+```
+
+The final audit also confirmed:
+
+```text
+QualityGate: absent
+Quality CLI: absent
+Profile inheritance/composition: absent
+Implicit latest-version selection: absent
+Working tree before closure: clean
+```
+
+### Deferred Boundaries
+
+Closing Phase 11 does not authorize or claim implementation of Quality CLI,
+Quality Gates, merge or release gates, risk policy, exception policy, profile
+inheritance or composition, lifecycle automation, automatic latest-version
+selection, provider-native payload reinterpretation, or any other concern
+reserved for Phase 12 or later Quality Framework phases.
+
+---
 # Phase 12 — Quality CLI
 
 ## Objective
