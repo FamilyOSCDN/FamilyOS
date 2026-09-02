@@ -34,12 +34,31 @@ class QualityAssessmentService:
         required = tuple(by_check.get(check_id) for check_id in required_check_ids)
         present = tuple(result for result in required if result is not None)
 
-        evidence_ids = tuple(
-            sorted({e.id for result in check_results for e in result.evidence}, key=str)
+        evidence = tuple(
+            evidence for result in check_results for evidence in result.evidence
         )
-        finding_ids = tuple(
-            sorted({f.id for result in check_results for f in result.findings}, key=str)
+        findings = tuple(
+            finding for result in check_results for finding in result.findings
         )
+
+        if any(evidence.target != target for evidence in evidence):
+            raise ValueError(
+                "QualityAssessment evidence target must match assessment target"
+            )
+        if any(finding.target != target for finding in findings):
+            raise ValueError(
+                "QualityAssessment finding target must match assessment target"
+            )
+        if any(
+            evidence.revision is not None and evidence.revision != target.revision
+            for evidence in evidence
+        ):
+            raise ValueError(
+                "QualityAssessment evidence revision must match assessment target revision"
+            )
+
+        evidence_ids = tuple(sorted({evidence.id for evidence in evidence}, key=str))
+        finding_ids = tuple(sorted({finding.id for finding in findings}, key=str))
 
         missing = any(result is None for result in required)
         error = any(result.status is QualityStatus.ERROR for result in present)

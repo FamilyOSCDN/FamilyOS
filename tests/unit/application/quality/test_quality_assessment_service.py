@@ -291,3 +291,103 @@ def test_duplicate_check_results_are_rejected() -> None:
             blocking_finding_ids=(),
             created_at=NOW,
         )
+
+
+def test_evidence_for_different_target_is_rejected() -> None:
+    different_target = QualityTarget(
+        "repository", "other-repository", revision="abc123"
+    )
+    evidence = QualityEvidence(
+        id=QualityEvidenceId("QLT-EVID-002"),
+        type=QualityEvidenceType("TEST"),
+        source="pytest",
+        target=different_target,
+        result=QualityEvidenceResult.PASS,
+        created_at=NOW,
+        revision="abc123",
+    )
+    result = QualityCheckResult(
+        check_id=CHECK, status=QualityStatus.PASS, evidence=(evidence,)
+    )
+
+    import pytest
+
+    with pytest.raises(ValueError, match="evidence target must match"):
+        assess(result)
+
+
+def test_finding_for_different_target_is_rejected() -> None:
+    from familyos_cli.domain.quality import (
+        QualityDomain,
+        QualityFinding,
+        QualityFindingId,
+        QualityRuleId,
+        QualitySeverity,
+    )
+
+    different_target = QualityTarget(
+        "repository", "other-repository", revision="abc123"
+    )
+    finding = QualityFinding(
+        id=QualityFindingId("QLT-FIND-001"),
+        rule_id=QualityRuleId("QLT-RULE-001"),
+        domain=QualityDomain("QLT-DOM-TST"),
+        severity=QualitySeverity.HIGH,
+        status=QualityStatus.WARNING,
+        message="finding for another target",
+        target=different_target,
+    )
+    result = QualityCheckResult(
+        check_id=CHECK,
+        status=QualityStatus.WARNING,
+        findings=(finding,),
+        evidence=(ev(QualityEvidenceResult.WARNING),),
+    )
+
+    import pytest
+
+    with pytest.raises(ValueError, match="finding target must match"):
+        assess(result)
+
+
+def test_explicit_evidence_revision_mismatch_is_rejected() -> None:
+    evidence = QualityEvidence(
+        id=QualityEvidenceId("QLT-EVID-002"),
+        type=QualityEvidenceType("TEST"),
+        source="pytest",
+        target=TARGET,
+        result=QualityEvidenceResult.PASS,
+        created_at=NOW,
+        revision="different-revision",
+    )
+    result = QualityCheckResult(
+        check_id=CHECK, status=QualityStatus.PASS, evidence=(evidence,)
+    )
+
+    import pytest
+
+    with pytest.raises(ValueError, match="evidence revision must match"):
+        assess(result)
+
+
+def test_evidence_without_revision_remains_acceptable() -> None:
+    evidence = QualityEvidence(
+        id=QualityEvidenceId("QLT-EVID-002"),
+        type=QualityEvidenceType("TEST"),
+        source="pytest",
+        target=TARGET,
+        result=QualityEvidenceResult.PASS,
+        created_at=NOW,
+        revision=None,
+    )
+    assessment = assess(
+        QualityCheckResult(
+            check_id=CHECK,
+            status=QualityStatus.PASS,
+            evidence=(evidence,),
+        )
+    )
+
+    assert assessment.status is QualityStatus.PASS
+    assert assessment.quality_state is QualityAssessmentState.PASS
+    assert assessment.evidence_ids == (evidence.id,)
