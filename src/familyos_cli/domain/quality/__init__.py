@@ -1,3 +1,6 @@
+from familyos_cli.domain.quality.quality_assessment import QualityAssessment
+from familyos_cli.domain.quality.quality_assessment_id import QualityAssessmentId
+from familyos_cli.domain.quality.quality_assessment_state import QualityAssessmentState
 from familyos_cli.domain.quality.quality_check_id import QualityCheckId
 from familyos_cli.domain.quality.quality_domain import (
     INITIAL_QUALITY_DOMAINS,
@@ -21,6 +24,9 @@ from familyos_cli.domain.quality.quality_status import QualityStatus
 from familyos_cli.domain.quality.quality_target import QualityTarget
 
 __all__ = [
+    "QualityAssessment",
+    "QualityAssessmentId",
+    "QualityAssessmentState",
     "QualityCheckId",
     "INITIAL_QUALITY_DOMAINS",
     "INITIAL_QUALITY_EVIDENCE_TYPES",
