@@ -112,6 +112,6 @@ def test_phase_eleven_exposes_profile_but_not_later_quality_domain_models() -> N
     assert discovered.isdisjoint(forbidden_symbols)
 
 
-def test_quality_cli_is_not_prematurely_introduced() -> None:
+def test_phase_twelve_quality_cli_is_authorized() -> None:
     commands_dir = _PACKAGE_ROOT / "interfaces" / "cli" / "commands"
-    assert not (commands_dir / "quality.py").exists()
+    assert (commands_dir / "quality.py").is_file()
