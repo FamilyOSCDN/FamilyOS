@@ -1985,6 +1985,102 @@ Checklist:
 
 ---
 
+## Phase 10 Runtime Contract Freeze
+
+Phase 10 SHALL introduce the initial reproducible Quality Assessment model and application aggregation boundary. It SHALL aggregate already-normalized Quality findings, evidence, and check outcomes into a target-level Quality conclusion. It SHALL NOT redefine tool-specific execution semantics established by Phases 4 through 9, and it SHALL NOT implement Quality Profiles, Quality CLI, Quality Gates, exception policy, risk policy, release policy, or later governance capabilities.
+
+### Canonical assessment model
+
+The initial `QualityAssessment` SHALL be an immutable runtime record with these semantic fields:
+
+```text
+id
+target
+revision
+profile
+status
+quality_state
+evidence_ids
+finding_ids
+created_at
+```
+
+- `id` SHALL use a dedicated governed Quality Assessment identity.
+- `target` SHALL be the canonical `QualityTarget`.
+- `revision` SHALL bind to the evaluated target revision when available; Phase 10 SHALL NOT invent a revision.
+- `profile` SHALL be an opaque supplied profile reference. Phase 10 SHALL NOT define `QualityProfile` or Phase 11 profile policy.
+- `status` SHALL preserve assessment execution/completeness status and remain distinct from `quality_state`.
+- `quality_state` SHALL use the closed Phase 10 vocabulary below.
+- `evidence_ids` and `finding_ids` SHALL reference canonical Quality identifiers consumed by the assessment.
+- `created_at` SHALL be supplied explicitly or through an injected clock for reproducible tests.
+
+Serialization SHALL preserve stable field names and canonical values.
+
+### Initial quality-state vocabulary
+
+Phase 10 SHALL define exactly:
+
+```text
+PASS
+PASS_WITH_WARNINGS
+FAIL
+UNKNOWN
+```
+
+`PASS` requires complete required inputs with no blocking or warning condition.
+`PASS_WITH_WARNINGS` requires complete required inputs, no blocking finding, and one or more warning conditions.
+`FAIL` represents a supported blocking Quality conclusion.
+`UNKNOWN` means required inputs are insufficient for a trustworthy PASS/FAIL conclusion.
+
+`UNKNOWN` SHALL never be promoted to `PASS` merely because no blocking finding is present.
+
+`CONDITIONAL` is deferred until governed exception/risk semantics exist.
+
+### Assessment status and adapter ERROR
+
+Phase 10 SHALL preserve canonical `QualityStatus` semantics. Adapter/executor `ERROR` SHALL NOT be collapsed into `FAIL` or `PASS`.
+
+For a required check `QualityStatus.ERROR`, the assessment SHALL preserve `status = QualityStatus.ERROR` and `quality_state = UNKNOWN`. `FAIL` remains reserved for an actual blocking Quality conclusion.
+
+### Deterministic aggregation contract
+
+Initial precedence SHALL be:
+
+```text
+required adapter/check ERROR or missing required evidence
+    -> quality_state UNKNOWN
+otherwise any blocking finding
+    -> quality_state FAIL
+otherwise warning-only condition
+    -> quality_state PASS_WITH_WARNINGS
+otherwise all required checks/evidence complete and PASS
+    -> quality_state PASS
+otherwise
+    -> quality_state UNKNOWN
+```
+
+Completeness SHALL be evaluated before successful PASS. Missing required evidence SHALL produce `UNKNOWN`; absence of evidence is not evidence of success. Required `SKIPPED` or `UNKNOWN` outcomes SHALL not silently become PASS. Equivalent reordered inputs SHALL produce the same conclusion and canonical referenced identifier sets.
+
+Phase 10 SHALL consume canonical Quality models and SHALL NOT reinterpret raw Ruff, MyPy, Pytest, Documentation Validation, or Plugin Compliance payloads.
+
+### Blocking-finding boundary
+
+Phase 10 SHALL NOT invent Phase 11 profile policy or later Quality Gate policy. The assessment boundary SHALL receive explicit governed input identifying blocking findings. It SHALL NOT create an implicit severity threshold or hidden default profile.
+
+### Assessment application service
+
+The Phase 10 application service SHALL accept a canonical `QualityTarget` and opaque profile reference; accept or orchestrate required canonical check results through existing Quality application ports; collect normalized evidence and findings; receive explicit required-input and blocking classification; produce one `QualityAssessment`; preserve target/revision/profile traceability; and use injected identity/time dependencies where needed.
+
+Business aggregation logic SHALL remain outside CLI and infrastructure adapters. Phase 10 MAY consume `QualityCheckResult` objects or execute checks through `QualityExecutorPort`; it SHALL NOT create a second generic process-execution abstraction.
+
+### Reproducibility and verification contract
+
+Implementation evidence SHALL cover assessment identity and immutability, stable serialization, target/revision binding, opaque profile preservation, PASS, PASS_WITH_WARNINGS, FAIL, UNKNOWN from missing evidence, required adapter ERROR producing assessment ERROR plus UNKNOWN quality state, required SKIPPED/UNKNOWN not becoming PASS, warning-only aggregation, blocking aggregation, reordered-input determinism, canonical evidence/finding identifier collection, and proof that raw provider outputs are not reinterpreted.
+
+This contract freezes the Phase 10 runtime boundary only. It does not constitute runtime implementation evidence and does not close any Phase 10 checklist item. Phase 11 Quality Profiles and Phase 12 Quality CLI remain unauthorized and unsatisfied by this contract freeze.
+
+---
+
 # Phase 11 — Quality Profiles
 
 ## Objective
