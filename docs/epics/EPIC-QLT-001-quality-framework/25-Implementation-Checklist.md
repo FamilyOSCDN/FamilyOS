@@ -1587,14 +1587,14 @@ Integrate EPIC-PLUGIN-002 without duplicating its compliance engine.
 # Plugin Compliance Adapter
 
 ```text id="impl-plugin-compliance"
-[ ] Identify authoritative plugin compliance API / service / CLI
-[ ] Define integration boundary
-[ ] Consume plugin compliance result
-[ ] Map compliance evidence
-[ ] Map compliance findings
-[ ] Preserve plugin rule identities
-[ ] Preserve severity semantics
-[ ] Add integration tests
+[x] Identify authoritative plugin compliance API / service / CLI
+[x] Define integration boundary
+[x] Consume plugin compliance result
+[x] Map compliance evidence
+[x] Map compliance findings
+[x] Preserve plugin rule identities
+[x] Preserve severity semantics
+[x] Add integration tests
 ```
 
 ---
@@ -1602,9 +1602,9 @@ Integrate EPIC-PLUGIN-002 without duplicating its compliance engine.
 # Official Plugin Target
 
 ```text id="impl-official-plugin"
-[ ] Support official plugin QualityTarget
-[ ] Resolve plugin compliance profile
-[ ] Bind compliance result to plugin revision
+[x] Support official plugin QualityTarget
+[x] Resolve plugin compliance profile
+[x] Bind compliance result to plugin revision
 ```
 
 ---
@@ -1612,9 +1612,9 @@ Integrate EPIC-PLUGIN-002 without duplicating its compliance engine.
 # No Duplication Check
 
 ```text id="impl-no-duplication"
-[ ] Quality Framework does not recreate plugin compliance rules
-[ ] Quality Framework does not redefine plugin compliance profiles
-[ ] Quality Framework consumes authoritative plugin compliance output
+[x] Quality Framework does not recreate plugin compliance rules
+[x] Quality Framework does not redefine plugin compliance profiles
+[x] Quality Framework consumes authoritative plugin compliance output
 ```
 
 ---
@@ -1622,12 +1622,57 @@ Integrate EPIC-PLUGIN-002 without duplicating its compliance engine.
 # Phase 9 Exit Criteria
 
 ```text id="impl-phase9-exit"
-[ ] Plugin compliance participates in quality evidence
-[ ] Official plugin assessments can consume compliance state
+[x] Plugin compliance participates in quality evidence
+[x] Official plugin assessments can consume compliance state
 ```
 
 ---
 
+
+## Phase 9 Closure Evidence
+
+Phase 9 is closed against runtime commit `e9a034b`
+(`feat(quality): integrate plugin compliance execution`) and real integration
+commit `2dd4b1d`
+(`test(quality): integrate authoritative plugin compliance`).
+
+The governing Phase 9 runtime contract was frozen by commit `82ca5df`
+(`docs(quality): freeze phase 9 plugin compliance contract`).
+
+Closure evidence:
+
+- Focused Plugin Compliance Quality executor unit validation: **21 / 21 PASS**.
+- Real Plugin Compliance Quality integration validation: **2 / 2 PASS**.
+- Quality regression at the integration gate: **211 / 211 PASS**.
+- Ruff validation: **PASS**.
+- MyPy validation: **PASS**.
+- Quality consumes the authoritative
+  `ComplianceEngine.evaluate(ComplianceRequest) -> ComplianceResult` boundary.
+- The governed `official` Plugin Compliance profile is resolved through the
+  existing Plugin Compliance infrastructure; Quality does not recreate or
+  redefine that profile.
+- Real official-plugin integration is demonstrated with `familyos.security`.
+- Real non-compliant integration is demonstrated with the canonical
+  `acme.broken` scenario.
+- Plugin Compliance status is normalized into the common Quality status model
+  without recomputing the authoritative compliance decision.
+- Plugin Compliance findings and evidence participate in the common Quality
+  finding/evidence model while preserving source Plugin rule identity,
+  severity, evidence identity, plugin identity/version, and other governed
+  provenance.
+- `QualityTarget.revision` is bound to normalized Quality evidence without
+  mutating or extending the authoritative `ComplianceResult`.
+- The no-duplication gate confirms that Quality introduces no duplicate Plugin
+  Compliance rule catalog, official profile, validator registry, compliance
+  decision evaluator, or second compliance engine.
+- Official plugin Quality assessments can therefore consume authoritative
+  Plugin Compliance state through the Phase 9 Quality executor boundary.
+
+Phase 9 closes the Plugin Compliance integration slice only. EPIC-PLUGIN-002
+remains authoritative for plugin-specific compliance rules, profiles,
+validators, findings, evidence semantics, severity semantics, and compliance
+decisions. Phase 10 and later Quality Framework behavior remain outside this
+closure and are not authorized or satisfied by Phase 9 completion.
 
 ## Phase 9 Runtime Contract Freeze
 
