@@ -25,9 +25,7 @@ def test_should_expose_plugin_resolution_use_case_from_container() -> None:
 
     resolve_plugins = Mock()
 
-    container.resolve_plugins_use_case.return_value = (
-        resolve_plugins
-    )
+    container.resolve_plugins_use_case.return_value = resolve_plugins
 
     context = CommandContext(
         container=container,
@@ -45,3 +43,15 @@ def test_command_context_propagates_explicit_project_root(
     context = CommandContext(project_root=tmp_path)
 
     assert context.project_root == tmp_path.resolve()
+
+
+def test_quality_execution_is_exposed_and_cached(tmp_path: Path) -> None:
+    from familyos_cli.application.quality.quality_execution_service import (
+        QualityExecutionService,
+    )
+
+    context = CommandContext(project_root=tmp_path)
+    first = context.quality_execution
+    second = context.quality_execution
+    assert isinstance(first, QualityExecutionService)
+    assert second is first

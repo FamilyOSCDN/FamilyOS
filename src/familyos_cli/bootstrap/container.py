@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from uuid import uuid4
 
 from familyos_cli.application.build import (
     DiscoverPackageArtifactsUseCase,
@@ -45,6 +46,25 @@ from familyos_cli.application.generation.preset_recipe_resolver import (
 )
 from familyos_cli.application.generation.recipe_catalog_service import (
     RecipeCatalogService,
+)
+from familyos_cli.application.quality.default_quality_profile_registry import (
+    build_default_quality_profile_registry,
+)
+from familyos_cli.application.quality.initial_quality_rules import (
+    DOCUMENTATION_RULE,
+    PLUGIN_COMPLIANCE_INTEGRATION_RULE,
+    REQUIRED_TESTS_RULE,
+    STATIC_ANALYSIS_RULE,
+    TYPE_VERIFICATION_RULE,
+)
+from familyos_cli.application.quality.quality_execution_binding import (
+    QualityExecutionBinding,
+)
+from familyos_cli.application.quality.quality_execution_service import (
+    QualityExecutionService,
+)
+from familyos_cli.application.quality.quality_profile_resolver import (
+    QualityProfileResolver,
 )
 from familyos_cli.application.specifications import (
     DomainSpecificationLoaderService,
@@ -96,6 +116,11 @@ from familyos_cli.domain.generation.domain_generation_planner import (
 from familyos_cli.domain.generation.generation_preset_resolver import (
     GenerationPresetResolver,
 )
+from familyos_cli.domain.quality import (
+    QualityCheckId,
+    QualityEvidenceId,
+    QualityFindingId,
+)
 from familyos_cli.domain.specifications.domain_specification_registry import (
     DomainSpecificationRegistry,
 )
@@ -106,6 +131,21 @@ from familyos_cli.infrastructure.build import (
 )
 from familyos_cli.infrastructure.generation.generation_engine import (
     GenerationEngine,
+)
+from familyos_cli.infrastructure.quality.documentation_quality_executor import (
+    DocumentationQualityExecutor,
+)
+from familyos_cli.infrastructure.quality.mypy_quality_executor import (
+    MypyQualityExecutor,
+)
+from familyos_cli.infrastructure.quality.plugin_compliance_quality_executor import (
+    PluginComplianceQualityExecutor,
+)
+from familyos_cli.infrastructure.quality.pytest_quality_executor import (
+    PytestQualityExecutor,
+)
+from familyos_cli.infrastructure.quality.ruff_quality_executor import (
+    RuffQualityExecutor,
 )
 from familyos_cli.infrastructure.specifications import (
     YamlDomainSpecificationLoader,
@@ -182,9 +222,7 @@ class ApplicationContainer:
         self._plugin_installer = PluginInstaller()
         self._plugin_lifecycle_manager = PluginLifecycleManager()
 
-        self._domain_specification_registry = (
-            DomainSpecificationRegistry()
-        )
+        self._domain_specification_registry = DomainSpecificationRegistry()
 
         self._specification_service = SpecificationService(
             self._domain_specification_registry,
@@ -267,6 +305,75 @@ class ApplicationContainer:
 
         return self._project_root
 
+    @staticmethod
+    def _quality_finding_id() -> QualityFindingId:
+        "Create one opaque runtime-local Quality finding identity."
+        return QualityFindingId(f"QLT-FIND-{uuid4()}")
+
+    @staticmethod
+    def _quality_evidence_id() -> QualityEvidenceId:
+        "Create one opaque runtime-local Quality evidence identity."
+        return QualityEvidenceId(f"QLT-EVID-{uuid4()}")
+
+    def quality_execution_service(self) -> QualityExecutionService:
+        "Create the governed Phase 12 Quality execution service."
+        finding_id_factory = self._quality_finding_id
+        evidence_id_factory = self._quality_evidence_id
+
+        bindings = (
+            QualityExecutionBinding(
+                QualityCheckId("QLT-CHECK-RUFF"),
+                STATIC_ANALYSIS_RULE,
+                RuffQualityExecutor(
+                    finding_id_factory=finding_id_factory,
+                    evidence_id_factory=evidence_id_factory,
+                ),
+            ),
+            QualityExecutionBinding(
+                QualityCheckId("QLT-CHECK-MYPY"),
+                TYPE_VERIFICATION_RULE,
+                MypyQualityExecutor(
+                    finding_id_factory=finding_id_factory,
+                    evidence_id_factory=evidence_id_factory,
+                ),
+            ),
+            QualityExecutionBinding(
+                QualityCheckId("QLT-CHECK-PYTEST"),
+                REQUIRED_TESTS_RULE,
+                PytestQualityExecutor(
+                    finding_id_factory=finding_id_factory,
+                    evidence_id_factory=evidence_id_factory,
+                ),
+            ),
+            QualityExecutionBinding(
+                QualityCheckId("QLT-CHECK-DOC"),
+                DOCUMENTATION_RULE,
+                DocumentationQualityExecutor(
+                    finding_id_factory=finding_id_factory,
+                    evidence_id_factory=evidence_id_factory,
+                ),
+            ),
+            QualityExecutionBinding(
+                QualityCheckId("QLT-CHECK-PLUGIN-COMPLIANCE"),
+                PLUGIN_COMPLIANCE_INTEGRATION_RULE,
+                PluginComplianceQualityExecutor(
+                    engine=self._compliance_engine,
+                    plugin_loader=PluginLoader(),
+                    plugins_root=self._builtin_plugins_root,
+                    finding_id_factory=finding_id_factory,
+                    evidence_id_factory=evidence_id_factory,
+                ),
+            ),
+        )
+
+        resolver = QualityProfileResolver(
+            build_default_quality_profile_registry(),
+        )
+        return QualityExecutionService(
+            profile_resolver=resolver,
+            bindings=bindings,
+        )
+
     def testing_evidence_freshness_use_case(
         self,
     ) -> EvaluateTestingEvidenceFreshnessUseCase:
@@ -312,15 +419,11 @@ class ApplicationContainer:
                         ),
                         normalizer=PytestResultNormalizer(),
                         evidence_producer=ProduceTestingEvidenceUseCase(
-                            source_state_provider=(
-                                GitTestingSourceStateProvider()
-                            ),
+                            source_state_provider=(GitTestingSourceStateProvider()),
                             clock=SystemTestingClock(),
                         ),
                     ),
-                    freshness_authority=(
-                        self.testing_evidence_freshness_use_case()
-                    ),
+                    freshness_authority=(self.testing_evidence_freshness_use_case()),
                     project_root=project_root,
                 ),
                 BuiltinPluginComplianceGate(
@@ -391,9 +494,7 @@ class ApplicationContainer:
         """Return generation catalog service."""
 
         return GenerationCatalogService(
-            generation_contributions=(
-                self._runtime.generation_contributions()
-            ),
+            generation_contributions=(self._runtime.generation_contributions()),
         )
 
     def domain_generation_catalog_service(
@@ -402,9 +503,7 @@ class ApplicationContainer:
         """Return domain generation catalog service."""
 
         return DomainGenerationCatalogService(
-            domain_contributions=(
-                self._runtime.domain_generation_contributions()
-            ),
+            domain_contributions=(self._runtime.domain_generation_contributions()),
         )
 
     def recipe_catalog_service(
@@ -425,16 +524,12 @@ class ApplicationContainer:
             self._specification_service,
         )
 
-        recipe_registry = (
-            ApplicationRecipeRegistryFactory.create(
-                self._runtime.generation_recipe_contributions(),
-            )
+        recipe_registry = ApplicationRecipeRegistryFactory.create(
+            self._runtime.generation_recipe_contributions(),
         )
 
-        strategy_registry = (
-            DefaultGenerationStrategyRegistry.create(
-                recipe_registry,
-            )
+        strategy_registry = DefaultGenerationStrategyRegistry.create(
+            recipe_registry,
         )
 
         template_directories = (
@@ -451,9 +546,7 @@ class ApplicationContainer:
             strategy_registry=strategy_registry,
         )
 
-        preset_registry = (
-            DefaultGenerationPresetRegistry.create()
-        )
+        preset_registry = DefaultGenerationPresetRegistry.create()
 
         PluginGenerationPresetContributor().contribute(
             preset_registry,

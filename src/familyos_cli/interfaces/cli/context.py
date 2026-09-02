@@ -15,6 +15,9 @@ from familyos_cli.application.generation.generation_catalog_service import (
 from familyos_cli.application.generation.recipe_catalog_service import (
     RecipeCatalogService,
 )
+from familyos_cli.application.quality.quality_execution_service import (
+    QualityExecutionService,
+)
 from familyos_cli.application.specifications.domain_specification_loader_service import (
     DomainSpecificationLoaderService,
 )
@@ -139,6 +142,11 @@ class CommandContext:
         """Provide plugin compliance checking use case."""
 
         return self._container.check_plugin_compliance_use_case()
+
+    @cached_property
+    def quality_execution(self) -> QualityExecutionService:
+        "Provide the governed Phase 12 Quality execution service."
+        return self._container.quality_execution_service()
 
     @cached_property
     def testing_evidence_freshness(
