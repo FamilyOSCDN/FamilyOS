@@ -67,13 +67,17 @@ class QualityAssessmentService:
             for result in present
         )
         missing_evidence = any(not result.evidence for result in present)
-        blocking = bool(set(finding_ids) & set(blocking_finding_ids))
+        required_finding_ids = {
+            finding.id for result in present for finding in result.findings
+        }
+        blocking = bool(required_finding_ids & set(blocking_finding_ids))
+        required_fail = any(result.status is QualityStatus.FAIL for result in present)
         warning = any(
             result.status is QualityStatus.WARNING for result in present
         ) or any(
-            f.status is QualityStatus.WARNING
+            finding.status is QualityStatus.WARNING
             for result in present
-            for f in result.findings
+            for finding in result.findings
         )
 
         if error:
@@ -82,6 +86,8 @@ class QualityAssessmentService:
             status, state = QualityStatus.UNKNOWN, QualityAssessmentState.UNKNOWN
         elif blocking:
             status, state = QualityStatus.FAIL, QualityAssessmentState.FAIL
+        elif required_fail:
+            status, state = QualityStatus.UNKNOWN, QualityAssessmentState.UNKNOWN
         elif warning:
             status, state = (
                 QualityStatus.WARNING,

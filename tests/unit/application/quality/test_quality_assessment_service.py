@@ -391,3 +391,139 @@ def test_evidence_without_revision_remains_acceptable() -> None:
     assert assessment.status is QualityStatus.PASS
     assert assessment.quality_state is QualityAssessmentState.PASS
     assert assessment.evidence_ids == (evidence.id,)
+
+
+def test_required_fail_cannot_be_promoted_to_pass_with_warnings() -> None:
+    failed_check = QualityCheckId("QLT-CHECK-002")
+    warning_check = QualityCheckId("QLT-CHECK-003")
+    failed_result = QualityCheckResult(
+        check_id=failed_check,
+        status=QualityStatus.FAIL,
+        evidence=(
+            QualityEvidence(
+                id=QualityEvidenceId("QLT-EVID-010"),
+                type=QualityEvidenceType("TEST"),
+                source="pytest",
+                target=TARGET,
+                result=QualityEvidenceResult.FAIL,
+                created_at=NOW,
+                revision=TARGET.revision,
+            ),
+        ),
+    )
+    warning_result = QualityCheckResult(
+        check_id=warning_check,
+        status=QualityStatus.WARNING,
+        evidence=(
+            QualityEvidence(
+                id=QualityEvidenceId("QLT-EVID-011"),
+                type=QualityEvidenceType("TEST"),
+                source="pytest",
+                target=TARGET,
+                result=QualityEvidenceResult.WARNING,
+                created_at=NOW,
+                revision=TARGET.revision,
+            ),
+        ),
+    )
+    assessment = QualityAssessmentService().assess(
+        assessment_id=QualityAssessmentId("QLT-ASMT-001"),
+        target=TARGET,
+        profile="profile-ref",
+        required_check_ids=(failed_check, warning_check),
+        check_results=(failed_result, warning_result),
+        blocking_finding_ids=(),
+        created_at=NOW,
+    )
+    assert assessment.status is QualityStatus.UNKNOWN
+    assert assessment.quality_state is QualityAssessmentState.UNKNOWN
+
+
+def test_non_required_warning_does_not_change_required_assessment_state() -> None:
+    optional_check = QualityCheckId("QLT-CHECK-002")
+    required_result = QualityCheckResult(
+        check_id=CHECK,
+        status=QualityStatus.PASS,
+        evidence=(ev(QualityEvidenceResult.PASS),),
+    )
+    optional_result = QualityCheckResult(
+        check_id=optional_check,
+        status=QualityStatus.WARNING,
+        evidence=(
+            QualityEvidence(
+                id=QualityEvidenceId("QLT-EVID-012"),
+                type=QualityEvidenceType("TEST"),
+                source="pytest",
+                target=TARGET,
+                result=QualityEvidenceResult.WARNING,
+                created_at=NOW,
+                revision=TARGET.revision,
+            ),
+        ),
+    )
+    assessment = QualityAssessmentService().assess(
+        assessment_id=QualityAssessmentId("QLT-ASMT-001"),
+        target=TARGET,
+        profile="profile-ref",
+        required_check_ids=(CHECK,),
+        check_results=(required_result, optional_result),
+        blocking_finding_ids=(),
+        created_at=NOW,
+    )
+    assert assessment.status is QualityStatus.PASS
+    assert assessment.quality_state is QualityAssessmentState.PASS
+    assert QualityEvidenceId("QLT-EVID-012") in assessment.evidence_ids
+
+
+def test_non_required_blocking_finding_does_not_fail_required_assessment() -> None:
+    from familyos_cli.domain.quality import (
+        QualityDomain,
+        QualityFinding,
+        QualityFindingId,
+        QualityRuleId,
+        QualitySeverity,
+    )
+
+    optional_check = QualityCheckId("QLT-CHECK-002")
+    optional_finding = QualityFinding(
+        id=QualityFindingId("QLT-FIND-010"),
+        rule_id=QualityRuleId("QLT-RULE-010"),
+        domain=QualityDomain("QLT-DOM-TST"),
+        severity=QualitySeverity.HIGH,
+        status=QualityStatus.FAIL,
+        message="non-required blocking finding",
+        target=TARGET,
+    )
+    required_result = QualityCheckResult(
+        check_id=CHECK,
+        status=QualityStatus.PASS,
+        evidence=(ev(QualityEvidenceResult.PASS),),
+    )
+    optional_result = QualityCheckResult(
+        check_id=optional_check,
+        status=QualityStatus.FAIL,
+        findings=(optional_finding,),
+        evidence=(
+            QualityEvidence(
+                id=QualityEvidenceId("QLT-EVID-013"),
+                type=QualityEvidenceType("TEST"),
+                source="pytest",
+                target=TARGET,
+                result=QualityEvidenceResult.FAIL,
+                created_at=NOW,
+                revision=TARGET.revision,
+            ),
+        ),
+    )
+    assessment = QualityAssessmentService().assess(
+        assessment_id=QualityAssessmentId("QLT-ASMT-001"),
+        target=TARGET,
+        profile="profile-ref",
+        required_check_ids=(CHECK,),
+        check_results=(required_result, optional_result),
+        blocking_finding_ids=(optional_finding.id,),
+        created_at=NOW,
+    )
+    assert assessment.status is QualityStatus.PASS
+    assert assessment.quality_state is QualityAssessmentState.PASS
+    assert optional_finding.id in assessment.finding_ids
