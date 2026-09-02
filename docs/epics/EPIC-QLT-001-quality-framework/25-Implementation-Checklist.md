@@ -3216,6 +3216,145 @@ Phase 12 exit criteria still require independent implementation evidence.
 
 ---
 
+### 15. `quality check` Adapter Contract
+
+This contract freezes the first concrete Typer adapter slice for Phase 12. It
+authorizes only `familyos quality check`. It does not by itself authorize or
+claim implementation of `quality assess`, `quality report`, structured report
+formats, Quality Gates, CI integration, or later Quality Framework semantics.
+
+#### Command Registration
+
+Phase 12 SHALL introduce a top-level Typer sub-application named `quality`
+through the existing FamilyOS CLI registration architecture.
+
+The first runtime slice SHALL expose `familyos quality check`.
+
+The command module SHALL remain an interface adapter. It SHALL obtain Quality
+execution through `CommandContext` and SHALL NOT construct executors, governed
+rules, execution bindings, profile registries, or profile resolvers itself.
+
+`quality assess` and `quality report` remain required Phase 12 commands, but
+their runtime adapters remain deferred until separately implemented and tested.
+
+#### Explicit Target Input
+
+The initial `quality check` adapter SHALL accept:
+
+- `--target-type <value>` — required;
+- `--identifier <value>` — required;
+- `--path <value>` — required;
+- `--revision <value>` — optional;
+- `--version <value>` — optional.
+
+The adapter SHALL construct exactly one canonical `QualityTarget` using direct
+one-to-one mapping to `target_type`, `identifier`, `path`, `revision`, and
+`version`. It SHALL NOT introduce a second CLI-specific Quality target model.
+
+The adapter SHALL NOT infer target type, identifier, revision, version, profile,
+repository state, CI state, lifecycle state, or plugin identity from environment
+state. The current working directory SHALL NOT silently become an implicit
+Quality target.
+
+#### Execution Boundary
+
+After target construction the adapter SHALL delegate through
+`CommandContext.quality_execution` to `QualityExecutionService.execute(target)`.
+Profile resolution, governed required-check selection, execution binding, rule
+selection, executor dispatch, and required-check ordering remain application
+and composition responsibilities.
+
+#### Normalized Result Rendering
+
+`quality check` SHALL render normalized `QualityCheckResult` values in the order
+returned by the application service. Human-readable output SHALL expose at
+minimum each check identifier and canonical `QualityStatus`.
+
+The adapter SHALL NOT reinterpret provider-native Ruff, MyPy, Pytest,
+Documentation Validation, or Plugin Compliance output. Structured output remains
+deferred to the separately governed report/rendering boundary.
+
+#### Exit-Code Classification
+
+The complete normalized required-check result set SHALL use this precedence:
+
+1. exit `2` — unreliable or incomplete Quality conclusion;
+2. exit `1` — reliable Quality FAIL conclusion;
+3. exit `0` — non-failing Quality conclusion.
+
+Exit `2` SHALL take precedence over exit `1`.
+
+Any required `ERROR`, `UNKNOWN`, or `SKIPPED` result SHALL return exit `2`.
+Target construction, profile resolution, missing binding/executor, application
+execution, or equivalent failure that prevents a reliable conclusion SHALL also
+return exit `2`.
+
+If no exit-2 condition exists and at least one required result is `FAIL`, the
+command SHALL return exit `1`. If all required results are `PASS` or `WARNING`,
+the command SHALL return exit `0`.
+
+An empty result set SHALL NOT be treated as a successful Quality conclusion;
+it SHALL return exit `2`. Native provider/process exit codes SHALL NOT leak.
+
+#### Error Adaptation
+
+Expected target-validation, profile-resolution, binding, and Quality execution
+failures SHALL become concise user-visible diagnostics and exit `2`. The CLI
+SHALL NOT manufacture PASS, WARNING, SKIPPED, findings, or gate semantics to
+mask such failures.
+
+#### Architectural Update
+
+The existing architecture assertion proving Quality CLI absence is a pre-Phase-12
+guard. Once this adapter is implemented it SHALL be revised to permit the
+authorized Quality command surface while continuing to reject premature later
+Quality models and semantics.
+
+No application-layer Quality module may import `familyos_cli.infrastructure` or
+`familyos_cli.interfaces`.
+
+#### Required Runtime Evidence
+
+Implementation evidence SHALL prove at minimum:
+
+- root help discovers `quality`;
+- `quality check --help` succeeds;
+- target options are explicit and construct the expected `QualityTarget`;
+- execution delegates through `CommandContext.quality_execution`;
+- normalized results preserve application-returned order;
+- PASS-only and PASS+WARNING return `0`;
+- FAIL without unreliable state returns `1`;
+- ERROR takes precedence over FAIL and returns `2`;
+- UNKNOWN, SKIPPED, and empty results return `2`;
+- target/profile/execution failures return `2`;
+- native provider exit codes are not interpreted by the command;
+- no Quality Gate is created or evaluated;
+- `quality assess` and `quality report` are not falsely claimed implemented;
+- Quality application and architecture regression tests remain green.
+
+#### Explicit Non-Goals
+
+This slice SHALL NOT implement `quality assess`, `quality report`, structured
+report serialization, implicit target discovery, implicit profile selection,
+profile inheritance/composition, Quality Gates, severity-to-blocking inference,
+CI integration, merge/release gates, risk, exception, debt, observability,
+metrics, events, notifications, governance registries, persistent Quality
+history, lifecycle automation, incremental execution, intelligence, or
+AI-assisted semantics.
+
+#### Adapter Implementation Gate
+
+`familyos quality check` runtime implementation MAY now begin only against this
+frozen adapter contract. Implementation SHALL remain blocked if it requires
+hidden target inference, business logic in Typer, a second Quality target model,
+provider-native exit-code interpretation, implicit profile policy, Quality Gate
+semantics, or behavior owned by a later phase.
+
+No Phase 12 checklist item is closed merely by freezing this adapter contract.
+CLI runtime behavior, registration, tests, exit-code evidence, and Phase 12 exit
+criteria remain independently open until demonstrated.
+
+---
 # Phase 13 — CI Integration
 
 ## Objective
