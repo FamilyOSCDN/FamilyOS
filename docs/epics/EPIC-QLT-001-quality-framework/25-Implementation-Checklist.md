@@ -4971,6 +4971,34 @@ set of documentation violations. Its evidence remains explicitly bound to the
 runtime checkpoint above and SHALL NOT be reused as a gate PASS for a different
 revision.
 
+## Independent Review Disposition — Phases 12 through 15
+
+The independent static review supplied for checkpoint
+`2b431a323c0140709cb9426b1bf9e04426dceb4c` was verified against the canonical
+contracts, implementation, tests, Git history, and retained observation
+artifacts. The review package is available for this corrected handoff, although
+the reviewer did not have it while preparing the original review. Its statement
+that no commands were rerun remains a limitation of that review, not of the
+implementation evidence or the corrected reproduction.
+
+Disposition of every actionable and optional review observation:
+
+| Review item | Disposition | Repository evidence and action |
+| --- | --- | --- |
+| P2 — MyPy evidence has `revision: null` | Unsupported as a defect; retained as deferred evidence-freshness work | Phase 10 explicitly preserves `QualityEvidence.revision = None`, and Phase 3 revision-awareness remains open. The observed repository report has a canonical revision-bearing target for every evidence item; Ruff, MyPy, and Pytest evidence use `None`, while Documentation and Architecture evidence carry the revision. Phase 13 requires any supplied evidence revision to agree with the target. Changing MyPy alone would create an inconsistent, unguided adapter exception, so no runtime change was made. |
+| P3 — successful atomic output still enters temporary cleanup | Confirmed and corrected | Commit `f00992a791f4ddca6e925f3d03b1a49f6e01c511` limits unlinking to the failure path. Existing success/failure preservation tests remain, and a regression proves that a temporary pathname recreated after successful replacement is not removed. |
+| P4 — post-execution clean-source check converts tool writes to adapter ERROR | Unsupported as a Phase 13 correction; lifecycle risk retained | The frozen Phase 13 contract expressly requires tracked and non-ignored untracked files to be rejected before execution and the same clean source to be verified afterward. `test_source_change_during_execution_rejects_the_report` protects that behavior. A profile tool that dirties the checkout compromises reproducibility and correctly yields an automation ERROR under the current contract. Isolation or a changed cleanliness policy requires separate governance and observation evidence before Phase 16; the suggested assertion weakening was not applied. |
+| P6 — explicit profile field in gate JSON | Unsupported for schema 1.0.0; optional versioned evolution | The frozen Phase 15 schema enumerates the gate fields and does not include `profile`. The accepted Quality report and CI summary expose the assessment profile, and the gate policy pins that profile before evaluation. Adding a field without a versioned contract would silently change a public schema, so no field was added. |
+| Generic rejection of every non-finite future JSON number | Already resolved for schema 1.0.0 | `duration_seconds` is the schema's numeric field and is checked with `math.isfinite`; `test_numeric_overflow_is_rejected` covers `1e999`. Future numeric fields must add validation with their versioned schema rather than speculative generic handling now. |
+| Duplicate repository-scope validation call | Unsupported as a defect | Constructor validation rejects invalid executor configuration early; `DocumentationValidator.validate_repository` also protects its public call boundary. Removing either check would weaken a distinct boundary for negligible benefit. |
+| Literal expected JSON bytes instead of `json.dumps(expected, ...)` | Unsupported as a necessary correction | The test independently constructs and compares the complete semantic payload before checking exact standard-library serialization, Unicode, escaping, final newline, BOM absence, and deterministic repeat rendering. A large duplicated literal would not add material contract coverage. |
+| Family test typing edits in `beb7306` | Confirmed scope note; no correction required | Three Family test fixtures received annotation-only changes as part of the full-repository MyPy reconciliation. They do not alter production behavior or assertions and are retained as disclosed cross-scope validation maintenance. |
+
+The review's remaining limitations are accepted: no remote workflow run or
+elapsed observation period has occurred. This disposition does not authorize a
+push, merge, branch-protection change, external notification, or Phase 16
+enforcement.
+
 ---
 # Phase 14 — Architecture Quality Checks
 
