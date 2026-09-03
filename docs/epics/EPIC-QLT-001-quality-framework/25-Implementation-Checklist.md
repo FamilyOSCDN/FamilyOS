@@ -3984,6 +3984,245 @@ changed by this review, and no remote CI result is claimed.
 
 ---
 
+## Phase 13 Repository Documentation Scope Contract
+
+This contract freezes the first prerequisite identified by the Phase 13
+pre-implementation review: the Documentation check's explicit scope when the
+composed Quality runtime receives a repository target. It authorizes a narrow
+runtime extension after this contract is recorded; it does not implement CI,
+structured reporting, or documentation-conformance repairs.
+
+### Authority and Scope
+
+`EPIC-DOC-001` remains authoritative for documentation rules and inventory
+semantics. Its `14-Documentation-Repository-Organization.md` places EPICs under
+`docs/epics/`, with one directory per EPIC. The local `EPIC.yaml` and `MANIFEST.md`
+retain ownership of each EPIC's declared document inventory. The Phase 8
+Documentation validation and normalization contract remains authoritative for
+the checks performed inside an EPIC.
+
+This initial repository scope covers the declared inventories of the 17 EPICs
+listed below. It does not claim validation of every document in the checkout,
+or introduce ADR, RFC, SPEC, foundation, guide, or root-control-file validation.
+Those categories require their own explicit scope and compatible validators.
+An EPIC's own declared deliverables remain governed by that EPIC inventory.
+
+The root `EPIC.yaml` describing `EPIC-014` is not the selector for this composed
+repository mode. It remains untouched and can still be checked explicitly
+through the existing direct documentation-target path.
+
+### Explicit Initial Selection
+
+The initial repository Documentation scope SHALL be a source-controlled,
+non-empty tuple of relative POSIX directory paths, in the following order:
+
+```text
+docs/epics/EPIC-BLD-001-build-framework
+docs/epics/EPIC-COM-001-communication-plugin
+docs/epics/EPIC-DOC-001-documentation-framework
+docs/epics/EPIC-DPL-001-documents-plugin-implementation
+docs/epics/EPIC-EDU-001-education-plugin-implementation
+docs/epics/EPIC-ENG-001-engineering-foundation
+docs/epics/EPIC-FIN-001-finance-plugin-implementation
+docs/epics/EPIC-HLT-001-health-plugin-implementation
+docs/epics/EPIC-OBS-001-observability-framework
+docs/epics/EPIC-OPS-001-operations-framework
+docs/epics/EPIC-PLUGIN-001-official-plugin-implementation
+docs/epics/EPIC-PLUGIN-002-plugin-compliance-framework
+docs/epics/EPIC-QLT-001-quality-framework
+docs/epics/EPIC-REL-001-release-framework
+docs/epics/EPIC-SEC-001-security-framework
+docs/epics/EPIC-SPL-001-security-plugin-implementation
+docs/epics/EPIC-TST-001-testing-framework
+```
+
+The selection reflects all 17 tracked, immediate EPIC directories with
+`EPIC.yaml` at baseline `6c1b6102c966b59cb33db6d2432f060a7c4c83d1`. Each inspected
+directory also contains the README, manifest, changelog, and validation control
+files described by the EPIC organization guidance. This inspection establishes
+the initial set; filesystem discovery SHALL NOT replace the runtime tuple.
+
+Runtime selection SHALL NOT depend on a glob, Git subprocess, current working
+directory, root manifest, directory naming heuristic, current validation
+success, or only the directories that happen to exist. An added EPIC requires
+an explicit update of this scope and its configuration tests. A missing selected
+EPIC SHALL remain visible as a missing required documentation artifact.
+
+The tuple MAY be defined as `INITIAL_REPOSITORY_DOCUMENTATION_ROOTS` in a narrow
+`application.quality.initial_repository_documentation_scope` configuration
+module. This is static runtime wiring data, consistent with the existing
+initial rule/profile configuration; it is not a new domain model, global
+documentation registry, profile-selection mechanism, or filesystem resolver.
+
+### Runtime Composition and Compatibility
+
+`ApplicationContainer` SHALL supply the explicit tuple to the existing
+`DocumentationQualityExecutor` used by the `QLT-CHECK-DOC` binding. A narrow
+optional `repository_epic_roots` constructor argument is authorized for that
+purpose. The governed `QLT-RULE-DOC-001`, profile identities and versions, and
+required-check sets SHALL remain unchanged.
+
+The executor SHALL use the configured repository scope only when
+`QualityTarget.target_type == "repository"`. Each relative EPIC root SHALL be
+resolved against that explicit target's `path`, never against the container's
+project root or the process working directory. The original `QualityTarget`
+SHALL pass unchanged through execution and assessment.
+
+For a configured repository invocation, no fallback to the root `EPIC.yaml`,
+another directory, or a smaller passing scope is authorized.
+
+The existing direct EPIC-validation mode SHALL remain available:
+
+- `documentation` targets continue to validate the EPIC at `target.path`;
+- other target types retain their existing Documentation adapter behavior; and
+- a directly constructed Documentation executor without repository scope
+  retains the Phase 8 direct-path behavior, including existing integration
+  fixtures that use a repository-typed target for a single EPIC directory.
+
+The composed repository mode intentionally interprets `path` as the checkout
+root containing the selected EPICs. A small repository fixture containing only
+a root EPIC manifest no longer satisfies this configured repository scope.
+Use an explicit documentation target to validate that single EPIC. CLI options,
+text rendering, exit-code rules, and assessment aggregation are unchanged.
+
+### Documentation Validation Boundary
+
+Repository path resolution and aggregation SHALL remain in
+`infrastructure.documentation`, reusing the existing `DocumentationValidator`.
+A narrow `validate_repository(root, *, epic_roots)` entry point returning the
+existing `DocumentationValidationResult` is authorized. It SHALL call the
+existing single-EPIC validation for the selected roots in their configured
+order; it SHALL NOT duplicate or relax the Phase 8 documentation rules.
+
+The scope SHALL reject non-tuple configuration, non-string entries, an empty
+tuple, empty paths, duplicates, absolute paths, backslashes, empty path
+components, `.` or `..` components, and control characters. Relative roots SHALL
+be immediate child directories under `docs/epics/`. Invalid scope configuration
+SHALL fail explicitly with `TypeError` or `ValueError`, not silently select a
+default scope. Dependency injection in tests MAY supply smaller valid tuples
+without changing the production default set.
+
+Invalid configuration MAY be rejected during construction before execution;
+no execution evidence is required when no validation attempt has occurred.
+
+Resolved selected roots SHALL remain within the explicit repository target.
+A root resolving outside it, including through a symbolic link, SHALL be
+rejected as a scope/execution error. A selected root's absence SHALL NOT remove
+it from the configured iteration. No recursive discovery, network lookup, or
+repository mutation is part of validation.
+
+Within each EPIC, the existing validator retains authority over declared
+deliverables, structure, headings, fences, and relative references. This
+extension does not reinterpret those rules or change their document coverage.
+
+### Deterministic Findings and Evidence
+
+The repository check SHALL return one `QualityCheckResult` for the same
+`QLT-CHECK-DOC` binding. Findings SHALL be ordered first by configured EPIC order,
+then by the existing per-EPIC validator order. They SHALL NOT be deduplicated
+or reordered by severity, message, runtime identifier, or validation outcome.
+
+Each violation SHALL preserve its kind and message at the Documentation layer.
+Its location SHALL be prefixed with the selected relative EPIC directory and
+`/`, preserving the original location suffix, including any line number or
+compound location text. A violation without a location SHALL use the selected
+relative EPIC directory as its location. This gives repository-relative
+provenance without inventing child Quality targets.
+
+Quality normalization remains in `DocumentationQualityExecutor`: one aggregate
+`DOCUMENTATION` evidence record and one canonical finding per violation.
+Every finding and the aggregate evidence SHALL retain the original repository
+target and governed rule association. The evidence revision SHALL match the
+target revision; each finding SHALL retain the supplied rule's domain and
+severity. Existing identity factories remain authoritative, and every finding
+SHALL reference that aggregate evidence identifier.
+
+The evidence source remains `quality.documentation`, and the tool remains
+`familyos-documentation-validator`. For configured repository mode, the metadata
+SHALL contain, in order:
+
+```text
+violations  -> decimal violation count
+scope       -> repository_epics
+epic_roots  -> configured relative roots joined by a single newline
+```
+
+`epic_roots` records the intended selection, including missing roots; it is not
+a claim that every root was successfully validated. Scope metadata SHALL also
+be present on execution-error evidence when such evidence is produced. Direct
+EPIC mode retains its existing metadata contract. These metadata values do not
+establish a public CLI serialization format.
+
+### Failure and Completeness Rules
+
+| Condition | Required behavior |
+| --- | --- |
+| Complete configured scope, no violations | PASS check and PASS aggregate evidence |
+| Ordinary violation in any selected EPIC | Continue through the remaining selected EPICs; FAIL check with all findings and FAIL aggregate evidence |
+| Selected EPIC directory or its `EPIC.yaml` missing | Required-documentation violation, therefore FAIL; never silently omit that root |
+| Missing declared document, malformed EPIC YAML, or invalid document structure | Preserve Phase 8 FAIL normalization |
+| Missing, inaccessible, or non-directory repository target | Preserve Phase 8 ERROR behavior; pre-execution target failures may lack evidence |
+| Invalid scope configuration or an escaping selected root | Explicit configuration/execution failure; CLI exit 2 through existing error adaptation |
+| Unexpected validator/read failure, including permission failure | ERROR, with diagnostic and ERROR evidence when execution was attempted; never present partial validation as a complete PASS or ordinary FAIL |
+
+An unexpected validation failure MAY stop the remaining iteration. The current
+error result need not retain partial findings, but SHALL preserve an explicit
+diagnostic and SHALL NOT claim complete validation. The existing error-evidence
+`violations` value of `0` is not a conformance conclusion when the evidence
+result is ERROR. No synthetic ordinary-violation findings SHALL represent
+infrastructure failures.
+
+The application layer SHALL continue to aggregate the normalized check result
+under the existing assessment rules. A required FAIL without explicit blocking
+classification remains UNKNOWN at assessment level; this scope contract does
+not introduce blocking policy or change the Quality CLI exit mapping.
+
+### Required Runtime Evidence
+
+Runtime implementation SHALL demonstrate:
+
+- exact production tuple and bootstrap injection, with no change to profile,
+  rule, or required-check identities;
+- target-relative resolution independent of working directory and container
+  root, plus selection only for configured repository mode;
+- preserved direct-EPIC behavior and absence of new CLI flags;
+- deterministic multi-EPIC aggregation, including passing and failing fixtures,
+  repeated messages, original location suffixes, and location-free violations;
+- unchanged repository target/revision on evidence and findings, a single
+  aggregate evidence record, and correct finding/evidence correlation;
+- exact scope metadata, including intended selection on error evidence;
+- invalid/empty/duplicate scope rejection, missing selected EPIC detection,
+  escaping-root rejection, and read/validator failures yielding ERROR;
+- an unlisted directory not changing the explicit scope and a failing selected
+  EPIC never being skipped;
+- green Documentation, Quality application, bootstrap/context, CLI, and
+  architecture regressions, with Ruff and MyPy on changed Python files; and
+- a real execution of the configured Documentation binding against the
+  repository, recording actual findings without running all other checks or
+  hardcoding the current repository's violation count as a permanent test oracle.
+
+### Inspection Baseline and Implementation Gate
+
+At `6c1b6102c966b59cb33db6d2432f060a7c4c83d1`, independent execution of the existing
+single-EPIC validator over the 17 selected roots produced 278 findings:
+276 `markdown_heading` and 2 `markdown_fence`. This is a baseline observation,
+not evidence that the scoped repository executor is already implemented or
+that documentation conforms. The nine root-manifest findings from the earlier
+probe and the 32 Quality EPIC heading findings retain their documented scope.
+
+Runtime implementation MAY now proceed within this contract. Its permitted
+scope is static application configuration, repository validation within the
+existing Documentation infrastructure, the existing Documentation Quality
+adapter, bootstrap wiring, and their tests. No Phase 13 runtime checklist item
+is complete merely because this contract is frozen.
+
+The slice SHALL NOT change documentation inventories or standards to obtain a
+PASS, migrate root control documents, add structured CLI output, extend the
+assessment result model, add CI workflow steps, introduce Quality Gate policy,
+or claim conformance repair, publication, or remote CI execution.
+
+---
+
 # Phase 14 — Architecture Quality Checks
 
 ## Objective
