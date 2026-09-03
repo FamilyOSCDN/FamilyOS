@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import sys
+from contextlib import redirect_stdout
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -15,6 +18,10 @@ from familyos_cli.domain.quality import (
 )
 from familyos_cli.interfaces.cli.context import CommandContext
 from familyos_cli.interfaces.cli.output import Output
+from familyos_cli.interfaces.cli.quality_report_output import write_quality_report
+from familyos_cli.interfaces.cli.rendering.quality_report_json import (
+    QualityReportJsonRenderer,
+)
 
 EXIT_SUCCESS = 0
 EXIT_QUALITY_FAIL = 1
@@ -190,8 +197,23 @@ def report(
     version: Annotated[
         str | None, typer.Option("--version", help="Optional canonical target version.")
     ] = None,
+    output_format: Annotated[
+        str, typer.Option("--format", help="Report format: 'text' or 'json'.")
+    ] = "text",
+    output_path: Annotated[
+        str | None, typer.Option("--output", help="Write JSON atomically to PATH; '-' means stdout.")
+    ] = None,
 ) -> None:
     """Execute a governed assessment and render its canonical Quality report."""
+    if output_format not in {"text", "json"}:
+        Output.diagnostic("Unsupported Quality report format. Use 'text' or 'json'.")
+        raise typer.Exit(code=EXIT_QUALITY_ERROR)
+    if output_path is not None and (not output_path or output_format != "json"):
+        Output.diagnostic("--output requires JSON format and a non-empty path.")
+        raise typer.Exit(code=EXIT_QUALITY_ERROR)
+    if output_format == "json":
+        _report_json(target_type, identifier, path, revision, version, output_path)
+        return
     try:
         target = QualityTarget(
             target_type=target_type,
@@ -213,5 +235,30 @@ def report(
         raise typer.Exit(code=EXIT_QUALITY_ERROR) from None
 
     exit_code = _assessment_exit_code(assessment)
+    if exit_code != EXIT_SUCCESS:
+        raise typer.Exit(code=exit_code)
+
+
+def _report_json(
+    target_type: str, identifier: str, path: str,
+    revision: str | None, version: str | None, output_path: str | None,
+) -> None:
+    """Keep machine-readable output separate from execution diagnostics."""
+    try:
+        target = QualityTarget(
+            target_type=target_type, identifier=identifier, path=path,
+            revision=revision, version=version,
+        )
+        with redirect_stdout(sys.stderr):
+            result = CommandContext().quality_assessment.execute_with_results(target)
+        rendered = QualityReportJsonRenderer().render(result)
+        if output_path is None or output_path == "-":
+            typer.echo(rendered, nl=False)
+        else:
+            write_quality_report(Path(output_path), rendered)
+        exit_code = _assessment_exit_code(result.assessment)
+    except Exception as exc:
+        Output.diagnostic(f"Quality JSON report failed: {exc}")
+        raise typer.Exit(code=EXIT_QUALITY_ERROR) from None
     if exit_code != EXIT_SUCCESS:
         raise typer.Exit(code=exit_code)

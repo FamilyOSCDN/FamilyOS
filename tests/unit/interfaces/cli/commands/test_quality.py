@@ -418,10 +418,11 @@ def test_quality_report_help_exposes_only_authorized_options() -> None:
         "--path",
         "--revision",
         "--version",
+        "--format",
+        "--output",
     ):
         assert option in result.stdout
     assert "--json" not in result.stdout
-    assert "--format" not in result.stdout
 
 
 @pytest.mark.parametrize("revision", [None, "abc123"])
@@ -631,8 +632,8 @@ def test_quality_report_requires_explicit_target_options(
     assert service.calls == 0
 
 
-@pytest.mark.parametrize("options", [("--json",), ("--format", "json")])
-def test_quality_report_rejects_structured_output_options(
+@pytest.mark.parametrize("options", [("--json",)])
+def test_quality_report_rejects_unadvertised_json_alias(
     monkeypatch: pytest.MonkeyPatch,
     options: tuple[str, ...],
 ) -> None:
@@ -656,6 +657,19 @@ def test_quality_report_preserves_unexpected_execution_errors(
     assert result.exception is error
     assert result.stdout == ""
     assert result.stderr == ""
+
+
+def test_quality_report_explicit_text_preserves_default_output(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _install_assessment(
+        monkeypatch, assessment=_assessment(QualityStatus.PASS, QualityAssessmentState.PASS),
+    )
+    default = _invoke_report()
+    explicit = _invoke_report("--format", "text")
+    assert explicit.exit_code == default.exit_code == 0
+    assert explicit.stdout == default.stdout
+    assert explicit.stderr == default.stderr == ""
 
 
 @pytest.mark.parametrize(
