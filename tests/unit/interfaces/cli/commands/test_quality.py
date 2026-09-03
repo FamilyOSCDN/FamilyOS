@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 
 import pytest
+from click import unstyle
 from typer.testing import CliRunner, Result
 
 from familyos_cli.application.quality.quality_check_result import QualityCheckResult
@@ -97,6 +98,7 @@ def test_quality_check_help_exposes_explicit_target_options() -> None:
     result = runner.invoke(app, ["quality", "check", "--help"])
 
     assert result.exit_code == 0
+    output = unstyle(result.stdout)
     for option in (
         "--target-type",
         "--identifier",
@@ -104,7 +106,7 @@ def test_quality_check_help_exposes_explicit_target_options() -> None:
         "--revision",
         "--version",
     ):
-        assert option in result.stdout
+        assert option in output
 
 
 def test_quality_check_constructs_canonical_target_and_delegates(
@@ -284,6 +286,7 @@ def _invoke_assess(*extra: str) -> Result:
 def test_quality_assess_help_exposes_explicit_target_options() -> None:
     result = runner.invoke(app, ["quality", "assess", "--help"])
     assert result.exit_code == 0
+    output = unstyle(result.stdout)
     for option in (
         "--target-type",
         "--identifier",
@@ -291,7 +294,7 @@ def test_quality_assess_help_exposes_explicit_target_options() -> None:
         "--revision",
         "--version",
     ):
-        assert option in result.stdout
+        assert option in output
 
 
 def test_quality_assess_constructs_target_and_delegates(
@@ -412,6 +415,7 @@ def test_quality_report_help_exposes_only_authorized_options() -> None:
     result = runner.invoke(app, ["quality", "report", "--help"])
 
     assert result.exit_code == 0
+    output = unstyle(result.stdout)
     for option in (
         "--target-type",
         "--identifier",
@@ -421,8 +425,8 @@ def test_quality_report_help_exposes_only_authorized_options() -> None:
         "--format",
         "--output",
     ):
-        assert option in result.stdout
-    assert "--json" not in result.stdout
+        assert option in output
+    assert "--json" not in output
 
 
 @pytest.mark.parametrize("revision", [None, "abc123"])
@@ -628,7 +632,7 @@ def test_quality_report_requires_explicit_target_options(
     result = runner.invoke(app, ["quality", "report", *arguments])
 
     assert result.exit_code == 2
-    assert missing_option in result.stderr
+    assert missing_option in unstyle(result.stderr)
     assert service.calls == 0
 
 
