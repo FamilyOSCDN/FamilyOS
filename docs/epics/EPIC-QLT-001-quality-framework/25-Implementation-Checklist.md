@@ -4488,6 +4488,159 @@ observation behavior before modifying the workflow.
 
 ---
 
+## Phase 13 Initial CI Adapter Contract
+
+This contract follows the versioned report implementation at
+`47ee2aff5a55c51f762bf0c456f071e12ea8b85d`. ENG-019 and the Quality Automation
+model govern traceability and actionable failures. Phase 15 observation and
+Phase 16 enforcement remain distinct future Quality Gate capabilities.
+
+### Workflow Boundary and Observation
+
+Add an independent `quality-observation` job to `.github/workflows/ci.yml`.
+It SHALL run on the workflow's existing push, pull_request, manual, and scheduled
+events, using the same SHA-pinned checkout/setup/upload actions, Python 3.13,
+locked dependencies, and editable no-dependency installation as current CI.
+The job SHALL have a 30-minute timeout and job-level `continue-on-error: true`.
+Its failing execution step SHALL remain visibly failed; no step-level success
+rewrite or implicit Quality Gate conclusion is authorized.
+
+All four existing jobs, their dependencies, mandatory validation/build behavior,
+failure preservation, artifact identities, triggers, and read-only token
+permissions SHALL remain unchanged. The new job SHALL NOT become a prerequisite
+for those jobs or a required branch-protection check. This is an observation
+integration, not a claim that known documentation findings conform or that
+Quality Gate reliability has already been demonstrated.
+
+### Explicit Source and Invocation
+
+A narrow `scripts/run_quality_ci.py` adapter SHALL accept explicit
+`--repository`, `--expected-revision`, `--output-dir`, and optional `--summary`
+paths/values. This script is CI transport and presentation code; it SHALL NOT
+execute tools independently or reproduce Quality assessment or blocking policy.
+
+The adapter SHALL resolve the repository path, read its actual Git HEAD, and
+require equality with the supplied expected revision. It SHALL reject tracked
+changes and non-ignored untracked files before execution, and verify the same
+HEAD and clean source after execution. The report output directory SHALL be
+outside the target checkout, have an existing parent, and be newly created;
+an existing output directory SHALL fail rather than reuse previous evidence.
+
+Invoke exactly once, as an argument array without a shell:
+
+```text
+familyos quality report
+  --target-type repository
+  --identifier familyos-cli
+  --path <absolute checked checkout>
+  --revision <verified Git HEAD>
+  --format json
+  --output <fresh directory>/quality-report.json
+```
+
+Execution uses the repository as working directory. All profile resolution,
+required-check execution, normalization, and assessment remain in the existing
+application. The adapter SHALL neither retry tools nor select a passing subset.
+
+The workflow SHALL pass `GITHUB_WORKSPACE`, `GITHUB_SHA`, and
+`RUNNER_TEMP/familyos-quality-GITHUB_RUN_ID-GITHUB_RUN_ATTEMPT` through quoted
+shell environment variables. Pull-request execution evaluates the checked merge
+commit when that is what checkout supplies; it SHALL NOT label it as the PR head
+revision. No untrusted PR title, branch, body, or expression is interpolated
+into executable shell source.
+
+### Artifacts and Failure Preservation
+
+The fresh output directory SHALL retain:
+
+```text
+quality-report.json     complete CLI report when produced
+stdout.log              captured CLI stdout bytes
+stderr.log              captured CLI stderr bytes
+execution.json          adapter execution record
+quality-summary.md      human-readable observation summary
+```
+
+The execution record SHALL include `schema_version` (`1.0.0`), checked `revision`
+(null if unavailable), the exact `command` array, `cli_exit_code` (null before
+CLI completion), `adapter_exit_code`, `report_accepted`, and `adapter_error`
+(null when absent). This is operational CI evidence, not a Quality domain entity
+or a substitute assessment. Nonstandard native exit codes remain in the record
+while the adapter returns 2. No synthetic report is created for missing output.
+
+After a valid report is accepted, the adapter SHALL preserve the CLI's 0/1/2 exit
+code. Source mismatch, dirty source, missing executable/report, malformed JSON,
+unsupported schema, inconsistent report identity, or artifact/summary write
+failure SHALL produce adapter exit 2 with an explicit diagnostic. A normalized
+check ERROR and an adapter failure SHALL be distinguishable in the artifacts.
+An UNKNOWN assessment caused by check FAIL retains both facts and CLI exit 2.
+
+Logs, any actual report, and the adapter record/summary SHALL be retained on
+failure whenever the filesystem remains writable. Failure to initialize the
+fresh directory SHALL leave an existing directory untouched and report the
+problem on stderr. No fallback to a previous artifact is permitted.
+
+Upload the directory with an `always()` artifact step, name
+`familyos-quality-observation`, and `if-no-files-found: error`. The workflow
+SHALL retain failure visibility if upload fails. Existing CI artifacts SHALL
+not be renamed, overwritten, or interpreted as Quality report artifacts.
+
+### Report Acceptance and Summary
+
+The CI reader SHALL reject duplicate JSON object keys and nonstandard numeric
+constants, require schema `1.0.0`, and validate the fields used for CI feedback.
+It SHALL require the exact target/revision, the governed repository profile
+reference, and required check identities in profile order, using the existing
+application profile definition as authority instead of a copied check list.
+
+Canonical assessment/evidence/finding identifiers, check statuses, evidence
+results, finding severities, and assessment state SHALL use their existing
+value-object/enum validation. Nested finding/evidence targets and any evidence
+revision SHALL agree with the original target. The assessment's finding and
+evidence identifiers SHALL match the unique identifiers retained by the checks.
+Finding evidence references SHALL resolve to evidence in the report. Invalid
+or incomplete report structure SHALL not become a successful observation.
+These transport checks SHALL NOT reaggregate assessment status or introduce a
+new blocking policy. Normalized ERROR, UNKNOWN, SKIPPED, and evidence-free
+results remain representable under the canonical model.
+
+The summary SHALL identify the checked revision, profile, assessment status and
+state, native and adapter exit codes, every check's status, finding counts,
+and executor diagnostics. Findings SHALL show their identity, rule, severity,
+location, and message. Limit displayed findings to the first 100, and bound
+summary text before HTML escaping to 40,000 characters, explicitly referring to
+the full JSON artifact for omitted details. Untrusted text SHALL be escaped
+inside a preformatted block; it SHALL not generate raw HTML or workflow commands.
+
+When `--summary` is supplied, append the same bounded Markdown to that explicit
+destination (the workflow uses `GITHUB_STEP_SUMMARY`). Uploading to GitHub itself
+is performed only when the workflow runs, not during local implementation.
+The summary destination SHALL be outside both the source checkout and generated
+artifact directory so that feedback cannot overwrite source or report evidence.
+
+### Validation and Completion Boundary
+
+Tests SHALL verify exact invocation and single execution, clean exact-revision
+selection, rejection of changed/stale source, fresh output behavior, all CLI exit
+codes, malformed/missing/inconsistent reports, operational exceptions, preserved
+logs and failure artifacts, summary escaping/bounds, and workflow observation
+and security constraints. Existing canonical CI validation/build/artifact tests
+SHALL remain green. Run a local reproduction against the committed repository
+and record actual full-profile results without hiding known findings.
+
+Runtime and workflow implementation can be verified locally. This alone SHALL
+NOT be recorded as an observed successful remote CI run, an elapsed observation
+period, a governance decision, or satisfaction of Phase 16 enforcement
+preconditions. Remote publication, branch protection, and release remain outside
+this local implementation and await the planned review.
+
+GitHub mechanics were checked against its official
+[variables reference](https://docs.github.com/en/actions/reference/workflows-and-actions/variables),
+[step outcome/conclusion reference](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts),
+and [job-summary reference](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#adding-a-job-summary).
+These provider details do not replace FamilyOS Quality semantic authority.
+
+---
 # Phase 14 — Architecture Quality Checks
 
 ## Objective
