@@ -86,6 +86,31 @@ def test_real_mypy_valid_fixture_produces_normalized_pass(
     assert result.duration_seconds >= 0.0
 
 
+def test_real_mypy_unknown_column_preserves_unused_ignore_finding(
+    tmp_path: Path,
+) -> None:
+    fixture = tmp_path / "unused_ignore.py"
+    fixture.write_text(
+        "# mypy: warn-unused-ignores\nvalue: int = 1  # type: ignore[assignment]\n",
+        encoding="utf-8",
+    )
+    target = _target(fixture)
+    result = _executor().execute(
+        check_id=QualityCheckId("QLT-CHECK-MYPY-SENTINEL"),
+        rule=_rule(),
+        target=target,
+    )
+    assert result.status is QualityStatus.FAIL
+    assert len(result.findings) == 1
+    finding = result.findings[0]
+    assert finding.location == f"{fixture}:2"
+    assert finding.message == 'Unused "type: ignore" comment'
+    assert finding.target is target
+    assert finding.evidence_ids == ("QLT-EVID-MYPY-INT-001",)
+    assert result.evidence[0].result is QualityEvidenceResult.FAIL
+    assert ("mypy_codes", '["unused-ignore"]') in result.evidence[0].metadata
+
+
 def test_real_mypy_invalid_fixture_produces_structured_finding(
     tmp_path: Path,
 ) -> None:

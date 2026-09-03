@@ -10,6 +10,7 @@ from familyos_cli.application.quality import (
     QualityProfileResolver,
 )
 from familyos_cli.domain.quality import (
+    QualityAssessment,
     QualityAssessmentId,
     QualityAssessmentState,
     QualityCheckId,
@@ -92,7 +93,7 @@ def assess(
     *,
     check_results: tuple[QualityCheckResult, ...],
     blocking_finding_ids: tuple[QualityFindingId, ...] = (),
-):
+) -> QualityAssessment:
     return service.assess(
         assessment_id=QualityAssessmentId("QLT-ASMT-001"),
         target=TARGET,

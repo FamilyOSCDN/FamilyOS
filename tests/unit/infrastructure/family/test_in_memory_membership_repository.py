@@ -10,6 +10,7 @@ import pytest
 from familyos_cli.application.ports.family import (
     MembershipConflictError,
     MembershipRepository,
+    MembershipTemporalFact,
 )
 from familyos_cli.domain.family import (
     FamilyId,
@@ -113,7 +114,7 @@ def _persist_to_state(
 def _fact_for_valid_successor(
     existing: Membership,
     candidate: Membership,
-):
+) -> MembershipTemporalFact:
     if existing.state is MembershipState.PENDING:
         if candidate.state is MembershipState.ACTIVE:
             return _activated(candidate)

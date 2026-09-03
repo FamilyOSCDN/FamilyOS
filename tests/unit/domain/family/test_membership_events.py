@@ -102,7 +102,7 @@ def test_membership_event_is_immutable(event_type: type) -> None:
     )
 
     with pytest.raises(FrozenInstanceError):
-        event.person_id = _person_id()  # type: ignore[misc]
+        event.person_id = _person_id()
 
 
 @pytest.mark.parametrize("event_type", EVENT_TYPES)

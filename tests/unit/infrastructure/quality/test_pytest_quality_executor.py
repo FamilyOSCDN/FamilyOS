@@ -3,6 +3,7 @@ from __future__ import annotations
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import NotRequired, TypedDict
 
 import pytest
 
@@ -102,11 +103,20 @@ def _write_report(
     )
 
 
+class _Report(TypedDict):
+    tests: int
+    failures: NotRequired[int]
+    errors: NotRequired[int]
+    skipped: NotRequired[int]
+    duration: NotRequired[str]
+    cases: NotRequired[str]
+
+
 def _version_or_execution(
     command: list[str],
     *,
     returncode: int,
-    report: dict[str, object],
+    report: _Report,
 ) -> subprocess.CompletedProcess[str]:
     if command[-1] == "--version":
         return _completed(returncode=0, stdout="pytest 9.1.1\n")
@@ -361,7 +371,7 @@ def test_no_tests_collected_exit_five_is_error(
 def test_exit_code_and_junit_inconsistency_is_error(
     monkeypatch: pytest.MonkeyPatch,
     returncode: int,
-    report: dict[str, object],
+    report: _Report,
     expected: str,
 ) -> None:
     def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:

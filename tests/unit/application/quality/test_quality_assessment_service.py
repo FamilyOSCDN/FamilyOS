@@ -5,6 +5,7 @@ from familyos_cli.application.quality import (
     QualityCheckResult,
 )
 from familyos_cli.domain.quality import (
+    QualityAssessment,
     QualityAssessmentId,
     QualityAssessmentState,
     QualityCheckId,
@@ -33,7 +34,7 @@ def ev(result: QualityEvidenceResult = QualityEvidenceResult.PASS) -> QualityEvi
     )
 
 
-def assess(result: QualityCheckResult | None):
+def assess(result: QualityCheckResult | None) -> QualityAssessment:
     return QualityAssessmentService().assess(
         assessment_id=QualityAssessmentId("QLT-ASMT-001"),
         target=TARGET,

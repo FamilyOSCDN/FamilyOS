@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import cast
 from uuid import UUID
@@ -92,7 +93,7 @@ def _use_case(
     *,
     family: Family | None = None,
     person: Person | None = None,
-    clock=lambda: datetime(2026, 8, 28, 14, 0, tzinfo=UTC),
+    clock: Callable[[], datetime] = lambda: datetime(2026, 8, 28, 14, 0, tzinfo=UTC),
 ) -> tuple[EstablishMembership, StubFamilyRepository, StubPersonRepository]:
     family_id = _family_id()
     person_id = _person_id()

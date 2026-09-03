@@ -182,7 +182,9 @@ def test_target_rejects_empty_required_strings(field_name: str) -> None:
     values = {"target_type": "repository", "identifier": "familyos-cli"}
     values[field_name] = ""
     with pytest.raises(ValueError, match="must be non-empty"):
-        QualityTarget(**values)
+        QualityTarget(
+            target_type=values["target_type"], identifier=values["identifier"]
+        )
 
 
 @pytest.mark.parametrize("field_name", ["revision", "version", "path"])

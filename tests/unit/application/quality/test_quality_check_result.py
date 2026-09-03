@@ -104,7 +104,7 @@ def test_result_rejects_boolean_duration() -> None:
         QualityCheckResult(
             check_id=QualityCheckId("QLT-CHECK-UNIT"),
             status=QualityStatus.PASS,
-            duration_seconds=True,  # type: ignore[arg-type]
+            duration_seconds=True,
         )
 
 

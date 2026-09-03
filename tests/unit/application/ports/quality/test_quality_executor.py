@@ -58,7 +58,7 @@ def test_executor_preserves_explicit_check_identity() -> None:
 
 def test_executor_port_is_abstract() -> None:
     try:
-        QualityExecutorPort()
+        QualityExecutorPort()  # type: ignore[abstract]
     except TypeError:
         return
 

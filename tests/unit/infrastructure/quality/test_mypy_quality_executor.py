@@ -229,8 +229,14 @@ def test_native_mypy_severity_does_not_override_governed_severity(
     assert result.findings[0].severity == rule.severity
 
 
+@pytest.mark.parametrize(
+    ("column", "location"),
+    [(None, "src/example.py:2"), (-1, "src/example.py:2"), (0, "src/example.py:2:0")],
+)
 def test_optional_column_and_code_are_supported(
     monkeypatch: pytest.MonkeyPatch,
+    column: int | None,
+    location: str,
 ) -> None:
     _force_nonempty(monkeypatch)
 
@@ -239,7 +245,7 @@ def test_optional_column_and_code_are_supported(
             return _completed(returncode=0, stdout="mypy 2.3.0\n")
         return _completed(
             returncode=1,
-            stdout=_json_lines(_mypy_diagnostic(code=None, column=None)),
+            stdout=_json_lines(_mypy_diagnostic(code=None, column=column)),
         )
 
     monkeypatch.setattr(subprocess, "run", run)
@@ -251,7 +257,9 @@ def test_optional_column_and_code_are_supported(
     )
 
     assert result.status is QualityStatus.FAIL
-    assert result.findings[0].location == "src/example.py:2"
+    assert result.findings[0].location == location
+    assert result.findings[0].evidence_ids == ("QLT-EVID-MYPY-001",)
+    assert result.evidence[0].result is QualityEvidenceResult.FAIL
     assert result.evidence[0].metadata == (
         ("exit_code", "1"),
         ("diagnostic_count", "1"),
@@ -315,6 +323,9 @@ def test_execution_protocol_errors_produce_error_evidence(
         {"line": 2, "column": 1, "message": "x", "code": "x"},
         {"file": "x.py", "line": "2", "column": 1, "message": "x", "code": "x"},
         {"file": "x.py", "line": 2, "column": "1", "message": "x", "code": "x"},
+        _mypy_diagnostic(column=-2),
+        _mypy_diagnostic(column=True),
+        _mypy_diagnostic(column=False),
         {"file": "x.py", "line": 2, "column": 1, "message": "", "code": "x"},
         {"file": "x.py", "line": 2, "column": 1, "message": "x", "code": ""},
     ],

@@ -334,8 +334,10 @@ class MypyQualityExecutor(QualityExecutorPort):
         if column is not None:
             if isinstance(column, bool) or not isinstance(column, int):
                 raise TypeError("column must be an integer when present")
-            if column < 0:
-                raise ValueError("column must be non-negative")
+            if column < -1:
+                raise ValueError("column must be -1 or non-negative")
+            if column == -1:
+                column = None
 
         if not isinstance(message, str) or not message:
             raise ValueError("message must be a non-empty string")
