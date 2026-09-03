@@ -3792,7 +3792,7 @@ The CI pipeline should invoke application capabilities rather than reimplement q
 # CI Checklist
 
 ```text id="impl-ci-checklist"
-[ ] Identify current CI provider/workflow
+[x] Identify current CI provider/workflow
 [ ] Add Quality Framework command
 [ ] Generate structured report artifact
 [ ] Preserve logs
@@ -3831,6 +3831,156 @@ The CI pipeline should invoke application capabilities rather than reimplement q
 [ ] CI and local semantics aligned
 [ ] CI failures actionable
 ```
+
+---
+
+## Phase 13 Pre-Implementation Review
+
+The initial Phase 13 inspection was completed on 2026-09-03 at
+`8294c5ed1591b28a6256274fa48851f404659bdc`, after closure of the initial Phase 12
+CLI subset. This review records the existing CI boundary, observed integration
+gaps, and the implementation sequence. It does not freeze a new runtime or
+serialization contract and does not claim CI execution of Quality commands.
+
+### Existing CI Boundary
+
+The current provider is GitHub Actions. The canonical workflow is
+`.github/workflows/ci.yml`, named `Canonical CI Validation`, with `push`,
+`pull_request`, `workflow_dispatch`, and scheduled triggers.
+
+The existing jobs are:
+
+- `validate`: locked dependency installation, canonical CI validation, evidence
+  upload, preservation of the validation result, package build, and artifact
+  upload;
+- `cache-free-validation`: uncached validation and build on scheduled/manual
+  runs;
+- `artifact-validation`: transferred package integrity verification against
+  canonical Build Evidence; and
+- `release-handoff`: download of validated package candidates and Build Evidence.
+
+The workflow uses Python 3.13, SHA-pinned actions, read-only repository
+permissions, and `requirements.txt` for dependency installation. Its validation
+entry point is `familyos validation ci --output ci-validation.json`.
+No `familyos quality` invocation is present at this baseline.
+
+`CiValidationResult`, `ci-validation.json`, and canonical Build Evidence already
+have their own contracts and consumers. Their existence does not establish a
+Quality report schema or make the existing validation command equivalent to
+the Phase 12 Quality assessment path. Phase 13 integration must preserve the
+existing mandatory validation, build, artifact-transfer, and publication
+boundaries unless a separate change is explicitly authorized.
+
+### Observed Integration Gaps
+
+#### Repository Documentation Scope
+
+`QLT-PROFILE-REPOSITORY@1.0.0` requires Ruff, MyPy, Pytest, and Documentation.
+The current execution service passes the same canonical target to each binding.
+The initial Documentation executor validates the EPIC inventory selected by
+`QualityTarget.path`; it does not define repository-wide document selection.
+
+The root `EPIC.yaml` at this baseline identifies `EPIC-014`, titled `Official
+Documents Plugin Documentation`. A real invocation of only the Documentation
+Quality executor with a repository target pointing at the checkout root
+produced `QualityStatus.FAIL` and nine findings:
+
+- the manifest has no required `structure` mapping; and
+- eight declared files under
+  `docs/rfcs/RFC-0014-official-documents-plugin/` are absent.
+
+This probe did not execute the complete repository profile or produce a full
+repository assessment. It demonstrates which inventory the current path
+selects. It does not authorize treating that plugin-specific inventory as the
+complete repository documentation scope, rewriting the root manifest, skipping
+the required Documentation check, or selecting a passing EPIC to conceal
+findings. The 32 existing heading findings in `EPIC-QLT-001` are a separate,
+previously recorded documentation-conformance concern.
+
+A repository-target integration therefore needs an explicit documentation
+scope contract under the existing Documentation Framework authority. That
+contract must define selection, target/evidence identity, deterministic
+aggregation, empty or invalid scope behavior, and compatibility with the
+existing EPIC-target executor before runtime changes.
+
+#### Actionable Findings and Execution Diagnostics
+
+`QualityCheckResult` already carries normalized findings, evidence, and
+diagnostics. `QualityFinding` includes the message, location, rule, severity,
+target, and evidence references needed to explain a violation.
+
+The current `QualityAssessmentExecutionService.execute(target)` returns only a
+`QualityAssessment`. The returned assessment contains evidence and finding
+identifiers, without finding messages, locations, or execution diagnostics.
+The initial `quality report` renderer is intentionally restricted to that
+canonical assessment. Serializing only its identifiers would not by itself
+satisfy Phase 13's actionable-failure requirement.
+
+The application output needed by CI must therefore be frozen before extending
+reporting. It must keep normalized execution information and the assessment
+from the same execution, preserve their identity relationships, and avoid a
+second tool execution merely to recover details. This review does not introduce
+a report domain model, persistent repository, or alternative assessment policy.
+
+#### Structured Report Adapter
+
+The initial Phase 12 report contract explicitly excludes structured output.
+Neither `QualityAssessment.to_dict()` nor the existing CI validation JSON format
+supplies the missing public Quality serialization contract.
+
+The next report adapter contract must define the format option and supported
+values, schema version and fields, ordering, optional and empty values,
+diagnostic/finding representation, serialization and output-write failures,
+and preservation of the frozen Quality exit-code policy. Machine-readable
+output and operational diagnostics must have explicitly defined channels so
+that error handling cannot silently produce a malformed report.
+
+### Required Implementation Sequence
+
+Proceed in bounded slices, each with its contract frozen before implementation:
+
+1. Define and verify the repository Documentation target scope, preserving
+   Documentation Framework ownership and the required repository check set.
+2. Define the application output that retains normalized check results and
+   the canonical assessment from one execution; verify evidence/finding
+   correlation and existing assessment semantics.
+3. Define and implement the structured Quality report adapter against that
+   output, with deterministic serialization and explicit failure behavior.
+4. Freeze the CI adapter contract: exact invocation, explicit target and checked
+   revision, report/log artifacts, actionable summary, artifact preservation on
+   failures, and distinction between Quality FAIL and automation ERROR. Preserve
+   existing mandatory validation and build behavior; do not infer merge or
+   release Quality Gate policy from command exit codes.
+5. Implement the workflow integration and verify local/CI semantic equivalence,
+   failure-path artifact handling, and the existing CI policy tests before
+   claiming Phase 13 exit criteria.
+
+The next implementation-design slice is repository Documentation target scope.
+This sequence does not authorize publication, a remote workflow run, new token
+permissions, Quality Gate models, or changes to the already-closed Phase 12
+text-command semantics.
+
+### Review Evidence and Status
+
+Inspection covered the workflow, `ENG-019 — CI/CD Engineering`, Quality
+Automation guidance, the Phase 8 Documentation contract, Phase 11 profiles,
+Phase 12 execution/reporting contracts, current result models, and CLI and
+bootstrap composition.
+
+The existing CI policy tests passed:
+
+```text
+tests/unit/interfaces/cli/test_ci_security_policy.py
+tests/unit/interfaces/cli/test_ci_caching_policy.py
+tests/unit/interfaces/cli/test_ci_artifact_transfer_policy.py
+
+40 passed
+```
+
+Only `Identify current CI provider/workflow` is complete in the Phase 13
+checklist. The remaining implementation items and all Phase 13 exit criteria
+remain open. No workflow, application code, or existing artifact contract was
+changed by this review, and no remote CI result is claimed.
 
 ---
 
