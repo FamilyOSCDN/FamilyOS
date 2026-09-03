@@ -37,6 +37,28 @@ def test_destination_symlink_is_replaced_without_modifying_referent(tmp_path: Pa
     assert referent.read_text() == "other report"
 
 
+def test_success_does_not_remove_a_recreated_temporary_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    destination = tmp_path / "quality.json"
+    recreated: list[Path] = []
+    original_replace = Path.replace
+
+    def replace(source: Path, target: Path) -> Path:
+        result = original_replace(source, target)
+        source.write_text("unrelated", encoding="utf-8")
+        recreated.append(source)
+        return result
+
+    monkeypatch.setattr(Path, "replace", replace)
+
+    output.write_quality_report(destination, "{}\n")
+
+    assert destination.read_text(encoding="utf-8") == "{}\n"
+    assert len(recreated) == 1
+    assert recreated[0].read_text(encoding="utf-8") == "unrelated"
+
+
 @pytest.mark.parametrize("stage", ("write", "replace"))
 def test_write_failures_preserve_existing_artifact_and_remove_temporary_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str,

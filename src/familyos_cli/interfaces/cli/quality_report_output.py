@@ -16,6 +16,7 @@ def write_quality_report(path: Path, rendered: str) -> None:
             temporary = Path(stream.name)
             stream.write(encoded)
         temporary.replace(path)
-    finally:
+    except BaseException:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
+        raise
