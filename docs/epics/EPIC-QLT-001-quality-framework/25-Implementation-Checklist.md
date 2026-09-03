@@ -5696,3 +5696,73 @@ This contract does not authorize implementation of:
 
 Those concerns remain deferred to their explicit Phase 11 follow-up slices or
 dedicated later Quality Framework phases.
+
+---
+
+### Phase 12 `quality report` CLI Adapter Contract
+
+The `quality report` command SHALL expose the Phase 12 reporting adapter for stable presentation of canonical Quality assessment information. This adapter is an interface-layer concern and SHALL NOT introduce a new `QualityReport` domain model, persistence model, history model, reporting repository, or later Quality Framework policy.
+
+#### Command Surface
+
+The command SHALL be registered as `familyos quality report`.
+
+It SHALL accept the same explicit canonical target inputs already authorized for `quality check` and `quality assess`: `--target-type` (required), `--identifier` (required), `--path` (required), `--revision` (optional), and `--version` (optional).
+
+The CLI SHALL map those values directly into exactly one canonical `QualityTarget`. It SHALL NOT infer repository state, profile identity, revision, version, target type, Quality severity, blocking state, gate policy, or later lifecycle semantics.
+
+#### Application Boundary
+
+The initial Phase 12 `quality report` adapter SHALL reuse `CommandContext().quality_assessment.execute(target)` and SHALL consume the returned canonical `QualityAssessment`.
+
+The command SHALL NOT directly compose or invoke lower-level execution, profile-resolution, assessment aggregation, identity generation, clock, executor, rule, or binding components where the existing assessment execution boundary is available.
+
+Phase 12 SHALL NOT introduce a new `QualityReport`, `QualityReportId`, `QualityReportService`, report repository, or report persistence abstraction solely to satisfy this CLI slice.
+
+#### Human-Readable Report Rendering
+
+The initial Phase 12 report SHALL support deterministic human-readable output.
+
+The renderer SHALL consume only canonical information already owned by `QualityAssessment` and its canonical `QualityTarget`. It MAY present assessment identifier, target type, target identifier, target path, target revision when present, target version when present, profile reference, canonical `QualityStatus`, canonical `QualityAssessmentState`, evidence identifiers, finding identifiers, and creation timestamp.
+
+The report renderer SHALL preserve stable field meaning and deterministic ordering. It SHALL NOT recalculate assessment status, quality state, profile applicability, required checks, blocking classification, or Quality Gate semantics.
+
+#### Structured Output Boundary
+
+Structured output is NOT part of the initial `quality report` runtime slice.
+
+The existence of `QualityAssessment.to_dict()` does not, by itself, establish a public CLI serialization contract.
+
+Phase 12 MAY add structured output only under separately frozen adapter authority defining at minimum the format option, supported format values, stable field semantics, deterministic serialization, error behavior, and test obligations.
+
+The initial implementation therefore SHALL NOT add `--json`, `--format`, or another structured-output switch.
+
+#### Exit-Code Policy
+
+`quality report` SHALL apply the same frozen Phase 12 Quality-semantic exit policy to the canonical assessment it renders: PASS or PASS_WITH_WARNINGS -> 0; FAIL -> 1; UNKNOWN -> 2; assessment status ERROR or UNKNOWN -> 2.
+
+Exit code `2` SHALL take precedence over ordinary Quality failure when the assessment cannot represent a reliable Quality conclusion.
+
+Expected target-construction or assessment-execution failures represented by `TypeError` or `ValueError` SHALL be adapted to the existing CLI error output mechanism and exit `2`. A report rendering failure SHALL return exit `2`. Native tool or provider exit codes SHALL NOT leak through as FamilyOS Quality CLI exit codes.
+
+#### Rendering Architecture
+
+Human-readable report rendering SHALL remain in the CLI/interface layer. The adapter MAY use a dedicated private report-rendering function in the Quality command module for this initial slice. That renderer SHALL remain presentation logic only and SHALL NOT become a Quality business-semantics authority.
+
+No infrastructure dependency may be introduced into the Quality application package for report rendering.
+
+#### Required Runtime Evidence
+
+Runtime implementation SHALL verify at minimum: `quality report --help`; explicit target options; exact `QualityTarget` construction; delegation through `CommandContext.quality_assessment`; canonical assessment rendering without semantic recomputation; deterministic field order; optional revision/version handling; deterministic evidence/finding rendering; exit 0/1/2 policy; TypeError/ValueError adaptation; absence of structured-output options; absence of new QualityReport domain/application persistence models; and green Quality CLI/application/bootstrap/context/architecture regressions.
+
+#### Explicit Non-Goals
+
+This adapter SHALL NOT introduce a `QualityReport` domain model, report identifiers, report persistence/history, report repositories, JSON or another structured CLI mode in this initial slice, arbitrary dataclass serialization as a public CLI contract, Quality Gate evaluation, risk, debt, compliance ownership, exception, CI/merge/release policy, observability, metrics, events, notifications, governance registries, lifecycle automation, incremental/distributed execution, intelligence, recommendations, or AI-assisted interpretation.
+
+#### Adapter Implementation Gate
+
+`familyos quality report` runtime implementation MAY proceed only against the boundary frozen above.
+
+Implementation SHALL remain blocked if it requires inventing a new report domain model, adding persistence/history semantics, creating a public structured-output contract without separate authority, recomputing Quality business semantics in the CLI, or introducing behavior owned by a later Quality Framework phase.
+
+No Phase 12 checklist item is closed merely by freezing this adapter contract. Runtime behavior, rendering, exit codes, command discovery, regression evidence, and Phase 12 exit criteria remain independently open until demonstrated.
