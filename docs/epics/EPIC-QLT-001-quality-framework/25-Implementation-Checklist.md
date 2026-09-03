@@ -2760,6 +2760,9 @@ reserved for Phase 12 or later Quality Framework phases.
 
 Expose the first usable Quality Framework interface through the FamilyOS CLI.
 
+The initial governed runtime subset is closed. Completion and the two deferred
+capabilities are recorded in the Phase 12 Closure Evidence below.
+
 ---
 
 # Initial Commands
@@ -2779,11 +2782,11 @@ familyos quality report
 Responsibilities:
 
 ```text id="impl-cli-check"
-[ ] Resolve target
-[ ] Resolve profile
-[ ] Execute quality checks
-[ ] Display check results
-[ ] Return meaningful exit code
+[x] Resolve target
+[x] Resolve profile
+[x] Execute quality checks
+[x] Display check results
+[x] Return meaningful exit code
 ```
 
 ---
@@ -2793,10 +2796,10 @@ Responsibilities:
 Responsibilities:
 
 ```text id="impl-cli-assess"
-[ ] Produce QualityAssessment
-[ ] Display overall state
+[x] Produce QualityAssessment
+[x] Display overall state
 [ ] Display blocking findings
-[ ] Display evidence summary
+[x] Display evidence summary
 ```
 
 ---
@@ -2806,9 +2809,9 @@ Responsibilities:
 Responsibilities:
 
 ```text id="impl-cli-report"
-[ ] Produce human-readable report
+[x] Produce human-readable report
 [ ] Support structured output where useful
-[ ] Preserve stable field semantics
+[x] Preserve stable field semantics
 ```
 
 ---
@@ -2833,9 +2836,9 @@ ERROR
 Checklist:
 
 ```text id="impl-cli-exit-checklist"
-[ ] Define exit code policy
-[ ] Document it
-[ ] Test it
+[x] Define exit code policy
+[x] Document it
+[x] Test it
 ```
 
 ---
@@ -2843,11 +2846,11 @@ Checklist:
 # CLI Architecture
 
 ```text id="impl-cli-architecture"
-[ ] Follow FamilyOS CLI Architecture
-[ ] Keep business logic out of CLI layer
-[ ] Reuse application services
-[ ] Add command tests
-[ ] Add help text tests where appropriate
+[x] Follow FamilyOS CLI Architecture
+[x] Keep business logic out of CLI layer
+[x] Reuse application services
+[x] Add command tests
+[x] Add help text tests where appropriate
 ```
 
 ---
@@ -2855,9 +2858,9 @@ Checklist:
 # Phase 12 Exit Criteria
 
 ```text id="impl-phase12-exit"
-[ ] Local quality command available
-[ ] Local results match application-layer semantics
-[ ] CLI tests pass
+[x] Local quality command available
+[x] Local results match application-layer semantics
+[x] CLI tests pass
 ```
 
 ---
@@ -3615,6 +3618,156 @@ Freezing this adapter contract does not satisfy any Phase 12 implementation
 checklist item by itself. No Phase 12 checklist item SHALL be closed until the
 corresponding runtime, CLI, and validation evidence exists.
 
+---
+
+## Phase 12 Closure Evidence
+
+Phase 12 — Quality CLI is closed for the initial governed runtime subset defined
+by its frozen execution, composition, and CLI adapter contracts. Validation on
+2026-09-03 at runtime commit
+`69f67b3a3915572248d5396575bfbc58f65859d7` demonstrates all three Phase 12 exit
+criteria. The checklist records 21 completed items and preserves two deferred
+capabilities as unchecked; this closure does not claim those capabilities.
+
+### Runtime Evidence
+
+The initial execution path and three CLI adapters are implemented in:
+
+```text
+587478a feat(quality): establish phase 12 execution binding foundation
+86566de feat(quality): implement phase 12 execution orchestration
+edf1d6e feat(quality): compose phase 12 runtime execution
+9555bb1 feat(quality): add quality check cli
+58641a9 feat(quality): compose assessment runtime execution
+9b60f56 feat(quality): add quality assess cli
+69f67b3 feat(quality): implement Phase 12 quality report CLI
+```
+
+The implemented runtime provides:
+
+- explicit `QualityTarget` construction from required `--target-type`,
+  `--identifier`, and `--path`, with optional `--revision` and `--version`;
+- governed profile resolution, explicit check/rule/executor bindings, and
+  deterministic required-check execution through `QualityExecutionService`;
+- bootstrap composition of the existing five executor adapters, exposed through
+  `CommandContext` without infrastructure construction in the CLI;
+- canonical assessment execution through `QualityAssessmentExecutionService`,
+  preserving profile references, explicit blocking semantics, and composition
+  ownership of assessment identity and creation time;
+- normalized check rendering, canonical assessment rendering, and deterministic
+  human-readable report fields, including evidence and finding identifiers;
+- Quality-semantic exit codes `0`, `1`, and `2`, with unreliable conclusions
+  taking precedence over ordinary Quality failure; and
+- CLI adaptation of expected target/execution errors, plus report-rendering
+  failures, without introducing a report domain model or persistence.
+
+### Validation Evidence
+
+```text
+Quality regression: 411 passed, 0 failed, 0 skipped
+Quality CLI tests included in that total: 78 passed
+Real application/CLI scenarios: 4 passed, covering 12 command invocations
+Installed command help checks: 3 passed
+Ruff on quality.py and test_quality.py before the runtime commit: PASS
+MyPy on quality.py and test_quality.py before the runtime commit: PASS
+Working tree before documentary closure: clean
+```
+
+The regression scope comprised:
+
+```text
+tests/unit/domain/quality
+tests/unit/application/ports/quality
+tests/unit/application/quality
+tests/unit/infrastructure/quality
+tests/integration/quality
+tests/unit/architecture/quality
+tests/unit/bootstrap/test_quality_runtime_composition.py
+tests/unit/interfaces/cli/commands/test_quality.py
+tests/unit/interfaces/cli/test_context.py
+tests/unit/interfaces/cli/test_app.py
+```
+
+The suite ran with the repository's `.venv/bin/python -m pytest -q` against
+those paths and `.venv/bin` on `PATH`. The first run without that `PATH` setup
+produced 409 passes and two Plugin Compliance integration errors because the
+validators could not locate `ruff` and `mypy`. Correcting the process environment
+produced 411 passes without changing source code or tests. Bytecode and Pytest
+cache writes were disabled; Ruff and MyPy caches used the verification workspace.
+
+Documentary closure validation preserved all 33 canonical EPIC files and the
+frozen contracts. `DocumentationValidator` reported the same 32 pre-existing
+level-one-heading findings before and after the edit, with no new findings.
+Those documentation findings remain open; this CLI runtime closure does not
+claim a passing validation of the entire framework documentation.
+
+The CLI tests cover target mapping, application delegation, normalized and
+canonical rendering, deterministic report field/identifier ordering, optional
+revision/version handling, exit-code precedence, expected error adaptation,
+report-rendering failures, and absence of structured-output options.
+
+### Local Execution Evidence
+
+The installed CLI was exercised with real application services and executors,
+without service or executor substitutes:
+
+| Explicit target | Normalized checks | Assessment status / state | `check` exit | `assess` exit | `report` exit |
+| --- | --- | --- | --- | --- | --- |
+| Valid repository fixture | Ruff, MyPy, Pytest, Documentation: PASS | PASS / PASS | 0 | 0 | 0 |
+| Valid documentation fixture | Documentation: PASS | PASS / PASS | 0 | 0 | 0 |
+| Documentation fixture with a violation | Documentation: FAIL | UNKNOWN / UNKNOWN | 1 | 2 | 2 |
+| Missing documentation directory | Documentation: ERROR | ERROR / UNKNOWN | 2 | 2 | 2 |
+
+The valid fixture declared `README.md` in `EPIC.yaml`, with one canonical control
+document, no numbered documents, a matching structure, one level-one Markdown
+heading, and a single passing Python test. The invalid documentation fixture
+omitted the Markdown heading. Each invocation supplied an explicit target,
+revision, and version. CLI check statuses, assessment status/state, profile
+reference, target fields, and evidence/finding counts matched direct application
+execution. Runtime-generated identifiers and timestamps were not expected to be
+identical across independent executions.
+
+All three installed command help pages returned exit `0`, exposed the five
+authorized target options, and exposed no `--json` or `--format` option.
+
+A required FAIL without explicit blocking classification correctly remains
+UNKNOWN in assessment aggregation and returns exit `2` from `assess` and
+`report`. The canonical assessment FAIL-to-`1` mapping is covered by CLI unit
+tests; the initial composition does not invent blocking findings to force that
+state during real execution.
+
+### Deferred Capabilities and Contract Reconciliation
+
+The two unchecked general checklist items remain deferred:
+
+- **Display blocking findings:** the initial assessment composition supplies
+  `blocking_finding_ids=()`, and the returned `QualityAssessment` exposes finding
+  identifiers without a separate blocking classification. The CLI displays those
+  canonical identifiers. A distinct blocking-finding display needs separately
+  authorized semantic input; severity, check failure, or provider output does
+  not establish that input.
+- **Support structured output where useful:** the frozen `quality report`
+  adapter contract explicitly excludes structured output from the initial
+  runtime. Any extension requires separately frozen format, field, serialization,
+  error, and validation authority. `QualityAssessment.to_dict()` alone does not
+  provide it.
+
+The completed evidence-summary item refers to canonical evidence identifiers
+rendered by the authorized initial adapters; it does not claim evidence detail
+retrieval or persistence.
+
+The `quality assess` adapter contract's earlier test obligation that `quality
+report` remain absent applied to the assess-only implementation slice. The
+subsequently frozen `quality report` adapter contract authorizes the final third
+command. Final command-discovery coverage therefore requires `check`, `assess`,
+and `report` together. Both frozen contracts remain recorded in this checklist.
+
+Closing this initial Phase 12 subset does not authorize CI integration, Quality
+Gate models or evaluation, merge/release policy, risk, debt, exceptions,
+observability, governance registries, lifecycle automation, persistent reports,
+or any other capability deferred by the Phase 12 contracts.
+
+---
 
 # Phase 13 — CI Integration
 
