@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 
 import pytest
-from typer.testing import CliRunner
+from typer.testing import CliRunner, Result
 
 from familyos_cli.application.quality.quality_check_result import QualityCheckResult
-from familyos_cli.domain.quality import QualityCheckId, QualityStatus, QualityTarget
+from familyos_cli.domain.quality import (
+    QualityAssessment,
+    QualityAssessmentId,
+    QualityAssessmentState,
+    QualityCheckId,
+    QualityStatus,
+    QualityTarget,
+)
 from familyos_cli.interfaces.cli.app import app
 from familyos_cli.interfaces.cli.commands import quality as quality_command
 
@@ -58,7 +66,7 @@ def _install(
     return service
 
 
-def _invoke(*extra: str):
+def _invoke(*extra: str) -> Result:
     return runner.invoke(
         app,
         [
@@ -191,10 +199,189 @@ def test_quality_check_adapts_expected_execution_failures_to_exit_two(
     assert str(error) in result.stderr
 
 
-def test_quality_check_does_not_expose_assess_or_report_yet() -> None:
-    result = runner.invoke(app, ["quality", "--help"])
+@dataclass
+class _AssessmentService:
+    assessment: QualityAssessment | None = None
+    error: Exception | None = None
+    target: QualityTarget | None = None
 
+    def execute(self, target: QualityTarget) -> QualityAssessment:
+        self.target = target
+        if self.error is not None:
+            raise self.error
+        if self.assessment is None:
+            raise AssertionError("assessment test double is not configured")
+        return self.assessment
+
+
+class _AssessmentCommandContext:
+    service: _AssessmentService
+
+    def __init__(self) -> None:
+        self.quality_assessment = self.service
+
+
+def _assessment(
+    status: QualityStatus,
+    state: QualityAssessmentState,
+) -> QualityAssessment:
+    target = QualityTarget(
+        target_type="repository",
+        identifier="familyos-cli",
+        path=".",
+        revision="abc123",
+    )
+    return QualityAssessment(
+        id=QualityAssessmentId("QLT-ASMT-CLI-TEST"),
+        target=target,
+        revision=target.revision,
+        profile="QLT-PROFILE-REPOSITORY@1",
+        status=status,
+        quality_state=state,
+        evidence_ids=(),
+        finding_ids=(),
+        created_at=datetime(2026, 9, 3, 10, 0, tzinfo=UTC),
+    )
+
+
+def _install_assessment(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    assessment: QualityAssessment | None = None,
+    error: Exception | None = None,
+) -> _AssessmentService:
+    service = _AssessmentService(assessment=assessment, error=error)
+    _AssessmentCommandContext.service = service
+    monkeypatch.setattr(
+        quality_command,
+        "CommandContext",
+        _AssessmentCommandContext,
+    )
+    return service
+
+
+def _invoke_assess(*extra: str) -> Result:
+    return runner.invoke(
+        app,
+        [
+            "quality",
+            "assess",
+            "--target-type",
+            "repository",
+            "--identifier",
+            "familyos-cli",
+            "--path",
+            ".",
+            *extra,
+        ],
+    )
+
+
+def test_quality_assess_help_exposes_explicit_target_options() -> None:
+    result = runner.invoke(app, ["quality", "assess", "--help"])
+    assert result.exit_code == 0
+    for option in (
+        "--target-type",
+        "--identifier",
+        "--path",
+        "--revision",
+        "--version",
+    ):
+        assert option in result.stdout
+
+
+def test_quality_assess_constructs_target_and_delegates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = _install_assessment(
+        monkeypatch,
+        assessment=_assessment(
+            QualityStatus.PASS,
+            QualityAssessmentState.PASS,
+        ),
+    )
+    result = _invoke_assess("--revision", "abc123", "--version", "1.2.3")
+    assert result.exit_code == 0
+    assert service.target == QualityTarget(
+        target_type="repository",
+        identifier="familyos-cli",
+        path=".",
+        revision="abc123",
+        version="1.2.3",
+    )
+
+
+@pytest.mark.parametrize(
+    ("status", "state", "expected_exit"),
+    [
+        (QualityStatus.PASS, QualityAssessmentState.PASS, 0),
+        (QualityStatus.WARNING, QualityAssessmentState.PASS_WITH_WARNINGS, 0),
+        (QualityStatus.FAIL, QualityAssessmentState.FAIL, 1),
+        (QualityStatus.UNKNOWN, QualityAssessmentState.UNKNOWN, 2),
+        (QualityStatus.ERROR, QualityAssessmentState.FAIL, 2),
+        (QualityStatus.UNKNOWN, QualityAssessmentState.PASS, 2),
+    ],
+)
+def test_quality_assess_uses_frozen_exit_policy(
+    monkeypatch: pytest.MonkeyPatch,
+    status: QualityStatus,
+    state: QualityAssessmentState,
+    expected_exit: int,
+) -> None:
+    _install_assessment(
+        monkeypatch,
+        assessment=_assessment(status, state),
+    )
+    result = _invoke_assess()
+    assert result.exit_code == expected_exit
+
+
+def test_quality_assess_renders_canonical_fields(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _install_assessment(
+        monkeypatch,
+        assessment=_assessment(
+            QualityStatus.PASS,
+            QualityAssessmentState.PASS,
+        ),
+    )
+    result = _invoke_assess("--revision", "abc123")
+    assert result.exit_code == 0
+    for expected in (
+        "QLT-ASMT-CLI-TEST",
+        "repository:familyos-cli",
+        "QLT-PROFILE-REPOSITORY@1",
+        "Status: PASS",
+        "Quality State: PASS",
+        "Revision: abc123",
+        "Created At:",
+    ):
+        assert expected in result.stdout
+    assert "Quality Gate" not in result.stdout
+    assert "Risk" not in result.stdout
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        ValueError("profile resolution failed"),
+        TypeError("invalid target"),
+    ],
+)
+def test_quality_assess_adapts_expected_failures_to_exit_two(
+    monkeypatch: pytest.MonkeyPatch,
+    error: Exception,
+) -> None:
+    _install_assessment(monkeypatch, error=error)
+    result = _invoke_assess()
+    assert result.exit_code == 2
+    assert str(error) in result.stderr
+
+
+def test_quality_group_exposes_assess_but_not_report() -> None:
+    result = runner.invoke(app, ["quality", "--help"])
     assert result.exit_code == 0
     assert "check" in result.stdout
-    assert "assess" not in result.stdout
+    assert "assess" in result.stdout
     assert "report" not in result.stdout
