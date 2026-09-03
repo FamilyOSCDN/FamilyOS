@@ -3355,6 +3355,181 @@ CLI runtime behavior, registration, tests, exit-code evidence, and Phase 12 exit
 criteria remain independently open until demonstrated.
 
 ---
+
+### 15. Phase 12 Assessment Runtime Composition Contract
+
+This contract freezes the narrow runtime-composition boundary required for the
+authorized `familyos quality assess` path. It extends the existing Phase 12
+runtime composition only far enough to produce a canonical `QualityAssessment`
+from the same normalized execution results used by `quality check`.
+
+It does not introduce Quality Gate, risk, exception, debt, CI, release, or
+persistence semantics.
+
+#### Assessment Orchestration Boundary
+
+The `quality assess` runtime path SHALL:
+
+1. construct one explicit canonical `QualityTarget`;
+2. execute the governed required checks through the existing
+   `QualityExecutionService`;
+3. reuse the governed Quality profile resolution authority already used by
+   execution;
+4. pass the resulting normalized `QualityCheckResult` values to the existing
+   `QualityProfileAssessmentService`;
+5. supply a valid `QualityAssessmentId`;
+6. supply a timezone-aware `created_at`;
+7. supply only explicitly authorized `blocking_finding_ids`;
+8. return the resulting canonical `QualityAssessment` without recalculating its
+   status or `quality_state`.
+
+The CLI adapter SHALL NOT call `QualityAssessmentService` directly when the
+profile-aware service is the applicable orchestration boundary.
+
+#### Shared Governed Profile Authority
+
+Assessment composition SHALL use the same governed initial profile definitions
+and the same profile-resolution semantics as Quality execution.
+
+The runtime SHALL NOT construct an independent assessment-only profile registry,
+select a default or latest profile, duplicate applicability logic, or derive a
+profile from CLI/environment/filesystem heuristics.
+
+`QualityProfile.reference` SHALL remain the assessment profile reference and
+`QualityProfile.required_checks` SHALL remain the required-check authority.
+
+Equivalent target/profile inputs SHALL therefore preserve the Phase 11
+profile-to-assessment contract.
+
+#### Assessment Identity Composition
+
+The bootstrap composition layer MAY satisfy the existing explicit
+`QualityAssessmentId` dependency with an ephemeral opaque UUID version 4 value
+under the canonical assessment namespace:
+
+```text
+QLT-ASMT-<opaque UUID value>
+```
+
+The generated value SHALL be constructed through the existing
+`QualityAssessmentId` value object.
+
+This authorization is runtime composition only. It SHALL NOT establish
+persistent identity allocation, deterministic assessment identity, replay
+identity, ordering semantics, a global Quality identity service, or a new
+domain-level `generate()` API.
+
+#### Assessment Time Composition
+
+The assessment creation time SHALL be supplied through an injected
+timezone-aware clock owned by runtime composition.
+
+The initial local composition MAY use current UTC time, but the application
+assessment services SHALL continue to receive `created_at` explicitly.
+
+Tests SHALL be able to inject or substitute a stable timezone-aware timestamp.
+Naive datetimes, hidden application-layer wall-clock reads, and CLI-owned clock
+policy are not authorized.
+
+#### Blocking Finding Classification
+
+Phase 10 explicit blocking classification remains authoritative.
+
+For the initial Phase 12 `quality assess` runtime path, composition SHALL supply
+an empty `blocking_finding_ids` tuple unless an already-authorized explicit
+blocking classification is provided by an existing semantic authority.
+
+The runtime SHALL NOT infer blocking status from:
+
+- `QualitySeverity`;
+- `QualityProfile.severity_policy`;
+- `QualityStatus.FAIL`;
+- provider-native exit codes or output;
+- check identity;
+- rule identity;
+- CLI options or naming conventions.
+
+Consequently, a normalized required FAIL without explicit blocking
+classification SHALL retain the existing Phase 10 assessment semantics; the
+composition layer SHALL NOT promote it to a blocking assessment conclusion.
+
+Quality Gate policy remains deferred to later phases.
+
+#### Application and Bootstrap Responsibilities
+
+The Quality application layer SHALL remain infrastructure-agnostic.
+
+Any narrow assessment orchestration service introduced for Phase 12 SHALL
+depend only on existing Quality application/domain abstractions. It MAY
+coordinate execution and profile-aware assessment, but SHALL NOT contain Typer
+rendering, CLI exit-code policy, infrastructure construction, or later-phase
+gate semantics.
+
+`ApplicationContainer` SHALL remain the canonical composition root for concrete
+runtime dependencies.
+
+`CommandContext` MAY expose the resulting composed assessment orchestration
+boundary to the CLI using the existing cached dependency-access pattern.
+
+The Typer command SHALL consume that boundary rather than constructing profile
+registries, resolvers, assessment services, identity factories, or clocks.
+
+#### Assessment Result and CLI Semantics
+
+Runtime composition SHALL return the canonical `QualityAssessment` unchanged.
+
+Rendering remains an interface responsibility. The CLI SHALL render at minimum
+the already-frozen Phase 12 assessment information and SHALL NOT recompute
+assessment aggregation.
+
+Exit classification remains the frozen Phase 12 policy:
+
+```text
+PASS or PASS_WITH_WARNINGS -> 0
+FAIL                       -> 1
+UNKNOWN                    -> 2
+assessment ERROR/UNKNOWN   -> 2
+```
+
+If execution or assessment cannot produce a reliable canonical assessment,
+the CLI adapter SHALL use Quality exit code `2`; native provider exit codes
+SHALL NOT leak through.
+
+#### Explicit Non-Goals
+
+This assessment-composition slice SHALL NOT introduce:
+
+- Quality Gate models or evaluation;
+- severity-to-blocking inference;
+- risk-based blocking;
+- Quality Exception or Quality Debt semantics;
+- CI or merge-gate policy;
+- release-gate policy;
+- assessment persistence or history;
+- assessment replay;
+- report persistence;
+- observability or metrics;
+- governance registries;
+- profile inheritance/composition;
+- default/latest profile selection;
+- provider-specific assessment aggregation;
+- structured report serialization beyond separately frozen CLI authority.
+
+#### Assessment Composition Implementation Gate
+
+Runtime implementation MAY proceed only within the boundary frozen above.
+
+Implementation SHALL remain blocked if it requires inventing blocking policy,
+duplicating profile authority, moving infrastructure dependencies into the
+application layer, making the CLI a composition root, introducing persistent
+assessment semantics, or implementing behavior owned by a later Quality phase.
+
+No Phase 12 checklist item is closed merely by this contract freeze.
+Assessment composition, CLI integration, rendering, exit behavior, and Phase 12
+exit criteria still require independent runtime evidence.
+
+---
+
 # Phase 13 — CI Integration
 
 ## Objective
