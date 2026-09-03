@@ -4641,6 +4641,33 @@ and [job-summary reference](https://docs.github.com/en/actions/reference/workflo
 These provider details do not replace FamilyOS Quality semantic authority.
 
 ---
+## Phase 13 MyPy Diagnostic Compatibility Reconciliation
+
+The first complete repository observation at revision
+`0e2d1332671497672433e021a85ac4103607ed58` exposed a valid MyPy diagnostic
+with `column=-1` (`unused-ignore`). MyPy 2.3.0's installed `ErrorInfo` source
+explicitly defines this sentinel as an unknown column. Rejecting it as a
+protocol error hides reliable type-verification findings.
+
+Before the compatibility fix, freeze this narrow clarification of Phase 6:
+
+- A diagnostic with a positive integer line and column `-1` SHALL produce a
+  canonical finding located at `file:line`, without inventing a column.
+- Missing/null columns retain the same existing representation; non-negative
+  integer columns remain verbatim, including zero.
+- Columns below `-1`, booleans, and non-integers remain invalid protocol data.
+- Rule authority, native diagnostic codes, messages, finding/evidence linkage,
+  execution count, exit normalization, and the command scope remain unchanged.
+- A failing MyPy run containing this sentinel SHALL remain FAIL with its
+  findings and TYPE_VERIFICATION evidence, rather than ERROR or PASS.
+
+Verify both native sentinel mapping and malformed-column rejection, then run
+the Quality regression suite. Local generated `build/` output observed during
+the first run is not committed source: the final CI reproduction SHALL also
+use a fresh checkout of the exact committed revision. Do not delete local build
+artifacts or change the governed check scope to hide those findings.
+
+---
 # Phase 14 — Architecture Quality Checks
 
 ## Objective
