@@ -24,6 +24,7 @@ from familyos_cli.domain.quality import (
     QualityEvidenceType,
     QualityFinding,
     QualityFindingId,
+    QualityGate,
     QualityRequirementId,
     QualityRuleId,
     QualitySeverity,
@@ -157,6 +158,7 @@ def read_report(path: Path, target: QualityTarget) -> QualityAssessmentExecution
 def render_summary(
     result: QualityAssessmentExecutionResult | None, *, revision: str | None,
     cli_exit_code: int | None, adapter_exit_code: int, adapter_error: str | None,
+    gate: QualityGate | None = None,
 ) -> str:
     """Show operational and Quality outcomes without inferring gate policy."""
     lines = [
@@ -166,6 +168,18 @@ def render_summary(
     ]
     if adapter_error is not None:
         lines.append(f"Adapter error: {adapter_error}")
+    if gate is not None:
+        label = {"PASS": "would-pass", "FAIL": "would-fail", "ERROR": "evaluation-error"}[gate.decision.value]
+        lines.extend((f"Gate policy: {gate.policy}", f"Gate mode: {gate.mode}; decision: {label}; prevents progression: false"))
+        for condition in gate.blocking_conditions[:100]:
+            lines.extend((
+                f"  {condition.code}: {condition.message}",
+                f"    Check: {condition.check_id or 'assessment'}",
+                f"    Findings: {', '.join(str(value) for value in condition.finding_ids[:100])}",
+                f"    Rules: {', '.join(str(value) for value in condition.rule_ids[:100])}",
+                f"    Evidence: {', '.join(str(value) for value in condition.evidence_ids[:100])}",
+            ))
+        lines.append("Full gate conditions and references: gate-observation.json.")
     if result is not None:
         assessment = result.assessment
         lines.extend((
@@ -190,8 +204,8 @@ def render_summary(
         body = body[:40_000] + "\n[Summary truncated; full details are in quality-report.json.]"
     return (
         "# Quality observation\n\n"
-        "Observation only; this is not a merge or release gate decision.\n\n"
+        "Observation only; merge and release progression are not blocked.\n\n"
         f"<pre>{html.escape(body)}</pre>\n\n"
-        "Full evidence: quality-report.json, stdout.log, stderr.log, execution.json "
+        "Full evidence: quality-report.json, stdout.log, stderr.log, execution.json, gate-observation.json "
         "in the familyos-quality-observation artifact.\n"
     )

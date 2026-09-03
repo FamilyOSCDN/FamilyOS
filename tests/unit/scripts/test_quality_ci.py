@@ -75,6 +75,12 @@ def test_single_canonical_invocation_preserves_exit_artifacts_and_summary(
         "familyos", "quality", "report", "--target-type", "repository", "--identifier", "familyos-cli",
         "--path", str(root), "--revision", revision, "--format", "json", "--output", str(output / "quality-report.json"),
     ]]
+    gate = json.loads((output / "gate-observation.json").read_text())["gate"]
+    assert gate["mode"] == "OBSERVE"
+    assert gate["prevents_progression"] is False
+    assert gate["decision"] == ("PASS" if exit_code == 0 else "FAIL")
+    assert gate["revision"] == revision
+    assert gate["assessment_id"] == payload["assessment"]["id"]
     record = json.loads((output / "execution.json").read_text())
     assert record == {
         "schema_version": "1.0.0", "revision": revision, "command": calls[0],
@@ -201,3 +207,38 @@ def test_summary_failure_preserves_report_and_marks_operational_error(
     assert record["adapter_exit_code"] == 2
     assert "Summary output failed" in record["adapter_error"]
     assert (output / "quality-report.json").is_file()
+
+
+def test_gate_artifact_failure_is_an_explicit_automation_error(
+    repository: tuple[Path, str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    ci_report_factory: Callable[[Path, str], dict[str, Any]],
+) -> None:
+    root, revision = repository
+    payload = ci_report_factory(root, revision)
+    calls = install_cli(monkeypatch, payload)
+    original = Path.write_text
+    def write(path: Path, data: str, *args: Any, **kwargs: Any) -> int:
+        if path.name == "gate-observation.json":
+            raise OSError("gate output unavailable")
+        return original(path, data, *args, **kwargs)
+    monkeypatch.setattr(Path, "write_text", write)
+    output = tmp_path / "gate-output-failure"
+    assert adapter.run(repository=root, expected_revision=revision, output_dir=output) == 2
+    assert len(calls) == 1
+    record = json.loads((output / "execution.json").read_text())
+    assert record["cli_exit_code"] == 0
+    assert record["report_accepted"] is True
+    assert "Gate observation output failed" in record["adapter_error"]
+    assert (output / "quality-report.json").is_file()
+
+
+def test_unavailable_report_produces_observation_error_without_retry(
+    repository: tuple[Path, str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root, revision = repository
+    calls = install_cli(monkeypatch, None, exit_code=2)
+    output = tmp_path / "missing-report"
+    assert adapter.run(repository=root, expected_revision=revision, output_dir=output) == 2
+    gate = json.loads((output / "gate-observation.json").read_text())["gate"]
+    assert gate["decision"] == "ERROR" and gate["assessment_id"] is None
+    assert gate["prevents_progression"] is False and len(calls) == 1

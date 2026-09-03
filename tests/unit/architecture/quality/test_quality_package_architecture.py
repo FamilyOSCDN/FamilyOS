@@ -87,10 +87,7 @@ def test_quality_domain_has_no_tool_specific_dependency() -> None:
     assert _violations(_DOMAIN, _TOOL_SPECIFIC) == ()
 
 
-def test_phase_eleven_exposes_profile_but_not_later_quality_domain_models() -> None:
-    forbidden_symbols = {
-        "QualityGate",
-    }
+def test_phase_fifteen_gate_domain_models_are_authorized() -> None:
     discovered: set[str] = set()
 
     for source_file in _sources(_DOMAIN):
@@ -109,7 +106,7 @@ def test_phase_eleven_exposes_profile_but_not_later_quality_domain_models() -> N
 
     assert "QualityAssessment" in discovered
     assert "QualityProfile" in discovered
-    assert discovered.isdisjoint(forbidden_symbols)
+    assert {"QualityGate", "GateDecision", "QualityGatePolicy", "QualityGateCondition"} <= discovered
 
 
 def test_phase_twelve_quality_cli_is_authorized() -> None:

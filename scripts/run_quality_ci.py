@@ -7,7 +7,14 @@ import sys
 from pathlib import Path
 
 from familyos_cli.application.quality import QualityAssessmentExecutionResult
-from familyos_cli.domain.quality import QualityTarget
+from familyos_cli.application.quality.initial_merge_gate_policy import (
+    INITIAL_MERGE_OBSERVATION_POLICY,
+)
+from familyos_cli.application.quality.quality_gate_evaluation_service import (
+    QualityGateEvaluationService,
+)
+from familyos_cli.domain.quality import QualityGate, QualityTarget
+from familyos_cli.interfaces.cli.rendering.quality_gate_json import render_gate_json
 from scripts.quality_ci_report import read_report, render_summary
 
 
@@ -74,10 +81,21 @@ def run(
     except Exception as exc:
         adapter_error = str(exc)
 
+    gate: QualityGate | None = None
+    try:
+        gate = QualityGateEvaluationService().evaluate(
+            policy=INITIAL_MERGE_OBSERVATION_POLICY,
+            target=QualityTarget(target_type="repository", identifier="familyos-cli", path=str(repository), revision=revision),
+            output=result,
+        )
+        (output_dir / "gate-observation.json").write_text(render_gate_json(gate), encoding="utf-8")
+    except Exception as exc:
+        adapter_exit_code = 2
+        adapter_error = f"{adapter_error + '; ' if adapter_error else ''}Gate observation output failed: {exc}"
     try:
         summary = render_summary(
             result, revision=revision, cli_exit_code=cli_exit_code,
-            adapter_exit_code=adapter_exit_code, adapter_error=adapter_error,
+            adapter_exit_code=adapter_exit_code, adapter_error=adapter_error, gate=gate,
         )
         (output_dir / "quality-summary.md").write_text(summary, encoding="utf-8")
         if summary_path is not None:
