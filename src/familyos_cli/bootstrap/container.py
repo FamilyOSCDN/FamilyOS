@@ -58,6 +58,9 @@ from familyos_cli.application.quality.initial_quality_rules import (
     STATIC_ANALYSIS_RULE,
     TYPE_VERIFICATION_RULE,
 )
+from familyos_cli.application.quality.initial_repository_documentation_scope import (
+    INITIAL_REPOSITORY_DOCUMENTATION_ROOTS,
+)
 from familyos_cli.application.quality.quality_assessment_execution_service import (
     QualityAssessmentExecutionService,
 )
@@ -359,6 +362,7 @@ class ApplicationContainer:
                 DocumentationQualityExecutor(
                     finding_id_factory=finding_id_factory,
                     evidence_id_factory=evidence_id_factory,
+                    repository_epic_roots=INITIAL_REPOSITORY_DOCUMENTATION_ROOTS,
                 ),
             ),
             QualityExecutionBinding(

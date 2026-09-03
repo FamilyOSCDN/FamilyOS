@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import cast
 
+import pytest
+
+from familyos_cli.application.quality import QualityCheckResult
 from familyos_cli.domain.quality import (
     QualityCheckId,
     QualityDomain,
@@ -15,7 +20,10 @@ from familyos_cli.domain.quality import (
     QualityStatus,
     QualityTarget,
 )
-from familyos_cli.infrastructure.documentation import DocumentationValidator
+from familyos_cli.infrastructure.documentation import (
+    DocumentationValidationResult,
+    DocumentationValidator,
+)
 from familyos_cli.infrastructure.quality import DocumentationQualityExecutor
 
 
@@ -30,7 +38,10 @@ def _rule() -> QualityRule:
     )
 
 
-def _executor(*, validator: DocumentationValidator | None = None) -> DocumentationQualityExecutor:
+def _executor(
+    *, validator: DocumentationValidator | None = None,
+    repository_epic_roots: tuple[str, ...] | None = None,
+) -> DocumentationQualityExecutor:
     finding_counter = iter(range(1, 100))
     evidence_counter = iter(range(1, 100))
     return DocumentationQualityExecutor(
@@ -43,6 +54,7 @@ def _executor(*, validator: DocumentationValidator | None = None) -> Documentati
         clock=lambda: datetime(2026, 9, 1, 12, 0, tzinfo=UTC),
         monotonic_clock=iter((10.0, 10.25)).__next__,
         validator=validator,
+        repository_epic_roots=repository_epic_roots,
     )
 
 
@@ -80,7 +92,9 @@ def _write_epic(
     (root / "EPIC.yaml").write_text(yaml.safe_dump(payload), encoding="utf-8")
 
 
-def _run(executor: DocumentationQualityExecutor, target: QualityTarget):
+def _run(
+    executor: DocumentationQualityExecutor, target: QualityTarget,
+) -> QualityCheckResult:
     return executor.execute(
         check_id=QualityCheckId("QLT-CHECK-DOC-001"),
         rule=_rule(),
@@ -250,7 +264,7 @@ class _FailingDocumentationValidator(DocumentationValidator):
     def __init__(self, exc: Exception) -> None:
         self._exc = exc
 
-    def validate(self, root: Path):
+    def validate(self, root: Path) -> DocumentationValidationResult:
         raise self._exc
 
 
@@ -307,3 +321,156 @@ def test_unexpected_validator_failure_returns_error_evidence(tmp_path: Path) -> 
     assert result.findings == ()
     assert len(result.evidence) == 1
     assert result.evidence[0].result is QualityEvidenceResult.ERROR
+
+
+_REPOSITORY_ROOTS = ("docs/epics/EPIC-B", "docs/epics/EPIC-A")
+
+
+@pytest.mark.parametrize("has_violations", [False, True])
+def test_repository_scope_normalizes_one_correlated_result(
+    tmp_path: Path, has_violations: bool,
+) -> None:
+    for relative in _REPOSITORY_ROOTS:
+        epic = tmp_path / relative
+        _write_epic(epic)
+        (epic / "00-EPIC.md").write_text(
+            "No heading\n" if has_violations else "# Valid EPIC\n",
+            encoding="utf-8",
+        )
+    target = replace(_target(tmp_path), target_type="repository")
+
+    result = _run(_executor(repository_epic_roots=_REPOSITORY_ROOTS), target)
+
+    expected_count = 2 if has_violations else 0
+    assert result.status is (QualityStatus.FAIL if has_violations else QualityStatus.PASS)
+    assert result.diagnostics == ()
+    assert len(result.evidence) == 1
+    assert len(result.findings) == expected_count
+    evidence = result.evidence[0]
+    assert evidence.result is (
+        QualityEvidenceResult.FAIL if has_violations else QualityEvidenceResult.PASS
+    )
+    assert evidence.target is target
+    assert evidence.revision == target.revision
+    assert evidence.rule_id == _rule().id
+    assert evidence.source == "quality.documentation"
+    assert evidence.tool == "familyos-documentation-validator"
+    assert evidence.type.value == "DOCUMENTATION"
+    assert evidence.metadata == (
+        ("violations", str(expected_count)),
+        ("scope", "repository_epics"),
+        ("epic_roots", "\n".join(_REPOSITORY_ROOTS)),
+    )
+    if has_violations:
+        assert [f.location for f in result.findings] == [
+            f"{relative}/00-EPIC.md" for relative in _REPOSITORY_ROOTS
+        ]
+        assert len({f.id for f in result.findings}) == 2
+        assert all(f.target is target for f in result.findings)
+        assert all(f.rule_id == _rule().id for f in result.findings)
+        assert all(f.domain == _rule().domain for f in result.findings)
+        assert all(f.severity == _rule().severity for f in result.findings)
+        assert all(f.evidence_ids == (str(evidence.id),) for f in result.findings)
+
+
+@pytest.mark.parametrize("target_type", ["documentation", "plugin"])
+def test_configured_scope_does_not_change_other_target_types(
+    tmp_path: Path, target_type: str,
+) -> None:
+    _write_epic(tmp_path)
+    (tmp_path / "00-EPIC.md").write_text("# Valid EPIC\n", encoding="utf-8")
+    target = replace(_target(tmp_path), target_type=target_type)
+
+    result = _run(_executor(repository_epic_roots=_REPOSITORY_ROOTS), target)
+
+    assert result.status is QualityStatus.PASS
+    assert result.evidence[0].metadata == (("violations", "0"),)
+
+
+def test_unconfigured_repository_target_keeps_direct_epic_behavior(tmp_path: Path) -> None:
+    _write_epic(tmp_path)
+    (tmp_path / "00-EPIC.md").write_text("# Valid EPIC\n", encoding="utf-8")
+
+    result = _run(_executor(), replace(_target(tmp_path), target_type="repository"))
+
+    assert result.status is QualityStatus.PASS
+    assert result.evidence[0].metadata == (("violations", "0"),)
+
+
+def test_repository_scope_does_not_fall_back_to_valid_root_manifest(tmp_path: Path) -> None:
+    _write_epic(tmp_path)
+    (tmp_path / "00-EPIC.md").write_text("# Valid root EPIC\n", encoding="utf-8")
+    target = replace(_target(tmp_path), target_type="repository")
+
+    result = _run(_executor(repository_epic_roots=_REPOSITORY_ROOTS), target)
+
+    assert result.status is QualityStatus.FAIL
+    assert [f.location for f in result.findings] == [
+        f"{relative}/EPIC.yaml" for relative in _REPOSITORY_ROOTS
+    ]
+    assert result.evidence[0].metadata[0] == ("violations", "2")
+
+
+@pytest.mark.parametrize("error", [PermissionError, OSError, RuntimeError])
+def test_repository_execution_error_retains_configured_scope_evidence(
+    tmp_path: Path, error: type[Exception],
+) -> None:
+    target = replace(_target(tmp_path), target_type="repository")
+    result = _run(
+        _executor(
+            validator=_FailingDocumentationValidator(error("selected EPIC unreadable")),
+            repository_epic_roots=_REPOSITORY_ROOTS,
+        ),
+        target,
+    )
+
+    assert result.status is QualityStatus.ERROR
+    assert result.findings == ()
+    assert result.diagnostics == (
+        "Documentation validation could not complete: selected EPIC unreadable",
+    )
+    assert len(result.evidence) == 1
+    assert result.evidence[0].result is QualityEvidenceResult.ERROR
+    assert result.evidence[0].target is target
+    assert result.evidence[0].metadata == (
+        ("violations", "0"),
+        ("scope", "repository_epics"),
+        ("epic_roots", "\n".join(_REPOSITORY_ROOTS)),
+    )
+
+
+def test_escaping_repository_root_produces_error_evidence(tmp_path: Path) -> None:
+    repository = tmp_path / "repository"
+    selected = repository / _REPOSITORY_ROOTS[0]
+    selected.parent.mkdir(parents=True)
+    outside = tmp_path / "outside"
+    _write_epic(outside)
+    selected.symlink_to(outside, target_is_directory=True)
+
+    result = _run(
+        _executor(repository_epic_roots=_REPOSITORY_ROOTS),
+        replace(_target(repository), target_type="repository"),
+    )
+
+    assert result.status is QualityStatus.ERROR
+    assert result.findings == ()
+    assert result.evidence[0].result is QualityEvidenceResult.ERROR
+    assert "outside the target" in result.diagnostics[0]
+    assert ("epic_roots", "\n".join(_REPOSITORY_ROOTS)) in result.evidence[0].metadata
+
+
+@pytest.mark.parametrize("scope", [(), [], (42,), ("docs/epics/EPIC-A", "docs/epics/EPIC-A")])
+def test_invalid_scope_is_rejected_at_composition(scope: object) -> None:
+    with pytest.raises((TypeError, ValueError)):
+        _executor(repository_epic_roots=cast(tuple[str, ...], scope))
+
+
+def test_missing_repository_target_does_not_claim_execution_evidence(tmp_path: Path) -> None:
+    result = _run(
+        _executor(repository_epic_roots=_REPOSITORY_ROOTS),
+        replace(_target(tmp_path / "missing"), target_type="repository"),
+    )
+
+    assert result.status is QualityStatus.ERROR
+    assert result.findings == ()
+    assert result.evidence == ()

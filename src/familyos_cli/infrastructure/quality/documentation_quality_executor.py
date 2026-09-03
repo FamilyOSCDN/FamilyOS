@@ -37,7 +37,11 @@ class DocumentationQualityExecutor(QualityExecutorPort):
         clock: Callable[[], datetime] | None = None,
         monotonic_clock: Callable[[], float] = time.monotonic,
         validator: DocumentationValidator | None = None,
+        repository_epic_roots: tuple[str, ...] | None = None,
     ) -> None:
+        if repository_epic_roots is not None:
+            DocumentationValidator.validate_repository_scope(repository_epic_roots)
+        self._repository_epic_roots = repository_epic_roots
         self._finding_id_factory = finding_id_factory
         self._evidence_id_factory = evidence_id_factory
         self._clock = clock or (lambda: datetime.now(UTC))
@@ -73,7 +77,15 @@ class DocumentationQualityExecutor(QualityExecutorPort):
 
         evidence_id = self._evidence_id_factory()
         try:
-            validation = self._validator.validate(root)
+            if (
+                target.target_type == "repository"
+                and self._repository_epic_roots is not None
+            ):
+                validation = self._validator.validate_repository(
+                    root, epic_roots=self._repository_epic_roots
+                )
+            else:
+                validation = self._validator.validate(root)
         except Exception as exc:
             evidence = self._evidence(
                 evidence_id=evidence_id,
@@ -138,6 +150,15 @@ class DocumentationQualityExecutor(QualityExecutorPort):
         result: QualityEvidenceResult,
         violation_count: int,
     ) -> QualityEvidence:
+        metadata: tuple[tuple[str, str], ...] = (("violations", str(violation_count)),)
+        if (
+            target.target_type == "repository"
+            and self._repository_epic_roots is not None
+        ):
+            metadata += (
+                ("scope", "repository_epics"),
+                ("epic_roots", "\n".join(self._repository_epic_roots)),
+            )
         return QualityEvidence(
             id=evidence_id,
             type=_DOCUMENTATION,
@@ -149,5 +170,5 @@ class DocumentationQualityExecutor(QualityExecutorPort):
             rule_id=rule.id,
             requirement_id=rule.requirement_id,
             tool="familyos-documentation-validator",
-            metadata=(("violations", str(violation_count)),),
+            metadata=metadata,
         )

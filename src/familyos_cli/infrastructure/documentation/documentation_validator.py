@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -34,6 +35,63 @@ class DocumentationValidationResult:
 
 class DocumentationValidator:
     """Validate deterministic EPIC documentation contracts."""
+
+    @staticmethod
+    def validate_repository_scope(epic_roots: tuple[str, ...]) -> None:
+        """Reject ambiguous or empty repository scope configuration."""
+        if not isinstance(epic_roots, tuple):
+            raise TypeError("Repository documentation scope must be a tuple")
+        if not epic_roots:
+            raise ValueError("Repository documentation scope must not be empty")
+        seen: set[str] = set()
+        for relative in epic_roots:
+            if not isinstance(relative, str):
+                raise TypeError("Repository documentation roots must be strings")
+            parts = relative.split("/")
+            if (
+                len(parts) != 3
+                or parts[:2] != ["docs", "epics"]
+                or parts[2] in ("", ".", "..")
+                or "\\" in relative
+                or any(unicodedata.category(char) == "Cc" for char in relative)
+            ):
+                raise ValueError(
+                    "Repository documentation roots must be canonical relative "
+                    f"directories immediately under docs/epics/: {relative!r}"
+                )
+            if relative in seen:
+                raise ValueError(f"Duplicate repository documentation root: {relative}")
+            seen.add(relative)
+
+    def validate_repository(
+        self, root: Path, *, epic_roots: tuple[str, ...]
+    ) -> DocumentationValidationResult:
+        """Aggregate the explicitly configured EPIC inventories in order."""
+        self.validate_repository_scope(epic_roots)
+        if not root.is_dir():
+            raise ValueError(f"Repository documentation target is not a directory: {root}")
+        repository_root = root.resolve()
+        violations: list[DocumentationViolation] = []
+        for relative in epic_roots:
+            epic_root = root / relative
+            if not epic_root.resolve().is_relative_to(repository_root):
+                raise ValueError(
+                    f"Repository documentation root resolves outside the target: {relative}"
+                )
+            result = self.validate(epic_root)
+            violations.extend(
+                DocumentationViolation(
+                    kind=violation.kind,
+                    message=violation.message,
+                    location=(
+                        f"{relative}/{violation.location}"
+                        if violation.location is not None
+                        else relative
+                    ),
+                )
+                for violation in result.violations
+            )
+        return DocumentationValidationResult(tuple(violations))
 
     def validate(self, root: Path) -> DocumentationValidationResult:
         violations: list[DocumentationViolation] = []

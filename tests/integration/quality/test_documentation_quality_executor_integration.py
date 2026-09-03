@@ -4,6 +4,9 @@ from datetime import UTC, datetime
 from itertools import count
 from pathlib import Path
 
+from familyos_cli.application.quality.initial_repository_documentation_scope import (
+    INITIAL_REPOSITORY_DOCUMENTATION_ROOTS,
+)
 from familyos_cli.domain.quality import (
     QualityCheckId,
     QualityDomain,
@@ -16,6 +19,7 @@ from familyos_cli.domain.quality import (
     QualityStatus,
     QualityTarget,
 )
+from familyos_cli.infrastructure.documentation import DocumentationValidator
 from familyos_cli.infrastructure.quality import DocumentationQualityExecutor
 
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
@@ -34,7 +38,9 @@ def _rule() -> QualityRule:
     )
 
 
-def _executor() -> DocumentationQualityExecutor:
+def _executor(
+    *, repository_epic_roots: tuple[str, ...] | None = None,
+) -> DocumentationQualityExecutor:
     finding_ids = count(1)
     evidence_ids = count(1)
     return DocumentationQualityExecutor(
@@ -45,6 +51,7 @@ def _executor() -> DocumentationQualityExecutor:
             f"QLT-EVID-DOC-INT-{next(evidence_ids):03d}"
         ),
         clock=lambda: datetime(2026, 9, 1, 20, 0, tzinfo=UTC),
+        repository_epic_roots=repository_epic_roots,
     )
 
 
@@ -131,3 +138,36 @@ def test_quality_framework_self_validation_produces_real_findings() -> None:
     )
     assert all(finding.location is not None for finding in result.findings)
     assert result.duration_seconds >= 0.0
+
+
+def test_repository_scope_preserves_real_epic_findings_and_provenance() -> None:
+    roots = INITIAL_REPOSITORY_DOCUMENTATION_ROOTS
+    validator = DocumentationValidator()
+    expected = [
+        (violation.message, f"{relative}/{violation.location}" if violation.location is not None else relative)
+        for relative in roots
+        for violation in validator.validate(_REPOSITORY_ROOT / relative).violations
+    ]
+    target = _target(
+        _REPOSITORY_ROOT, identifier="familyos-cli",
+        revision="integration-repository-revision",
+    )
+
+    result = _executor(repository_epic_roots=roots).execute(
+        check_id=QualityCheckId("QLT-CHECK-DOC-INTEGRATION-REPOSITORY"),
+        rule=_rule(), target=target,
+    )
+
+    assert [(f.message, f.location) for f in result.findings] == expected
+    assert result.status is (QualityStatus.FAIL if expected else QualityStatus.PASS)
+    assert result.diagnostics == ()
+    assert len(result.evidence) == 1
+    assert result.evidence[0].target is target
+    assert result.evidence[0].revision == target.revision
+    assert result.evidence[0].metadata == (
+        ("violations", str(len(expected))),
+        ("scope", "repository_epics"),
+        ("epic_roots", "\n".join(roots)),
+    )
+    assert all(f.target is target for f in result.findings)
+    assert all(f.evidence_ids == (str(result.evidence[0].id),) for f in result.findings)
