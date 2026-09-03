@@ -3,6 +3,9 @@
 from collections.abc import Callable
 from datetime import datetime
 
+from familyos_cli.application.quality.quality_assessment_execution_result import (
+    QualityAssessmentExecutionResult,
+)
 from familyos_cli.application.quality.quality_execution_service import (
     QualityExecutionService,
 )
@@ -42,13 +45,23 @@ class QualityAssessmentExecutionService:
         self._clock = clock
 
     def execute(self, target: QualityTarget) -> QualityAssessment:
+        """Return the canonical assessment from one fresh execution."""
+        return self.execute_with_results(target).assessment
+
+    def execute_with_results(
+        self, target: QualityTarget,
+    ) -> QualityAssessmentExecutionResult:
+        """Execute once and retain the exact results used by assessment."""
         if not isinstance(target, QualityTarget):
             raise TypeError("target must be a QualityTarget")
         results = self._execution_service.execute(target)
-        return self._assessment_service.assess(
+        assessment = self._assessment_service.assess(
             assessment_id=self._assessment_id_factory(),
             target=target,
             check_results=results,
             blocking_finding_ids=(),
             created_at=self._clock(),
+        )
+        return QualityAssessmentExecutionResult(
+            assessment=assessment, check_results=results,
         )

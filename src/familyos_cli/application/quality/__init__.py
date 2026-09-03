@@ -18,6 +18,9 @@ from familyos_cli.application.quality.default_quality_profile_registry import (
 from familyos_cli.application.quality.default_quality_profile_registry import (
     build_default_quality_profile_registry as build_default_quality_profile_registry,
 )
+from familyos_cli.application.quality.quality_assessment_execution_result import (
+    QualityAssessmentExecutionResult as QualityAssessmentExecutionResult,
+)
 from familyos_cli.application.quality.quality_assessment_service import (
     QualityAssessmentService as QualityAssessmentService,
 )
@@ -42,6 +45,7 @@ __all__ = [
     "INITIAL_KNOWN_CHECK_IDS",
     "INITIAL_PROFILE_DEFINITIONS",
     "OFFICIAL_PLUGIN_PROFILE",
+    "QualityAssessmentExecutionResult",
     "QualityAssessmentService",
     "QualityCheckResult",
     "QualityProfileAssessmentService",
