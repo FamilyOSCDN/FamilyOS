@@ -4351,6 +4351,143 @@ or implementing this output alone does not complete the Phase 13 CI checklist
 or establish a remote CI result.
 
 ---
+## Phase 13 Structured Quality Report Adapter Contract
+
+At baseline `251f1302f20cfbd42fd038a661a1df0c893057ab`, the application retains
+normalized checks and their assessment from one execution. This contract
+authorizes the next reporting adapter under ENG-004, ENG-006, ENG-011, ENG-012,
+and the existing Quality execution/assessment authority.
+
+### CLI Extension and Compatibility
+
+Only `familyos quality report` gains `--format text|json` (default `text`) and
+`--output PATH` (optional). Values are case-sensitive. Unsupported formats,
+an empty output path, and `--output` with text format SHALL fail with exit 2
+before application execution. No `--json` alias is introduced. A path equal
+to `-` means stdout, equivalent to omitting `--output`; all other paths are
+resolved normally against the caller's working directory.
+
+The default and explicit text format preserve the complete Phase 12 text
+contract, including delegation through `execute(target)`, rendering, unexpected
+execution exception behavior, and exit semantics. `check` and `assess` are
+unchanged. This additive contract supersedes only the earlier exclusion of
+`--format` for report; historical Phase 12 scope remains documented as such.
+
+JSON mode SHALL construct the same explicit canonical target and invoke
+`CommandContext().quality_assessment.execute_with_results(target)` exactly once.
+It SHALL serialize that returned application output without replaying checks,
+reassessing, allocating identities, reading a clock, or substituting CLI input
+for returned canonical values. A narrow `QualityReportJsonRenderer` belongs in
+`interfaces.cli.rendering.quality_report_json`, following the existing CLI
+rendering boundary. Domain and application models remain unchanged.
+
+### Version 1.0.0 Payload
+
+The top-level object SHALL contain these fields, in this order:
+
+```text
+schema_version: "1.0.0"
+assessment: assessment object
+check_results: array of check objects
+```
+
+Every field below is present, in the order shown. Identifiers and enum values
+are serialized using their canonical strings, without interpretation.
+
+| Object | Fields, in order |
+| --- | --- |
+| target | target_type, identifier, revision, version, path, metadata |
+| assessment | id, target, revision, profile, status, quality_state, evidence_ids, finding_ids, created_at |
+| check | check_id, status, findings, evidence, duration_seconds, diagnostics |
+| finding | id, rule_id, domain, severity, status, message, target, location, evidence_ids |
+| evidence | id, type, source, target, result, created_at, revision, rule_id, requirement_id, tool, tool_version, metadata, artifact |
+
+Nested targets SHALL be complete target objects. Optional scalar fields SHALL
+use JSON null when absent. Tuple collections SHALL become JSON arrays, with
+empty tuples represented as `[]`. Metadata SHALL be an array of two-element
+string arrays, preserving order and repeated keys; it SHALL NOT become a JSON
+object. Times SHALL use the existing aware datetime's `isoformat()` value,
+including its offset. Duration SHALL be a JSON number in seconds.
+
+The adapter SHALL preserve all supplied collection ordering and multiplicity,
+including assessment identifier ordering, repeated normalized findings/evidence,
+diagnostics, and metadata. It SHALL neither reconcile duplicate identifiers nor
+infer blocking classifications, gate decisions, or missing evidence links.
+The application orchestration remains responsible for assessment correlation.
+
+The serialized document SHALL use two-space indentation, Unicode text encoded
+as UTF-8 without a byte-order mark, and one final newline. JSON escaping SHALL
+protect embedded quotes, newlines, and control characters. NaN, positive or
+negative infinity, and strings that cannot encode as valid UTF-8 SHALL fail
+explicitly; they SHALL NOT be replaced, omitted, or emitted as nonstandard JSON.
+Identical supplied objects SHALL render identically. Fresh executions retain
+their independently allocated identifiers and times.
+
+This defines a public adapter schema, independently of domain `to_dict()`
+helpers and the distinct CI Validation artifact. Breaking field or semantic
+changes require an explicit versioned contract; future consumers SHALL check
+the schema version before interpreting it. No deserialization or persistence
+domain is introduced by this slice.
+
+### Output Channels and File Writes
+
+The complete document SHALL be serialized and UTF-8 validated in memory before
+any report output is written. Without a file destination, stdout SHALL contain
+only the report. Ordinary Python stdout emitted while invoking the application
+SHALL be redirected to stderr in JSON mode, preserving diagnostics without
+contaminating JSON. Normalized diagnostics also remain in their check objects.
+
+With a file destination, stdout SHALL be empty. The adapter SHALL write a
+temporary sibling file, close it successfully, and replace the destination
+atomically only after the full write succeeds. The parent directory must already
+exist. Failed writes SHALL remove temporary files when possible and preserve
+an existing destination. No automatic directory creation or dual stdout/file
+report emission is authorized. The adapter SHALL NOT follow a destination-file
+symlink when replacing it. Atomic replacement is not a durability or backup
+guarantee. Filesystem handling remains at the CLI boundary.
+
+An existing artifact preserved after an error is not proof of the current
+execution. CI integration SHALL use a fresh per-run destination and validate
+its report identity/revision before treating it as current evidence.
+
+### Error and Exit Semantics
+
+JSON mode adapts ordinary application, serialization, encoding, and output-write
+exceptions to a plain diagnostic on stderr and exit 2. It SHALL NOT emit a
+fabricated assessment or JSON error envelope. Interrupts and process termination
+are not converted into successful or synthetic results.
+
+Serialization failures leave report stdout and the destination untouched.
+Stream failures may leave a partial stream and SHALL return exit 2; consumers
+must reject incomplete JSON. An output error takes precedence over an otherwise
+successful or failing assessment. A normalized ERROR/UNKNOWN assessment is a
+valid report and SHALL still be written before the frozen exit policy applies.
+
+After successful report output, reuse the Phase 12 assessment exit function:
+ERROR or UNKNOWN assessment status gives 2; otherwise PASS/PASS_WITH_WARNINGS
+state gives 0, FAIL state gives 1, and other states give 2. A required check FAIL
+without explicit blockers still yields an UNKNOWN assessment and exit 2. The
+report retains the check FAIL so CI can distinguish a detected violation from
+an executor ERROR without changing assessment or Quality Gate policy.
+
+### Implementation Evidence
+
+Tests SHALL cover the exact versioned shape and deterministic bytes; optional,
+empty, Unicode, control-character, repeated, and non-finite values; one detailed
+execution; returned-object authority; every existing exit-policy combination;
+pre-execution option validation; clean stdout/stderr separation; normalized and
+unexpected errors; file replacement and preservation on failures; and unchanged
+text/check/assess behavior. Verify the installed CLI on real Documentation
+targets, including a failing target whose JSON remains available with exit 2.
+
+Permitted changes are the report CLI adapter, its renderer and narrow atomic
+writer, related tests, and this contract. No workflow or other domain behavior
+changes belong to this slice. The following CI adapter slice SHALL define the
+exact invocation, checked revision, logs, summaries, artifact retention, and
+observation behavior before modifying the workflow.
+
+---
+
 # Phase 14 — Architecture Quality Checks
 
 ## Objective
