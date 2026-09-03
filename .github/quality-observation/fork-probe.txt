@@ -1,2 +1,2 @@
 purpose=true-fork-observation
-sequence=initial
+sequence=synchronize
