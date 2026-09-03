@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -57,11 +58,17 @@ from familyos_cli.application.quality.initial_quality_rules import (
     STATIC_ANALYSIS_RULE,
     TYPE_VERIFICATION_RULE,
 )
+from familyos_cli.application.quality.quality_assessment_execution_service import (
+    QualityAssessmentExecutionService,
+)
 from familyos_cli.application.quality.quality_execution_binding import (
     QualityExecutionBinding,
 )
 from familyos_cli.application.quality.quality_execution_service import (
     QualityExecutionService,
+)
+from familyos_cli.application.quality.quality_profile_assessment_service import (
+    QualityProfileAssessmentService,
 )
 from familyos_cli.application.quality.quality_profile_resolver import (
     QualityProfileResolver,
@@ -117,6 +124,7 @@ from familyos_cli.domain.generation.generation_preset_resolver import (
     GenerationPresetResolver,
 )
 from familyos_cli.domain.quality import (
+    QualityAssessmentId,
     QualityCheckId,
     QualityEvidenceId,
     QualityFindingId,
@@ -372,6 +380,25 @@ class ApplicationContainer:
         return QualityExecutionService(
             profile_resolver=resolver,
             bindings=bindings,
+        )
+
+    @staticmethod
+    def _quality_assessment_id() -> QualityAssessmentId:
+        return QualityAssessmentId(f"QLT-ASMT-{uuid4()}")
+
+    @staticmethod
+    def _quality_assessment_clock() -> datetime:
+        return datetime.now(UTC)
+
+    def quality_assessment_execution_service(self) -> QualityAssessmentExecutionService:
+        profile_resolver = QualityProfileResolver(
+            build_default_quality_profile_registry()
+        )
+        return QualityAssessmentExecutionService(
+            execution_service=self.quality_execution_service(),
+            assessment_service=QualityProfileAssessmentService(profile_resolver),
+            assessment_id_factory=self._quality_assessment_id,
+            clock=self._quality_assessment_clock,
         )
 
     def testing_evidence_freshness_use_case(

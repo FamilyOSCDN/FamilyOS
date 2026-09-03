@@ -15,6 +15,9 @@ from familyos_cli.application.generation.generation_catalog_service import (
 from familyos_cli.application.generation.recipe_catalog_service import (
     RecipeCatalogService,
 )
+from familyos_cli.application.quality.quality_assessment_execution_service import (
+    QualityAssessmentExecutionService,
+)
 from familyos_cli.application.quality.quality_execution_service import (
     QualityExecutionService,
 )
@@ -147,6 +150,10 @@ class CommandContext:
     def quality_execution(self) -> QualityExecutionService:
         "Provide the governed Phase 12 Quality execution service."
         return self._container.quality_execution_service()
+
+    @cached_property
+    def quality_assessment(self) -> QualityAssessmentExecutionService:
+        return self._container.quality_assessment_execution_service()
 
     @cached_property
     def testing_evidence_freshness(

@@ -55,3 +55,10 @@ def test_quality_execution_is_exposed_and_cached(tmp_path: Path) -> None:
     second = context.quality_execution
     assert isinstance(first, QualityExecutionService)
     assert second is first
+
+
+def test_quality_assessment_is_exposed_and_cached(tmp_path: Path) -> None:
+    context = CommandContext(project_root=tmp_path)
+    first = context.quality_assessment
+    second = context.quality_assessment
+    assert first is second

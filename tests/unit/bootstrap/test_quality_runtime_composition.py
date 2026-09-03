@@ -69,3 +69,27 @@ def test_plugin_compliance_binding_reuses_container_engine(tmp_path: Path) -> No
     assert isinstance(executor, PluginComplianceQualityExecutor)
     assert executor._engine is container._compliance_engine  # noqa: SLF001
     assert executor._plugins_root == container._builtin_plugins_root  # noqa: SLF001
+
+
+def test_container_composes_quality_assessment_execution_service(
+    tmp_path: Path,
+) -> None:
+    from familyos_cli.application.quality.quality_assessment_execution_service import (
+        QualityAssessmentExecutionService,
+    )
+
+    assert isinstance(
+        ApplicationContainer(
+            project_root=tmp_path
+        ).quality_assessment_execution_service(),
+        QualityAssessmentExecutionService,
+    )
+
+
+def test_container_quality_assessment_identity_and_clock() -> None:
+    first = ApplicationContainer._quality_assessment_id()
+    second = ApplicationContainer._quality_assessment_id()
+    assert str(first).startswith("QLT-ASMT-")
+    assert first != second
+    now = ApplicationContainer._quality_assessment_clock()
+    assert now.tzinfo is not None and now.utcoffset() is not None
