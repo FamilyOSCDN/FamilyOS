@@ -20,7 +20,7 @@ def test_initial_profiles_are_version_controlled_and_deterministic() -> None:
         OFFICIAL_PLUGIN_PROFILE,
         DOCUMENTATION_PROFILE,
     )
-    assert REPOSITORY_PROFILE.reference == "QLT-PROFILE-REPOSITORY@1.0.0"
+    assert REPOSITORY_PROFILE.reference == "QLT-PROFILE-REPOSITORY@1.1.0"
     assert OFFICIAL_PLUGIN_PROFILE.reference == "QLT-PROFILE-OFFICIAL-PLUGIN@1.0.0"
     assert DOCUMENTATION_PROFILE.reference == "QLT-PROFILE-DOCUMENTATION@1.0.0"
 
@@ -28,14 +28,14 @@ def test_initial_profiles_are_version_controlled_and_deterministic() -> None:
 def test_initial_known_check_authority_is_explicit() -> None:
     assert tuple(str(value) for value in INITIAL_KNOWN_CHECK_IDS) == (
         "QLT-CHECK-RUFF", "QLT-CHECK-MYPY", "QLT-CHECK-PYTEST",
-        "QLT-CHECK-DOC", "QLT-CHECK-PLUGIN-COMPLIANCE",
+        "QLT-CHECK-DOC", "QLT-CHECK-PLUGIN-COMPLIANCE", "QLT-CHECK-ARCHITECTURE",
     )
 
 
 def test_repository_profile_contract() -> None:
     assert REPOSITORY_PROFILE.target_types == ("repository",)
     assert tuple(str(value) for value in REPOSITORY_PROFILE.required_checks) == (
-        "QLT-CHECK-RUFF", "QLT-CHECK-MYPY", "QLT-CHECK-PYTEST", "QLT-CHECK-DOC",
+        "QLT-CHECK-RUFF", "QLT-CHECK-MYPY", "QLT-CHECK-PYTEST", "QLT-CHECK-DOC", "QLT-CHECK-ARCHITECTURE",
     )
     assert REPOSITORY_PROFILE.required_domains == ()
     assert REPOSITORY_PROFILE.severity_policy == ()
@@ -57,7 +57,7 @@ def test_documentation_profile_contract() -> None:
 def test_default_registry_contains_exact_initial_profile_set() -> None:
     registry = build_default_quality_profile_registry()
     assert {profile.reference for profile in registry.list()} == {
-        "QLT-PROFILE-REPOSITORY@1.0.0",
+        "QLT-PROFILE-REPOSITORY@1.1.0",
         "QLT-PROFILE-OFFICIAL-PLUGIN@1.0.0",
         "QLT-PROFILE-DOCUMENTATION@1.0.0",
     }

@@ -26,6 +26,9 @@ from familyos_cli.infrastructure.documentation import (
 from familyos_cli.infrastructure.quality.documentation_quality_executor import (
     DocumentationQualityExecutor,
 )
+from familyos_cli.infrastructure.quality.domain_boundary_quality_executor import (
+    DomainBoundaryQualityExecutor,
+)
 from familyos_cli.infrastructure.quality.mypy_quality_executor import (
     MypyQualityExecutor,
 )
@@ -54,8 +57,10 @@ def test_container_composes_exact_governed_executor_bindings(tmp_path: Path) -> 
         "QLT-CHECK-PYTEST",
         "QLT-CHECK-DOC",
         "QLT-CHECK-PLUGIN-COMPLIANCE",
+        "QLT-CHECK-ARCHITECTURE",
     )
     by_id = {str(check_id): binding.executor for check_id, binding in bindings.items()}
+    assert isinstance(by_id["QLT-CHECK-ARCHITECTURE"], DomainBoundaryQualityExecutor)
     assert isinstance(by_id["QLT-CHECK-RUFF"], RuffQualityExecutor)
     assert isinstance(by_id["QLT-CHECK-MYPY"], MypyQualityExecutor)
     assert isinstance(by_id["QLT-CHECK-PYTEST"], PytestQualityExecutor)

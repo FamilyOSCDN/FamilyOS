@@ -1,5 +1,8 @@
 """Version-controlled initial Quality Framework profile definitions."""
 
+from familyos_cli.application.quality.domain_boundary_quality_policy import (
+    ARCHITECTURE_CHECK_ID,
+)
 from familyos_cli.application.quality.quality_profile_definition import (
     QualityProfileDefinition,
 )
@@ -20,13 +23,14 @@ INITIAL_KNOWN_CHECK_IDS = (
     PYTEST_CHECK_ID,
     DOCUMENTATION_CHECK_ID,
     PLUGIN_COMPLIANCE_CHECK_ID,
+    ARCHITECTURE_CHECK_ID,
 )
 
 REPOSITORY_PROFILE = QualityProfile(
     id=QualityProfileId("QLT-PROFILE-REPOSITORY"),
-    version="1.0.0",
+    version="1.1.0",
     target_types=("repository",),
-    required_checks=(RUFF_CHECK_ID, MYPY_CHECK_ID, PYTEST_CHECK_ID, DOCUMENTATION_CHECK_ID),
+    required_checks=(RUFF_CHECK_ID, MYPY_CHECK_ID, PYTEST_CHECK_ID, DOCUMENTATION_CHECK_ID, ARCHITECTURE_CHECK_ID),
     required_domains=(),
     severity_policy=(),
 )

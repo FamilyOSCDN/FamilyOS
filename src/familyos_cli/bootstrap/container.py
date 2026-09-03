@@ -51,6 +51,10 @@ from familyos_cli.application.generation.recipe_catalog_service import (
 from familyos_cli.application.quality.default_quality_profile_registry import (
     build_default_quality_profile_registry,
 )
+from familyos_cli.application.quality.domain_boundary_quality_policy import (
+    ARCHITECTURE_CHECK_ID,
+    DOMAIN_BOUNDARY_RULE,
+)
 from familyos_cli.application.quality.initial_quality_rules import (
     DOCUMENTATION_RULE,
     PLUGIN_COMPLIANCE_INTEGRATION_RULE,
@@ -145,6 +149,9 @@ from familyos_cli.infrastructure.generation.generation_engine import (
 )
 from familyos_cli.infrastructure.quality.documentation_quality_executor import (
     DocumentationQualityExecutor,
+)
+from familyos_cli.infrastructure.quality.domain_boundary_quality_executor import (
+    DomainBoundaryQualityExecutor,
 )
 from familyos_cli.infrastructure.quality.mypy_quality_executor import (
     MypyQualityExecutor,
@@ -372,6 +379,14 @@ class ApplicationContainer:
                     engine=self._compliance_engine,
                     plugin_loader=PluginLoader(),
                     plugins_root=self._builtin_plugins_root,
+                    finding_id_factory=finding_id_factory,
+                    evidence_id_factory=evidence_id_factory,
+                ),
+            ),
+            QualityExecutionBinding(
+                ARCHITECTURE_CHECK_ID,
+                DOMAIN_BOUNDARY_RULE,
+                DomainBoundaryQualityExecutor(
                     finding_id_factory=finding_id_factory,
                     evidence_id_factory=evidence_id_factory,
                 ),

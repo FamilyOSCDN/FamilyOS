@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
+
 from familyos_cli.domain.quality import (
     QualityCheckId,
     QualityDomain,
@@ -87,8 +89,9 @@ def test_real_mypy_valid_fixture_produces_normalized_pass(
 
 
 def test_real_mypy_unknown_column_preserves_unused_ignore_finding(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setenv("MYPY_CACHE_DIR", str(tmp_path / "mypy-cache"))
     fixture = tmp_path / "unused_ignore.py"
     fixture.write_text(
         "# mypy: warn-unused-ignores\nvalue: int = 1  # type: ignore[assignment]\n",
