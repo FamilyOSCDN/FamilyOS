@@ -3793,12 +3793,12 @@ The CI pipeline should invoke application capabilities rather than reimplement q
 
 ```text id="impl-ci-checklist"
 [x] Identify current CI provider/workflow
-[ ] Add Quality Framework command
-[ ] Generate structured report artifact
-[ ] Preserve logs
-[ ] Surface findings clearly
-[ ] Distinguish quality FAIL from automation ERROR
-[ ] Test CI failure behavior
+[x] Add Quality Framework command
+[x] Generate structured report artifact
+[x] Preserve logs
+[x] Surface findings clearly
+[x] Distinguish quality FAIL from automation ERROR
+[x] Test CI failure behavior
 ```
 
 ---
@@ -4666,6 +4666,124 @@ the Quality regression suite. Local generated `build/` output observed during
 the first run is not committed source: the final CI reproduction SHALL also
 use a fresh checkout of the exact committed revision. Do not delete local build
 artifacts or change the governed check scope to hide those findings.
+
+---
+## Phase 13 Local Implementation Evidence
+
+The structured report and CI observation implementation is committed locally in
+`47ee2aff5a55c51f762bf0c456f071e12ea8b85d` and
+`0e2d1332671497672433e021a85ac4103607ed58`. The MyPy compatibility and test-fixture
+corrections are committed in `beb73067e6e7838ac15ae7f3bb21b5c8bbdc48f0`.
+
+The complete public CLI/CI adapter was reproduced on 2026-09-03 in a new local
+checkout of that exact revision, with source imports verified against the new
+checkout and a clean source tree checked before and after execution:
+
+| Check | Actual outcome | Findings |
+| --- | --- | --- |
+| Ruff | PASS | 0 |
+| MyPy | PASS | 0 |
+| Pytest | PASS: 2,642 passed, zero failures/errors/skips | 0 |
+| Repository documentation | FAIL | 278 existing violations |
+
+The adapter accepted the canonical report and preserved its JSON, stdout,
+stderr, execution record, and bounded summary. CLI and adapter exits were both
+2, with assessment UNKNOWN / UNKNOWN: the existing Phase 10 policy does not
+classify these findings as blocking. This is a reliable observation of a
+non-passing documentation state, not an automation error or a successful gate.
+
+The focused corrected scope passed 722 tests, Ruff, and MyPy. Three package-build
+checks initially failed under sandbox network restrictions and passed with
+access to their temporary build dependencies. No assertion was weakened.
+The original checkout also contains ignored historical build output; that output
+was neither deleted nor treated as committed source in the clean reproduction.
+
+The seven CI implementation checklist entries are locally verified. The PR/main
+publication entries and remote CI exit criteria remain open until the workflow
+actually runs after review. No remote run, observation period, branch protection,
+release, or governance approval is claimed by this local evidence.
+
+## Phase 14 Domain Boundary Runtime Contract
+
+This contract is frozen before the first repository architecture implementation.
+The authority is `docs/00-foundation/Engineering-Constitution.md`, Articles I and
+IV, and the established dependency direction in
+`docs/00-foundation/CLI-Architecture.md`. Existing Quality package architecture
+tests already forbid domain dependencies on application, infrastructure, and
+interfaces. The first rule extends that same static dependency boundary across
+the canonical FamilyOS domain tree.
+
+### Identity and Policy
+
+Use requirement `QLT-REQ-ARC-010`, rule `QLT-RULE-ARC-010`, and check
+`QLT-CHECK-ARCHITECTURE`, with domain `QLT-DOM-ARC` and severity HIGH.
+The existing conceptual `QLT-RULE-ARC-001` concerns cross-domain internal
+implementation dependencies and SHALL NOT be repurposed. Rule ownership is the
+Engineering Architecture governance role; this names responsibility, not a
+claimed human approval or approval event.
+
+Store the concrete requirement, rule, canonical relative source root, and
+forbidden module prefixes as explicit application configuration. The source
+root is `src/familyos_cli/domain`; forbidden prefixes are exactly
+`familyos_cli.application`, `familyos_cli.infrastructure`, and
+`familyos_cli.interfaces`, including their submodules. Prefix matching SHALL
+respect module boundaries (`infrastructure_extra` is not `infrastructure`).
+
+The repository profile becomes `QLT-PROFILE-REPOSITORY@1.1.0`, appending this
+check after Ruff, MyPy, Pytest, and Documentation. Register only the new active
+repository version to preserve deterministic automatic resolution. Historical
+1.0.0 reports remain historical evidence, not input claiming the current policy.
+Official Plugin and Documentation profiles retain their current checks and
+versions. Severity policy and required-domain configuration remain unchanged;
+adding a required check SHALL NOT infer a blocking finding or gate decision.
+The existing CI adapter imports the active profile, so it SHALL observe the new
+check through the same public command without copying architecture policy.
+
+### Deterministic Verification
+
+Implement the existing Quality executor port in infrastructure. Inspect `.py`
+and `.pyi` files under the explicit source root, using Python's source encoding
+rules and AST parsing without importing or executing target code. Include imports
+inside functions, conditions, and TYPE_CHECKING blocks. Ignore comments and
+string literals. Dynamic imports and broader cross-domain public-API checks are
+outside this initial static rule and SHALL NOT be claimed as verified.
+
+Resolve absolute imports, `from familyos_cli import infrastructure`, and
+relative imports according to the containing module/package (`__init__.py`
+and `__init__.pyi` represent packages). Report each distinct forbidden module
+per import statement once; preserve separate offending statements. Order by
+repository-relative POSIX path, source line, column, and module. Locations use
+`relative/path:line:column`, with Python AST's column converted to one-based.
+Messages identify the forbidden module; canonical rule/domain/severity and
+original target come from the supplied governed input.
+
+Only repository targets with an existing path and non-empty canonical domain
+source tree are supported. Missing roots, unreadable files, invalid syntax or
+encoding, invalid relative imports escaping the package, and symbolic links in
+the inspected tree SHALL yield ERROR, not an empty PASS. Resolve the target root
+once and reject symbolic links in its source-root components and descendants;
+never silently follow a source link or skip a subtree. Do not execute subprocesses
+or read other repository trees as fallbacks.
+
+A reliable scan produces PASS with zero findings or FAIL with all findings.
+Produce one canonical ARCHITECTURE evidence record with the exact target and
+revision, rule and requirement IDs, source `quality.architecture`, tool
+`python.ast`, and Python version. Metadata records the explicit source root,
+forbidden prefixes, inspected-file count, and violation count. Each finding
+references that evidence. Use injected finding/evidence ID factories, an aware
+clock, and a monotonic duration clock, following existing executor conventions.
+On scan failure produce one ERROR evidence, an explicit diagnostic and error
+kind, and no misleading partial findings or successful-file counts.
+
+### Validation and Boundary
+
+Verify compliant and violating source fixtures, all import forms, exact prefix
+matching, source encoding, deterministic order, finding/evidence linkage,
+missing/empty/malformed/unreadable/symlink sources, and independent target/cwd.
+Verify profile version/check-order changes, exact bootstrap composition, and
+preservation of plugin/documentation behavior. Run existing Quality/CI tests,
+Ruff, MyPy, and the actual committed repository scan. This runtime is observation
+only and does not implement Phase 15 gate evaluation or Phase 16 enforcement.
 
 ---
 # Phase 14 — Architecture Quality Checks
