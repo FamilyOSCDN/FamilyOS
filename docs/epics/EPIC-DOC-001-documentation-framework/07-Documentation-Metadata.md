@@ -101,6 +101,7 @@ Examples:
 1.0.0
 1.1.0
 2.0.0
+```
 
 Version changes SHOULD reflect the impact of modifications.
 
