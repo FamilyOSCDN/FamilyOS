@@ -4786,6 +4786,135 @@ Ruff, MyPy, and the actual committed repository scan. This runtime is observatio
 only and does not implement Phase 15 gate evaluation or Phase 16 enforcement.
 
 ---
+## Phase 14 Initial Runtime Evidence
+
+The initial architecture rule is implemented in
+`f8b9da164684ad3ccffbcd106e0d63b4a634cfe4`. Its focused Quality/CI regression
+scope passed 678 tests, Ruff, and MyPy on all eight changed Python files.
+The real repository domain scan inspected 100 Python files and produced PASS,
+zero findings, and canonical ARCHITECTURE evidence. This closes the initial
+Phase 14 static-boundary slice only; it does not claim dynamic import analysis
+or every broader architectural invariant in the conceptual roadmap.
+
+## Phase 15 Initial Merge Observation Contract
+
+Freeze this contract before introducing gate models or evaluation. Authority is
+`15-Quality-Gates.md`, especially Policy Separation, Assessment-Driven Gates,
+Unknown Is Not Pass, Gate Freshness, Gate Explainability, and Observe Mode.
+The initial gate is `QLT-GATE-MERGE-001`, policy version `1.0.0`, exclusively
+in OBSERVE mode. It reports a hypothetical progression decision and never
+prevents progression. There is no enforcement switch, override, exception,
+branch-protection change, release decision, or automatic severity threshold.
+
+### Domain Models and Explicit Policy
+
+Introduce immutable QualityGateId, GateDecision, QualityGatePolicy,
+QualityGateCondition, and QualityGate domain values, with validated identifiers,
+non-empty strings, typed immutable collections, and aware evaluation timestamps.
+The initial GateDecision vocabulary is PASS, FAIL, ERROR. CONDITIONAL and
+NOT_APPLICABLE are deferred until their supporting policies exist.
+
+QualityGatePolicy contains the stable gate identity, policy version, authority,
+canonical QualityProfile, accepted check statuses, and accepted assessment
+states. Its reference is `gate_id@version`. Positive accepted statuses can only
+be PASS or WARNING; positive assessment states can only be PASS or
+PASS_WITH_WARNINGS. Empty/duplicate accepted collections and a profile without
+required checks are invalid. OBSERVE is the only supported mode.
+
+The application-owned initial policy references the active repository profile
+1.1.0. It explicitly accepts only PASS for each required check and accepts
+assessment states PASS and PASS_WITH_WARNINGS. Policy configuration remains
+separate from its evaluator; plugin and documentation profiles are not assigned
+a merge gate by this initial policy.
+
+QualityGate retains id, original target, exact revision, policy reference,
+assessment_id (nullable only for unavailable input), decision, blocking_conditions,
+and evaluated_at. Mode is OBSERVE and prevents_progression is always false.
+A condition retains a code, explanation, optional check_id, and canonical
+finding/rule/evidence identifiers. PASS requires no conditions; FAIL or ERROR
+requires at least one. This describes would-block conditions without granting
+this observer enforcement authority.
+
+### Canonical Input Evaluation
+
+An application service evaluates an explicit policy, explicit target, and
+QualityAssessmentExecutionResult (or missing input). It consumes the retained
+assessment and normalized checks once, without rerunning tools or reaggregating
+an alternative assessment. The evaluator receives an injected aware clock.
+Equivalent inputs, policy, and clock produce equal immutable results.
+
+Before a positive decision, require the policy's target type, known revision,
+matching assessment target/revision/profile, assessment time no later than
+evaluation, exact required check identities/order, and non-empty evidence for
+every required check. Finding/evidence targets and supplied revisions must
+match; assessment identifier sets must match retained details; finding evidence
+references must resolve. Repeated identifiers must have identical content;
+conflicting duplicate identities are invalid. Missing or inconsistent inputs
+produce ERROR with explicit conditions. They never become PASS.
+
+Decision precedence is:
+
+1. Missing/inconsistent inputs, any required ERROR/UNKNOWN/SKIPPED check, or
+   ERROR/SKIPPED assessment: ERROR, while retaining actionable failed-check
+   explanations when available.
+2. A reliable required check outside the policy's accepted statuses: FAIL.
+   In particular, a canonical FAIL check with retained evidence yields a
+   would-fail condition even when the Phase 10 assessment is UNKNOWN because
+   no blocking finding classification was supplied. The original assessment
+   stays UNKNOWN; the gate does not mutate or replace it.
+3. A canonical FAIL assessment/state: FAIL with its assessment reference and
+   retained finding/rule/evidence identifiers.
+4. Remaining UNKNOWN or inconsistent assessment status/state: ERROR.
+5. Accepted assessment state with all required checks accepted: PASS.
+
+Accepted assessment combinations are PASS/PASS and WARNING/PASS_WITH_WARNINGS.
+Each failed check condition identifies its check, findings, rules, and evidence.
+An evidence-backed failure without findings is still explainable by its check
+and evidence. Severity is never used to invent blocking findings. The initial
+policy has no age limit or historical baseline: freshness is exact revision,
+explicit source validation by the caller, and non-future assessment time.
+
+### Local and CI Observation Output
+
+Keep the three public Quality CLI contracts and Quality JSON report schema
+1.0.0 unchanged. After accepting the canonical report from its single CLI run,
+the existing CI adapter calls the application evaluator with the explicit
+initial policy and checked target. It also evaluates missing input as ERROR
+when report acquisition failed. No second Quality execution is permitted.
+
+Write a separate UTF-8 `gate-observation.json` with schema_version 1.0.0 and a
+`gate` object containing id, target (the existing target field representation),
+revision, policy, assessment_id, decision, mode, prevents_progression,
+blocking_conditions, and evaluated_at. Condition fields are code, message,
+check_id, finding_ids, rule_ids, and evidence_ids; nullable fields are present.
+A CLI rendering adapter owns this serialization, not domain or CI business logic.
+
+The bounded CI summary includes the policy, OBSERVE mode, would-pass/would-fail
+or evaluation-error label, and condition references, with the same escaping and
+size limits. The workflow's existing whole-directory artifact upload preserves
+the new file. Gate decisions, including ERROR, are observational and do not
+replace canonical CLI/adapter exit codes. Failure to produce the promised gate
+artifact is an automation error (adapter exit 2) with an explicit diagnostic.
+
+### Validation and Actual Completion Limits
+
+Verify model invariants, explicit policy, all decision branches and precedence,
+missing/stale/ambiguous evidence, target/profile/revision consistency, clock
+validation, warning policy behavior, deterministic explanation, and immutable
+inputs. Verify JSON fields, escaping, single CLI execution, preserved native
+exit codes, new artifact retention, and output-failure handling. Replace the
+historical architecture test forbidding a QualityGate model with a Phase 15
+positive model/boundary assertion; retain all dependency direction protections.
+Run the full clean-checkout Quality/CI reproduction after local commit.
+
+Local implementation can close the gate model and deterministic evaluation
+items. Real PR observations, false-positive feedback, reliability metrics, and
+an elapsed observation period remain unfulfilled until remote use. Phase 16
+requires those observations plus governance approval. A local implementation
+and planned review SHALL NOT be represented as those approvals or as completed
+enforcement. Prepare the local review dossier at this boundary.
+
+---
 # Phase 14 — Architecture Quality Checks
 
 ## Objective
@@ -4808,13 +4937,13 @@ Official plugin structure respected
 Checklist:
 
 ```text id="impl-architecture-rule-checklist"
-[ ] Identify authoritative architecture decisions
-[ ] Define first architecture requirements
-[ ] Implement deterministic validator
-[ ] Produce architecture findings
-[ ] Produce evidence
-[ ] Add compliant fixtures
-[ ] Add violating fixtures
+[x] Identify authoritative architecture decisions
+[x] Define first architecture requirements
+[x] Implement deterministic validator
+[x] Produce architecture findings
+[x] Produce evidence
+[x] Add compliant fixtures
+[x] Add violating fixtures
 ```
 
 ---
@@ -4822,10 +4951,10 @@ Checklist:
 # Architecture Rule Governance
 
 ```text id="impl-architecture-governance"
-[ ] Rule linked to ADR / architecture authority
-[ ] Rule severity defined
-[ ] Rule owner defined
-[ ] Rule rollout starts non-blocking if necessary
+[x] Rule linked to ADR / architecture authority
+[x] Rule severity defined
+[x] Rule owner defined
+[x] Rule rollout starts non-blocking if necessary
 ```
 
 ---
@@ -4833,8 +4962,8 @@ Checklist:
 # Phase 14 Exit Criteria
 
 ```text id="impl-phase14-exit"
-[ ] Initial architecture invariants machine-verifiable
-[ ] No undocumented architecture policy introduced
+[x] Initial architecture invariants machine-verifiable
+[x] No undocumented architecture policy introduced
 ```
 
 ---
