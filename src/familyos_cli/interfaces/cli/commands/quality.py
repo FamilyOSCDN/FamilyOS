@@ -144,3 +144,74 @@ def assess(
     exit_code = _assessment_exit_code(assessment)
     if exit_code != EXIT_SUCCESS:
         raise typer.Exit(code=exit_code)
+
+
+def _render_report(assessment: QualityAssessment) -> None:
+    """Present canonical assessment fields in a stable order."""
+    target = assessment.target
+    lines = [
+        f"Assessment ID: {assessment.id}",
+        f"Target: {target.target_type}:{target.identifier}",
+    ]
+    if target.path is not None:
+        lines.append(f"Path: {target.path}")
+    if target.revision is not None:
+        lines.append(f"Revision: {target.revision}")
+    if target.version is not None:
+        lines.append(f"Version: {target.version}")
+    lines.extend(
+        (
+            f"Profile: {assessment.profile}",
+            f"Status: {assessment.status.value}",
+            f"Quality State: {assessment.quality_state.value}",
+            "Evidence IDs: "
+            + (", ".join(str(value) for value in assessment.evidence_ids) or "-"),
+            "Finding IDs: "
+            + (", ".join(str(value) for value in assessment.finding_ids) or "-"),
+            f"Created At: {assessment.created_at.isoformat()}",
+        )
+    )
+    typer.echo("\n".join(lines))
+
+
+@quality_app.command(name="report")
+def report(
+    target_type: Annotated[
+        str, typer.Option("--target-type", help="Canonical Quality target type.")
+    ],
+    identifier: Annotated[
+        str, typer.Option("--identifier", help="Canonical Quality target identifier.")
+    ],
+    path: Annotated[str, typer.Option("--path", help="Canonical Quality target path.")],
+    revision: Annotated[
+        str | None,
+        typer.Option("--revision", help="Optional canonical target revision."),
+    ] = None,
+    version: Annotated[
+        str | None, typer.Option("--version", help="Optional canonical target version.")
+    ] = None,
+) -> None:
+    """Execute a governed assessment and render its canonical Quality report."""
+    try:
+        target = QualityTarget(
+            target_type=target_type,
+            identifier=identifier,
+            path=path,
+            revision=revision,
+            version=version,
+        )
+        assessment = CommandContext().quality_assessment.execute(target)
+    except (TypeError, ValueError) as exc:
+        Output.error(str(exc))
+        raise typer.Exit(code=EXIT_QUALITY_ERROR) from None
+
+    try:
+        _render_report(assessment)
+    except Exception as exc:
+        # The report contract classifies rendering failures as CLI errors.
+        Output.error(f"Quality report rendering failed: {exc}")
+        raise typer.Exit(code=EXIT_QUALITY_ERROR) from None
+
+    exit_code = _assessment_exit_code(assessment)
+    if exit_code != EXIT_SUCCESS:
+        raise typer.Exit(code=exit_code)
