@@ -278,6 +278,18 @@ jobs:
       - name: Install FamilyOS without dependency resolution
         run: python -m pip install --no-deps --no-build-isolation -e .
 
+      - name: Capture source before Quality observation
+        continue-on-error: true
+        run: >-
+          python -m scripts.capture_quality_source
+          --phase before
+          --repository "$GITHUB_WORKSPACE"
+          --expected-revision "$GITHUB_SHA"
+          --output-dir "$RUNNER_TEMP/familyos-quality-p4-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          --run-id "$GITHUB_RUN_ID"
+          --run-attempt "$GITHUB_RUN_ATTEMPT"
+          --event "$GITHUB_EVENT_NAME"
+
       - name: Run Quality Framework observation
         id: quality_observation
         run: >-
@@ -287,10 +299,34 @@ jobs:
           --output-dir "$RUNNER_TEMP/familyos-quality-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           --summary "$GITHUB_STEP_SUMMARY"
 
+      - name: Capture source after Quality observation
+        if: always()
+        env:
+          QUALITY_STEP_OUTCOME: ${{ steps.quality_observation.outcome }}
+        run: >-
+          python -m scripts.capture_quality_source
+          --phase after
+          --repository "$GITHUB_WORKSPACE"
+          --expected-revision "$GITHUB_SHA"
+          --output-dir "$RUNNER_TEMP/familyos-quality-p4-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          --run-id "$GITHUB_RUN_ID"
+          --run-attempt "$GITHUB_RUN_ATTEMPT"
+          --event "$GITHUB_EVENT_NAME"
+          --quality-output "$RUNNER_TEMP/familyos-quality-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          --quality-step-outcome "$QUALITY_STEP_OUTCOME"
+
       - name: Upload Quality observation evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: familyos-quality-observation
           path: ${{ runner.temp }}/familyos-quality-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: error
+
+      - name: Upload P4 source observation evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: familyos-quality-source-observation
+          path: ${{ runner.temp }}/familyos-quality-p4-${{ github.run_id }}-${{ github.run_attempt }}/
           if-no-files-found: error

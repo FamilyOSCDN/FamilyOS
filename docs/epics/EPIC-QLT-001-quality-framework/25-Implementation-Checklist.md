@@ -7085,3 +7085,91 @@ This adapter SHALL NOT introduce a `QualityReport` domain model, report identifi
 Implementation SHALL remain blocked if it requires inventing a new report domain model, adding persistence/history semantics, creating a public structured-output contract without separate authority, recomputing Quality business semantics in the CLI, or introducing behavior owned by a later Quality Framework phase.
 
 No Phase 12 checklist item is closed merely by freezing this adapter contract. Runtime behavior, rendering, exit codes, command discovery, regression evidence, and Phase 12 exit criteria remain independently open until demonstrated.
+
+---
+
+## P4 Additive Source Measurement Contract
+
+This observation slice follows the published test-only correction at
+`2e20ab7ea6e638bd49804a80365cdb232eb66574`. It implements the agreed P4
+measurement refinements; it does not approve isolation, a relaxed cleanliness
+policy, observation exit criteria, or Phase 16 enforcement.
+
+### Independent Capture and Frozen Boundaries
+
+Only steps are added to the `quality-observation` job. All four historical
+jobs, the original Quality execution/upload steps, triggers, permissions,
+and mandatory validation/build behavior remain unchanged.
+`scripts.run_quality_ci.checked_revision` keeps its strict before/after checks
+and `--untracked-files=normal`. The Quality CLI is invoked exactly once.
+`execution.json`, `quality-report.json`, and `gate-observation.json` retain
+their frozen 1.0.0 schemas and behavior.
+
+The new `scripts.capture_quality_source` transport captures:
+
+```text
+git rev-parse HEAD
+git status --porcelain=v1 --untracked-files=all
+```
+
+It records exact stdout/stderr bytes, actual return codes (null if unavailable),
+command arguments, UTC start/end timestamps, and digests. Both commands are
+attempted, with a bounded timeout. It never invokes Quality executors or reads
+the contents of modified files. Escaped representations are also emitted in
+job logs, so filenames cannot become workflow commands.
+
+The before step runs immediately before Quality. Its capture failure cannot
+prevent the canonical Quality invocation. The after step is distinct and uses
+`if: always()`, independent of an early adapter exception or failed Quality
+step. This is best effort: forced runner termination, an unavailable checkout,
+or interrupted artifact upload can still make measurements unavailable.
+
+### Additive Evidence
+
+The fresh P4 directory is
+`RUNNER_TEMP/familyos-quality-p4-GITHUB_RUN_ID-GITHUB_RUN_ATTEMPT`, disjoint from
+the checkout and the original Quality artifact directory. This preserves the
+adapter's obligation to create its own fresh directory and leave existing
+evidence untouched. An additional `always()` upload retains it as
+`familyos-quality-source-observation`, with `if-no-files-found: error`.
+No existing artifact is renamed or extended in place.
+
+New sibling files include `head-before`, `status-before`, `head-after`,
+`status-after`, corresponding `.stderr` files, phase records, context, and
+`p4-capture.json`. The latter has its own 1.0.0 schema and identifies the run,
+attempt, event, expected revision, source, environment, captured states,
+eligibility, trigger, reasons, global observation window and attribution.
+Capture identity mismatches and repeated phase writes fail without replacing
+earlier raw evidence. Missing captures are explicitly represented.
+
+The global window conservatively includes capture and CLI overhead. Validated
+report check durations and tool versions may be linked by the report's hash,
+including an explicit report-acceptance flag. Durations have no executor-start
+timestamps and SHALL NOT be converted into an exact timeline or causal claim.
+Attribution remains `unattributed`, with null tool/version/cause, until a
+separate reproduction at the same revision supplies linked evidence.
+
+### Measurement and Governance Dossier
+
+`scripts.summarize_quality_p4` consumes an explicit inventory of all started
+runs/attempts, rejects duplicates, verifies raw capture hashes and identities,
+and recomputes states rather than trusting declared counters.
+Eligible observations have valid before/after captures and the expected clean
+source before execution. A changed HEAD or nonempty after status is a trigger.
+Pre-existing changes are counted separately. Missing, invalid, interrupted or
+lost measurements SHALL NOT be counted as clean or assigned to an executor.
+
+The dossier records trigger/eligible frequency, eligible/started coverage,
+unavailable measurements and reasons, pre-existing changes, unattributed
+incidents, and the tool/version/cause attribution table. A zero eligible
+denominator yields a null frequency, not a zero-percent incident rate.
+The dossier compares worktree/disposable-copy isolation with a separately
+governed cleanliness-policy change, preserving the original failure evidence.
+The responsible human authority owns that decision and observation exit
+criteria; measurement alone grants no enforcement authority.
+
+A real fork PR, successful remote P4 capture/upload, representative sampling,
+the documentation-authority audit and governance approval remain distinct
+evidence requirements. Existing pre-instrumentation runs remain unavailable
+for the P4 frequency denominator, even when adapter acceptance implies a
+successful cleanliness check.
