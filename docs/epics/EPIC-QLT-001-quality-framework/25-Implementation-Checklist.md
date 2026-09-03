@@ -4223,6 +4223,134 @@ or claim conformance repair, publication, or remote CI execution.
 
 ---
 
+## Phase 13 Assessment Execution Output Contract
+
+This contract freezes the second application prerequisite from the Phase 13
+pre-implementation review: retaining normalized check results together with
+the canonical assessment produced from the same execution. The inspection
+baseline is `cfb678b1406c8cd6010bcd63a75260547d799296`.
+
+### Application Output and Ownership
+
+Introduce `QualityAssessmentExecutionResult` in
+`application.quality.quality_assessment_execution_result`, exposed through the
+existing Quality application package. Its complete initial shape SHALL be:
+
+```python
+@dataclass(frozen=True, slots=True)
+class QualityAssessmentExecutionResult:
+    assessment: QualityAssessment
+    check_results: tuple[QualityCheckResult, ...]
+```
+
+This is an immutable application output containing existing canonical objects.
+It is not a new Quality domain entity, report schema, persistence record, or
+assessment policy. It SHALL reject an incorrectly typed assessment, a non-tuple
+collection, or a member that is not a `QualityCheckResult` with `TypeError`.
+It SHALL NOT coerce inputs, generate identifiers or timestamps, or copy,
+normalize, deduplicate, reorder, or recalculate the supplied values.
+
+An empty result tuple is representable. Completeness and assessment validity
+remain governed by the existing execution/profile/assessment services. The
+output constructor SHALL NOT duplicate their business validation or reject
+normalized ERROR, UNKNOWN, SKIPPED, or evidence-free results merely because
+they do not express conformance. Consumers requiring a correlated execution
+SHALL obtain the output from the orchestration method below; constructing the
+carrier directly does not execute or validate an assessment.
+
+### One Execution and One Assessment
+
+Add the following method to `QualityAssessmentExecutionService`:
+
+```python
+def execute_with_results(
+    self, target: QualityTarget,
+) -> QualityAssessmentExecutionResult:
+    ...
+```
+
+For each successful invocation, the method SHALL:
+
+1. validate the canonical target before executing checks;
+2. call the existing `QualityExecutionService.execute(target)` exactly once;
+3. obtain one assessment identifier and one creation time from the existing
+   injected factory and clock, after check execution succeeds;
+4. pass that exact returned result tuple and original target to the existing
+   `QualityProfileAssessmentService.assess` exactly once;
+5. continue to supply `blocking_finding_ids=()` under the initial runtime
+   classification contract; and
+6. return the exact canonical assessment produced by that service together
+   with the exact result tuple used to produce it.
+
+The new output SHALL preserve profile execution order, individual check
+statuses, durations, diagnostics, and every finding and evidence object,
+including their existing optional fields, metadata order, and duplicates.
+Messages, locations, rule/domain/severity associations, targets, revisions,
+and evidence references SHALL remain available without a second tool run.
+
+Canonical assessment identifier aggregation remains sorted and unique under
+`QualityAssessmentService`; preserving raw result order and multiplicity does
+not change that aggregation. Existing target/revision consistency checks and
+profile resolution remain authoritative. No additional evidence-reference
+resolution, blocking inference, or status repair is introduced here.
+
+Each method invocation is a fresh execution. The service SHALL NOT cache or
+reuse an earlier invocation's results or assessment. Reading either field of
+the returned output SHALL NOT execute checks, invoke the clock, allocate an
+identifier, or reassess anything.
+
+### Compatibility and Failure Behavior
+
+`execute(target) -> QualityAssessment` SHALL remain available with its existing
+return type and semantics. It SHALL project `.assessment` from one call to
+`execute_with_results(target)`, maintaining one orchestration path.
+
+The existing CLI, `CommandContext`, and bootstrap composition remain compatible
+without source changes. Phase 12 text rendering, command options, explicit
+targets, assessment semantics, and exit codes remain unchanged. In particular,
+a required FAIL without explicit blocking classification still assesses as
+UNKNOWN; retaining the details SHALL NOT promote it to a blocking failure.
+
+Normalized executor ERROR results SHALL remain visible in `check_results` and
+be assessed by the existing policy. Missing evidence and incomplete results
+SHALL retain their original details and completeness semantics.
+
+Invalid targets, profile or binding failures, unexpected executor exceptions,
+invalid factory/clock values, and assessment consistency errors SHALL continue
+to propagate through the existing error boundary. There SHALL be no automatic
+retry, synthetic assessment, fabricated evidence, or partial output presented
+as a complete execution. If execution raises, assessment identity and time
+SHALL NOT be allocated. If a later step raises, no result carrier is returned.
+
+### Required Evidence and Scope
+
+Runtime tests SHALL demonstrate:
+
+- immutable, explicitly typed output, including empty result support;
+- exactly one execution and profile-aware assessment per invocation, preserving
+  the original target, returned tuple, and returned assessment;
+- lossless ordered multi-check results, repeated finding/evidence references,
+  actionable messages/locations, diagnostics, durations, and optional metadata;
+- correlation of the canonical assessment's evidence/finding identifiers with
+  those retained results, preserving the existing sorted-unique aggregation;
+- unchanged PASS, WARNING, FAIL-without-blockers, ERROR, and incomplete/missing
+  evidence behavior, and no implicit blocking classification;
+- fresh independent invocations, failure propagation, and rejection of
+  target/revision mismatches by the existing assessment authority;
+- a composed Documentation execution retaining real normalized findings and
+  evidence with the matching assessment; and
+- existing Quality application, infrastructure, architecture, bootstrap,
+  context, and CLI regressions, with Ruff and MyPy on changed Python files.
+
+Implementation is limited to this application output, the existing assessment
+execution service, the package export, and their tests. No serializer, output
+file, new CLI format/option, workflow step, persistent storage, Quality Gate,
+or change to execution/assessment domain policy is part of this slice.
+Structured reporting requires the next explicit adapter contract. Freezing
+or implementing this output alone does not complete the Phase 13 CI checklist
+or establish a remote CI result.
+
+---
 # Phase 14 — Architecture Quality Checks
 
 ## Objective
