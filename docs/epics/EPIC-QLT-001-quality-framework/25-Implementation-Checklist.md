@@ -4915,6 +4915,63 @@ and planned review SHALL NOT be represented as those approvals or as completed
 enforcement. Prepare the local review dossier at this boundary.
 
 ---
+## Local Review Handoff — Phases 12 through 15
+
+The local implementation checkpoint for review is
+`fa64af399109072f9b3503142a64d64e7d1e6aaf` on
+`feature/quality-runtime-implementation`, verified on 2026-09-03.
+The initial Phase 12 CLI runtime, Phase 13 structured reports/CI adapter,
+Phase 14 domain-boundary check, and Phase 15 observation evaluator are implemented.
+Earlier exclusions describe their original slices; later frozen contracts above
+explicitly authorize the structured report, profile evolution, and gate observer.
+
+### Complete Clean-Checkout Reproduction
+
+The public CLI was invoked once through the CI adapter in a fresh checkout of
+that exact revision. Package imports were verified against that checkout, and
+Git source cleanliness/revision were checked before and after execution.
+
+| Result | Observed outcome |
+| --- | --- |
+| Ruff | PASS, zero findings |
+| MyPy | PASS, zero findings |
+| Pytest | 2,746 passed; zero failed, skipped, or errored |
+| Domain architecture | PASS; 105 files inspected, zero findings |
+| Repository documentation | FAIL; 278 pre-existing findings |
+| Canonical assessment | UNKNOWN / UNKNOWN |
+| Gate policy | QLT-GATE-MERGE-001@1.0.0 |
+| Gate decision | FAIL in OBSERVE mode; prevents_progression=false |
+| Gate explanation | QLT-CHECK-DOC not accepted; references all 278 findings |
+| CLI / adapter exits | 2 / 2 |
+| Report accepted / adapter error | true / null |
+
+The retained artifacts are quality-report.json, gate-observation.json,
+execution.json, stdout.log, stderr.log, and quality-summary.md. The bounded
+summary is 28,393 bytes. The final gate implementation also passed 748 focused
+Quality/CI tests, Ruff, and MyPy on all 16 changed files before commit.
+The documentation report preserves existing findings; no baseline suppression,
+assertion weakening, or successful gate claim was used to obtain this result.
+
+### Remaining Lifecycle Preconditions
+
+Completed Phase 15 checklist items below refer to locally implemented and
+verified behavior. Real PR/main workflow execution, actionable remote summary
+publication, false-positive feedback, reliability measurements, and an elapsed
+observation period remain open. Phase 13 remote exit criteria and Phase 15
+reliability completion are therefore not claimed.
+
+Phase 16 enforcement SHALL wait for its actual preconditions and governance
+approval. Later roadmap phases are not declared implemented or validated by
+this handoff. No remote push, merge, release, branch-protection change, or
+communication to an external reviewer was performed. The review dossier is
+prepared for the user to review with Claude before any such next step.
+
+This documentary handoff does not change runtime code, tests, or the observed
+set of documentation violations. Its evidence remains explicitly bound to the
+runtime checkpoint above and SHALL NOT be reused as a gate PASS for a different
+revision.
+
+---
 # Phase 14 — Architecture Quality Checks
 
 ## Objective
@@ -4994,11 +5051,11 @@ evaluated_at
 Checklist:
 
 ```text id="impl-gate-model"
-[ ] Define QualityGate
-[ ] Define GateDecision
-[ ] Define policy representation
-[ ] Define decision explanation
-[ ] Add tests
+[x] Define QualityGate
+[x] Define GateDecision
+[x] Define policy representation
+[x] Define decision explanation
+[x] Add tests
 ```
 
 ---
@@ -5019,8 +5076,8 @@ Initially in observation mode.
 
 ```text id="impl-gate-observe"
 [ ] Gate evaluates PR quality
-[ ] Gate reports would-pass / would-fail
-[ ] Gate does not block merge
+[x] Gate reports would-pass / would-fail
+[x] Gate does not block merge
 [ ] Collect false-positive feedback
 [ ] Collect execution reliability metrics
 ```
@@ -5030,10 +5087,10 @@ Initially in observation mode.
 # Gate Explainability
 
 ```text id="impl-gate-explainability"
-[ ] Gate identifies blocking assessment
-[ ] Gate identifies blocking finding
-[ ] Gate identifies rule
-[ ] Gate identifies evidence
+[x] Gate identifies blocking assessment
+[x] Gate identifies blocking finding
+[x] Gate identifies rule
+[x] Gate identifies evidence
 ```
 
 ---
@@ -5041,8 +5098,8 @@ Initially in observation mode.
 # Phase 15 Exit Criteria
 
 ```text id="impl-phase15-exit"
-[ ] Gate decisions deterministic
-[ ] Gate diagnostics useful
+[x] Gate decisions deterministic
+[x] Gate diagnostics useful
 [ ] Reliability demonstrated before enforcement
 ```
 
@@ -5061,7 +5118,7 @@ Promote trusted merge quality policy into enforcement.
 ```text id="impl-merge-gate-preconditions"
 [ ] Required checks stable
 [ ] False-positive rate acceptable
-[ ] Local reproduction available
+[x] Local reproduction available
 [ ] Assessment semantics stable
 [ ] Gate observation period complete
 [ ] Governance approval obtained
