@@ -3530,6 +3530,92 @@ exit criteria still require independent runtime evidence.
 
 ---
 
+### Phase 12 `quality assess` CLI Adapter Contract
+
+The `quality assess` command SHALL expose the first canonical CLI adapter for
+profile-aware Quality assessment. This adapter is a Phase 12 interface concern;
+it SHALL NOT introduce Quality Gate, risk, debt, compliance, exception,
+observability, release-gate, notification, intelligence, or other later-phase
+semantics.
+
+#### Command surface
+
+The command SHALL be registered as `familyos quality assess`.
+
+It SHALL accept the same explicit canonical target inputs already authorized
+for `quality check`: `--target-type` (required), `--identifier` (required),
+`--path` (required), `--revision` (optional), and `--version` (optional).
+
+The CLI SHALL map those values directly into one `QualityTarget`. It SHALL NOT
+infer target identity, profile identity, revision, version, path, Quality
+severity, blocking findings, or later-phase policy.
+
+#### Application boundary
+
+The CLI SHALL delegate assessment execution through
+`CommandContext().quality_assessment.execute(target)`, where
+`quality_assessment` exposes the existing `QualityAssessmentExecutionService`.
+
+The CLI SHALL NOT directly compose or invoke the lower-level
+`QualityExecutionService`, `QualityProfileResolver`,
+`QualityProfileAssessmentService`, `QualityAssessmentService`, assessment-ID
+factory, or assessment clock when the profile-aware assessment boundary is
+available.
+
+The application boundary remains responsible for governed profile resolution,
+required-check execution, normalized `QualityCheckResult` production, runtime
+`QualityAssessmentId` creation, timezone-aware assessment time, explicitly
+authorized blocking finding identifiers, and canonical `QualityAssessment`
+production. The CLI SHALL consume that canonical assessment unchanged.
+
+#### Canonical assessment rendering
+
+The initial text rendering SHALL remain narrow and deterministic. It MAY render
+canonical fields already owned by `QualityAssessment`: assessment identifier,
+target identity, revision when present, profile reference, `QualityStatus`,
+`QualityAssessmentState`, evidence identifiers, finding identifiers, and
+creation timestamp.
+
+The adapter SHALL NOT derive or display a Quality Gate decision, risk score,
+quality debt, compliance conclusion, exception decision, release decision,
+notification state, trend, recommendation, or AI-generated interpretation.
+
+The existence of `QualityAssessment.to_dict()` does not by itself authorize a
+new JSON CLI mode in this slice.
+
+#### Exit-code policy
+
+The frozen Phase 12 mapping is: PASS / PASS_WITH_WARNINGS -> 0; FAIL -> 1;
+UNKNOWN -> 2; assessment status ERROR or UNKNOWN -> 2; invalid target, profile
+resolution failure, missing executor, incomplete execution, or expected
+assessment execution error -> 2.
+
+Exit code `2` represents an unreliable, incomplete, erroneous, or unresolved
+Quality conclusion and SHALL take precedence over ordinary Quality failure.
+Native tool exit codes SHALL NOT be leaked as FamilyOS Quality CLI exit codes.
+
+#### Error adaptation
+
+Expected target-construction and assessment-execution failures represented by
+`TypeError` and `ValueError` SHALL be rendered through the existing CLI output
+mechanism and adapted to exit code `2`. Unexpected programming defects SHALL
+NOT be silently converted into a Quality PASS or FAIL conclusion.
+
+#### Test obligations
+
+Runtime implementation SHALL verify help/options, canonical target mapping,
+delegation through `CommandContext.quality_assessment`, PASS -> 0,
+PASS_WITH_WARNINGS -> 0, FAIL -> 1, UNKNOWN -> 2, status ERROR -> 2, status
+UNKNOWN -> 2, expected TypeError/ValueError -> 2, canonical rendering without
+later-phase inference, and that `quality report` remains absent.
+
+#### Phase boundary
+
+Freezing this adapter contract does not satisfy any Phase 12 implementation
+checklist item by itself. No Phase 12 checklist item SHALL be closed until the
+corresponding runtime, CLI, and validation evidence exists.
+
+
 # Phase 13 — CI Integration
 
 ## Objective
